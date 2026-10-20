@@ -26,3 +26,25 @@
 .events-explainer{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-bottom:30px}
 .events-explainer .detail-card{min-height:230px}
 @media(max-width:900px){.events-explainer{grid-template-columns:1fr}}
+
+
+/* Étape 3 : formulaires de compte, mêmes codes graphiques que le site */
+.auth-layout{display:grid;grid-template-columns:minmax(180px,.8fr) minmax(0,1.15fr);gap:clamp(1rem,4vw,3rem);align-items:center}
+.auth-card{min-height:350px;width:100%;max-width:600px;margin-inline:auto}
+.auth-head h2,.auth-signed-in h2{font-size:clamp(1.6rem,3vw,2.3rem);line-height:1.12;margin:.65rem 0 1rem}
+.auth-status{color:#d6e8fa;min-height:1.5rem;font-size:.91rem;line-height:1.5;margin:1rem 0}
+.auth-status[data-error="true"],.auth-warning{color:#ffd7ab}
+.auth-form,.auth-field{display:grid;gap:.8rem}
+.auth-form{gap:1rem}
+.auth-field{gap:.45rem;color:#e4effd;font-size:.9rem;font-weight:600}
+.auth-field input{width:100%;min-height:48px;padding:.75rem .9rem;background:#06152e;color:#f3f8ff;border:1px solid rgba(179,211,255,.35);border-radius:10px;font:inherit;box-sizing:border-box}
+.auth-field input:focus-visible,.auth-submit:focus-visible,.auth-text-button:focus-visible{outline:3px solid #e8ba60;outline-offset:3px}
+.auth-submit{display:inline-flex;justify-content:center;align-items:center;min-height:49px;width:100%;padding:.8rem 1.1rem;border:0;border-radius:10px;background:#dcb15f;color:#04162c;font-weight:800;cursor:pointer}
+.auth-submit:hover{background:#f3ce86}
+.auth-submit:disabled{opacity:.6;cursor:wait}
+.auth-links{display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;margin-top:1.2rem}
+.auth-text-button{background:transparent;border:0;color:#9bd0ff;padding:.4rem 0;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+.auth-footnote,.auth-email,.auth-role-summary{color:#adbfda;font-size:.88rem;line-height:1.6}
+.auth-loading{color:#c0d7f4;padding:3rem .5rem;text-align:center}
+.auth-signed-in{display:grid;gap:.85rem}
+@media(max-width:700px){.auth-layout{grid-template-columns:1fr}.auth-layout>.account-mark{min-height:130px;gap:1rem}.auth-layout>.account-mark img{width:74px;height:74px}.auth-card{min-height:330px}}
