@@ -211,3 +211,9 @@ export async function mountAuth() {
     root.lastElementChild.addEventListener("click", () => { void mountAuth(); });
   }
 }
+
+export function unmountAuth(){
+  generation += 1;
+  if (mounted?.subscription) mounted.subscription.unsubscribe();
+  mounted = null;
+}
