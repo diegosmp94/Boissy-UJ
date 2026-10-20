@@ -1,26 +1,31 @@
 # Étape 3 — comptes et rôles Boissy-UJ
 
-**Périmètre de cette migration :** fondations de sécurité, pas encore un formulaire de connexion.
+**Avancement : fondation DB + interface intégrées sur la branche. Pas encore prêt pour production.**
 
-## Tables
-- `public.profiles` : ID Auth Supabase, nom d'affichage, dates. Aucune donnée sensible relative à des mineurs.
-- `public.user_roles` : rôles cumulables `supporter`, `player`, `coach`, `admin`. **Premium n'est pas un rôle** : il viendra d'un droit d'accès attribué uniquement après confirmation serveur du paiement.
-- Toutes les inscriptions reçoivent seulement le rôle `supporter`. La valeur de `raw_user_meta_data` ne détermine jamais les droits.
+## Réalisé et vérifié
+- Migration `boissy_uj_auth_foundation_20261021` appliquée à Supabase : `public.profiles` et `public.user_roles`.
+- Tables RLS activées. Un utilisateur ne peut pas écrire dans `user_roles` via le client.
+- Trigger d'inscription accordant uniquement le rôle `supporter` ; `player`, `coach` et `admin` nécessitent une attribution privilégiée côté serveur.
+- Deuxième migration `boissy_uj_admin_mfa_gate_20261021` appliquée : les accès administratifs à travers les politiques nécessitent **le rôle admin ET un JWT de niveau AAL2**.
+- Page « Mon espace » intégrée au routeur : inscription, connexion, déconnexion, demande de récupération et changement de mot de passe.
+- Utilisation exclusive de la clé **publishable** Supabase. Aucune clé privée ni donnée de carte dans le navigateur.
+- Rôles lus après authentification et rendus avec `textContent` ; pas d'élévation depuis le navigateur.
+- **19 tests GitHub sur 19 réussis** lors du dernier cycle de développement, et deux workflows verts.
+- Base encore vide : **aucun utilisateur, aucun rôle attribué manuellement, aucun paiement**.
 
-## Principes de sécurité
-- RLS activée sur chaque table.
-- L'utilisateur lit et modifie son profil uniquement ; les admins peuvent superviser.
-- Un utilisateur peut lire ses rôles ; il ne peut pas les ajouter, les modifier ou les retirer.
-- L'attribution des droits supplémentaires est réservée à une action administrative **serveur vérifiée**, à développer dans un lot ultérieur.
-- Pas d'admin initial créé automatiquement : la procédure sécurisée d'amorçage reste à documenter/tester.
-- Pas de mot de passe enregistré dans les tables publiques.
+## Limitations restantes importantes
+1. L'intégration browser utilise temporairement l'ESM CDN de Supabase JS ; avant publication, fixer la version, contrôler le chargement et définir la politique CSP.
+2. Tester les parcours avec deux **comptes d'essai autorisés** : confirmation e-mail, connexion, session persistante, récupération, déconnexion, réactivation et erreurs.
+3. Configurer les **URL de redirection autorisées**, l'URL officielle et la délivrabilité e-mail dans Supabase.
+4. Tester les RLS de façon dynamique avec deux identités et les accès non autorisés : profil d'autrui inaccessible, rôles impossibles à modifier.
+5. Concevoir l'attribution sécurisée des rôles supplémentaires, l'amorçage administrateur et la révocation auditée.
+6. Prévoir l'inscription / vérification des facteurs MFA pour administrateurs, et bloquer l'interface Control Center tant que AAL2 n'est pas atteint.
+7. Achever l'information RGPD et les règles de protection des mineurs avant toute ouverture publique.
+8. Vérifier les comportements sur Safari iPhone, Android et desktop ; pas encore de recette navigateur exhaustive.
 
-## Critères de sortie de l'étape 3
-1. Migration appliquée et vérifiée sur Supabase.
-2. Tests RLS réalisés avec deux comptes d'essai distincts et un administrateur d'essai : lecture du profil propre autorisée, lecture d'autrui interdite, élévation de rôle refusée.
-3. Authentification : inscription, connexion, confirmation mail, récupération, déconnexion.
-4. État de session fiable et protection des pages privées.
-5. MFA pour les comptes administrateurs.
-6. Audit des opérations d'administration.
+## Conditions de sortie
+L'étape 3 sera terminée uniquement après les tests en conditions réelles ci-dessus. La matrice de recette pondérée reste à **0 point certifié pour la mise en production** tant que le flux complet n'est pas homologué.
 
-La présence d'une migration et des tests de structure ne valide **pas** à elle seule cette étape.
+## Séparation des sujets
+Le statut **Premium** n'est pas un rôle modifiable par l'utilisateur. Il dépendra ultérieurement des événements serveur Stripe vérifiés.
+Aucun paiement LIVE n'est activé. `main` est inchangée.
