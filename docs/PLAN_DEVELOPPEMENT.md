@@ -1,0 +1,32 @@
+# Feuille de route — Boissy-UJ
+
+Les modifications sont réalisées sur une branche dédiée et font l'objet de contrôles avant une éventuelle fusion vers main.
+
+| Étape | Objet | Critère de sortie |
+|---|---|---|
+| 1 | Audit dépôt, Supabase et fichiers | Ressources identifiées, limitations documentées |
+| 2 | Socle visuel du site public | Accueil 8 chapitres, navigation responsive, premiers tests |
+| 3 | Comptes et autorisations Supabase | Auth, rôles et RLS testées |
+| 4 | Sport et Match Center | Équipes et saison, saisie manuelle fiable ; FFF uniquement autorisée |
+| 5 | Actualités et communauté | Publication des éducateurs, médias et abonnements visibles |
+| 6 | Stripe TEST et billetterie | Vérification webhooks et aucun encaissement réel |
+| 7 | Control Center complet | Éditeur, audit, rappels, reporting et sécurité |
+| 8 | Recette à 85 % pondérés et livraison | Aucun blocage critique, validation explicite avant main |
+
+## Décisions confirmées
+
+- Association loi 1901 ; données juridiques détaillées à compléter.
+- Premium mensuel : 10 € / mois, sans engagement.
+- Premium annuel : 100 € / 12 mois, **sans renouvellement automatique**.
+- Stripe comme seule solution de paiements, sous réserve de configuration et conformité ; pas de LIVE à ce stade.
+- Quatre équipes : Seniors A D3, B D4, C amicaux, Vétérans D3.
+- Accueil en huit chapitres plein écran, contrôlable par le visiteur ; navigation mobile hybride.
+- Les éducateurs publient directement les contenus et statistiques autorisés de leur équipe.
+- Ni commentaires ni messagerie ; uniquement réactions.
+- FFF : integration seulement autorisée et confirmée, sinon saisie manuelle.
+- Dons ponctuels et mensuels ; fonds général et campagnes par projet.
+- Événements gratuits ou payants, avantages premium configurables.
+
+## Vérifications à mener plus tard
+
+Statuts juridiques détaillés, conformité fiscale, reçus fiscaux, durée de priorité événements, compte Stripe, connexion éventuelle FFF, droit à l'image.

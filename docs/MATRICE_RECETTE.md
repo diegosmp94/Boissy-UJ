@@ -1,35 +1,36 @@
-# Boissy-UJ — matrice de recette pondérée (100 points)
+# Boissy-UJ — matrice de recette pondérée
 
-**Statut** : barème de référence validé par la méthode pondérée, scores de développement à confirmer par tests.
+**Barème sur 100 points, à valider en recette fonctionnelle.**
 
-| Domaine | Pondération | Première tranche visée | Conditions de validation |
-|---|---:|---|---|
-| Accueil cinématique, identité et navigation | 15 | Base visuelle | 8 chapitres, retour arrière, mobile, mouvements réduits |
-| Espaces comptes, rôles et sécurité | 16 | Architecture suivante | Supabase Auth, RLS, doubles vérifications, tests de droits |
-| Équipes, saisons, licenciés, éducateurs | 13 | Pages publiques | 4 équipes, saisons, affectations, convocations et profils |
-| Match Center et FFF | 13 | Pages d'attente | Scores vérifiés, saisie manuelle, suivi statistique |
-| Actualités et Media Center | 8 | Page initiale | Médias autorisés, publication éducateur, réactions uniquement |
-| Communauté, Premium et Awards | 8 | Présentation des offres | 10 €/mois, 100 €/an manuel, votes uniques |
-| Événements et billetterie | 7 | Spécification | Capacité, tarifs variables, priorité, QR codes, remboursements |
-| Dons, campagnes et Stripe test | 8 | Spécification | Dons récurrents, affectation, paiements signés en test |
-| Control Center, édition, audits | 8 | Spécification | Droits, brouillons, publication, restauration, journal |
-| Qualité, conformité, accessibilité et déploiement | 4 | Tests initiaux | LCP, INP, CLS, RGPD, sauvegarde, non-régression |
-| **Total** | **100** | | |
+| Domaine | Points | Conditions d'acceptation |
+| --- | ---: | --- |
+| Identité, accueil cinématique et navigation | 15 | Huit chapitres, affichage mobile, commandes clavier et animations réduites |
+| Comptes, rôles et sécurité | 16 | Supabase Auth, récupération, RLS, droits cumulables et MFA administrateur |
+| Équipes, licenciés, saisons et éducateurs | 13 | Quatre équipes, convocations, fiches, effectifs et reconduction |
+| Match Center et FFF | 13 | Compositions, scores, statistiques, données officielles vérifiées ou saisie manuelle |
+| Actualités et Media Center | 8 | Médias autorisés, publication par éducateur, réactions sans commentaires |
+| Supporters, Premium et Awards | 8 | Gratuit, premium 10 €/mois et 100 €/an manuel, votes uniques |
+| Événements et réservations | 7 | Tarifs, gratuité/réduction premium, jauges, QR codes, annulations |
+| Dons, campagnes et Stripe TEST | 8 | Dons ponctuels/mensuels, affectation, test de notifications et résiliation |
+| Control Center | 8 | Droits égaux admins, éditeur, brouillons, journal d'audit, restauration |
+| Qualité, RGPD, accessibilité et déploiement | 4 | Recette multi-appareils, sauvegardes, confidentialité, performances |
 
-## Règle des 85 %
+**Total : 100 points.**
 
-Une ligne n'obtient ses points que sur preuve de critères d'acceptation vérifiés. Les pages décoratives ou maquettes ne valident pas des fonctions de production. À 85 points confirmés, lancer la **campagne de recette formelle**, mais ne pas déployer automatiquement.
+## Calcul du seuil de 85 %
 
-## Conditions bloquantes, indépendamment du score
+Chaque module n'obtient ses points que lorsque ses critères sont réalisés et testés. Les pages de démonstration et les maquettes ne valident pas des processus opérationnels. À **85 % de points réellement validés**, déclencher la campagne de recette complète. Les tests techniques commencent dès la première étape et la mise en production n'est autorisée que lorsque tous les critères critiques sont satisfaits.
 
-1. Aucun accès à des données privées par un visiteur non autorisé.
-2. Aucun statut premium attribué sans vérification du paiement côté serveur.
-3. Aucun prélèvement LIVE avant conformité légale, configuration Stripe et accord explicite.
-4. Politique RGPD, droit à l'image, traitement des mineurs et mentions légales validés.
-5. Parcours mobile et clavier utilisables, animation passable.
-6. Sauvegarde et restauration testées.
-7. Données FFF intégrées uniquement par une méthode autorisée ; mode manuel testé.
+## Conditions critiques bloquantes
 
-## Statut de départ
+- Aucune donnée privée accessible hors droits vérifiés côté serveur.
+- Aucun abonnement actif sans paiement validé via notification serveur signée.
+- Aucun paiement réel avant vérification juridique et validation explicite du club.
+- Données de licenciés mineurs et droits à l'image protégés.
+- Aucun automatisme FFF non autorisé ; mode manuel fonctionnel.
+- Sauvegarde et restauration réellement testées avant lancement.
+- Pas de régression critique en navigation mobile et accessibilité.
 
-**0 / 100 point certifié en recette de production.** Les premiers écrans de préversion représentent du travail engagé, pas une validation de la fonctionnalité complète. Les tests techniques automatiques du squelette ne valent pas recette de production.
+## État initial
+
+**0/100 points homologués à l'échelle du produit complet.** Les écrans statiques constituent le premier socle visuel, pas la validation finale d'un module entier.
