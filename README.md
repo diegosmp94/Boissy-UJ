@@ -1,21 +1,22 @@
 # Boissy-UJ — développement par étapes
 
-Dépôt privé. Développement sur `feat/fondations-site-v1` ; aucune fusion vers `main` sans validation.
+Dépôt privé. Branche de travail : `feat/fondations-site-v1`. Aucune fusion dans `main` sans tests et validation.
 
-## Feuille de route
-1. Audit GitHub/Supabase : **terminé**.
-2. Socle visuel (8 chapitres, navigation mobile, écusson et pages publiques) : **prototype local créé, 7 contrôles automatisés réussis ; transfert du code GitHub et recette navigateur encore à faire**.
-3. Comptes et autorisations Supabase.
-4. Équipes et Match Center, mode manuel FFF obligatoire.
-5. Media Center, communauté et Awards.
-6. Stripe exclusivement en TEST, dons et billetterie.
-7. Control Center et sécurité.
-8. Recette finale démarrant à 85 % du périmètre pondéré, avec points critiques obligatoires avant production.
+## Plan
+1. **Audit : effectué.** Dépôt créé, branche présente. Projet Supabase existant, schéma applicatif vide.
+2. **Socle visuel : en cours de validation.** La branche GitHub contient déjà un prototype statique avec plusieurs pages, navigation mobile, huit chapitres et tests de structure. Une autre variante locale utilise le véritable écusson. Il reste à **consolider les deux versions**, remplacer le monogramme temporaire de la branche par l'écusson du club et réaliser des tests navigateur.
+3. Supabase : authentification, profils, rôles, RLS.
+4. Sport : quatre équipes, effectifs, matchs, convocations, FFF autorisée ou mode manuel.
+5. Médias et communauté : actualités, réactions, premium et Awards.
+6. Stripe : exclusivement TEST tant que conformité et accord LIVE ne sont pas confirmés.
+7. Control Center : administration, versioning, sécurité et rapports.
+8. Recette : contrôle pondéré sur 100 points, lancement de recette finale à 85 %, puis blocages critiques à lever avant production.
 
-### Conditions non négociables
-- Pas de prélèvement LIVE sans validations explicites et conformité.
-- Pas de scores FFF fictifs ni de collecte non autorisée.
-- Premium : 10 €/mois, ou 100 €/12 mois avec renouvellement manuel.
-- Aucun compte utilisateur ou donnée de paiement réelle dans la préversion actuelle.
+## Règles de sécurité et de produit
+- Pas de paiements réels ni de données de membres tant que les parcours ne sont pas sécurisés.
+- Premium : 10 €/mois sans engagement ou 100 €/12 mois sans reconduction automatique.
+- Pas de score officiel FFF non vérifié.
+- Aucune fonctionnalité non testée n'est considérée comme livrée.
+- Aucun déploiement public effectif n'est attesté par ce README.
 
-Le premier lot reste en préparation ; ce README n'affirme pas que le site fonctionne déjà depuis GitHub.
+Voir `docs/MATRICE_RECETTE.md` pour les pondérations, validations obligatoires et seuil des 85 %.
