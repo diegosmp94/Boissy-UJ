@@ -1,35 +1,21 @@
-# Boissy-UJ — site officiel
+# Boissy-UJ — développement par étapes
 
-Premier lot de développement du site Boissy-UJ sur la branche `feat/fondations-site-v1`.
+Dépôt privé. Développement sur `feat/fondations-site-v1` ; aucune fusion vers `main` sans validation.
 
-## Lancer localement
+## Feuille de route
+1. Audit GitHub/Supabase : **terminé**.
+2. Socle visuel (8 chapitres, navigation mobile, écusson et pages publiques) : **prototype local créé, 7 contrôles automatisés réussis ; transfert du code GitHub et recette navigateur encore à faire**.
+3. Comptes et autorisations Supabase.
+4. Équipes et Match Center, mode manuel FFF obligatoire.
+5. Media Center, communauté et Awards.
+6. Stripe exclusivement en TEST, dons et billetterie.
+7. Control Center et sécurité.
+8. Recette finale démarrant à 85 % du périmètre pondéré, avec points critiques obligatoires avant production.
 
-```bash
-node server.mjs
-# puis ouvrir http://localhost:4173
-```
+### Conditions non négociables
+- Pas de prélèvement LIVE sans validations explicites et conformité.
+- Pas de scores FFF fictifs ni de collecte non autorisée.
+- Premium : 10 €/mois, ou 100 €/12 mois avec renouvellement manuel.
+- Aucun compte utilisateur ou donnée de paiement réelle dans la préversion actuelle.
 
-Aucune dépendance à installer pour cette première fondation statique. Les pages sont adaptatives et la navigation est utilisable sans connexion serveur.
-
-## Tests
-
-```bash
-node --test tests/spec.test.mjs
-```
-
-## Périmètre du premier lot
-
-- Accueil en huit chapitres plein écran, introduction passable, réduction des mouvements.
-- Navigation desktop et barre inférieure mobile.
-- Pages Équipes, Match Center, Actualités, Communauté, Soutien et Mon espace.
-- Deux formules premium : 10 €/mois sans engagement ; 100 €/12 mois, renouvellement manuel.
-- Séparation visible des données de démonstration et des données sportives vérifiées.
-- Matrice de recette pondérée sur 100 points.
-
-## Limites et sécurité
-
-La préversion **ne réalise aucune opération financière** et ne collecte **aucun identifiant**. Les éléments de compte, FFF, Stripe et Control Center sécurisé ne sont pas encore fonctionnels ; voir `docs/MATRICE_RECETTE.md`.
-
-Le visuel `assets/ecusson.svg` est un **repère temporaire**. Il devra être remplacé par le vrai fichier d'écusson Boissy-UJ fourni par le club, après optimisation et validation graphique.
-
-Ne pas déployer comme site public officiel avant validation des mentions légales, des contenus et de la recette.
+Le premier lot reste en préparation ; ce README n'affirme pas que le site fonctionne déjà depuis GitHub.
