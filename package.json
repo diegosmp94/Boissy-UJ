@@ -1,0 +1,10 @@
+{
+  "name": "boissy-uj",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.mjs",
+    "test": "node --test tests/spec.test.mjs"
+  }
+}
