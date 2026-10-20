@@ -1,0 +1,23 @@
+name: Vérifications du socle Boissy-UJ
+on:
+  push:
+    branches: [main, feat/fondations-site-v1]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Vérifier la syntaxe JavaScript
+        run: |
+          node --check app.js
+          node --check site-data.mjs
+          node --check server.mjs
+      - name: Lancer les tests fonctionnels du socle
+        run: node --test tests/spec.test.mjs
