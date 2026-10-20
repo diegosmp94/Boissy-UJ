@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "python3 -m http.server 4173",
     "test": "node --test tests/*.test.mjs",
-    "check": "node --check app.js && npm test"
+    "check": "node --check app.js && npm test",
+    "build:preview": "node scripts/build-preview.mjs"
   }
 }
