@@ -7,7 +7,7 @@
 - GitHub contient un site public de préversion (accueil à huit chapitres et pages publiques).
 - Navigation et compatibilité de base vérifiées par des tests statiques et Node.
 - Les tests automatisés supplémentaires valident les pages et leurs liens, la présence des huit chapitres, les prix premium et l'absence de formulaires de paiement.
-- Une variante locale `boissy-dev` utilise le véritable écusson et une interface cinématique plus travaillée ; elle dispose de **7 tests locaux réussis**.
+- Une variante locale `boissy-dev` utilise le véritable écusson et une interface cinématique plus travaillée ; elle dispose de **8 tests locaux réussis** après ajout d'une introduction passable et réduite selon les préférences d'accessibilité.
 - La matrice des 100 points et la règle de recette finale à 85 % sont documentées.
 
 ## Écarts à résoudre avant étape 3
