@@ -37,6 +37,10 @@ Ce document décrit **l'état effectivement vérifié dans Supabase**, et rempla
 
 15. **`boissy_uj_join_public_information_20261021` appliquée** : annonces de recrutement, informations pratiques (entraînement, adhésion, jour de match, accès, FAQ) et canaux de contact officiels, chacun publié explicitement par le club. Les trois tables `club_join_opportunities`, `club_public_notices`, `club_contact_channels` possèdent RLS et **aucun accès client d'écriture**. Contrôles sous rôle `anon` réussis : lecture des lignes publiées uniquement et refus d'INSERT/UPDATE/DELETE. **Aucune donnée insérée** à l'installation. Le total atteint 15 migrations.
 
+## Présentation publique du club — migration 16
+
+16. **`boissy_uj_club_identity_public_20261021` appliquée** : table `club_identity_sections` pour histoire, valeurs, organisation et projets ; RLS, lecture des seules lignes publiées, écritures interdites depuis les comptes clients. Test `anon` et permissions réussis. Aucune publication insérée ; total de 16 migrations.
+
 ## État des données
 
 - `public.club_teams` : **4 équipes réelles comme catégories**, A D3 / B D4 / C amicaux / Vétérans D3.
