@@ -28,6 +28,15 @@ Migration : `supabase/migrations/202610210014_public_awards_catalog.sql`
 - Le module doit être testé sur iPhone, Android et bureau lors de la recette globale ; la CI vérifie la logique, la confidentialité, les routes et la structure responsive.
 - L'authentification publique reste désactivée, aucun vote Premium ni Stripe LIVE n'est activé.
 
+## Déploiement Supabase vérifié — 21 octobre 2026
+
+- Migration **`boissy_uj_public_awards_catalog_20261021` appliquée** au projet Boissy-UJ.
+- RLS activée sur `club_awards`, `club_award_nominees` et `club_award_results`.
+- Les clients `anon` et `authenticated` disposent de SELECT contrôlés uniquement, sans INSERT/UPDATE/DELETE sur le catalogue.
+- Vérification transactionnelle sous rôle `anon` réussie : accès en lecture et impossibilité de modifier les enregistrements.
+- **Zéro catégorie, zéro nominé, zéro résultat** en base au moment du contrôle. Aucun contenu fictif publié.
+- L'audit global Supabase conserve certains avertissements déjà documentés sur des fonctions SECURITY DEFINER réservées aux comptes authentifiés ; ils ne proviennent pas des Awards, qui n'ajoutent aucune fonction RPC.
+
 ## Étapes suivantes hors périmètre
 - Interface d'édition sécurisée par coach/équipe ou administrateur MFA AAL2.
 - Workflow de nomination et de consentement, suivi des publications et révocations.
