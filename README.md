@@ -6,6 +6,7 @@ Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement.
 - Accueil immersif avec huit chapitres et véritable écusson.
 - Navigation ordinateur et mobile.
 - Présentation des équipes, des matchs, des actualités, des événements, de la communauté et des dons.
+- **Awards publics** des Seniors A, B et C : nouveau catalogue consultable avec filtres, nominations contrôlées et résultats publiés uniquement après vérification. Aucun vote actif. Voir [étape 14](docs/ETAPE_14_AWARDS_PUBLICS.md).
 - Interface « Mon espace » implémentée et reliée à Supabase, mais **inscription et connexion désactivées dans cette préversion publique** en attendant la recette réelle (RGPD, e-mails et sécurité).
 - Premium : 10 € mensuels ou 100 € pour douze mois, sans renouvellement automatique annuel ; aucune transaction réelle.
 - Matrice de recette pondérée, seuil des 85 % pour lancer la recette finale.
