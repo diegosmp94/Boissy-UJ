@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - "feat/**"
+      - main
   pull_request:
     branches: [main]
 permissions:
