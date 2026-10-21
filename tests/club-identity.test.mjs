@@ -5,8 +5,8 @@ import {IDENTITY_SECTIONS,TEAM_OVERVIEW,filterIdentitySections,loadPublishedIden
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const sql=read('supabase/migrations/202610210016_club_identity_public.sql');
 const app=read('app.js'),html=read('index.html'),js=read('club-identity.mjs');
-test('four known teams and four editorial sections',()=>{
- assert.deepEqual(TEAM_OVERVIEW.map(x=>x.name),['Seniors A','Seniors B','Seniors C','Vétérans']);
+test('five teams are grouped into football and futsal with four editorial sections',()=>{
+ assert.deepEqual(TEAM_OVERVIEW.map(x=>x.name),['Seniors A','Seniors B','Seniors C','Vétérans','Boissy-UJ Futsal']);
  assert.deepEqual(IDENTITY_SECTIONS.map(x=>x.id),['history','values','governance','projects']);
 });
 test('unpublished history and private personnel remain hidden',()=>{
