@@ -16,13 +16,13 @@ const dateMs = value => value && Number.isFinite(Date.parse(value))?Date.parse(v
 export function combinePublishedAgenda(matches=[],events=[],teams=[],{
   now=Date.now(),kind='all',period='future',query=''
 }={}){
-  const clubTeams=new Map(teams.map(t=>[t.id,t.name]));
+  const clubTeams=new Map(teams.map(t=>[t.id,{name:t.name,discipline:t.discipline}]));
   const merged=[];
   for(const m of matches){
     const time=dateMs(m.scheduled_at);
     if(m.published!==true||m.match_status!=='scheduled'||time===null)continue;
     merged.push({kind:'match',id:m.id,time,title:'Boissy-UJ — '+(m.opponent_name||'Adversaire à confirmer'),
-      subtitle:clubTeams.get(m.team_id)||'Équipe du club',place:m.venue||'Lieu à confirmer',
+      subtitle:(clubTeams.get(m.team_id)?.discipline==='futsal'?'Futsal · ':'Football · ')+(clubTeams.get(m.team_id)?.name||'Équipe du club'),place:m.venue||'Lieu à confirmer',
       info:m.is_home===true?'À domicile':'À l’extérieur',href:'#/matchs'});
   }
   for(const e of events){
@@ -48,7 +48,7 @@ export async function loadPublicAgenda(signal,fetcher=fetch){
       published:'eq.true',match_status:'eq.scheduled',order:'scheduled_at.asc',limit:'100'}],
     ['club_events',{select:'id,title,starts_at,ends_at,location_label,access_kind,published',
       published:'eq.true',access_kind:'eq.public',order:'starts_at.asc',limit:'100'}],
-    ['club_teams',{select:'id,name',order:'sort_order.asc',limit:'4'}]
+    ['club_teams',{select:'id,name,discipline',order:'sort_order.asc',limit:'5'}]
   ];
   const settled=await Promise.allSettled(entries.map(async([table,params])=>{
     const response=await fetcher(ROOT+table+'?'+new URLSearchParams(params),{
