@@ -5,9 +5,9 @@
 .desktop-links .desktop-team-nav>a::after{content:"";position:absolute;left:5px;right:5px;bottom:4px;
   height:2px;border-radius:100px;background:linear-gradient(90deg,#ffe5a2,#d7a951);transform:scaleX(0);
   transform-origin:center;transition:transform .2s ease}
-.desktop-links .desktop-team-nav:hover>a,.desktop-links .desktop-team-nav[data-open="true"]>a,
+.desktop-links .desktop-team-nav:hover>a,.desktop-links .desktop-team-nav[data-open="true"]>a,.desktop-links .desktop-team-nav[data-section-active="true"]>a,
 .desktop-links .desktop-team-nav>a[aria-current="page"]{color:#f7d88c}
-.desktop-links .desktop-team-nav:hover>a::after,.desktop-links .desktop-team-nav[data-open="true"]>a::after,
+.desktop-links .desktop-team-nav:hover>a::after,.desktop-links .desktop-team-nav[data-open="true"]>a::after,.desktop-links .desktop-team-nav[data-section-active="true"]>a::after,
 .desktop-links .desktop-team-nav>a[aria-current="page"]::after{transform:scaleX(1)}
 .desktop-teams-submenu[hidden]{display:none!important}
 /* La zone transparente relie physiquement le libellé au panneau : aucun trou de survol. */
