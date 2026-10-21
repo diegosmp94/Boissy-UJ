@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Étape 25 · Sessions et liens de connexion fiabilisés
+
+Gestion des retours de confirmation et de récupération Supabase, suppression des paramètres PKCE temporaires de l'URL après leur traitement, garde contre les affichages concurrents, messages de succès persistants, et version Supabase JS épinglée. Administration toujours désactivée. [Étape 25](docs/ETAPE_25_SESSIONS_AUTH.md).
+
 ## Étape 24 · Connexion et inscription supporters
 
 Le parcours « Mon espace » est rouvert pour les comptes supporters : inscription e-mail, connexion, déconnexion et récupération du mot de passe. Le retour PKCE des e-mails est pris en charge sur GitHub Pages. Les outils privilégiés restent désactivés (`adminEnabled:false`). **La configuration des URL Supabase Auth, la délivrabilité e-mail et les tests navigateur restent à confirmer.** [Étape 24](docs/ETAPE_24_CONNEXION_SUPABASE.md).
