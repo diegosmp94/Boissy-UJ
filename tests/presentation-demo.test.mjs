@@ -23,7 +23,8 @@ test('Thursday showcase route is linked from hero, mobile navigation and page ti
   assert.match(app,/'\/presentation':'Démonstration interactive'/);
 });
 test('showcase contains working public links and four separate interactive drafts',()=>{
-  assert.equal(SHOWCASE_MODULES.length,8);
+  assert.equal(SHOWCASE_MODULES.length,9);
+  assert.ok(SHOWCASE_MODULES.some(mod=>mod.href==='#/club'&&mod.state==='public'));
   for(const mod of SHOWCASE_MODULES){
     assert.match(mod.href,/^#\//);
     assert.ok(['public','preview'].includes(mod.state));
