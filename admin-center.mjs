@@ -8,6 +8,7 @@ import {mountAuthenticatedClubIdentityEditor} from './club-editor.mjs';
 import {mountAuthenticatedTeamPeopleEditor} from './team-person-editor.mjs';
 import {mountAdminMembers} from './admin-users.mjs';
 import {mountAdminSeasons,mountAdminMatches,mountAdminNews,mountAdminFreeEvents} from './admin-management.mjs';
+import {filterAdminModules,groupAdminModules,availableAdminModules} from './admin-navigation.mjs';
 
 export const ADMIN_MODULES=Object.freeze([
  {id:'overview',name:'Vue générale',group:'Pilotage',caption:'Données réelles, aucun chiffre fictif'},
@@ -87,10 +88,52 @@ export async function mountAdminCenter(getClient){
   const pane=el('section','real-admin-pane');
   pane.setAttribute('aria-label','Outil de gestion');
   layout.append(sidebar,pane);root.append(layout);
+  const availableModules=availableAdminModules(ADMIN_MODULES,{eventsReady});
+  const navTools=el('div','admin-nav-tools');
+  const navLabel=el('label','admin-nav-label','Trouver un module');
+  const moduleSearch=el('input','admin-nav-search');
+  moduleSearch.type='search';moduleSearch.placeholder='Membres, matchs, actualités…';
+  moduleSearch.autocomplete='off';moduleSearch.maxLength=80;
+  moduleSearch.setAttribute('aria-label','Rechercher un module administrateur');
+  const navCount=el('span','admin-nav-count');
+  navCount.setAttribute('role','status');navCount.setAttribute('aria-live','polite');
+  navLabel.append(moduleSearch);navTools.append(navLabel,navCount);
+  sidebar.append(navTools);
+  const moduleList=el('div','admin-nav-list');sidebar.append(moduleList);
   let active='overview';
+  function renderSidebar(){
+   const filtered=filterAdminModules(availableModules,moduleSearch.value);
+   moduleList.replaceChildren();
+   navCount.textContent=filtered.length+' module(s) disponible(s)';
+   for(const group of groupAdminModules(filtered)){
+    const section=el('div','admin-nav-section');
+    section.append(el('h2','admin-nav-group-title',group.title));
+    for(const item of group.items){
+     const b=button(item.name);b.dataset.module=item.id;
+     b.append(el('small','',item.caption));
+     b.setAttribute('aria-current',String(item.id===active));
+     b.addEventListener('click',()=>void selectSection(item.id));
+     section.append(b);
+    }
+    moduleList.append(section);
+   }
+   if(!filtered.length)moduleList.append(el('p','admin-nav-empty','Aucun module trouvé. Essaie une autre recherche.'));
+  }
+  moduleSearch.addEventListener('input',renderSidebar);
+  const shortcuts=()=>availableModules.filter(m=>['users','matches','events','news'].includes(m.id));
   async function overview(view){
    const h=el('h2','','Activité du club'),p=el('p','admin-workflow-status','Chargement des données réelles…');
    view.append(h,p);
+   const links=el('div','admin-overview-shortcuts');
+   links.append(el('h3','','Accès rapides'));
+   const actions=el('div','admin-shortcut-grid');
+   for(const module of shortcuts()){
+    const b=el('button','admin-shortcut',module.name);
+    b.type='button';b.append(el('small','',module.caption));
+    b.addEventListener('click',()=>void selectSection(module.id));
+    actions.append(b);
+   }
+   links.append(actions);view.append(links);
    const [teams,requests,matches,posts]=await Promise.all([
     api.from('club_teams').select('id').limit(100),
     api.from('role_requests').select('id').eq('status','pending').limit(100),
@@ -114,7 +157,7 @@ export async function mountAdminCenter(getClient){
   }
   async function selectSection(id){
    active=id;
-   for(const item of sidebar.querySelectorAll('button')){
+   for(const item of sidebar.querySelectorAll('button[data-module]')){
     item.setAttribute('aria-current',String(item.dataset.module===id));
    }
    // Distinct DOM root per module: pending requests from a previous module can no longer paint the current one.
@@ -141,11 +184,7 @@ export async function mountAdminCenter(getClient){
     case 'identity':void mountAuthenticatedClubIdentityEditor(view,api,verified.userId);break;
    }
   }
-  for(const item of ADMIN_MODULES.filter(module=>module.id!=='events'||eventsReady)){
-   const b=button(item.name);b.dataset.module=item.id;
-   b.append(el('small','',item.caption));b.addEventListener('click',()=>void selectSection(item.id));
-   sidebar.append(b);
-  }
+  renderSidebar();
   await selectSection(active);
  }catch{
   if(serial!==currentGeneration||!root.isConnected)return;
