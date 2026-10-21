@@ -83,16 +83,16 @@ export async function mountAdminCenter(getClient){
   pane.setAttribute('aria-label','Outil de gestion');
   layout.append(sidebar,pane);root.append(layout);
   let active='overview';
-  async function overview(){
+  async function overview(view){
    const h=el('h2','','Activité du club'),p=el('p','admin-workflow-status','Chargement des données réelles…');
-   pane.append(h,p);
+   view.append(h,p);
    const [teams,requests,matches,posts]=await Promise.all([
     api.from('club_teams').select('id').limit(100),
     api.from('role_requests').select('id').eq('status','pending').limit(100),
     api.rpc('admin_list_management_matches'),
     api.rpc('admin_list_management_news')
    ]);
-   if(serial!==currentGeneration||!pane.isConnected||active!=='overview')return;
+   if(serial!==currentGeneration||!view.isConnected||active!=='overview')return;
    if([teams,requests,matches,posts].some(x=>x.error)){
     p.textContent='Une partie des indicateurs n’a pas pu être vérifiée. Aucun chiffre estimé n’est affiché.';return;
    }
@@ -105,30 +105,34 @@ export async function mountAdminCenter(getClient){
    ]){
     const box=el('div','real-admin-kpi');box.append(el('span','',label),el('strong','',value));grid.append(box);
    }
-   pane.append(grid,el('p','admin-workflow-status','Les nombres de rencontres et articles concernent au maximum 250 et 200 dossiers respectivement ; aucune statistique n’est simulée.'));
+   view.append(grid,el('p','admin-workflow-status','Les nombres de rencontres et articles concernent au maximum 250 et 200 dossiers respectivement ; aucune statistique n’est simulée.'));
   }
   async function selectSection(id){
    active=id;
    for(const item of sidebar.querySelectorAll('button')){
     item.setAttribute('aria-current',String(item.dataset.module===id));
    }
-   pane.replaceChildren();
+   // Distinct DOM root per module: pending requests from a previous module can no longer paint the current one.
+   const view=el('div','admin-module-instance');
+   pane.replaceChildren(view);
+   view.append(el('p','admin-workflow-status','Vérification du rôle et du second facteur…'));
    // Must re-check identity and MFA before showing private data on every module change.
    const check=await adminSessionStatus(api,verified.userId);
-   if(serial!==currentGeneration||!pane.isConnected||active!==id)return;
+   if(serial!==currentGeneration||!view.isConnected||active!==id)return;
    if(!canOpenAdmin(check,supabaseConfig.adminEnabled)){
-    pane.replaceChildren(el('p','admin-empty','Accès suspendu : droits administrateur ou MFA à renouveler.'));
+    view.replaceChildren(el('p','admin-empty','Accès suspendu : droits administrateur ou MFA à renouveler.'));
     return;
    }
+   view.replaceChildren();
    switch(id){
-    case 'overview':await overview();break;
-    case 'users':void mountAdminMembers(pane,api,verified.userId);break;
-    case 'approvals':void mountAdminRoleModeration(pane,api,verified.userId);break;
-    case 'teams':void mountAuthenticatedTeamPeopleEditor(pane,api,verified.userId);break;
-    case 'seasons':mountAdminSeasons(pane,api,verified.userId);break;
-    case 'matches':mountAdminMatches(pane,api,verified.userId);break;
-    case 'news':mountAdminNews(pane,api,verified.userId);break;
-    case 'identity':void mountAuthenticatedClubIdentityEditor(pane,api,verified.userId);break;
+    case 'overview':await overview(view);break;
+    case 'users':void mountAdminMembers(view,api,verified.userId);break;
+    case 'approvals':void mountAdminRoleModeration(view,api,verified.userId);break;
+    case 'teams':void mountAuthenticatedTeamPeopleEditor(view,api,verified.userId);break;
+    case 'seasons':mountAdminSeasons(view,api,verified.userId);break;
+    case 'matches':mountAdminMatches(view,api,verified.userId);break;
+    case 'news':mountAdminNews(view,api,verified.userId);break;
+    case 'identity':void mountAuthenticatedClubIdentityEditor(view,api,verified.userId);break;
    }
   }
   for(const item of ADMIN_MODULES){

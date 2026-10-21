@@ -108,7 +108,7 @@ test('admin UI refuses preview writes and requires real admin MFA verified ident
  assert.equal(canEditTeamPublicPeople('same','same',['admin'],'aal1',true),false);
  assert.equal(canEditTeamPublicPeople('same','same',['admin'],'aal2',false),false);
  assert.match(read('control-center.mjs'),/mountTeamPeoplePreview\(preview\)/);
- assert.match(read('admin-center.mjs'),/mountAuthenticatedTeamPeopleEditor\(pane,api,verified.userId\)/);
+ assert.match(read('admin-center.mjs'),/mountAuthenticatedTeamPeopleEditor\(view,api,verified.userId\)/);
  assert.match(read('team-person-editor.mjs'),/if\(!supabaseConfig.adminEnabled/);
 });
 test('SQL RLS read-only public surface, consent requirement and authenticated MFA RPC',()=>{
