@@ -34,23 +34,30 @@
     <a class="brand" href="#/" aria-label="Boissy-UJ — accueil"><img src="./assets/ecusson-boissy-uj.webp" alt="" width="42" height="42"/><span>BOISSY<span class="brand-accent">–UJ</span><small>UNION JEUNES</small></span></a>
     <nav class="desktop-links" aria-label="Navigation principale">
       <a href="#/">Accueil</a><a href="#/matchs">Matchs</a>
-      <div class="desktop-team-nav">
-        <a href="#/equipes">Équipes</a>
-        <button id="desktop-teams-toggle" type="button" aria-label="Afficher les sous-pages des équipes" aria-expanded="false" aria-controls="desktop-teams-submenu">⌄</button>
+      <div class="desktop-team-nav" id="desktop-team-nav">
+        <a href="#/equipes" id="desktop-teams-trigger" aria-controls="desktop-teams-submenu" aria-expanded="false">Équipes</a>
         <div id="desktop-teams-submenu" class="desktop-teams-submenu" hidden>
-          <a class="desktop-teams-all" href="#/equipes">Toutes les équipes ↗</a>
-          <div class="desktop-teams-columns">
-            <section aria-label="Football à 11">
-              <a class="desktop-teams-category" href="#/equipes/football">Football à 11 ↗</a>
-              <a href="#/equipes/football/seniors-a">Seniors A <small>D3</small></a>
-              <a href="#/equipes/football/seniors-b">Seniors B <small>D4</small></a>
-              <a href="#/equipes/football/seniors-c">Seniors C <small>Amicaux</small></a>
-              <a href="#/equipes/football/veterans">Vétérans <small>D3</small></a>
-            </section>
-            <section aria-label="Futsal">
-              <a class="desktop-teams-category" href="#/equipes/futsal">Futsal ↗</a>
-              <a href="#/equipes/futsal/boissy-uj-futsal">Boissy-UJ Futsal <small>D2</small></a>
-            </section>
+          <div class="desktop-teams-surface">
+            <div class="desktop-teams-intro">
+              <div>
+                <span class="desktop-teams-kicker">LES COLLECTIFS BOISSY-UJ</span>
+                <strong>Choisir une équipe</strong>
+              </div>
+              <a class="desktop-teams-all" href="#/equipes">Tout voir <span aria-hidden="true">↗</span></a>
+            </div>
+            <div class="desktop-teams-columns">
+              <section aria-label="Football à 11">
+                <a class="desktop-teams-category" href="#/equipes/football">Football à 11 <span aria-hidden="true">↗</span></a>
+                <a href="#/equipes/football/seniors-a">Seniors A <small>D3</small></a>
+                <a href="#/equipes/football/seniors-b">Seniors B <small>D4</small></a>
+                <a href="#/equipes/football/seniors-c">Seniors C <small>Amicaux</small></a>
+                <a href="#/equipes/football/veterans">Vétérans <small>D3</small></a>
+              </section>
+              <section aria-label="Futsal">
+                <a class="desktop-teams-category" href="#/equipes/futsal">Futsal <span aria-hidden="true">↗</span></a>
+                <a href="#/equipes/futsal/boissy-uj-futsal">Boissy-UJ Futsal <small>D2</small></a>
+              </section>
+            </div>
           </div>
         </div>
       </div>
