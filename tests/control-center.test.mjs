@@ -13,7 +13,7 @@ const config=read('auth-config.mjs');
 
 test('eleven validated management modules form the Control Center',()=>{
   assert.equal(CONTROL_MODULES.length,11);
-  assert.equal(new Set(CONTROL_MODULES.map(x=>x.id)).size,10);
+  assert.equal(new Set(CONTROL_MODULES.map(x=>x.id)).size,11);
   for(const id of ['overview','members','teams','matches','media','club-content','premium','events','finances','appearance','security']){
     assert.ok(CONTROL_MODULES.some(m=>m.id===id),'missing '+id);
   }
