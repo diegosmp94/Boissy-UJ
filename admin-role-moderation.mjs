@@ -18,7 +18,7 @@ const actionButton=(label,cls)=>{
 
 /** Client guard is UX only: Supabase checks role, AAL2 and distinct admin inside RPC. */
 export function canShowRoleModeration(sessionUserId,verifiedUserId,roleNames,assuranceLevel){
-  return Boolean(supabaseConfig.enabled && sessionUserId && sessionUserId===verifiedUserId
+  return Boolean(supabaseConfig.adminEnabled && sessionUserId && sessionUserId===verifiedUserId
     &&Array.isArray(roleNames)&&roleNames.includes('admin')&&assuranceLevel==='aal2');
 }
 export function mayDecideRequest(adminId,request){
@@ -50,7 +50,7 @@ async function verifiedAdmin(api,expectedId){
 
 /** Mounted only inside a signed-in user's private "Mon espace" after auth is enabled. */
 export async function mountAdminRoleModeration(container,api,userId){
-  if(!supabaseConfig.enabled || !container?.isConnected || !api || !userId)return;
+  if(!supabaseConfig.adminEnabled || !container?.isConnected || !api || !userId)return;
   const section=el('section','admin-role-moderation');
   section.setAttribute('aria-label','Validation des demandes de rôle');
   const heading=el('h3','','Demandes à valider');
