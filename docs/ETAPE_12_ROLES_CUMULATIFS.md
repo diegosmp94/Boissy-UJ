@@ -30,4 +30,6 @@ Migration : `supabase/migrations/202610210013_cumulative_roles_approvals.sql`.
 6. Vérifier protection des mineurs, confidentialité et conservation des historiques avant invitations réelles.
 7. Aucune donnée de production créée par la migration. Aucun paiement LIVE activé.
 
-**Statut à compléter après CI et application :** la migration et les tests SQL pourront être signalés comme terminés. Les **tests E2E avec sessions réelles** restent nécessaires avant d'activer les outils administratifs.
+**État du déploiement Supabase : migration `boissy_uj_cumulative_role_approvals_20261021` appliquée.** Les tables `role_requests` et `role_change_audit` sont vides, RLS activée et aucun compte/rôle créé. Contrôles SQL sans données persistantes : `anon` ne peut ni lire ni écrire les demandes et n'a pas accès aux trois RPC ; le rôle `authenticated` sans utilisateur connecté ne peut pas créer, approuver ou révoquer (SQLSTATE `28000`) ; une seule politique SELECT et aucune politique d'écriture client sur les demandes. Fonction d'administration liée à l'exigence AAL2 vérifiée.
+
+**Restent indispensables :** les tests E2E avec sessions réelles multi-rôles, administrateur distinct, MFA AAL2, et contrôle de simultanéité. L'approbation effective ne doit pas être ouverte dans le Control Center public avant ces essais.
