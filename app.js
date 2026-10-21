@@ -13,6 +13,14 @@ import {teamDeepLink,parsePublicRoute} from './team-links.mjs';
 import {mountTeamStats,unmountTeamStats} from './team-stats.mjs';
 import {controlCenterMarkup,mountControlCenter,unmountControlCenter} from './control-center.mjs';
 import {authMarkup,mountAuth,unmountAuth} from './auth.mjs';
+import {hasAuthCallback} from './auth-flow.mjs';
+// GitHub Pages emploie un hash router, Supabase renvoie le code PKCE en query.
+// Conserver la query jusqu’à son échange par le client auth.
+if(hasAuthCallback(window.location.search)&&window.location.hash!=='#/mon-espace'){
+  const target=new URL(window.location.href);
+  target.hash='#/mon-espace';
+  window.history.replaceState(null,'',target.toString());
+}
 function initIntro(){
   const intro=document.getElementById('cinema-intro');
   const skip=document.getElementById('intro-skip');

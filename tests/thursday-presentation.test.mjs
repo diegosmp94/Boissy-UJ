@@ -31,7 +31,7 @@ test('real modules can be demonstrated without fake official posts or scores',()
   assert.match(page,/mountSeasonPreview/);
   assert.match(page,/MODE DÉMONSTRATION — SAISIE LOCALE, AUCUNE PUBLICATION OU ÉCRITURE EN BASE/);
   assert.doesNotMatch(page,/\.rpc\(|\.insert\(|\.update\(|\.delete\(|method:'POST'|localStorage|sessionStorage|innerHTML\s*=/);
-  assert.match(cfg,/enabled:\s*false/);
+  assert.match(cfg,/adminEnabled:\s*false/);
 });
 test('existing forms validate real input and expose preview only',()=>{
   assert.equal(validateMatchDraft({

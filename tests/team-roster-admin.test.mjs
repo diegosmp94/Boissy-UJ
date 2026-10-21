@@ -49,8 +49,8 @@ test('admin directory never displays rows without recognized team mapping',()=>{
  assert.match(directory,/role','status'/);
 });
 test('real editor is MFA gated and separate from local demonstration',()=>{
- assert.match(read('auth-config.mjs'),/enabled:\s*false/);
- assert.match(admin,/if\(!supabaseConfig.enabled\|\|!container\?\.isConnected/);
+ assert.match(read('auth-config.mjs'),/adminEnabled:\s*false/);
+ assert.match(admin,/if\(!supabaseConfig.adminEnabled\|\|!container\?\.isConnected/);
  assert.match(admin,/if\(!await verifyAdmin\(api,userId\)/);
  assert.match(admin,/api.rpc\('admin_list_team_public_people'\)/);
  assert.match(admin,/api.rpc\('admin_save_team_public_person',args\)/);

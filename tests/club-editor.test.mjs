@@ -64,8 +64,8 @@ test('public Control Center uses an offline preview; admin editor belongs to Mon
   assert.match(control,/mountClubIdentityPreview\(root\)/);
   assert.doesNotMatch(control,/\.rpc\(|fetch\(|service_role|sb_secret_/);
   assert.match(auth,/mountAuthenticatedClubIdentityEditor\(account,api,user\.id\)/);
-  assert.match(config,/enabled:\s*false/);
-  assert.match(admin,/if\(!supabaseConfig\.enabled\|\|!container\?\.isConnected/);
+  assert.match(config,/adminEnabled:\s*false/);
+  assert.match(admin,/if\(!supabaseConfig\.adminEnabled\|\|!container\?\.isConnected/);
   assert.match(admin,/api\.auth\.mfa\.getAuthenticatorAssuranceLevel\(\)/);
   assert.match(admin,/api\.auth\.getUser\(\)/);
   assert.match(admin,/api\.rpc\('admin_list_club_identity'\)/);

@@ -46,7 +46,7 @@ test('draft workspaces are ephemeral and cannot mutate the published site',()=>{
   assert.match(ui,/aucune modification enregistrée/);
   assert.match(ui,/node\.textContent\s*=\s*String\(value\)/);
   assert.doesNotMatch(ui,/fetch\(|localStorage|sessionStorage|\.rpc\(|\.from\(|\.insert\(|\.update\(|innerHTML\s*=/);
-  assert.match(auth,/enabled:\s*false/);
+  assert.match(auth,/adminEnabled:\s*false/);
 });
 test('assignments are team-scoped and not writable from public clients',()=>{
   assert.match(sql,/create table if not exists public\.staff_team_assignments/);

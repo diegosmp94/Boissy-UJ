@@ -42,7 +42,7 @@ export function teamPersonRpcArgs(review,teamId,selected=null){
   p_publish:review.publish,p_consent_confirmed:review.consentConfirmed,
   p_expected_updated_at:selected?.updated_at||null};
 }
-export function canEditTeamPublicPeople(expectedId,verifiedId,roles,aal,enabled=supabaseConfig.enabled){
+export function canEditTeamPublicPeople(expectedId,verifiedId,roles,aal,enabled=supabaseConfig.adminEnabled){
  return Boolean(enabled&&expectedId&&expectedId===verifiedId
   &&Array.isArray(roles)&&roles.includes('admin')&&aal==='aal2');
 }
@@ -124,7 +124,7 @@ export function mountTeamPeoplePreview(root){
  return r;
 }
 async function verifyAdmin(api,expectedId){
- if(!supabaseConfig.enabled||!api||!expectedId)return false;
+ if(!supabaseConfig.adminEnabled||!api||!expectedId)return false;
  const [u,m]=await Promise.all([api.auth.getUser(),api.auth.mfa.getAuthenticatorAssuranceLevel()]);
  if(u.error||m.error||u.data?.user?.id!==expectedId||m.data?.currentLevel!=='aal2')return false;
  const roles=await api.from('user_roles').select('role').eq('user_id',expectedId);
@@ -132,7 +132,7 @@ async function verifyAdmin(api,expectedId){
  return canEditTeamPublicPeople(expectedId,u.data.user.id,(roles.data||[]).map(r=>r.role),m.data.currentLevel);
 }
 export async function mountAuthenticatedTeamPeopleEditor(container,api,userId){
- if(!supabaseConfig.enabled||!container?.isConnected||!api||!userId)return;
+ if(!supabaseConfig.adminEnabled||!container?.isConnected||!api||!userId)return;
  if(!await verifyAdmin(api,userId)||!container.isConnected)return;
  const root=make('section','club-editor-private team-person-private');
  root.setAttribute('aria-label','Éditeur sécurisé des profils publics de joueurs et staff');

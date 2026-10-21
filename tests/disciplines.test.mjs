@@ -77,5 +77,5 @@ test('UI separates teams and provides safe local navigation, unchanged auth',()=
   assert.match(app,/BOISSY-UJ FUTSAL/);
   assert.match(styles,/\.discipline-section/);
   assert.match(styles,/@media\(max-width:760px\)/);
-  assert.match(read('auth-config.mjs'),/enabled:\s*false/);
+  assert.match(read('auth-config.mjs'),/adminEnabled:\s*false/);
 });

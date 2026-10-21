@@ -103,5 +103,5 @@ test('UI is a harmless preview, member RPC only mounted if auth is enabled',()=>
  assert.doesNotMatch(js,/api\.rpc\('admin_decide_role_request'/);
  assert.doesNotMatch(js,/api\.rpc\('admin_revoke_member_role'/);
  assert.match(js,/Aucune donnée n’est envoyée à Supabase/);
- assert.match(cfg,/enabled:\s*false/);
+ assert.match(cfg,/adminEnabled:\s*false/);
 });

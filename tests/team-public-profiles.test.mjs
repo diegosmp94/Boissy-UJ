@@ -109,7 +109,7 @@ test('admin UI refuses preview writes and requires real admin MFA verified ident
  assert.equal(canEditTeamPublicPeople('same','same',['admin'],'aal2',false),false);
  assert.match(read('control-center.mjs'),/mountTeamPeoplePreview\(preview\)/);
  assert.match(read('auth.mjs'),/mountAuthenticatedTeamPeopleEditor\(account,api,user.id\)/);
- assert.match(read('team-person-editor.mjs'),/if\(!supabaseConfig.enabled/);
+ assert.match(read('team-person-editor.mjs'),/if\(!supabaseConfig.adminEnabled/);
 });
 test('SQL RLS read-only public surface, consent requirement and authenticated MFA RPC',()=>{
  assert.match(sql,/team_people_publish_requires_consent check \(not published or consent_confirmed\)/);
@@ -133,5 +133,5 @@ test('each team subpage now contains sections for roster, coaching, metrics and 
  assert.match(read('index.html'),/team-profile-data.css/);
  assert.match(read('team-profile-data.css'),/@media\(max-width:720px\)/);
  assert.doesNotMatch(read('team-profile-data.mjs'),/innerHTML\s*=/);
- assert.match(read('auth-config.mjs'),/enabled:\s*false/);
+ assert.match(read('auth-config.mjs'),/adminEnabled:\s*false/);
 });
