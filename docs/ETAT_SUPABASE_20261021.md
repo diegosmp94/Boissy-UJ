@@ -12,6 +12,7 @@ Ce document décrit **l'état effectivement vérifié dans Supabase**, et rempla
 5. `boissy_uj_events_public_v1_20261021` : calendrier public d'événements avec RLS.
 6. `boissy_uj_staff_content_workflows_20261021` : affectations coach/équipe, historique des articles et fonction SQL de publication supervisée.
 7. `boissy_uj_security_indexes_20261021` : révocation des droits d'exécution de la fonction événementielle `public.rls_auto_enable()` aux rôles `anon` et `authenticated`; six index de FK ; maintien des catalogues en lecture seule.
+8. `boissy_uj_news_column_privacy_20261021` : lecture des colonnes nécessaires aux actualités publiques, sans exposer `author_user_id` ni les horodatages techniques.
 
 ## État des données
 
