@@ -7,6 +7,8 @@
 - Dans le Control Center, sous Match Center, un **aperçu des convocations** présente les trois étapes : invitation sécurisée par l'éducateur, lecture de sa propre convocation par le joueur, réponse Présent/Absent/Incertain.
 - Ce panneau public est une **simulation sans joueur, nom, identifiant ou enregistrement**. Le portail de connexion reste désactivé jusqu'à la recette de sécurité.
 
+**État confirmé :** les migrations `boissy_uj_private_callups_team_form_20261021` et `boissy_uj_callups_final_match_guard_20261021` ont été appliquées à Supabase. Les tests anonymes de lecture des bilans, de verrouillage du schéma privé et de refus des RPC sans session ont réussi. Toutes les tables de joueurs et convocations restent vides.
+
 ## Base Supabase
 Migration `supabase/migrations/202610210011_callups_team_stats.sql`.
 - `team_form_summary` : vue en mode `security_invoker=true` afin de respecter la RLS des matchs publiés ; lecture publique des seules sommes agrégées.
