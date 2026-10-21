@@ -42,7 +42,7 @@ test('Control Center integrates both local draft workspaces',()=>{
 test('draft workspaces are ephemeral and cannot mutate the published site',()=>{
   assert.match(ui,/Simulation locale — aucune modification enregistrée/);
   assert.match(ui,/aucune modification enregistrée/);
-  assert.match(ui,/node\.textContent = String\(value\)/);
+  assert.match(ui,/node\.textContent\s*=\s*String\(value\)/);
   assert.doesNotMatch(ui,/fetch\(|localStorage|sessionStorage|\.rpc\(|\.from\(|\.insert\(|\.update\(|innerHTML\s*=/);
   assert.match(auth,/enabled:\s*false/);
 });
