@@ -97,8 +97,8 @@ function teamPage(){
   return pageShell('Deux disciplines · Cinq collectifs','NOS <em>ÉQUIPES.</em>',
     'Football à 11 et futsal : découvrez les cinq équipes de Boissy-UJ, leurs niveaux et leurs informations publiées.',
     `<nav class="discipline-jump" aria-label="Choisir la discipline">
-      <a href="#football-section">Football à 11 · 4 équipes ↓</a>
-      <a href="#futsal-section">Futsal · 1 équipe ↓</a></nav>
+      <button type="button" data-discipline-target="football-section">Football à 11 · 4 équipes ↓</button>
+      <button type="button" data-discipline-target="futsal-section">Futsal · 1 équipe ↓</button></nav>
     ${group('football-section','FOOTBALL À 11','Seniors A, Seniors B, Seniors C et Vétérans.',footballTeams)}
     ${group('futsal-section','FUTSAL','Boissy-UJ Futsal · Départemental 2. Calendrier, effectifs et résultats après publication par le club.',futsalTeams)}`);
 }
@@ -169,6 +169,6 @@ function closeMenu(){const menu=$('#mobile-menu'),toggle=$('#menu-toggle');menu.
 $('#menu-toggle').addEventListener('click',()=>{const menu=$('#mobile-menu'),toggle=$('#menu-toggle');const open=menu.hidden;menu.hidden=!open;toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Fermer le menu':'Ouvrir le menu');document.body.classList.toggle('menu-open',open);if(open)menu.querySelector('a')?.focus();});
 $('#mobile-menu').addEventListener('click',e=>{if(e.target.closest('a'))closeMenu()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
-main.addEventListener('click',e=>{const next=e.target.closest('[data-next]');const dot=e.target.closest('[data-chapter]');const target=next?.dataset.next??dot?.dataset.chapter;if(target)document.getElementById(target)?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});});
+main.addEventListener('click',e=>{const discipline=e.target.closest('[data-discipline-target]');if(discipline){document.getElementById(discipline.dataset.disciplineTarget)?.scrollIntoView({behavior:'smooth',block:'start'});return;}const next=e.target.closest('[data-next]');const dot=e.target.closest('[data-chapter]');const target=next?.dataset.next??dot?.dataset.chapter;if(target)document.getElementById(target)?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});});
 window.addEventListener('hashchange',render);
 render();
