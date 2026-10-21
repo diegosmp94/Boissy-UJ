@@ -37,7 +37,7 @@ test('showcase contains working public links and four separate interactive draft
   assert.match(src,/slot\.replaceChildren\(\)/);
 });
 test('presentation does not activate auth, payments or privileged mutations',()=>{
-  assert.match(auth,/enabled:\s*false/);
+  assert.match(auth,/adminEnabled:\s*false/);
   assert.match(src,/MODE DÉMONSTRATION — SAISIE LOCALE/);
   assert.match(src,/AUCUNE PUBLICATION OU ÉCRITURE EN BASE/);
   assert.doesNotMatch(src,/\.rpc\(|service_role|sb_secret_|sk_live_|localStorage|\.insert\(|\.update\(|\.delete\(|method:'POST'/);
