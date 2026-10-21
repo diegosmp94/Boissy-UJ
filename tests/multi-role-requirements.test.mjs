@@ -23,7 +23,7 @@ test('cahier des charges accepts all requested double and triple combinations',(
 test('every added role is admin-approved without self-approval',()=>{
   assert.match(spec,/aucun deuxième ou troisième rôle n'est actif avant la validation d'un administrateur/);
   assert.match(spec,/ne peut jamais approuver sa propre demande/);
-  assert.match(spec,/administrateur distinct du bénéficiaire/);
+  assert.match(spec,/administrateur \*\*distinct du bénéficiaire\*\*/);
   assert.match(spec,/MFA \*\*AAL2\*\*/);
   assert.match(spec,/demande en attente n'ouvre \*\*aucune permission\*\*/);
   assert.match(spec,/rôle \x60admin\x60 n'attribue pas automatiquement le rôle \x60coach\x60/);
@@ -45,7 +45,7 @@ test('current database design allows multiple roles and refuses client grants',(
 });
 
 test('no documentation misleadingly claims approval flow is deployed',()=>{
-  assert.match(spec,/circuit de demandes et d'approbations des doubles\/triples rôles.*encore être développé/);
+  assert.match(spec,/système de demandes et d'approbations des doubles\/triples rôles.*doit encore être développé/);
   assert.match(authDoc,/circuit de demandes\/approbations \*\*non développé\*\*/);
   assert.match(decisions,/Cahier des charges V1\.1/);
   assert.match(roadmap,/cahier des charges V1\.1/i);
