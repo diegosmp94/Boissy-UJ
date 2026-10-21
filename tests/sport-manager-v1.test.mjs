@@ -93,3 +93,10 @@ test('Match Center only lists verified seasons actually stored in Supabase',()=>
  assert.match(sports,/Filtrer les rencontres par saison/);
  assert.match(sports,/filterPublishedFixtures\(matches,/);
 });
+
+test('the public application never exposes match write operations before sign-in',()=>{
+ const authConfig=read('auth-config.mjs');
+ assert.match(authConfig,/enabled:\s*false/);
+ assert.doesNotMatch(matches,/\b(?:fetch|localStorage|sessionStorage)\s*\(/);
+ assert.match(schema,/revoke all on function public\.staff_save_match/);
+});
