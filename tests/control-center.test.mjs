@@ -60,7 +60,7 @@ test('the admin preview has no actual admin access, private reads or writes',()=
   assert.match(moduleCode,/Les changements sont temporaires, non sauvegardés/);
   assert.doesNotMatch(moduleCode,
     /\.from\(|\.rpc\(|fetch\(|localStorage|sessionStorage|service_role|sb_secret_|\.insert\(|\.update\(|\.delete\(/);
-  assert.match(config,/enabled:\s*false/);
+  assert.match(config,/adminEnabled:\s*false/);
 });
 test('mobile and keyboard support are present',()=>{
   assert.match(css,/\.cc-layout\s*\{\s*grid-template-columns:\s*1fr/);
