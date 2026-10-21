@@ -39,7 +39,7 @@ test('public endpoint rejects drafts and premium through explicit filters',()=>{
 test('news view is connected, responds safely when source is unavailable',()=>{
  assert.match(app,/import \{mountNews,unmountNews\} from '\.\/media-center.mjs'/);
  assert.match(app,/id="news-feed-public"/);
- assert.match(app,/if\(path==='\/actualites'\) void mountNews\(\); else unmountNews\(\);/);
- assert.match(script,/showFeed\(root,\[\],false\)/);
+ assert.match(app,/if\(path==='\/actualites'\) void mountNews\(route.teamCode\); else unmountNews\(\);/);
+ assert.match(script,/showFeed\(root,\[\],false,\[\],initialTeamCode\)/);
  assert.match(script,/Aucune actualité fictive n’est affichée/);
 });
