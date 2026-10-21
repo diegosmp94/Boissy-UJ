@@ -2,6 +2,7 @@
  * Server checks (app_private.is_admin) remain authoritative for all sensitive RPCs.
  */
 import {supabaseConfig} from './auth-config.mjs';
+import {ADMIN_FACTOR_NAME,findAdminTotpFactors,mfaErrorMessage} from './mfa-recovery.mjs';
 
 const el=(tag,cls='',text=null)=>{
  const n=document.createElement(tag);if(cls)n.className=cls;
@@ -47,7 +48,7 @@ export async function mountAdminMfaSetup(container,api,userId){
  }
  status(root,'Le rôle administrateur est attribué, mais les outils restent verrouillés tant que ton application d’authentification n’a pas validé un code.');
  const area=el('div','admin-mfa-workflow');root.append(area);
- let factorId=null,loading=false;
+ let factorId=null,loading=false,restartApproved=false;
  const begin=el('button','auth-submit','Configurer ou vérifier le second facteur');
  begin.type='button';area.append(begin);
  const inputLabel=el('label','auth-field','Code à 6 chiffres de l’application');
@@ -60,29 +61,39 @@ export async function mountAdminMfaSetup(container,api,userId){
  async function loadFactor(){
   if(loading)return;
   loading=true;begin.disabled=true;
+  let stage='listing';
   status(root,'Vérification des facteurs de sécurité…');
   try{
    const session=await adminSessionStatus(api,userId);
    if(!root.isConnected||session.status!=='mfa-required')return;
    const existing=await api.auth.mfa.listFactors();
    if(existing.error)throw existing.error;
-   const verified=(existing.data?.totp||[]).find(f=>f.status==='verified');
+   const {verified,pending}=findAdminTotpFactors(existing.data);
    qrHolder.replaceChildren();
    if(verified){
     factorId=verified.id;
     status(root,'Un second facteur est déjà associé à ton compte. Entre le code de ton application.');
    }else{
-    const pending=(existing.data?.totp||[]).find(f=>f.status==='unverified');
     if(pending){
-      // A previously unverified factor has no safely recoverable QR; remove it before enrolling.
+      if(!restartApproved){
+        restartApproved=true;
+        begin.disabled=false;
+        begin.textContent='Recommencer la configuration MFA';
+        status(root,'Une configuration MFA a été commencée mais non validée. Clique sur « Recommencer » pour remplacer uniquement ce facteur inachevé et obtenir un nouveau QR code.');
+        return;
+      }
+      stage='remove';
+      // Supabase listFactors().all contains unverified factors; .totp only lists verified ones.
+      // Never remove a verified factor, and never delete the account.
       const removal=await api.auth.mfa.unenroll({factorId:pending.id});
       if(removal.error)throw removal.error;
     }
-    const enrollment=await api.auth.mfa.enroll({factorType:'totp',friendlyName:'Boissy-UJ Administration'});
+    stage='enroll';
+    const enrollment=await api.auth.mfa.enroll({factorType:'totp',friendlyName:ADMIN_FACTOR_NAME});
     if(enrollment.error||!enrollment.data?.id)throw enrollment.error||new Error('Factor unavailable');
     factorId=enrollment.data.id;
     const qr=enrollment.data.totp?.qr_code;
-    if(typeof qr==='string'&&/^data:image\/svg\+xml(?:;base64|;utf8)?,/i.test(qr)){
+    if(typeof qr==='string'&&/^data:image\/svg\+xml(?:;charset=utf-8|;base64|;utf8)?,/i.test(qr)){
       const img=el('img');img.src=qr;img.alt='QR à scanner dans une application d’authentification';
       img.width=175;img.height=175;qrHolder.append(img);
     }
@@ -98,8 +109,11 @@ export async function mountAdminMfaSetup(container,api,userId){
     area.append(qrHolder,inputLabel,verify);
     verify.disabled=false;begin.disabled=true;code.focus();
    }
-  }catch{
-   if(root.isConnected){status(root,'Impossible de préparer le MFA. Réessaie depuis ta session connectée.',true);begin.disabled=false;}
+  }catch(error){
+   if(root.isConnected){
+    status(root,mfaErrorMessage(error,stage),true);
+    begin.disabled=false;
+   }
   }finally{loading=false;}
  }
  begin.addEventListener('click',()=>void loadFactor());
@@ -123,8 +137,8 @@ export async function mountAdminMfaSetup(container,api,userId){
    status(root,'Double authentification réussie : le panneau administrateur est maintenant disponible.');
    area.replaceChildren();
    const link=el('a','admin-mfa-open','Accéder au panneau de gestion →');link.href='#/control-center';area.append(link);
-  }catch{
-   if(root.isConnected){status(root,'Code refusé ou expiré. Vérifie l’heure de ton téléphone puis réessaie.',true);verify.disabled=false;}
+  }catch(error){
+   if(root.isConnected){status(root,mfaErrorMessage(error,'verify'),true);verify.disabled=false;}
   }finally{loading=false;}
  });
 }
