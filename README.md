@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Étape 21 · Fiches Équipes enrichies
+
+Les cinq pages d'équipes affichent désormais les sections Effectif, Encadrement, Bilan sportif et Actualités, à partir de données autorisées publiquement. Les identités ne sont pas importées des comptes et ne deviennent publiques qu'après consentement vérifié et validation administrateur MFA AAL2. Voir [Étape 21](docs/ETAPE_21_FICHES_EQUIPES.md).
+
 ## Contenu disponible
 - Accueil immersif avec huit chapitres et véritable écusson.
 - Navigation ordinateur et mobile.

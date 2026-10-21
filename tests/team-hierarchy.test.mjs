@@ -56,7 +56,7 @@ test('router renders category and team profiles and mounts only team-specific li
  assert.match(app,/function singleTeamPage\(team\)/);
  assert.match(app,/const activeTeam=teams\.find/);
  assert.match(app,/mountTeamProfile\(activeTeam\.code\)/);
- assert.match(app,/else unmountTeamProfile\(\)/);
+ assert.match(app,/else \{unmountTeamProfile\(\);unmountTeamPublicExtras\(\);\}/);
  assert.match(app,/team-profile-live/);
  assert.match(app,/team-breadcrumbs/);
  assert.match(app,/teamRoute\(team\)/);

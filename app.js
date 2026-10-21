@@ -1,6 +1,7 @@
 import {mountEvents,unmountEvents} from './events-center.mjs';
 import {CLUB_TEAMS,DISCIPLINES,teamsByDiscipline,teamRoute,categoryRoute,disciplineLabel} from './club-teams.mjs';
 import {mountTeamProfile,unmountTeamProfile} from './team-pages.mjs';
+import {mountTeamPublicExtras,unmountTeamPublicExtras} from './team-profile-data.mjs';
 import {mountAwards,unmountAwards} from './awards-center.mjs';
 import {mountJoin,unmountJoin,mountPractical,unmountPractical} from './join-center.mjs';
 import {mountPresentation,unmountPresentation} from './presentation.mjs';
@@ -142,6 +143,9 @@ function singleTeamPage(team){
       <div id="team-profile-live" class="team-profile-live" aria-live="polite">
         <p class="team-profile-state">Chargement des rencontres publiées…</p>
       </div>
+      <div id="team-profile-extras" class="team-profile-extras" aria-live="polite" aria-label="Effectif, encadrement, bilan et actualités de l'équipe">
+        <p class="team-extras-empty">Chargement des informations publiques de l’équipe…</p>
+      </div>
       <nav class="team-profile-actions" aria-label="Navigation sportive">
         <a href="${categoryRoute(team.discipline)}">← Toutes les équipes ${disciplineLabel(team.discipline)}</a>
         <a href="#/matchs">Match Center ↗</a>
@@ -198,7 +202,8 @@ function render(){
   if(path==='/mon-espace') void mountAuth(); else unmountAuth();
   if(path==='/matchs') void mountSport(); else unmountSport();
   const activeTeam=teams.find(t=>teamRoute(t).slice(1)===path);
-  if(activeTeam)void mountTeamProfile(activeTeam.code);else unmountTeamProfile();
+  if(activeTeam){void mountTeamProfile(activeTeam.code);void mountTeamPublicExtras(activeTeam.code);}
+  else {unmountTeamProfile();unmountTeamPublicExtras();}
   if(path==='/matchs') void mountTeamStats(); else unmountTeamStats();
   if(path==='/actualites') void mountNews(); else unmountNews();
   if(path==='/evenements') void mountEvents(); else unmountEvents();

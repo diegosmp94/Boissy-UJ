@@ -33,7 +33,9 @@ test('match preparation validates an actual team, opponent and date',()=>{
 });
 test('Control Center integrates both local draft workspaces',()=>{
   assert.match(control,/import \{mountTeamWorkspace,mountMediaWorkspace\} from '\.\/staff-workflows\.mjs'/);
-  assert.match(control,/if\(module\.id==='teams'\)\{mountTeamWorkspace\(root\);return\}/);
+  assert.match(control,/if\(module\.id==='teams'\)\{/);
+  assert.match(control,/mountTeamWorkspace\(root\)/);
+  assert.match(control,/mountTeamPeoplePreview\(preview\)/);
   assert.match(control,/if\(module\.id==='media'\)\{mountMediaWorkspace\(root\);return\}/);
   assert.match(ui,/Prévisualiser la fiche/);
   assert.match(ui,/Prévisualiser le brouillon/);
