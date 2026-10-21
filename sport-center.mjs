@@ -27,6 +27,10 @@ export function splitMatches(matches) {
     .sort((a,b) => Date.parse(b.scheduled_at) - Date.parse(a.scheduled_at));
   return {upcoming,results};
 }
+export function filterPublishedFixtures(matches, {teamId='all',seasonId='all'}={}) {
+  return matches.filter(match => (teamId==='all'||match.team_id===teamId)
+    && (seasonId==='all'||match.season_id===seasonId));
+}
 export function scoreLabel(match) {
   return match.match_status === 'played'
     && Number.isInteger(match.home_score)
@@ -85,7 +89,7 @@ function mountEmpty(container,message) {
   empty.append(element('span','sport-empty-icon','⚽'),element('p','',message));
   container.append(empty);
 }
-function displayFixtures(root,teams,matches) {
+function displayFixtures(root,teams,matches,seasons=[]) {
   root.replaceChildren();
   const map = new Map(teams.map(team=>[team.id,team]));
   const filter=element('div','sport-filter-bar');
@@ -101,13 +105,31 @@ function displayFixtures(root,teams,matches) {
     select.append(option);
   }
   label.append(select);
-  filter.append(label,element('span','sport-count',matches.length+' rencontre(s) publiée(s)'));
+  filter.append(label);
+  let seasonSelect=null;
+  if(seasons.length){
+    const seasonLabel=element('label','','Saison :');
+    seasonSelect=element('select','sport-team-select');
+    seasonSelect.setAttribute('aria-label','Filtrer les rencontres par saison');
+    const any=element('option','','Toutes les saisons');any.value='all';
+    seasonSelect.append(any);
+    seasons.forEach(season=>{
+      const option=element('option','',season.label);
+      option.value=season.id;
+      seasonSelect.append(option);
+    });
+    seasonLabel.append(seasonSelect);
+    filter.append(seasonLabel);
+  }
+  filter.append(element('span','sport-count',matches.length+' rencontre(s) publiée(s)'));
   const data=element('div','sport-fixtures');
   root.append(filter,data);
   function redraw(){
     data.replaceChildren();
     const selection=select.value;
-    const filtered=matches.filter(m=>selection==='all'||m.team_id===selection);
+    const filtered=filterPublishedFixtures(matches,{
+      teamId:selection,seasonId:seasonSelect?.value||'all'
+    });
     const blocks=splitMatches(filtered);
     for (const [title,list,empty] of [
       ['Prochaines rencontres',blocks.upcoming,'Aucune rencontre à venir publiée pour cette équipe.'],
@@ -123,6 +145,7 @@ function displayFixtures(root,teams,matches) {
     }
   }
   select.addEventListener('change',redraw);
+  seasonSelect?.addEventListener('change',redraw);
   redraw();
 }
 export function unmountSport() {
@@ -139,15 +162,16 @@ export async function mountSport() {
   currentRequest=abort;
   root.replaceChildren(element('p','sport-loading','Chargement des informations du club…'));
   try{
-    const [teams,matches]=await Promise.all([
+    const [teams,matches,seasons]=await Promise.all([
       getRows('club_teams',{select:'id,code,name,division,source_kind,sort_order',order:'sort_order.asc'},abort.signal),
-      getRows('matches',{select:'id,team_id,opponent_name,scheduled_at,venue,is_home,home_score,away_score,match_status,source_kind',
-        published:'eq.true',order:'scheduled_at.asc',limit:'100'},abort.signal)
+      getRows('matches',{select:'id,team_id,season_id,opponent_name,scheduled_at,venue,is_home,home_score,away_score,match_status,source_kind',
+        published:'eq.true',order:'scheduled_at.asc',limit:'100'},abort.signal),
+      getRows('club_seasons',{select:'id,label,state',order:'label.desc'},abort.signal)
     ]);
     if (abort.signal.aborted || generation!==renderGeneration || !root.isConnected) return;
     const uniqueCodes=new Set(teams.map(t=>t.code));
     if (!TEAM_CODES.every(c=>uniqueCodes.has(c))) throw new Error('Équipes non configurées');
-    displayFixtures(root,teams,matches);
+    displayFixtures(root,teams,matches,seasons);
   } catch(err){
     if (abort.signal.aborted || generation!==renderGeneration || !root.isConnected) return;
     // La migration sportive n'est pas encore présente dans tous les environnements.
