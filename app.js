@@ -3,6 +3,7 @@ import {mountAwards,unmountAwards} from './awards-center.mjs';
 import {mountJoin,unmountJoin,mountPractical,unmountPractical} from './join-center.mjs';
 import {mountPresentation,unmountPresentation} from './presentation.mjs';
 import {mountIdentity,unmountIdentity} from './club-identity.mjs';
+import {mountAgenda,unmountAgenda} from './agenda.mjs';
 import {mountNews,unmountNews} from './media-center.mjs';
 import {mountSport,unmountSport} from './sport-center.mjs';
 import {mountTeamStats,unmountTeamStats} from './team-stats.mjs';
@@ -69,7 +70,7 @@ function home(){return `
       ${arrow('competition')}
     </section>
     <section class="chapter chapter-competition" id="competition" aria-labelledby="competition-title">
-      <div class="section-copy"><span class="chapter-no">03 / 08</span>${tag('Le football au centre')}<h2 id="competition-title">CHAQUE MATCH<br/><em>COMPTE.</em></h2><p>Retrouvez les rencontres et les résultats officiels lorsqu’ils seront disponibles, ainsi que les statistiques du club.</p>${link('#/matchs','Ouvrir le Match Center','btn-primary')}</div>
+      <div class="section-copy"><span class="chapter-no">03 / 08</span>${tag('Le football au centre')}<h2 id="competition-title">CHAQUE MATCH<br/><em>COMPTE.</em></h2><p>Retrouvez les rencontres et les résultats officiels lorsqu’ils seront disponibles, ainsi que les statistiques du club.</p>${link('#/matchs','Ouvrir le Match Center','btn-primary')}${link('#/agenda','Agenda du club','btn-ghost')}</div>
       <div class="score-panel"><div class="panel-heading"><span class="live-dot"></span> PROCHAINES RENCONTRES</div><div class="versus"><span>BOISSY-UJ</span><strong>VS</strong><span>À VENIR</span></div><div class="panel-meta">Calendrier en cours de préparation</div><div class="score-divider"></div><div class="mini-stat"><span>4 équipes</span><span>3 compétitions FFF</span></div></div>
       ${arrow('equipes')}
     </section>
@@ -96,10 +97,11 @@ function join(){return pageShell('Faire partie du club','NOUS <em>REJOINDRE.</em
 
 function practical(){return pageShell('Toutes les informations utiles','INFOS <em>PRATIQUES.</em>','Entraînements, rencontres, lieux, adhésions et vie associative : consulte uniquement les informations confirmées et publiées par Boissy-UJ.',`<div class="info-banner"><span class="info-icon">i</span><div><strong>Des informations fiables, pas d’estimations</strong><p>Les horaires, adresses et contacts non renseignés ne sont pas supposés. Vérifie les publications du club avant tout déplacement.</p></div></div><div id="practical-public-hub" class="join-public-hub" aria-live="polite"><p class="join-loading">Chargement des informations pratiques…</p></div>`);}
 
+function agenda(){return pageShell("La vie du club, en un regard","AGENDA <em>DU CLUB.</em>","Matchs et événements publiés par Boissy-UJ, réunis dans un calendrier lisible et consultable sur mobile.",'<div id="agenda-public-root" class="agenda-public-root" aria-live="off"><p class="agenda-status">Chargement de l’agenda officiel…</p></div>');}
 function account(){return pageShell('Espace personnel','MON <em>ESPACE.</em>','Un seul compte, plusieurs rôles : supporter, licencié, éducateur ou administrateur. Inscription et connexion sécurisées via Supabase.',authMarkup()+`<div class="cc-entry-link"><span class="tiny-label">FUTUR ESPACE ADMINISTRATEUR</span><h2>Control Center Boissy-UJ</h2><p>Découvrez un aperçu sans données personnelles, sans édition réelle et sans accès privilégié.</p><a class="btn btn-outline" href="#/control-center">Voir l’aperçu du Control Center <span aria-hidden="true">↗</span></a></div>`);}
 function presentation(){return pageShell('Boissy-UJ · Démonstration du jeudi 22 octobre','LE SITE <em>EN ACTION.</em>','Une visite guidée avec des modules interactifs et des données publiques réellement consultées. Les scénarios de démonstration sont locaux, sans ajout de données fictives au site officiel.',`<div class="showcase-intro"><div class="showcase-intro-icon" aria-hidden="true">✦</div><div><strong>PRÉVERSION DE PRÉSENTATION</strong><p>Les pages publiques et les aperçus interactifs peuvent être montrés dès maintenant. La connexion des membres, les droits administratifs réels, les votes et les paiements restent désactivés.</p></div></div><div id="showcase-hub" class="showcase-hub" aria-live="off"><p>Chargement de la démonstration…</p></div>`);}
 function controlCenter(){return controlCenterMarkup();}
-const routes={'/':home,'/matchs':matches,'/equipes':teamPage,'/actualites':news,'/communaute':community,'/awards':awards,'/evenements':events,'/soutenir':support,'/rejoindre':join,'/infos-pratiques':practical,'/presentation':presentation,'/club':identity,'/mon-espace':account,'/control-center':controlCenter};
+const routes={'/':home,'/matchs':matches,'/equipes':teamPage,'/actualites':news,'/communaute':community,'/awards':awards,'/evenements':events,'/agenda':agenda,'/soutenir':support,'/rejoindre':join,'/infos-pratiques':practical,'/presentation':presentation,'/club':identity,'/mon-espace':account,'/control-center':controlCenter};
 let observer;
 function render(){
   if(observer)observer.disconnect();
@@ -120,13 +122,14 @@ function render(){
   if(path==='/matchs') void mountTeamStats(); else unmountTeamStats();
   if(path==='/actualites') void mountNews(); else unmountNews();
   if(path==='/evenements') void mountEvents(); else unmountEvents();
+  if(path==='/agenda') void mountAgenda(); else unmountAgenda();
   if(path==='/awards') void mountAwards(); else unmountAwards();
   if(path==='/rejoindre') void mountJoin(); else unmountJoin();
   if(path==='/infos-pratiques') void mountPractical(); else unmountPractical();
   if(path==='/presentation') mountPresentation(); else unmountPresentation();
   if(path==='/club') void mountIdentity(); else unmountIdentity();
   if(path==='/control-center') mountControlCenter(); else unmountControlCenter();
-  document.title=(path==='/'?'Boissy-UJ — Club officiel':`Boissy-UJ — ${({ '/matchs':'Match Center','/equipes':'Nos équipes','/actualites':'Actualités','/communaute':'Communauté','/awards':'Awards','/evenements':'Événements','/soutenir':'Soutenir le club','/rejoindre':'Nous rejoindre','/infos-pratiques':'Infos pratiques','/presentation':'Démonstration interactive','/club':'Notre club','/mon-espace':'Mon espace','/control-center':'Control Center — aperçu'})[path]}`);
+  document.title=(path==='/'?'Boissy-UJ — Club officiel':`Boissy-UJ — ${({ '/matchs':'Match Center','/equipes':'Nos équipes','/actualites':'Actualités','/communaute':'Communauté','/awards':'Awards','/evenements':'Événements','/agenda':'Agenda','/soutenir':'Soutenir le club','/rejoindre':'Nous rejoindre','/infos-pratiques':'Infos pratiques','/presentation':'Démonstration interactive','/club':'Notre club','/mon-espace':'Mon espace','/control-center':'Control Center — aperçu'})[path]}`);
 }
 function setupChapters(){
   const sections=[...document.querySelectorAll('.chapter')];
