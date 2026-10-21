@@ -1,5 +1,5 @@
 import { supabaseConfig } from "./auth-config.mjs";
-import {authRedirectUrl,authCallbackError,hasAuthCallback,validateAuthInput} from "./auth-flow.mjs";
+import {authRedirectUrl,authCallbackError,hasAuthCallback,sanitizedAuthCallbackUrl,loginSuccessMessage,validateAuthInput} from "./auth-flow.mjs";
 import {mountMemberRoleRequests} from './role-workflow.mjs';
 import {mountAdminRoleModeration} from './admin-role-moderation.mjs';
 import {mountAuthenticatedClubIdentityEditor} from './club-editor.mjs';
@@ -8,6 +8,7 @@ import {mountAuthenticatedTeamPeopleEditor} from './team-person-editor.mjs';
 let clientPromise;
 let mounted = null;
 let generation = 0;
+let sessionViewGeneration = 0;
 let recoveryMode = false;
 const RECOVERY_KEY = 'boissy-uj-recovery-requested';
 const getRecoveryIntent=()=>{try{return window.sessionStorage.getItem(RECOVERY_KEY)==='1';}catch{return false;}};
@@ -153,13 +154,16 @@ function authCard(root, mode = "login") {
         return;
       }
       if (mode === "register") {
-        alertFor(root, "Demande reçue. Si une confirmation est nécessaire, consulte les messages de ta boîte e-mail.");
+        if(result?.data?.session){
+          await showSession(root,api);
+          if(root.isConnected)root.prepend(el("p","auth-success",loginSuccessMessage(mode,result.data)));
+        }else alertFor(root,loginSuccessMessage(mode,result?.data));
       } else if (mode === "reset") {
         alertFor(root, "Si cette adresse possède un compte, un lien de récupération sera envoyé.");
       } else if (mode === "newPassword") {
         recoveryMode = false;setRecoveryIntent(false);
-        alertFor(root, "Mot de passe mis à jour.");
         await showSession(root, api);
+        if(root.isConnected)root.prepend(el("p","auth-success",loginSuccessMessage(mode)));
       } else {
         await showSession(root, api);
       }
@@ -173,13 +177,15 @@ function authCard(root, mode = "login") {
 }
 
 async function showSession(root, api) {
+  const view=sessionViewGeneration+=1;
   const { data: { user }, error } = await api.auth.getUser();
+  if(!root.isConnected||view!==sessionViewGeneration)return;
   if (error || !user) { authCard(root, "login"); return; }
   const [profileResult, rolesResult] = await Promise.all([
     api.from("profiles").select("display_name").eq("id", user.id).maybeSingle(),
     api.from("user_roles").select("role").eq("user_id", user.id)
   ]);
-  if (!root.isConnected) return;
+  if (!root.isConnected||view!==sessionViewGeneration) return;
   root.replaceChildren();
   const account = el("div", "auth-signed-in");
   account.append(el("span", "tiny-label", "MON ESPACE PERSONNEL"));
@@ -196,6 +202,8 @@ async function showSession(root, api) {
   account.append(el("p", "auth-footnote", "Aucun abonnement premium n'est actif par défaut. Les autorisations sont contrôlées par Supabase."));
   const signOut = button("Se déconnecter", "auth-submit", "button");
   signOut.addEventListener("click", async () => {
+    if(signOut.disabled)return;
+    sessionViewGeneration+=1;
     signOut.disabled = true;
     const { error: signOutError } = await api.auth.signOut();
     if (signOutError) {
@@ -218,6 +226,7 @@ export function authMarkup() {
 
 export async function mountAuth() {
   generation+=1;
+  sessionViewGeneration+=1;
   const turn=generation;
   if(mounted?.subscription)mounted.subscription.unsubscribe();
   mounted=null;
@@ -256,6 +265,11 @@ export async function mountAuth() {
     const {data:{session},error}=await api.auth.getSession();
     if(turn!==generation||!root.isConnected)return;
     if(error)throw error;
+    // Effacer les paramètres sensibles APRÈS l'initialisation de Supabase et l'échange du code.
+    if(isCallback){
+      const safe=sanitizedAuthCallbackUrl(window.location.href);
+      window.history.replaceState(null,'',safe);
+    }
     if(recoveryExpected&&session)recoveryMode=true;
     if(recoveryMode&&session)authCard(root,'newPassword');
     else if(session)await showSession(root,api);
@@ -278,6 +292,7 @@ export async function mountAuth() {
 
 export function unmountAuth(){
   generation += 1;
+  sessionViewGeneration+=1;
   if (mounted?.subscription) mounted.subscription.unsubscribe();
   mounted = null;
 }
