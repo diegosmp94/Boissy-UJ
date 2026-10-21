@@ -63,7 +63,7 @@ test('SQL mandates MFA admin on BOTH read and write and never direct client writ
 test('public Control Center uses an offline preview; admin editor belongs to Mon espace only',()=>{
   assert.match(control,/mountClubIdentityPreview\(root\)/);
   assert.doesNotMatch(control,/\.rpc\(|fetch\(|service_role|sb_secret_/);
-  assert.match(read('admin-center.mjs'),/mountAuthenticatedClubIdentityEditor\(pane,api,verified\.userId\)/);
+  assert.match(read('admin-center.mjs'),/mountAuthenticatedClubIdentityEditor\(view,api,verified\.userId\)/);
   assert.match(config,/adminEnabled:\s*true/);
   assert.match(admin,/if\(!supabaseConfig\.adminEnabled\|\|!container\?\.isConnected/);
   assert.match(admin,/api\.auth\.mfa\.getAuthenticatorAssuranceLevel\(\)/);
