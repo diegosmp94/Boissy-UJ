@@ -25,6 +25,8 @@ Ce document décrit **l'état effectivement vérifié dans Supabase**, et rempla
 - RLS activée sur les 8 tables applicatives.
 - Lecture anonyme sur les quatre équipes et uniquement sur matchs/actualités/événements explicitement publiés.
 - Aucun INSERT / UPDATE / DELETE permis au navigateur `anon` ou `authenticated` sur les catalogues.
+- **Tests SQL simulant les rôles** `anon` et `authenticated` : lecture des quatre équipes confirmée, accès aux écritures et à l'audit refusé, appel du RPC sans `auth.uid()` rejeté avec SQLSTATE `28000`. Ces contrôles ne remplacent pas les tests avec des sessions réelles.
+- Lecture des colonnes d'article (`title`, `body`, `status`) autorisée ; lecture de l'identifiant de l'auteur et des horodatages internes refusée, vérification `has_column_privilege` réussie.
 - Le journal `staff_news_audit` est volontairement inaccessible aux comptes ordinaires (RLS active sans politique cliente ; linter Supabase INFO).
 - `public.rls_auto_enable()` n'est plus exécutable par `anon` et `authenticated` (alerte de sécurité éliminée).
 - `public.staff_save_news_article(...)` reste un RPC `SECURITY DEFINER` exécutable par `authenticated` et **refuse par code** toute session absente, tout coach non autorisé et tout admin sans MFA AAL2. Le linter signale ce point en WARN ; il s'agit d'une **exception intentionnelle à retester en dynamique**. Voir la documentation Supabase :
