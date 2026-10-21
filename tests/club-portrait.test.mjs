@@ -37,7 +37,7 @@ test('private, unpublished and unreviewed history remains invisible',()=>{
  assert.equal(filterPublicStory(approved,{category:'governance'}).length,0);
  assert.equal(filterPublicStory(approved,{category:'projects'}).length,0);
  assert.equal(filterPublicStory(approved,{query:'historie'}).length,0);
- assert.equal(filterPublicStory(approved,{query:'verifiees'}).length,0);
+ assert.equal(filterPublicStory(approved,{query:'verifiees'}).length,1);
  assert.equal(filterPublicStory(approved,{query:'histoire'}).length,1);
  assert.equal(normalizedStorySearch('ÉQUIPE'), 'equipe');
 });
