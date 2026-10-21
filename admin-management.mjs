@@ -153,7 +153,7 @@ export function mountAdminMatches(root,api,userId){
   editor(root,'Calendrier et résultats',api,userId,{
    rpcList:'admin_list_management_matches',rpcSave:'staff_save_match',
    fields:()=>({
-    team:{element:field('Équipe ou club entier',team),fill:r=>team.value=r?.team_id??''},
+    team:{element:field('Équipe',team),fill:r=>team.value=r?.team_id||teams[0]?.id||''},
     season:{element:field('Saison',season),fill:r=>season.value=r?.season_id||''},
     opponent:{element:field('Adversaire',opponent),fill:r=>opponent.value=r?.opponent_name||''},
     date:{element:field('Date et heure locale',date),fill:r=>date.value=r?.scheduled_at?new Date(new Date(r.scheduled_at).getTime()-new Date(r.scheduled_at).getTimezoneOffset()*60000).toISOString().slice(0,16):''},
@@ -192,7 +192,7 @@ export function mountAdminNews(root,api,userId){
   editor(root,'Articles et actualités',api,userId,{
    rpcList:'admin_list_management_news',rpcSave:'staff_save_news_article',
    fields:()=>({
-    team:{element:field('Équipe',team),fill:r=>team.value=r?.team_id||teams[0]?.id||''},
+    team:{element:field('Équipe ou club entier',team),fill:r=>team.value=r?.team_id??''},
     title:{element:field('Titre',title),fill:r=>title.value=r?.title||''},
     excerpt:{element:field('Résumé',excerpt),fill:r=>excerpt.value=r?.excerpt||''},
     body:{element:field('Article',body),fill:r=>body.value=r?.body||''},
