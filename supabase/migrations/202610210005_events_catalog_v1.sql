@@ -34,7 +34,8 @@ create table if not exists public.club_events (
   constraint event_chronology check (
     ends_at is null or starts_at is null or ends_at > starts_at
   ),
-  constraint event_publication_date check (not published or starts_at is not null),
+  constraint event_publication_date check (not published or (starts_at is not null and ends_at is not null)),
+  constraint paid_ticket_has_price check (booking_kind <> 'paid' or price_cents > 0),
   constraint free_event_no_payment check (
     booking_kind <> 'free' or (price_cents = 0 and (premium_price_cents is null or premium_price_cents = 0))
   ),
