@@ -10,7 +10,9 @@
 - Dons ponctuels et mensuels ; fonds général et projets ; campagnes fermées ou prolongées selon règle déclarée.
 - Événements : publics/exclusifs, gratuits/payants, tarif normal/réduit/gratuit pour premium, délai priorité à décider.
 - Stripe seul prestataire retenu ; aucun paiement réel avant autorisation explicite et conformité.
-- Droits admin égaux, audit des changements ; centre de gestion complet ultérieurement.
+- **Rôles cumulables** : joueur + entraîneur, joueur + administrateur, entraîneur + administrateur et joueur + entraîneur + administrateur sont autorisés. Chaque 2e/3e rôle exige une **validation explicite d'un administrateur distinct**, connecté avec MFA AAL2 ; aucun auto-octroi ou auto-approbation. Les affectations coach restent limitées aux équipes accordées.
+- Droits admin égaux, MFA AAL2 et audit des changements ; centre de gestion complet ultérieurement.
+- Référence canonique : [Cahier des charges V1.1](CAHIER_DES_CHARGES.md), chapitre 2.
 - FFF : piste myFFF / District 94 / widget partenaire seulement sous autorisation ; mode manuel obligatoire.
 - Tests en continu ; recette finale à 85 % **pondérés**, sortie de production uniquement après tous critères bloquants.
 - Statut juridique détaillé, TVA, reçus fiscaux : revue professionnelle préalable à l'activation LIVE ; dons n'ouvrent pas automatiquement droit à reçu fiscal.
