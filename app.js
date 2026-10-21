@@ -45,10 +45,10 @@ function home(){return `
     <section class="chapter chapter-identity" id="identite" aria-labelledby="identity-title">
       <div class="orb orb-a"></div><div class="orb orb-b"></div><div class="pitch-lines" aria-hidden="true"></div>
       <div class="hero-content">
-        ${tag('Association Boissy Union Jeunes · Site officiel')}
+        ${tag('Boissy-UJ · Union Jeunes')}
         <div class="crest-halo"><img class="hero-crest" src="${crest}" alt="Écusson officiel de Boissy-UJ" width="170" height="170" /></div>
         <h1 id="identity-title">PLUS QU’UN CLUB.<br/><em>UNE IDENTITÉ.</em></h1>
-        <p>La passion du football, l’esprit d’équipe et l’énergie d’une communauté réunis sous les mêmes couleurs.</p>
+        <p>Le football, l’esprit d’équipe et une communauté réunis sous les mêmes couleurs.</p>
         <div class="hero-ctas">${link('#/equipes','Découvrir nos équipes','btn-primary')}${link('#/rejoindre','Rejoindre le club','btn-ghost')}</div>
       </div>
       <div class="vertical-rule" aria-hidden="true">BOISSY-UJ · 2026</div>
