@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Étape 30 · Navigation administrateur accélérée
+
+Le back-office réel propose une recherche de modules (sans tenir compte des accents), un menu classé par familles et des raccourcis depuis la vue générale vers les modules opérationnels. La mise en page téléphone est condensée ; tous les changements de rubrique repassent par la vérification MFA AAL2. [Étape 30](docs/ETAPE_30_NAVIGATION_ADMIN.md).
+
 ## Étape 28 · Récupération de configuration MFA inachevée
 
 Le compte administrateur peut reprendre une activation TOTP abandonnée sans créer un facteur au nom déjà utilisé. Un redémarrage explicite remplace uniquement le facteur non vérifié, sans toucher au compte ni aux protections AAL2. [Guide de reprise MFA](docs/ETAPE_27_ADMINISTRATION_REELLE.md#correctif-mfa--facteur-non-vérifié--erreur-de-doublon-étape-28).
