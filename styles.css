@@ -273,3 +273,16 @@
 .sport-empty-icon{font-size:27px}
 @media(max-width:900px){.sport-fixtures{grid-template-columns:1fr}}
 @media(max-width:500px){.sport-root{padding:16px}.sport-filter-bar label{width:100%;justify-content:space-between}.sport-team-select{width:min(100%,220px)}.sport-sides{gap:8px}.sport-match-card{padding:14px}}
+
+/* Module sportif en attente de base : statut explicite, sans fausses rencontres. */
+.sport-notice{
+  margin:0 0 18px;
+  padding:14px 17px;
+  border:1px solid #efc16c7a;
+  border-left:4px solid var(--gold);
+  border-radius:10px;
+  background:#e2b75f14;
+  color:#f5e2be;
+  font-size:13px;
+  line-height:1.65;
+}
