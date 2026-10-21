@@ -10,7 +10,8 @@ const teams=[
  {team_id:'a',code:'a',name:'Seniors A',division:'D3',played:2,wins:1,draws:1,losses:0,goals_for:3,goals_against:2},
  {team_id:'b',code:'b',name:'Seniors B',division:'D4',played:0,wins:0,draws:0,losses:0,goals_for:0,goals_against:0},
  {team_id:'c',code:'c',name:'Seniors C',division:'Amicaux',played:0,wins:0,draws:0,losses:0,goals_for:0,goals_against:0},
- {team_id:'v',code:'veterans',name:'Vétérans',division:'D3',played:0,wins:0,draws:0,losses:0,goals_for:0,goals_against:0}
+ {team_id:'v',code:'veterans',name:'Vétérans',division:'D3',played:0,wins:0,draws:0,losses:0,goals_for:0,goals_against:0},
+ {team_id:'f',code:'futsal',name:'Boissy-UJ Futsal',division:'D2',played:0,wins:0,draws:0,losses:0,goals_for:0,goals_against:0}
 ];
 
 test('aggregate view applies invoker RLS and only counts published completed games',()=>{
@@ -27,8 +28,8 @@ test('wins and losses use home/away orientation',()=>{
  assert.match(migration,/m\.is_home and m\.home_score < m\.away_score/);
 });
 test('statistic rows enforce integrity, no inferred numbers',()=>{
- assert.equal(validateTeamFormRows(teams).length,4);
- assert.throws(()=>validateTeamFormRows(teams.slice(0,3)),/Incomplete/);
+ assert.equal(validateTeamFormRows(teams).length,5);
+ assert.throws(()=>validateTeamFormRows(teams.slice(0,4)),/Incomplete/);
  assert.throws(()=>validateTeamFormRows([{...teams[0],wins:3},...teams.slice(1)]),/Inconsistent/);
  assert.throws(()=>validateTeamFormRows([{...teams[0],goals_for:-1},...teams.slice(1)]),/Invalid/);
  assert.match(stats,/Aucun résultat terminé publié/);
