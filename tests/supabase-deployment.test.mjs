@@ -20,7 +20,7 @@ test('migration provenance and deployment restrictions are documented',()=>{
  'boissy_uj_events_public_v1_20261021','boissy_uj_staff_content_workflows_20261021',
  'boissy_uj_security_indexes_20261021'
  ]) assert.ok(deployment.includes(marker),marker);
- assert.match(deployment,/8 tables applicatives/);
+ assert.match(deployment,/RLS activée sur les tables applicatives et privées inspectées/);
  assert.match(config,/enabled:\s*false/);
 });
 

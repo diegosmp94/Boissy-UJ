@@ -8,6 +8,7 @@
  */
 import {mountTeamWorkspace,mountMediaWorkspace} from './staff-workflows.mjs';
 import {mountMatchWorkspace} from './match-workspace.mjs';
+import {mountCallupsPreview} from './callups-preview.mjs';
 
 export const CONTROL_MODULES = Object.freeze([
   {id:'overview',name:'Vue générale',group:'Pilotage',phase:'socle',description:'Tableau de bord associatif et synthèse des opérations, alimentés plus tard par des indicateurs autorisés.',publicRoute:null},
@@ -143,7 +144,7 @@ function modulePanel(root,module){
   root.replaceChildren();
   if(module.id==='appearance'){sectionEditor(root);return}
   if(module.id==='teams'){mountTeamWorkspace(root);return}
-  if(module.id==='matches'){mountMatchWorkspace(root);return}
+  if(module.id==='matches'){mountMatchWorkspace(root);mountCallupsPreview(root);return}
   if(module.id==='media'){mountMediaWorkspace(root);return}
   const head=textEl('div','cc-pane-head');
   head.append(textEl('span','cc-phase',phaseLabel[module.phase]),
