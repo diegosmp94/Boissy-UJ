@@ -30,3 +30,19 @@ Contrôler :
 4. L'autorisation administrateur reste verrouillée indépendamment, même pour un compte possédant le rôle `admin`.
 
 L'accès au service Supabase est vérifié comme **actif**, mais l'état des paramètres serveur GoTrue Auth et la délivrabilité SMTP ne sont pas exposés par les connecteurs utilisés.
+
+## Correctif étape 26 — Confirmation e-mail redirigée vers localhost
+Le site construit déjà `emailRedirectTo` depuis son URL GitHub Pages. La documentation Supabase explique que **localhost en destination est lié à la configuration Site URL ou à l'absence de l'URL exacte dans Redirect URLs**. Il faut donc modifier les paramètres hébergés GoTrue, que le connecteur Supabase actuel ne permet pas d'écrire.
+
+Procédure dans [Auth → URL Configuration](https://supabase.com/dashboard/project/dahzewvbybujqhogumte/auth/url-configuration) :
+- **Site URL** : `https://diegosmp94.github.io/Boissy-UJ/`
+- **Redirect URLs** : ajouter exactement `https://diegosmp94.github.io/Boissy-UJ/` (pas de hash et conserver la barre finale).
+- Après la sauvegarde, ouvrir `#/mon-espace`, puis **Renvoyer l'e-mail de confirmation** avec l'adresse en attente. Cliquer sur le **nouveau** message, car l'ancien peut contenir le précédent `redirect_to=localhost`.
+- Si le retour vers localhost persiste, examiner la configuration du modèle de confirmation (liens de confirmation officiels `{{ .ConfirmationURL }}` plutôt qu'un lien localhost codé en dur) et refaire un test de bout en bout.
+
+Le bouton de renvoi utilise `api.auth.resend({type:'signup',email,options:{emailRedirectTo}})`, sans ouvrir de rôle supplémentaire et en maintenant des messages génériques pour ne pas révéler si un e-mail est enregistré. L'envoi réel dépend des limites et du fournisseur de messagerie Supabase.
+
+Références :
+- https://supabase.com/docs/guides/troubleshooting/why-am-i-being-redirected-to-the-wrong-url-when-using-auth-redirectto-option-_vqIeO
+- https://supabase.com/docs/guides/auth/redirect-urls
+- https://supabase.com/docs/reference/javascript/auth-resend
