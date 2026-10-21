@@ -1,4 +1,5 @@
 import { supabaseConfig } from './auth-config.mjs';
+import {CLUB_TEAMS,teamRoute} from './club-teams.mjs';
 
 const ENDPOINT = supabaseConfig.url + '/rest/v1/';
 const TEAM_CODES = ['a','b','c','veterans','futsal'];
@@ -64,7 +65,8 @@ async function getRows(table, params, signal) {
   return rows;
 }
 function matchCard(match,teamsById) {
-  const club=teamsById.get(match.team_id)?.name || 'Boissy-UJ';
+  const linked=teamsById.get(match.team_id);
+  const club=linked?.name || 'Boissy-UJ';
   const card=element('article','sport-match-card');
   const meta=element('div','sport-match-meta');
   meta.append(
@@ -84,7 +86,9 @@ function matchCard(match,teamsById) {
     : 'Données saisies par le club');
   foot.append(teamLabel,source);
   if (match.venue) foot.append(element('span','',match.venue));
-  card.append(meta,sides,foot);
+  const team=CLUB_TEAMS.find(t=>t.code===linked?.code);
+  if(team){const profile=element('a','sport-team-profile-link','Voir la fiche '+team.name+' ↗');profile.href=teamRoute(team);card.append(profile);}
+  card.prepend(meta,sides,foot);
   return card;
 }
 function mountEmpty(container,message) {
@@ -92,7 +96,7 @@ function mountEmpty(container,message) {
   empty.append(element('span','sport-empty-icon','⚽'),element('p','',message));
   container.append(empty);
 }
-function displayFixtures(root,teams,matches,seasons=[]) {
+function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
   root.replaceChildren();
   const map = new Map(teams.map(team=>[team.id,team]));
   const filter=element('div','sport-filter-bar');
@@ -116,7 +120,11 @@ function displayFixtures(root,teams,matches,seasons=[]) {
       select.append(option);
     }
   }
-  fillTeams();
+  if(initialTeamCode){
+    const requested=teams.find(t=>t.code===initialTeamCode);
+    if(requested){disciplineSelect.value=requested.discipline;fillTeams();select.value=requested.id;}
+    else fillTeams();
+  }else fillTeams();
   label.append(select);
   filter.append(label);
   let seasonSelect=null;
@@ -168,7 +176,7 @@ export function unmountSport() {
   currentRequest?.abort();
   currentRequest=null;
 }
-export async function mountSport() {
+export async function mountSport(initialTeamCode=null) {
   unmountSport();
   const generation=renderGeneration;
   const root=document.getElementById('match-center-live');
@@ -186,12 +194,12 @@ export async function mountSport() {
     if (abort.signal.aborted || generation!==renderGeneration || !root.isConnected) return;
     const uniqueCodes=new Set(teams.map(t=>t.code));
     if (!TEAM_CODES.every(c=>uniqueCodes.has(c))) throw new Error('Équipes non configurées');
-    displayFixtures(root,teams,matches,seasons);
+    displayFixtures(root,teams,matches,seasons,initialTeamCode);
   } catch(err){
     if (abort.signal.aborted || generation!==renderGeneration || !root.isConnected) return;
     // La migration sportive n'est pas encore présente dans tous les environnements.
     // Conserver l'interface sans annoncer faussement un calendrier vide ou un score.
-    displayFixtures(root,FALLBACK_TEAMS,[]);
+    displayFixtures(root,FALLBACK_TEAMS,[],[],initialTeamCode);
     const notice=element('p','sport-notice',
       'La source du calendrier n’est pas encore disponible. Présentation des équipes uniquement ; aucun match ni résultat ne peut être confirmé pour le moment.');
     notice.setAttribute('role','status');
