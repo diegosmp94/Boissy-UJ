@@ -10,6 +10,7 @@ import {mountTeamWorkspace,mountMediaWorkspace} from './staff-workflows.mjs';
 import {mountMatchWorkspace} from './match-workspace.mjs';
 import {mountCallupsPreview} from './callups-preview.mjs';
 import {mountRoleManagementPreview} from './role-workflow.mjs';
+import {mountClubIdentityPreview} from './club-editor.mjs';
 
 export const CONTROL_MODULES = Object.freeze([
   {id:'overview',name:'Vue générale',group:'Pilotage',phase:'socle',description:'Tableau de bord associatif et synthèse des opérations, alimentés plus tard par des indicateurs autorisés.',publicRoute:null},
@@ -17,6 +18,7 @@ export const CONTROL_MODULES = Object.freeze([
   {id:'teams',name:'Équipes & effectifs',group:'Sport',phase:'socle',description:'Quatre équipes validées, saisons, affectations et autorisations des éducateurs.',publicRoute:'#/equipes'},
   {id:'matches',name:'Match Center',group:'Sport',phase:'socle',description:'Calendriers, compositions, résultats et statistiques vérifiées ou saisies par le club.',publicRoute:'#/matchs'},
   {id:'media',name:'Actualités & médias',group:'Contenu',phase:'socle',description:'Gestion éditoriale, versions, publication encadrée et respect des droits à l’image.',publicRoute:'#/actualites'},
+  {id:'club-content',name:'Histoire & identité',group:'Contenu',phase:'apercu',description:'Préparer les textes Histoire, Valeurs, Organisation et Projets ; publication réelle uniquement sous Auth et MFA AAL2.',publicRoute:'#/club'},
   {id:'premium',name:'Communauté & Awards',group:'Contenu',phase:'a-venir',description:'Votes premium, avantages, modération des réactions et accès réservés.',publicRoute:'#/communaute'},
   {id:'events',name:'Événements & billets',group:'Gestion',phase:'socle',description:'Programme, capacités, tarifs et réservations après validation du backend.',publicRoute:'#/evenements'},
   {id:'finances',name:'Dons & finances',group:'Gestion',phase:'a-venir',description:'Comptabilité des dons, abonnements, transactions et rapprochements Stripe TEST puis LIVE autorisé.',publicRoute:'#/soutenir'},
@@ -148,6 +150,7 @@ function modulePanel(root,module){
   if(module.id==='teams'){mountTeamWorkspace(root);return}
   if(module.id==='matches'){mountMatchWorkspace(root);mountCallupsPreview(root);return}
   if(module.id==='media'){mountMediaWorkspace(root);return}
+  if(module.id==='club-content'){mountClubIdentityPreview(root);return}
   const head=textEl('div','cc-pane-head');
   head.append(textEl('span','cc-phase',phaseLabel[module.phase]),
     textEl('h2','',module.name),textEl('p','',module.description));
