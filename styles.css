@@ -1149,3 +1149,143 @@ textarea.staff-input {resize:vertical;line-height:1.6;}
 @media(prefers-reduced-motion:reduce){
   .showcase-tab,.showcase-feature-link {transition:none!important;animation:none!important;}
 }
+
+
+/* Boissy-UJ — public club story: verified editorial content and four-team identity. */
+.club-home-link{display:inline-flex;margin:21px 0 0;color:#f0cf94;font-weight:800;gap:7px}
+.club-story-intro {
+  display:grid;grid-template-columns:minmax(150px,260px) minmax(0,1fr);
+  align-items:center;gap:clamp(24px,5vw,58px);
+  padding:clamp(26px,4vw,48px);
+  margin:0 0 34px;border:1px solid #c8dfff4c;border-radius:20px;
+  background:radial-gradient(circle at 19% 52%,#3a86cc33,transparent 44%),
+    linear-gradient(135deg,#164072,#06172f);
+}
+.club-story-emblem {display:grid;place-items:center;position:relative;aspect-ratio:1}
+.club-story-emblem::before {
+  content:"";position:absolute;inset:8%;border-radius:50%;
+  border:1px solid #f0c56e81;box-shadow:0 0 45px #4994ea30;
+}
+.club-story-emblem img {width:min(78%,180px);height:auto;object-fit:contain;filter:drop-shadow(0 10px 24px #0007)}
+.club-story-intro h2 {font-size:clamp(27px,3.8vw,53px);line-height:1.08;margin:14px 0;max-width:750px}
+.club-story-intro p {font-size:15px;line-height:1.75;color:#c2d7ee;max-width:650px}
+.club-story-link {
+  display:inline-flex;align-items:center;gap:7px;width:max-content;max-width:100%;
+  margin-top:12px;padding:11px 0;
+  color:#f4cf86;border-bottom:1px solid #f0c56e;
+  font-weight:850;font-size:13px;text-decoration:none;
+}
+.club-story-hub {display:grid;gap:48px;padding-bottom:clamp(70px,9vw,120px);min-width:0}
+.club-block-heading {display:grid;gap:12px;max-width:800px}
+.club-eyebrow {font-size:11px;color:#f0c56e;font-weight:900;letter-spacing:.17em;text-transform:uppercase}
+.club-block-heading h2 {margin:0;font-size:clamp(26px,3.7vw,44px);line-height:1.1}
+.club-block-heading p {margin:0;color:#b7cce8;line-height:1.75;font-size:14px}
+.club-teams-section,.club-vision,.club-story-archive,.club-chronology,.club-governance {
+  display:grid;gap:23px;min-width:0;
+}
+.club-teams-grid {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+.club-mini-team {
+  display:grid;align-content:space-between;gap:14px;
+  border:1px solid #a5c7ee5c;border-radius:14px;
+  background:linear-gradient(145deg,#153d6b,#081c37);
+  padding:clamp(18px,2.5vw,27px);min-width:0;
+  min-height:210px;
+}
+.club-team-index {color:#eac880;letter-spacing:.12em;font-size:12px;font-weight:850}
+.club-mini-team h3 {font-size:clamp(21px,2.4vw,27px);margin:0;line-height:1.12}
+.club-mini-team p {font-size:14px;color:#e2edfb;font-weight:700;margin:0}
+.club-mini-team small {font-size:11px;color:#a9c5e2;line-height:1.5}
+.club-vision {
+  padding:clamp(24px,3.5vw,40px);border:1px solid #d9b66b5c;border-radius:17px;
+  background:radial-gradient(circle at 100% 0,#f5cb7830,transparent 45%),
+    linear-gradient(120deg,#123863,#0b2443);
+}
+.club-vision-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.club-vision-card {
+  padding:20px 18px;min-width:0;border:1px solid #b3d1eb4f;
+  border-radius:12px;background:#071e39a3;
+}
+.club-vision-index {font-size:25px;color:#f1c87f;font-weight:900}
+.club-vision-card h3 {font-size:19px;margin:15px 0 10px}
+.club-vision-card p {font-size:13px;color:#bcd2e9;margin:0;line-height:1.7}
+.club-data-sections {display:grid;gap:42px}
+.club-theme-selectors {display:flex;gap:9px;flex-wrap:wrap}
+.club-theme-button {
+  border:1px solid #b8d2ec79;border-radius:10px;
+  min-height:47px;padding:11px 16px;
+  color:#c7d9ee;background:#0b2a4d;font:inherit;font-size:13px;
+  font-weight:800;cursor:pointer;
+}
+.club-theme-button:hover {background:#17446f}
+.club-theme-button[aria-pressed="true"] {
+  background:#f0c56e;color:#071931;border-color:#ffdf9d;
+}
+.club-theme-button:focus-visible,.club-story-link:focus-visible {
+  outline:3px solid #f0c56e;outline-offset:4px;
+}
+.club-story-results,.club-position-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;min-width:0}
+.club-story-card,.club-position-card {
+  min-width:0;padding:clamp(20px,3vw,29px);border-radius:13px;
+  border:1px solid #accaea5c;
+  background:linear-gradient(130deg,#143c69,#081f3d);
+}
+.club-story-card h3,.club-position-card h3 {font-size:clamp(21px,2.5vw,28px);margin:0 0 11px}
+.club-story-card p,.club-position-card p {
+  font-size:14px;color:#bfd4eb;line-height:1.8;margin:0;
+  white-space:pre-wrap;overflow-wrap:anywhere;
+}
+.club-position-card strong {display:block;margin:0 0 10px;color:#f0d092;font-size:16px}
+.club-position-label {display:block;font-size:11px;color:#e9c47e;letter-spacing:.12em;font-weight:850;margin:0 0 11px}
+.club-story-empty,.club-story-loading {
+  grid-column:1/-1;border-radius:12px;
+  padding:22px;border:1px dashed #9cbedf77;
+  background:#0b2948;color:#c4d9ed;
+  font-size:14px;line-height:1.7;margin:0;
+}
+.club-timeline {
+  margin:0;padding:0 0 0 27px;list-style:none;
+  border-left:2px solid #e8c47a7d;display:grid;gap:18px;
+}
+.club-timeline-entry {
+  position:relative;display:grid;gap:10px;padding:19px;
+  border-radius:12px;background:#11345c;border:1px solid #b7cee755;
+}
+.club-timeline-entry::before {
+  content:"";position:absolute;left:-36px;top:27px;
+  width:15px;height:15px;border-radius:50%;background:#f0c56e;
+  border:3px solid #071a38;
+}
+.club-timeline-period {font-size:12px;color:#f0cd86;font-weight:900}
+.club-timeline-entry h3 {font-size:22px;margin:0}
+.club-timeline-entry p {font-size:14px;color:#c8daef;line-height:1.7;margin:0;white-space:pre-wrap}
+.club-story-footer {
+  display:grid;gap:12px;padding:clamp(24px,4vw,44px);
+  border:1px solid #e1bc745a;border-radius:18px;
+  background:radial-gradient(circle at 90% 0,#f0c56e20,transparent 45%),
+    linear-gradient(125deg,#133b68,#081e39);
+}
+.club-story-footer h2 {font-size:clamp(26px,3.6vw,44px);margin:0}
+.club-story-footer p {margin:0;color:#b8d0e8;font-size:15px}
+.club-story-actions {display:flex;gap:24px;flex-wrap:wrap;align-items:center}
+@media(max-width:970px){
+  .club-teams-grid {grid-template-columns:repeat(2,minmax(0,1fr))}
+  .club-mini-team {min-height:175px}
+}
+@media(max-width:760px){
+  .club-story-intro{grid-template-columns:1fr;gap:10px}
+  .club-story-emblem{width:min(180px,55%);margin:0 auto}
+  .club-story-hub{gap:32px;padding-bottom:calc(115px + env(safe-area-inset-bottom,0px))}
+  .club-vision-grid,.club-story-results,.club-position-grid{grid-template-columns:1fr}
+  .club-story-actions{gap:12px}
+}
+@media(max-width:450px){
+  .club-teams-grid{gap:9px}
+  .club-mini-team{padding:16px 12px;min-height:185px}
+  .club-mini-team h3{font-size:20px}
+  .club-mini-team p{font-size:12px}
+  .club-theme-selectors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .club-theme-button{padding:11px 8px}
+}
+@media(prefers-reduced-motion:reduce){
+  .club-story-intro,.club-story-footer{animation:none!important;transition:none!important}
+}
