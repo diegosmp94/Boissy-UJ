@@ -79,3 +79,12 @@ test('public control preview does not load private identities or persist results
  assert.match(cc,/mountCallupsPreview\(root\)/);
  assert.match(app,/if\(path==='\/matchs'\) void mountTeamStats\(\); else unmountTeamStats\(\);/);
 });
+
+test('staff can only create callups before a match has finished or been cancelled',()=>{
+ const guard=read('supabase/migrations/202610210012_callups_final_match_guard.sql');
+ assert.match(guard,/m\.match_status not in \('played','cancelled'\)/);
+ assert.match(guard,/where m\.id=p_match_id/);
+ assert.match(guard,/app_private\.is_admin\(\)/);
+ assert.match(guard,/r\.role='coach'/);
+ assert.match(guard,/revoke all on function public\.staff_set_callup/);
+});
