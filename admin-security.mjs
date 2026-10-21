@@ -29,7 +29,7 @@ function status(root,message,isError=false){
  const out=root.querySelector('[data-mfa-message]');
  if(out){out.textContent=message;out.dataset.error=String(isError);}
 }
-/** Render QR only for a verified admin account. Never persist TOTP secrets in localStorage. */
+/** Render QR only for a verified admin account. Never persist TOTP secrets in browser storage. */
 export async function mountAdminMfaSetup(container,api,userId){
  if(!supabaseConfig.adminEnabled||!container?.isConnected||!api||!userId)return;
  const current=await adminSessionStatus(api,userId);
