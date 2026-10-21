@@ -11,7 +11,7 @@
   - `#/equipes/futsal/boissy-uj-futsal` — Boissy-UJ Futsal · Départemental 2
 
 ## Menus et expérience
-Le menu principal ordinateur propose « Équipes » (lien général) et un bouton ouvrant un sous-menu : Football à 11 et Futsal, avec chaque équipe. Les commandes `aria-expanded`, `aria-controls`, `hidden`, Escape et les liens avec `aria-current` renforcent les usages clavier.
+**Amélioration du 21 octobre 2026 :** sur ordinateur, la flèche/bouton séparé a été retirée. Un simple survol de « Équipes » dévoile immédiatement un panneau premium bleu nuit/doré (transition très courte, neutralisée si réduction du mouvement demandée), sans aucun clic. Une zone de survol continue relie le libellé au panneau pour éviter sa fermeture accidentelle. Les deux catégories et les cinq liens sont préservés. Le clic sur « Équipes » garde son accès à l'annuaire général. Le focus au clavier ouvre également le menu ; Escape, le départ du pointeur et le clic ailleurs le referment, avec synchronisation de `aria-expanded` et `hidden`. Une navigation clavier après Escape ne rouvre pas involontairement le panneau.
 
 Sur mobile, `<details>`/ `<summary>` permet d'ouvrir « Équipes », puis Football ou Futsal ; chaque rubrique comporte un lien vers sa page catégorie et des accès directs aux équipes. La navigation fixe en bas propose désormais un raccourci Équipes. Le menu reste scrollable sur les petits écrans.
 
@@ -24,7 +24,8 @@ Le site ne nécessite aucune migration supplémentaire : les cinq équipes et le
 
 ## Vérifications
 - 2 pages catégorie + 5 pages équipe, avec route fixe et référencement interne.
-- Menu ordinateur / mobile, clavier, indicateurs actif, CSS responsive et préférence de mouvement réduit.
+- Ouverture ordinateur au survol sans bouton « flèche », fermeture en quittant le panneau, clic ailleurs et Escape ; clavier, indicateurs actifs et respect du mouvement réduit.
+- Tests de comportement simulant réellement les événements de pointeur, de focus, de clic et d'Escape, plus couverture mobile inchangée.
 - Liaison depuis l'accueil et l'annuaire, fil d'Ariane vers les niveaux supérieurs.
 - Requêtes GET uniquement, restriction par UUID d'équipe et `published=eq.true`.
 - Test GitHub Actions, revue de confidentialité et vérification visuelle Pages à effectuer avant d'affirmer une recette mobile réelle.
