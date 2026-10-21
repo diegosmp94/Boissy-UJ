@@ -1,6 +1,8 @@
 /** Boissy-UJ — éditeurs de préparation, exclusivement en mémoire. */
 import {mountSeasonPreview} from './season-workspace.mjs';
 import {CLUB_TEAMS} from './club-teams.mjs';
+// Compatibilité des ateliers déjà reliés à cet ancien module.
+export {CLUB_TEAMS};
 export function checkArticle(values){
   const title=String(values.title||'').trim(),excerpt=String(values.excerpt||'').trim();
   const body=String(values.body||'').trim();
