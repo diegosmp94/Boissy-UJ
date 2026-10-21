@@ -80,5 +80,5 @@ test('interactive mobile layout preserves reduced motion and responsive breakpoi
   assert.match(style,/prefers-reduced-motion:reduce/);
   assert.match(src,/aria-pressed/);
   assert.match(src,/aria-label/);
-  assert.match(src,/controller\?\.abort\(\)/);
+  assert.match(src,/currentController\?\.abort\(\)/);
 });
