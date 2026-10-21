@@ -91,7 +91,7 @@ export async function mountTeamProfile(code){
       }
       section.append(list);root.append(section);
     }
-    root.append(node('p','team-profile-disclaimer','Seules les rencontres publiées par le club sont affichées. Aucun classement officiel ni effectif n’est déduit.'));
+    root.append(node('p','team-profile-disclaimer','Seules les rencontres publiées par le club sont affichées. Aucun classement officiel n’est déduit. Les effectifs ne figurent que dans l’annuaire public validé.'));
   }catch{
     if(controller.signal.aborted||current!==generation||!root.isConnected)return;
     root.replaceChildren(node('p','team-profile-state','Données sportives temporairement indisponibles. Aucun résultat non vérifié ne sera présenté.'));
