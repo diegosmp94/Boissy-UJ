@@ -71,6 +71,10 @@ export async function mountAdminCenter(getClient){
    }
   });
   activeSubscription=subscription;
+  // Fail-closed: do not show an editor without its MFA-only database RPC.
+  const eventProbe=await api.rpc('admin_list_free_events');
+  if(serial!==currentGeneration||!root.isConnected)return;
+  const eventsReady=!eventProbe.error&&Array.isArray(eventProbe.data);
   root.replaceChildren();
   const head=el('header','real-admin-heading');
   head.append(el('span','tiny-label','BOISSY-UJ · ADMINISTRATION SÉCURISÉE'),
@@ -137,7 +141,7 @@ export async function mountAdminCenter(getClient){
     case 'identity':void mountAuthenticatedClubIdentityEditor(view,api,verified.userId);break;
    }
   }
-  for(const item of ADMIN_MODULES){
+  for(const item of ADMIN_MODULES.filter(module=>module.id!=='events'||eventsReady)){
    const b=button(item.name);b.dataset.module=item.id;
    b.append(el('small','',item.caption));b.addEventListener('click',()=>void selectSection(item.id));
    sidebar.append(b);
