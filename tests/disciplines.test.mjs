@@ -71,8 +71,8 @@ test('migration preserves existing UUIDs and RLS and adds only futsal club team'
 test('UI separates teams and provides safe local navigation, unchanged auth',()=>{
   assert.match(app,/teamsByDiscipline\('football',teams\)/);
   assert.match(app,/teamsByDiscipline\('futsal',teams\)/);
-  assert.match(app,/id="football-section"/);
-  assert.match(app,/id="futsal-section"/);
+  assert.match(app,/group\('football-section'/);
+  assert.match(app,/group\('futsal-section'/);
   assert.match(app,/data-discipline-target="futsal-section"/);
   assert.match(app,/BOISSY-UJ FUTSAL/);
   assert.match(styles,/\.discipline-section/);
