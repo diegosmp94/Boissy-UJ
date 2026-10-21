@@ -48,3 +48,127 @@
 .auth-loading{color:#c0d7f4;padding:3rem .5rem;text-align:center}
 .auth-signed-in{display:grid;gap:.85rem}
 @media(max-width:700px){.auth-layout{grid-template-columns:1fr}.auth-layout>.account-mark{min-height:130px;gap:1rem}.auth-layout>.account-mark img{width:74px;height:74px}.auth-card{min-height:330px}}
+
+
+/* BOISSY-UJ MOBILE HOTFIX: iPhone chapters flow v1 */
+@media (max-width: 760px) {
+  /* On mobile the viewport is a MINIMUM, never a content clipping frame. */
+  .chapters { scroll-snap-type: none; }
+  .chapter {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 18px;
+    width: 100%;
+    min-height: 100svh;
+    height: auto;
+    padding: 90px clamp(18px, 5vw, 25px)
+      calc(112px + env(safe-area-inset-bottom, 0px));
+    scroll-snap-align: none;
+  }
+
+  .chapter .section-copy,
+  .chapter .hero-content,
+  .chapter .join-inner,
+  .chapter .section-heading,
+  .chapter .teams-grid { min-width: 0; max-width: 100%; }
+
+  /* The first headline used to extend beyond a 390px iPhone viewport. */
+  .chapter.chapter-identity .hero-content h1 {
+    font-size: clamp(27px, 8vw, 38px);
+    line-height: 1.13;
+    letter-spacing: -.045em;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    margin: 18px auto;
+  }
+
+  .chapter h2,
+  .chapter .section-heading h2,
+  .chapter .join-inner h2 {
+    font-size: clamp(29px, 8vw, 43px);
+    line-height: 1.1;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .chapter .section-copy p,
+  .chapter .hero-content p {
+    max-width: 100%;
+    font-size: clamp(14px, 3.8vw, 16px);
+    line-height: 1.62;
+  }
+
+  .hero-ctas {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: min(100%, 380px);
+    gap: 10px;
+    margin: 20px auto 0;
+  }
+  .hero-ctas .btn { width: 100%; min-width: 0; }
+
+  /* In the document flow, the next-chapter button cannot cover cards/CTAs. */
+  .chapter .chapter-next {
+    position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    transform: none;
+    align-self: center;
+    flex-shrink: 0;
+    width: max-content;
+    max-width: 100%;
+    min-height: 58px;
+    margin: 10px auto 0;
+    padding: 7px 12px;
+    text-align: center;
+    white-space: nowrap;
+    z-index: 3;
+  }
+  .chapter-next b { font-size: 23px; line-height: 1.05; }
+
+  .chapter-teams { justify-content: center; }
+  .chapter-teams .section-heading { margin: 0 0 6px; }
+  .chapter-teams .section-heading .btn { max-width: 100%; margin: 12px 0 0; }
+  .teams-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
+  }
+  .team-card { min-height: 188px; padding: 14px; gap: 8px; }
+  .team-card h3 { font-size: clamp(17px, 4.5vw, 21px); }
+  .team-symbol { min-height: 54px; }
+  .team-symbol img { height: 50px; width: 50px; }
+
+  .chapter-competition,
+  .chapter-community,
+  .chapter-media { gap: 18px; }
+  .score-panel,
+  .chapter-community .premium-teaser,
+  .chapter-media .media-art { margin: 6px auto; }
+  .chapter-community .section-copy .btn + .btn { margin-top: 10px; }
+  .chapter-join .site-footer {
+    position: relative;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    width: 100%;
+    margin-top: 12px;
+    padding: 16px 0 0;
+  }
+}
+
+@media (max-width: 350px) {
+  .chapter { padding-left: 16px; padding-right: 16px; }
+  .chapter.chapter-identity .hero-content h1 { font-size: 26px; }
+  .teams-grid { gap: 8px; }
+  .team-card { padding: 10px; }
+}
+
+/* In reduced-motion mode avoid snap/forced scrolling regardless of viewport. */
+@media (prefers-reduced-motion: reduce) {
+  .chapters { scroll-snap-type: none; }
+  .chapter { scroll-snap-align: none; }
+}
