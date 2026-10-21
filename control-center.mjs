@@ -15,7 +15,7 @@ import {mountClubIdentityPreview} from './club-editor.mjs';
 export const CONTROL_MODULES = Object.freeze([
   {id:'overview',name:'Vue générale',group:'Pilotage',phase:'socle',description:'Tableau de bord associatif et synthèse des opérations, alimentés plus tard par des indicateurs autorisés.',publicRoute:null},
   {id:'members',name:'Utilisateurs & rôles',group:'Pilotage',phase:'apercu',description:'Doubles et triples rôles, demandes approuvées par un autre administrateur MFA AAL2 et révocations indépendantes.',publicRoute:'#/mon-espace'},
-  {id:'teams',name:'Équipes & effectifs',group:'Sport',phase:'socle',description:'Quatre équipes validées, saisons, affectations et autorisations des éducateurs.',publicRoute:'#/equipes'},
+  {id:'teams',name:'Équipes & effectifs',group:'Sport',phase:'socle',description:'Cinq équipes : football à 11 et futsal, saisons, affectations et autorisations des éducateurs.',publicRoute:'#/equipes'},
   {id:'matches',name:'Match Center',group:'Sport',phase:'socle',description:'Calendriers, compositions, résultats et statistiques vérifiées ou saisies par le club.',publicRoute:'#/matchs'},
   {id:'media',name:'Actualités & médias',group:'Contenu',phase:'socle',description:'Gestion éditoriale, versions, publication encadrée et respect des droits à l’image.',publicRoute:'#/actualites'},
   {id:'club-content',name:'Histoire & identité',group:'Contenu',phase:'apercu',description:'Préparer les textes Histoire, Valeurs, Organisation et Projets ; publication réelle uniquement sous Auth et MFA AAL2.',publicRoute:'#/club'},
@@ -83,7 +83,7 @@ export function controlCenterMarkup(){
 function buildOverview(root){
   const stats=textEl('div','cc-stats');
   for(const [label,value,subtext] of [
-    ['Équipes prévues','04','Seniors A, B, C et Vétérans'],
+    ['Équipes prévues','05','Football (4) · Futsal (1)'],
     ['Modules du centre',String(CONTROL_MODULES.length).padStart(2,'0'),'Feuille de route en cours'],
     ['Encaissements LIVE','00','Paiements non activés'],
     ['Accès administrateur','—','Authentification encore verrouillée']

@@ -5,7 +5,7 @@ import {mountCallupsPreview} from './callups-preview.mjs';
 import {mountSeasonPreview} from './season-workspace.mjs';
 
 export const SHOWCASE_MODULES=Object.freeze([
-  {label:'Équipes',href:'#/equipes',state:'public',detail:'Quatre équipes identifiées, pages consultables.'},
+  {label:'Équipes',href:'#/equipes',state:'public',detail:'Cinq équipes : quatre de football à 11 et une de futsal D2, avec pages consultables.'},
   {label:'Match Center',href:'#/matchs',state:'public',detail:'Rencontres et bilans réellement publiés.'},
   {label:'Actualités',href:'#/actualites',state:'public',detail:'Articles visibles après contrôle de publication.'},
   {label:'Événements',href:'#/evenements',state:'public',detail:'Catalogue et informations d’événements en lecture.'},

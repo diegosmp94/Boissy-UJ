@@ -1,0 +1,35 @@
+/* Football à 11 / Futsal — différenciation sans changer la direction graphique du site */
+.discipline-jump{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 44px}
+.discipline-jump button{appearance:none;cursor:pointer;display:inline-flex;align-items:center;min-height:48px;padding:13px 18px;
+  font:700 14px 'DM Sans',sans-serif;color:#fff;background:#12365e;border:1px solid #94b7df80;border-radius:10px}
+.discipline-jump button:hover,.discipline-jump button:focus-visible{border-color:var(--gold);color:var(--gold)}
+.discipline-section{margin:40px 0 72px;scroll-margin-top:110px}
+.discipline-heading{max-width:760px;margin:0 0 26px}
+.discipline-heading .tiny-label{color:var(--gold)}
+.discipline-heading h2{font-family:Outfit,system-ui,sans-serif;font-size:clamp(32px,5vw,62px);font-weight:900;letter-spacing:-.045em;margin:10px 0}
+.discipline-heading p{color:#c6d9f1;line-height:1.7}
+.discipline-grid{align-items:stretch}
+.discipline-grid .team-detail{display:flex;flex-direction:column}
+.discipline-grid .team-detail .empty-caption{margin-top:auto}
+.discipline-grid .team-detail img{margin-bottom:10px}
+.identity-discipline{margin-top:32px}
+.identity-discipline-title{margin:0 0 18px;color:var(--gold);font:800 clamp(20px,3vw,28px) Outfit,system-ui,sans-serif}
+.identity-discipline .identity-team h4{margin:8px 0 12px;font-size:clamp(18px,2vw,25px)}
+.chapter-teams{height:auto;min-height:100svh;padding-bottom:max(112px,9vh)}
+.discipline-home-label{font-size:11px!important;letter-spacing:.18em;color:var(--gold)!important;font-weight:800;margin:18px 0 12px!important}
+.futsal-home-link{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  margin-top:18px;padding:22px 26px;border:1px solid #edc77599;background:linear-gradient(110deg,#164779,#081b38);
+  border-radius:14px;color:#fff;min-height:90px}
+.futsal-home-link strong{font-size:clamp(18px,2.5vw,29px);font-family:Outfit,sans-serif;letter-spacing:-.025em}
+.futsal-home-link span:last-child{font-size:13px;color:var(--gold);font-weight:800}
+.futsal-home-link:hover{border-color:var(--gold);box-shadow:0 7px 24px #0003}
+@media(max-width:760px){
+  .chapter-teams{padding-bottom:calc(155px + env(safe-area-inset-bottom,0px));min-height:100svh;height:auto}
+  .discipline-jump{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:29px}
+  .discipline-jump button{font-size:12px;min-height:54px;padding:10px 12px}
+  .discipline-section{margin:36px 0 50px;scroll-margin-top:86px}
+  .futsal-home-link{padding:17px 18px;gap:9px;min-height:95px}
+  .futsal-home-link .tiny-label{width:100%}
+}
+@media(max-width:380px){.discipline-jump{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.discipline-jump button,.futsal-home-link{transition:none}}

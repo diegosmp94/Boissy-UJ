@@ -1,14 +1,15 @@
 import { supabaseConfig } from './auth-config.mjs';
 
 const ENDPOINT = supabaseConfig.url + '/rest/v1/';
-const TEAM_CODES = ['a','b','c','veterans'];
+const TEAM_CODES = ['a','b','c','veterans','futsal'];
 /* Fallback de présentation uniquement, sans rencontre inventée.
    Ces identités correspondent aux catégories confirmées dans le cahier des charges. */
 const FALLBACK_TEAMS = Object.freeze([
-  { id:'pending-a', code:'a', name:'Seniors A', division:'Départemental 3' },
-  { id:'pending-b', code:'b', name:'Seniors B', division:'Départemental 4' },
-  { id:'pending-c', code:'c', name:'Seniors C', division:'Matchs amicaux' },
-  { id:'pending-veterans', code:'veterans', name:'Vétérans', division:'Départemental 3' }
+  { id:'pending-a', code:'a', name:'Seniors A', division:'Départemental 3', discipline:'football' },
+  { id:'pending-b', code:'b', name:'Seniors B', division:'Départemental 4', discipline:'football' },
+  { id:'pending-c', code:'c', name:'Seniors C', division:'Matchs amicaux', discipline:'football' },
+  { id:'pending-veterans', code:'veterans', name:'Vétérans', division:'Départemental 3',discipline:'football' },
+  { id:'pending-futsal',code:'futsal',name:'Boissy-UJ Futsal',division:'Départemental 2',discipline:'futsal' }
 ]);
 
 let currentRequest;
@@ -27,9 +28,11 @@ export function splitMatches(matches) {
     .sort((a,b) => Date.parse(b.scheduled_at) - Date.parse(a.scheduled_at));
   return {upcoming,results};
 }
-export function filterPublishedFixtures(matches, {teamId='all',seasonId='all'}={}) {
+export function filterPublishedFixtures(matches, {teamId='all',seasonId='all',discipline='all',teams=[]}={}) {
+  const disciplineMap=new Map(teams.map(t=>[t.id,t.discipline]));
   return matches.filter(match => (teamId==='all'||match.team_id===teamId)
-    && (seasonId==='all'||match.season_id===seasonId));
+    && (seasonId==='all'||match.season_id===seasonId)
+    && (discipline==='all'||disciplineMap.get(match.team_id)===discipline));
 }
 export function scoreLabel(match) {
   return match.match_status === 'played'
@@ -93,17 +96,27 @@ function displayFixtures(root,teams,matches,seasons=[]) {
   root.replaceChildren();
   const map = new Map(teams.map(team=>[team.id,team]));
   const filter=element('div','sport-filter-bar');
-  const label=element('label','', 'Afficher :');
+  const disciplineLabel=element('label','','Discipline :');
+  const disciplineSelect=element('select','sport-team-select');
+  disciplineSelect.setAttribute('aria-label','Filtrer les rencontres par discipline');
+  for(const [value,name] of [['all','Football & futsal'],['football','Football à 11'],['futsal','Futsal']]){
+    const option=element('option','',name);option.value=value;disciplineSelect.append(option);
+  }
+  disciplineLabel.append(disciplineSelect);
+  filter.append(disciplineLabel);
+  const label=element('label','', 'Équipe :');
   const select=element('select','sport-team-select');
   select.setAttribute('aria-label','Filtrer les rencontres par équipe');
-  const all=element('option','','Toutes les équipes');
-  all.value='all';
-  select.append(all);
-  for(const team of teams) {
-    const option=element('option','',team.name);
-    option.value=team.id;
-    select.append(option);
+  function fillTeams(){
+    select.replaceChildren();
+    const all=element('option','','Toutes les équipes');all.value='all';select.append(all);
+    for(const team of teams.filter(t=>disciplineSelect.value==='all'||t.discipline===disciplineSelect.value)){
+      const option=element('option','',team.name);
+      option.value=team.id;
+      select.append(option);
+    }
   }
+  fillTeams();
   label.append(select);
   filter.append(label);
   let seasonSelect=null;
@@ -128,7 +141,8 @@ function displayFixtures(root,teams,matches,seasons=[]) {
     data.replaceChildren();
     const selection=select.value;
     const filtered=filterPublishedFixtures(matches,{
-      teamId:selection,seasonId:seasonSelect?.value||'all'
+      teamId:selection,seasonId:seasonSelect?.value||'all',
+      discipline:disciplineSelect.value,teams
     });
     const blocks=splitMatches(filtered);
     for (const [title,list,empty] of [
@@ -144,6 +158,7 @@ function displayFixtures(root,teams,matches,seasons=[]) {
       data.append(section);
     }
   }
+  disciplineSelect.addEventListener('change',()=>{fillTeams();redraw()});
   select.addEventListener('change',redraw);
   seasonSelect?.addEventListener('change',redraw);
   redraw();
@@ -163,7 +178,7 @@ export async function mountSport() {
   root.replaceChildren(element('p','sport-loading','Chargement des informations du club…'));
   try{
     const [teams,matches,seasons]=await Promise.all([
-      getRows('club_teams',{select:'id,code,name,division,source_kind,sort_order',order:'sort_order.asc'},abort.signal),
+      getRows('club_teams',{select:'id,code,name,division,source_kind,discipline,sort_order',order:'sort_order.asc'},abort.signal),
       getRows('matches',{select:'id,team_id,season_id,opponent_name,scheduled_at,venue,is_home,home_score,away_score,match_status,source_kind',
         published:'eq.true',order:'scheduled_at.asc',limit:'100'},abort.signal),
       getRows('club_seasons',{select:'id,label,state',order:'label.desc'},abort.signal)

@@ -3,8 +3,8 @@ import {supabaseConfig} from './auth-config.mjs';
 /** Club totals computed from published completed matches only; no player data. */
 export function validateTeamFormRows(rows){
   if(!Array.isArray(rows))throw new Error('Invalid statistics');
-  const expected=new Set(['a','b','c','veterans']);
-  if(rows.length!==4||new Set(rows.map(x=>x.code)).size!==4
+  const expected=new Set(['a','b','c','veterans','futsal']);
+  if(rows.length!==5||new Set(rows.map(x=>x.code)).size!==5
     ||!rows.every(x=>expected.has(x.code)))throw new Error('Incomplete team summary');
   return rows.map(row=>{
     for(const key of ['played','wins','draws','losses','goals_for','goals_against']){
@@ -56,7 +56,7 @@ export async function mountTeamStats(){
     const cards=el('div','sport-form-grid');
     for(const row of rows){
       const card=el('article','sport-form-card');
-      card.append(el('span','sport-pill',row.division),el('h3','',row.name));
+      card.append(el('span','sport-pill',row.code==='futsal'?'Futsal · '+row.division:'Football · '+row.division),el('h3','',row.name));
       if(!row.played){
         card.append(el('p','sport-form-empty','Aucun résultat terminé publié.'));
       }else{

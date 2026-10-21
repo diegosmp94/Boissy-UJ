@@ -18,8 +18,8 @@ export function validateMatchDraft(values){
     errors.push('Statut de rencontre invalide.');
   if(!['manual','fff'].includes(values.source))
     errors.push('Source invalide.');
-  if(values.team==='c'&&values.source==='fff')
-    errors.push('Seniors C utilise uniquement une source manuelle.');
+  if(team?.source==='Manuelle'&&values.source==='fff')
+    errors.push('Une référence FFF n’est pas encore configurée pour cette équipe : sélectionne la saisie club.');
   if(values.source==='fff'&&
     (normalize(values.reference).length<1||normalize(values.reference).length>300))
     errors.push('Une référence FFF est nécessaire (300 caractères maximum).');
@@ -76,7 +76,7 @@ export function mountMatchWorkspace(root){
   root.append(disclaimer);
   const form=create('form','staff-form');
   form.noValidate=true;
-  const team=select('team',CLUB_TEAMS.map(x=>[x.code,x.name]));
+  const team=select('team',CLUB_TEAMS.map(x=>[x.code,(x.discipline==='futsal'?'Futsal · ':'Football · ')+x.name]));
   const opponent=input('opponent','text',120);
   const when=input('when','datetime-local',80);
   const venue=input('venue','text',160);
@@ -120,7 +120,7 @@ export function mountMatchWorkspace(root){
     const played=status.value==='played';
     goalsWrap.hidden=!played;
     if(!played){homeScore.value='';awayScore.value=''}
-    if(team.value==='c'&&source.value==='fff'){source.value='manual'}
+    if(CLUB_TEAMS.find(x=>x.code===team.value)?.source==='Manuelle'&&source.value==='fff'){source.value='manual'}
     const fff=source.value==='fff';
     sourceRef.hidden=!fff;
     if(!fff)reference.value='';
