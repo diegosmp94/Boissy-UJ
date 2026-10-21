@@ -1,6 +1,7 @@
 import { supabaseConfig } from "./auth-config.mjs";
 import {mountMemberRoleRequests} from './role-workflow.mjs';
 import {mountAdminRoleModeration} from './admin-role-moderation.mjs';
+import {mountAuthenticatedClubIdentityEditor} from './club-editor.mjs';
 
 let clientPromise;
 let mounted = null;
@@ -173,6 +174,8 @@ async function showSession(root, api) {
   root.append(account);
   void mountMemberRoleRequests(account,api,user.id);
   void mountAdminRoleModeration(account,api,user.id);
+  // L'éditeur réel est monté uniquement après vérification MFA AAL2 et rôle admin ; RPC = autorité finale.
+  void mountAuthenticatedClubIdentityEditor(account,api,user.id);
 }
 
 export function authMarkup() {

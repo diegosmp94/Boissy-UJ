@@ -10,6 +10,7 @@ Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement.
 - **Nous rejoindre et Infos pratiques** : parcours interactifs joueurs, éducateurs, bénévoles et partenaires ; annonces publiées, FAQ, lieux/horaires et contacts officiels seulement lorsqu'ils sont vérifiés. Aucun formulaire de collecte des données personnelles. Voir [étape 15](docs/ETAPE_15_REJOINDRE_INFOS.md).
 - **Notre club** : page publique des quatre équipes et rubriques éditoriales approuvées (histoire, valeurs, organisation, projets) avec recherche et filtre. [Étape 16](docs/ETAPE_16_NOTRE_CLUB.md).
 - **Agenda du club** : page publique `#/agenda` réunissant les matchs programmés et les événements autorisés avec dates vérifiées, recherche, filtres et version mobile. Aucun rendez-vous fictif. [Étape 17](docs/ETAPE_17_AGENDA_UNIFIE.md).
+- **CMS Histoire & identité** : atelier de prévisualisation du Control Center et futur éditeur d'administration protégé par MFA AAL2, workflow brouillon/publication/retrait et journal d'audit. L'authentification publique reste fermée. [Étape 18](docs/ETAPE_18_CMS_CLUB.md).
 - Interface « Mon espace » implémentée et reliée à Supabase, mais **inscription et connexion désactivées dans cette préversion publique** en attendant la recette réelle (RGPD, e-mails et sécurité).
 - Premium : 10 € mensuels ou 100 € pour douze mois, sans renouvellement automatique annuel ; aucune transaction réelle.
 - Matrice de recette pondérée, seuil des 85 % pour lancer la recette finale.
@@ -20,7 +21,7 @@ Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement.
 
 ## Cahier des charges et droits des membres
 
-[Cahier des charges fonctionnel V1.1](docs/CAHIER_DES_CHARGES.md) : règles de cumul joueur / entraîneur / administrateur (doubles et triples rôles), approbation administrative obligatoire pour chaque nouveau rôle, équipe éducateur distincte et MFA AAL2 sur les opérations administratives. Le schéma de base prend en charge les rôles cumulés, mais **le flux d'approbation réel est encore à développer**.
+[Cahier des charges fonctionnel V1.1](docs/CAHIER_DES_CHARGES.md) : règles de cumul joueur / entraîneur / administrateur (doubles et triples rôles), approbation administrative obligatoire pour chaque nouveau rôle, équipe éducateur distincte et MFA AAL2 sur les opérations administratives. Le schéma de base prend en charge les rôles cumulés, et les fonctions SQL d'approbation existent, mais **leur recette avec comptes distincts et MFA reste à mener avant ouverture**.
 
 ## État réel de Supabase
 

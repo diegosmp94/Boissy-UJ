@@ -1,0 +1,22 @@
+/* Étape 18 : CMS du portrait — isolé du thème principal */
+.club-editor-private,.cc-pane:has(.club-editor-form){max-width:100%}
+.club-editor-private{margin-top:32px;padding:clamp(18px,3vw,30px);border:1px solid #d9bd7180;border-radius:18px;background:linear-gradient(155deg,#123a61,#071b38)}
+.club-editor-private h2,.cc-pane .club-editor-form~.club-editor-preview h3{font-family:Outfit,system-ui,sans-serif}
+.club-editor-private h2{font-size:clamp(23px,3vw,34px);margin:0 0 12px}
+.club-editor-help{font-size:14px;color:#c0d3e9;line-height:1.65;margin:0 0 26px;max-width:740px}
+.club-editor-form{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin:20px 0}
+.club-editor-field{display:grid;gap:7px;min-width:0;font-size:14px;font-weight:700;color:#dce9fc;line-height:1.45}
+.club-editor-control{box-sizing:border-box;min-width:0;width:100%;min-height:48px;padding:11px 12px;border:1px solid #9dbbe070;border-radius:9px;color:#fff;background:#071832;font:inherit}
+textarea.club-editor-control{min-height:150px;resize:vertical;line-height:1.6}
+.club-editor-control:focus-visible,.club-editor-check input:focus-visible,
+.club-editor-form button:focus-visible{outline:3px solid #edc778;outline-offset:3px}
+.club-editor-check{display:flex;flex-direction:row;align-items:flex-start;gap:11px;font-size:13px;line-height:1.55}
+.club-editor-check input{flex:0 0 auto;width:20px;height:20px;accent-color:#edc778;margin:0}
+.club-editor-feedback{min-height:24px;color:#f2cd85;font-size:13px;line-height:1.6}
+.club-editor-preview{margin-top:20px}
+.club-editor-sample{border:1px solid #bed9f854;background:#0a2344;border-radius:15px;padding:25px;overflow-wrap:anywhere}
+.club-editor-sample h3{font-size:clamp(21px,2.8vw,31px);margin:12px 0}
+.club-editor-sample p{color:#d3e5f7;white-space:pre-wrap;line-height:1.7}
+.club-editor-sample small{display:block;color:#edc778;margin-top:16px}
+.club-editor-errors{margin:0;padding:18px 20px 18px 34px;border:1px solid #f2ac7880;border-radius:12px;color:#ffe0c8;font-size:13px;line-height:1.7}
+@media(max-width:760px){.club-editor-private{padding:18px}.club-editor-sample{padding:18px}.club-editor-form{gap:14px}}
