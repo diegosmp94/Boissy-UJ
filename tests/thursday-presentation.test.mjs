@@ -48,7 +48,7 @@ test('presentation explores existing public pages without pretending privileged 
   for(const route of ['#/matchs','#/equipes','#/actualites','#/evenements','#/awards','#/rejoindre','#/infos-pratiques'])
     assert.ok(SHOWCASE_MODULES.some(x=>x.href===route),route);
   assert.ok(SHOWCASE_MODULES.some(x=>x.href==='#/control-center'&&x.state==='preview'));
-  assert.match(page,/Les pages publiques et les aperçus interactifs/);
+  assert.match(app,/Les pages publiques et les aperçus interactifs/);
 });
 test('count parser does not mistake unknown or truncated headers for exact totals',()=>{
   assert.equal(parsePublicCount('0-0/4'),4);
