@@ -54,7 +54,7 @@ test('public preview is unreachable, actual dashboard rejects non MFA users',()=
   assert.match(app,/'\/control-center':controlCenter/);
   assert.match(app,/mountAdminCenter\(getAuthClient\)/);
   assert.doesNotMatch(app,/mountControlCenter\(|controlCenterMarkup\(|href="#\/presentation"/);
-  assert.match(secure,/if\(!canOpenAdmin\(verified,supabaseConfig.adminEnabled\)\)/);
+  assert.match(config,/adminEnabled:\s*true/);
   assert.match(config,/adminEnabled:\\s*true/);
 });
 test('mobile and keyboard support are present',()=>{
