@@ -56,9 +56,9 @@ test('administrative panel only shows real operational modules',()=>{
   ['overview','users','approvals','teams','seasons','matches','news','identity']);
  assert.equal(new Set(ADMIN_MODULES.map(m=>m.id)).size,8);
  assert.doesNotMatch(guard,/dummy|prototype|simulation|fake payment|premium|stripe|mockData/i);
- assert.match(guard,/mountAuthenticatedClubIdentityEditor\(pane,api,verified.userId\)/);
- assert.match(guard,/mountAuthenticatedTeamPeopleEditor\(pane,api,verified.userId\)/);
- assert.match(guard,/mountAdminRoleModeration\(pane,api,verified.userId\)/);
+ assert.match(guard,/mountAuthenticatedClubIdentityEditor\(view,api,verified.userId\)/);
+ assert.match(guard,/mountAuthenticatedTeamPeopleEditor\(view,api,verified.userId\)/);
+ assert.match(guard,/mountAdminRoleModeration\(view,api,verified.userId\)/);
 });
 test('admins have an enrolment and challenge code path, never TOTP secrets in storage',()=>{
  const security=read('admin-security.mjs');
