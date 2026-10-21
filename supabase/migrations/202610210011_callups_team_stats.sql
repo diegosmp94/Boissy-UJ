@@ -48,8 +48,8 @@ create table if not exists app_private.match_callups (
 create table if not exists app_private.callup_action_audit (
   id bigint generated always as identity primary key,
   match_id uuid not null references public.matches(id) on delete restrict,
-  player_user_id uuid not null references auth.users(id) on delete restrict,
-  actor_user_id uuid not null references auth.users(id) on delete restrict,
+  player_user_id uuid references auth.users(id) on delete set null,
+  actor_user_id uuid references auth.users(id) on delete set null,
   action text not null check(action in ('invite','reinvite','cancel','confirm','decline','unsure')),
   created_at timestamptz not null default now()
 );
