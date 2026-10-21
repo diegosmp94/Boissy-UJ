@@ -1,0 +1,81 @@
+/* Étape 20 — Menu Équipes à deux niveaux et fiches sportives dédiées */
+.desktop-team-nav{position:relative;display:flex;align-items:center;gap:3px}
+.desktop-team-nav>a{padding:13px 1px}
+.desktop-team-nav>button{display:grid;place-items:center;height:30px;width:24px;border:0;border-radius:6px;background:transparent;color:#bfd3ef;font-size:19px;line-height:1}
+.desktop-team-nav>button:hover,.desktop-team-nav>button[aria-expanded="true"]{background:#24476c;color:var(--gold)}
+.desktop-teams-submenu[hidden]{display:none!important}
+.desktop-teams-submenu{position:absolute;top:calc(100% + 15px);left:-130px;width:min(490px,88vw);padding:19px;
+  background:linear-gradient(150deg,#0f3159,#07192f 90%);border:1px solid #e3bd6c83;border-radius:16px;
+  box-shadow:0 22px 75px #000b;z-index:150}
+.desktop-teams-submenu::before{content:"";position:absolute;top:-15px;height:15px;left:0;right:0}
+.desktop-links .desktop-teams-all{display:block;border-bottom:1px solid #ffffff2b;padding:6px 10px 15px;color:var(--gold);font-size:13px}
+.desktop-teams-columns{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:13px}
+.desktop-teams-columns section{display:flex;flex-direction:column;gap:3px;min-width:0}
+.desktop-links .desktop-teams-columns a{display:flex;justify-content:space-between;gap:9px;align-items:center;border-radius:9px;padding:10px;font-size:12px;white-space:normal}
+.desktop-links .desktop-teams-columns a:hover,.desktop-links .desktop-teams-columns a[aria-current="page"]{background:#185180;color:#fff}
+.desktop-teams-columns small{color:#f3ce84;font-size:10px;flex:0 0 auto}
+.desktop-links .desktop-teams-columns .desktop-teams-category{font-size:13px;color:var(--gold);font-weight:900;letter-spacing:.02em;border-bottom:1px solid #ffffff18;border-radius:0 0 9px 9px}
+.desktop-team-nav:has([aria-current="page"])>a{color:var(--gold)}
+.mobile-teams{min-width:0}
+.mobile-teams summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:14px 12px;color:#ecf3fe;border-radius:8px;font-size:14px;font-weight:800;min-height:46px}
+.mobile-teams summary::-webkit-details-marker{display:none}
+.mobile-teams[open]>summary{color:var(--gold);background:#15375d}
+.mobile-teams summary span{font-size:18px;color:var(--gold);transition:transform .2s}
+.mobile-teams[open]>summary span,.mobile-team-discipline[open]>summary span{transform:rotate(180deg)}
+.mobile-teams-content{border-left:2px solid #efc77361;margin:4px 0 9px 11px;padding-left:10px;display:grid;gap:3px}
+.mobile-menu .mobile-teams-content>a,.mobile-menu .mobile-team-discipline a{display:block;font-size:13px;line-height:1.45;padding:11px 12px;border-radius:7px}
+.mobile-team-discipline{min-width:0}
+.mobile-team-discipline>summary{font-size:13px;padding:11px 12px;color:#e4effb;background:#112c50}
+.mobile-team-discipline>div{display:grid;gap:1px;padding:3px 0 7px 9px}
+.mobile-menu .mobile-team-discipline a{padding:10px 12px;color:#c8daed;font-weight:600}
+.mobile-menu .mobile-team-discipline a[aria-current="page"],.mobile-menu .mobile-teams-content>a[aria-current="page"]{background:#1a4a7a;color:var(--gold)}
+.mobile-menu .mobile-teams summary:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.mobile-menu .mobile-teams-content a:hover{background:#1a4a7a}
+.team-detail-link,.team-category-link,.team-hierarchy-footer a{display:inline-flex;align-items:center;justify-content:center;gap:9px;margin-top:20px;
+  border:1px solid #edc77883;color:#f2cb79;font-size:13px;font-weight:800;padding:12px 15px;border-radius:9px;max-width:100%}
+.team-detail-link:hover,.team-category-link:hover,.team-hierarchy-footer a:hover{background:#153961;color:#fff}
+.team-hierarchy-header{margin-bottom:26px;max-width:720px}
+.team-hierarchy-header p{color:#bdcfe3}
+.team-breadcrumbs{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-bottom:30px;color:#d1dfed;font-size:13px}
+.team-breadcrumbs a{color:var(--gold);font-weight:800}
+.team-breadcrumbs a:hover{text-decoration:underline}
+.team-breadcrumbs span[aria-current="page"]{font-weight:700}
+.team-profile-intro{display:flex;align-items:center;gap:27px;padding:clamp(24px,4vw,45px);
+  border:1px solid #c2daef66;border-radius:20px;background:radial-gradient(circle at 15% 0,#194b79,#0b2140 76%);margin-bottom:38px}
+.team-profile-intro>img{height:138px;width:138px;object-fit:contain;border-radius:50%;background:#fff;padding:6px;flex:0 0 auto}
+.team-profile-intro h2{font-size:clamp(28px,4vw,52px);margin:12px 0}
+.team-profile-intro p{color:#c7d9ee;margin:0 0 18px}
+.team-profile-division{display:inline-block;border:1px solid #f1ca7fa1;border-radius:100px;color:#f2cf91;padding:8px 13px;font-weight:800;font-size:12px}
+.team-profile-live{margin:20px 0 38px}
+.team-profile-group{margin:0 0 34px}
+.team-profile-group>h2,.team-sibling-section h2{font-size:clamp(24px,3vw,33px);margin:0 0 20px}
+.team-profile-matches{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.team-profile-match{border:1px solid #accceb51;background:#0a2242;border-radius:15px;padding:22px;min-width:0}
+.team-profile-match-kind{color:#eac87f;letter-spacing:.12em;font-size:10px;font-weight:900;text-transform:uppercase}
+.team-profile-match-date{font-size:12px;color:#bdcfe8;margin:7px 0 13px}
+.team-profile-match>strong{display:block;font:800 18px/1.4 Outfit,system-ui,sans-serif;overflow-wrap:anywhere}
+.team-profile-score{font:800 26px Outfit,sans-serif;color:#efd29a;margin:10px 0}
+.team-profile-match small{color:#b9cee7}
+.team-profile-empty,.team-profile-state{color:#caddf1;background:#10294a;border:1px solid #829dbd4f;border-radius:13px;padding:20px;grid-column:1/-1}
+.team-profile-disclaimer{font-size:12px;color:#a6bfd9}
+.team-profile-actions{display:flex;gap:12px;flex-wrap:wrap;margin:26px 0 40px}
+.team-profile-actions a,.team-siblings a{display:inline-flex;align-items:center;justify-content:space-between;gap:14px;border:1px solid #90bbeb6b;
+  padding:13px 18px;border-radius:9px;font-weight:800;font-size:13px;color:#e6f1fe}
+.team-profile-actions a:hover,.team-siblings a:hover{border-color:var(--gold);color:var(--gold)}
+.team-sibling-section{margin:36px 0 18px}
+.team-siblings{display:flex;gap:10px;flex-wrap:wrap}
+.team-siblings a span{color:var(--gold)}
+@media(max-width:1200px){.desktop-team-nav{display:none}.mobile-teams{grid-column:1/-1}}
+@media(max-width:760px){
+  .mobile-menu{max-height:calc(100dvh - 136px)}
+  .mobile-menu .mobile-teams{width:100%}
+  .bottom-nav{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .bottom-nav small{font-size:9px}
+  .team-profile-intro{flex-direction:column;align-items:flex-start;gap:18px;padding:24px}
+  .team-profile-intro>img{width:88px;height:88px}
+  .team-profile-matches{grid-template-columns:1fr}
+  .team-profile-match{padding:18px}
+  .team-profile-actions{display:grid}
+}
+@media(prefers-reduced-motion:reduce){.mobile-teams summary span{transition:none}}

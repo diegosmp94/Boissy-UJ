@@ -1,5 +1,6 @@
 import {mountEvents,unmountEvents} from './events-center.mjs';
-import {CLUB_TEAMS,teamsByDiscipline} from './club-teams.mjs';
+import {CLUB_TEAMS,DISCIPLINES,teamsByDiscipline,teamRoute,categoryRoute,disciplineLabel} from './club-teams.mjs';
+import {mountTeamProfile,unmountTeamProfile} from './team-pages.mjs';
 import {mountAwards,unmountAwards} from './awards-center.mjs';
 import {mountJoin,unmountJoin,mountPractical,unmountPractical} from './join-center.mjs';
 import {mountPresentation,unmountPresentation} from './presentation.mjs';
@@ -49,7 +50,7 @@ const main = $('#main');
 const tag = (text,extra='') => `<span class="eyebrow ${extra}">${text}</span>`;
 const link = (href,text,extra='') => `<a class="btn ${extra}" href="${href}">${text}<span aria-hidden="true">↗</span></a>`;
 const arrow = next => `<button type="button" class="chapter-next" data-next="${next}" aria-label="Passer au chapitre suivant"><span>Défiler pour découvrir</span><b aria-hidden="true">↓</b></button>`;
-const teamCard = (team,index) => `<article class="team-card"><span class="team-index">0${index+1} / 04</span><div class="team-symbol" aria-hidden="true"><img src="${crest}" alt="" loading="lazy" /></div><div><span class="tiny-label">${team.tag}</span><h3>${team.name}</h3><p>${team.league}</p></div><a class="text-link" href="#/equipes" aria-label="Découvrir ${team.name}">Découvrir <span aria-hidden="true">↗</span></a></article>`;
+const teamCard = (team,index) => `<article class="team-card"><span class="team-index">0${index+1} / 04</span><div class="team-symbol" aria-hidden="true"><img src="${crest}" alt="" loading="lazy" /></div><div><span class="tiny-label">${team.tag}</span><h3>${team.name}</h3><p>${team.league}</p></div><a class="text-link" href="${teamRoute(team)}" aria-label="Découvrir ${team.name}">Découvrir <span aria-hidden="true">↗</span></a></article>`;
 
 function home(){return `
   <div class="chapters">
@@ -76,7 +77,7 @@ function home(){return `
       ${arrow('equipes')}
     </section>
     <section class="chapter chapter-teams" id="equipes" aria-labelledby="teams-title"><div class="section-heading"><div><span class="chapter-no">04 / 08</span>${tag('Nos couleurs, nos équipes')}<h2 id="teams-title">CINQ ÉQUIPES.<br/><em>DEUX DISCIPLINES.</em></h2></div>${link('#/equipes','Toutes les équipes','btn-outline')}</div><p class="discipline-home-label">FOOTBALL À 11 · 4 ÉQUIPES</p><div class="teams-grid">${footballTeams.map(teamCard).join('')}</div>
-    <a class="futsal-home-link" href="#/equipes"><span class="tiny-label">FUTSAL · DÉPARTEMENTAL 2</span><strong>BOISSY-UJ FUTSAL</strong><span>Découvrir la cinquième équipe ↗</span></a>${arrow('medias')}</section>
+    <a class="futsal-home-link" href="${teamRoute(futsalTeams[0])}"><span class="tiny-label">FUTSAL · DÉPARTEMENTAL 2</span><strong>BOISSY-UJ FUTSAL</strong><span>Découvrir la cinquième équipe ↗</span></a>${arrow('medias')}</section>
     <section class="chapter chapter-media" id="medias" aria-labelledby="media-title"><div class="section-copy"><span class="chapter-no">05 / 08</span>${tag('Le club en images')}<h2 id="media-title">DES MOMENTS<br/><em>À PARTAGER.</em></h2><p>Actualités, albums photos et vidéos : les coulisses et les temps forts de Boissy-UJ se retrouveront ici.</p>${link('#/actualites','Explorer les actualités','btn-primary')}</div><div class="media-art" aria-label="Espace réservé aux futures photographies officielles"><div class="media-art-inner"><span class="media-play" aria-hidden="true">▶</span><strong>BOISSY<span>UJ</span></strong><small>VOS HISTOIRES. NOS COULEURS.</small></div></div>${arrow('communaute')}</section>
     <section class="chapter chapter-community" id="communaute" aria-labelledby="community-title"><div class="section-copy"><span class="chapter-no">06 / 08</span>${tag('L’expérience supporters')}<h2 id="community-title">VIVEZ LE CLUB<br/><em>AU PLUS PRÈS.</em></h2><p>Accédez à des contenus exclusifs, aux votes des Awards et à des événements privilégiés avec Boissy-UJ Premium.</p>${link('#/communaute','Découvrir Premium','btn-primary')}${link('#/awards','Les Awards','btn-ghost')}</div><div class="premium-teaser"><span class="premium-star" aria-hidden="true">✦</span><div class="tiny-label">BOISSY-UJ PREMIUM</div><strong>10 €<small> / mois</small></strong><span class="premium-separator"></span><p>Ou 100 € pour 12 mois, sans renouvellement automatique.</p><div class="premium-footer">CONTENUS · ÉVÉNEMENTS · AWARDS</div></div>${arrow('soutenir')}</section>
     <section class="chapter chapter-support" id="soutenir" aria-labelledby="support-title"><div class="section-copy"><span class="chapter-no">07 / 08</span>${tag('Construisons la suite')}<h2 id="support-title">SOUTENIR<br/><em>NOTRE AVENIR.</em></h2><p>À travers les dons et les campagnes de financement, chaque soutien contribue aux projets du club.</p>${link('#/soutenir','Découvrir nos projets','btn-outline')}</div><div class="support-orbit" aria-hidden="true"><div class="support-orbit-mid"><img src="${crest}" alt="" /></div></div>${arrow('rejoindre')}</section>
@@ -89,10 +90,10 @@ function matches(){return pageShell('Le terrain avant tout','MATCH <em>CENTER.</
 function teamPage(){
   const teamDetail=(t,i,groupTotal)=>`<article class="detail-card team-detail"><span class="tiny-label">${String(i+1).padStart(2,'0')} / ${String(groupTotal).padStart(2,'0')} · ${t.tag}</span>
     <img src="${crest}" width="78" height="78" alt="" loading="lazy"/><h3>${t.name}</h3><p>${t.league}</p><small>${t.desc}</small>
-    <div class="empty-caption">Effectif et calendrier à renseigner</div></article>`;
+    <div class="empty-caption">Effectif et calendrier à renseigner</div><a class="team-detail-link" href="${teamRoute(t)}">Voir la fiche équipe ↗</a></article>`;
   const group=(id,label,description,groupTeams)=>`<section class="discipline-section" id="${id}" aria-labelledby="${id}-title">
     <div class="discipline-heading"><span class="tiny-label">BOISSY-UJ · ${groupTeams.length} ÉQUIPE${groupTeams.length>1?'S':''}</span>
-    <h2 id="${id}-title">${label}</h2><p>${description}</p></div>
+    <h2 id="${id}-title">${label}</h2><p>${description}</p><a class="team-category-link" href="${categoryRoute(groupTeams[0].discipline)}">Explorer la catégorie ↗</a></div>
     <div class="detail-grid discipline-grid">${groupTeams.map((t,i)=>teamDetail(t,i,groupTeams.length)).join('')}</div></section>`;
   return pageShell('Deux disciplines · Cinq collectifs','NOS <em>ÉQUIPES.</em>',
     'Football à 11 et futsal : découvrez les cinq équipes de Boissy-UJ, leurs niveaux et leurs informations publiées.',
@@ -101,6 +102,56 @@ function teamPage(){
       <button type="button" data-discipline-target="futsal-section">Futsal · 1 équipe ↓</button></nav>
     ${group('football-section','FOOTBALL À 11','Seniors A, Seniors B, Seniors C et Vétérans.',footballTeams)}
     ${group('futsal-section','FUTSAL','Boissy-UJ Futsal · Départemental 2. Calendrier, effectifs et résultats après publication par le club.',futsalTeams)}`);
+}
+function categoryTeamPage(discipline){
+  const group=teamsByDiscipline(discipline,teams);
+  const isFutsal=discipline==='futsal';
+  return pageShell('Nos équipes · '+disciplineLabel(discipline),
+    isFutsal?'LE <em>FUTSAL.</em>':'LE <em>FOOTBALL.</em>',
+    isFutsal?'Boissy-UJ Futsal joue en Départemental 2.':'Nos quatre équipes de football à 11 : Seniors A, B, C et Vétérans.',
+    `<nav class="team-breadcrumbs" aria-label="Fil d’Ariane">
+      <a href="#/equipes">Toutes les équipes</a><span aria-hidden="true">›</span>
+      <span aria-current="page">${disciplineLabel(discipline)}</span></nav>
+    <div class="team-hierarchy-header"><span class="tiny-label">${group.length} ÉQUIPE${group.length===1?'':'S'}</span>
+      <p>Chaque collectif possède sa propre fiche, ses rencontres publiées et ses informations de compétition.</p></div>
+    <div class="detail-grid discipline-grid">${group.map((team,i)=>`
+      <article class="detail-card team-detail">
+        <span class="tiny-label">${String(i+1).padStart(2,'0')} / ${String(group.length).padStart(2,'0')} · ${team.tag}</span>
+        <img src="${crest}" width="78" height="78" alt="" loading="lazy">
+        <h2>${team.name}</h2><p>${team.league}</p><small>${team.desc}</small>
+        <a class="team-detail-link" href="${teamRoute(team)}">Voir la fiche équipe ↗</a>
+      </article>`).join('')}</div>
+    <div class="team-hierarchy-footer"><a href="${categoryRoute(isFutsal?'football':'futsal')}">Découvrir aussi le ${isFutsal?'football à 11':'futsal'} ↗</a></div>`);
+}
+function singleTeamPage(team){
+  const group=teamsByDiscipline(team.discipline,teams);
+  return pageShell('Équipes · '+disciplineLabel(team.discipline),
+    team.name.toLocaleUpperCase('fr-FR').replace('BOISSY-UJ ','')+'.',
+    team.name+' : '+team.division+'. Informations sportives officiellement publiées par le club.',
+    `<nav class="team-breadcrumbs" aria-label="Fil d’Ariane">
+       <a href="#/equipes">Équipes</a><span aria-hidden="true">›</span>
+       <a href="${categoryRoute(team.discipline)}">${disciplineLabel(team.discipline)}</a><span aria-hidden="true">›</span>
+       <span aria-current="page">${team.name}</span></nav>
+      <section class="team-profile-intro" aria-label="Présentation de l’équipe">
+        <img src="${crest}" width="138" height="138" alt="Écusson Boissy-UJ" loading="lazy">
+        <div><span class="tiny-label">${disciplineLabel(team.discipline)} · ${team.tag}</span>
+          <h2>${team.name}</h2><p>${team.desc}</p>
+          <span class="team-profile-division">${team.division}</span>
+        </div>
+      </section>
+      <div id="team-profile-live" class="team-profile-live" aria-live="polite">
+        <p class="team-profile-state">Chargement des rencontres publiées…</p>
+      </div>
+      <nav class="team-profile-actions" aria-label="Navigation sportive">
+        <a href="${categoryRoute(team.discipline)}">← Toutes les équipes ${disciplineLabel(team.discipline)}</a>
+        <a href="#/matchs">Match Center ↗</a>
+        <a href="#/actualites">Actualités du club ↗</a>
+      </nav>
+      <section class="team-sibling-section" aria-label="Autres équipes de la discipline">
+        <h2>Autres équipes</h2><div class="team-siblings">
+        ${group.filter(t=>t.code!==team.code).map(t=>`<a href="${teamRoute(t)}">${t.name} <span>↗</span></a>`).join('')||'<p>Une équipe pour cette discipline.</p>'}
+        </div>
+      </section>`);
 }
 function news(){return pageShell('Vie du club','ACTUALITÉS <em>& MÉDIAS.</em>','Découvrez uniquement les informations publiées par Boissy-UJ : la vie du club, nos équipes et les événements.',`<div class="info-banner"><span class="info-icon">i</span><div><strong>Publications contrôlées</strong><p>Les brouillons, contenus privés et médias non autorisés ne sont pas affichés. Le club publiera progressivement ses actualités.</p></div></div><div id="news-feed-public" class="news-root" aria-live="polite"><p class="news-loading">Chargement des actualités…</p></div><div class="detail-grid two"><div class="detail-card"><span class="tiny-label">MÉDIAS</span><h3>Galeries photos</h3><p>Les photos ne seront accessibles qu'après vérification des autorisations de diffusion.</p></div><div class="detail-card"><span class="tiny-label">VIDÉOS</span><h3>Vidéos du club</h3><p>Les rencontres et les coulisses seront diffusées uniquement lorsqu'un contenu aura été publié.</p></div></div>`);}
 
@@ -118,7 +169,11 @@ function agenda(){return pageShell("La vie du club, en un regard","AGENDA <em>DU
 function account(){return pageShell('Espace personnel','MON <em>ESPACE.</em>','Un seul compte, plusieurs rôles : supporter, licencié, éducateur ou administrateur. Inscription et connexion sécurisées via Supabase.',authMarkup()+`<div class="cc-entry-link"><span class="tiny-label">FUTUR ESPACE ADMINISTRATEUR</span><h2>Control Center Boissy-UJ</h2><p>Découvrez un aperçu sans données personnelles, sans édition réelle et sans accès privilégié.</p><a class="btn btn-outline" href="#/control-center">Voir l’aperçu du Control Center <span aria-hidden="true">↗</span></a></div>`);}
 function presentation(){return pageShell('Boissy-UJ · Démonstration du jeudi 22 octobre','LE SITE <em>EN ACTION.</em>','Une visite guidée avec des modules interactifs et des données publiques réellement consultées. Les scénarios de démonstration sont locaux, sans ajout de données fictives au site officiel.',`<div class="showcase-intro"><div class="showcase-intro-icon" aria-hidden="true">✦</div><div><strong>PRÉVERSION DE PRÉSENTATION</strong><p>Les pages publiques et les aperçus interactifs peuvent être montrés dès maintenant. La connexion des membres, les droits administratifs réels, les votes et les paiements restent désactivés.</p></div></div><div id="showcase-hub" class="showcase-hub" aria-live="off"><p>Chargement de la démonstration…</p></div>`);}
 function controlCenter(){return controlCenterMarkup();}
-const routes={'/':home,'/matchs':matches,'/equipes':teamPage,'/actualites':news,'/communaute':community,'/awards':awards,'/evenements':events,'/agenda':agenda,'/soutenir':support,'/rejoindre':join,'/infos-pratiques':practical,'/presentation':presentation,'/club':identity,'/mon-espace':account,'/control-center':controlCenter};
+const teamRoutes=Object.fromEntries([
+  ...DISCIPLINES.map(d=>[categoryRoute(d.id).slice(1),()=>categoryTeamPage(d.id)]),
+  ...teams.map(t=>[teamRoute(t).slice(1),()=>singleTeamPage(t)])
+]);
+const routes={'/':home,'/matchs':matches,'/equipes':teamPage,'/actualites':news,'/communaute':community,'/awards':awards,'/evenements':events,'/agenda':agenda,'/soutenir':support,'/rejoindre':join,'/infos-pratiques':practical,'/presentation':presentation,'/club':identity,'/mon-espace':account,'/control-center':controlCenter,...teamRoutes};
 let observer;
 function render(){
   if(observer)observer.disconnect();
@@ -130,12 +185,18 @@ function render(){
     const active=el.getAttribute('href')===`#${path}`;
     if(active)el.setAttribute('aria-current','page'); else el.removeAttribute('aria-current');
   });
-  document.querySelectorAll('.bottom-nav a').forEach(el=>el.classList.toggle('active',el.getAttribute('href')===`#${path}`));
+  document.querySelectorAll('.bottom-nav a').forEach(el=>el.classList.toggle('active',el.getAttribute('href')===`#${path}`||(el.dataset.nav==='equipes'&&path.startsWith('/equipes/'))));
+  const teamsMainLink=document.querySelector('.desktop-team-nav > a');
+  if(path==='/equipes'||path.startsWith('/equipes/'))teamsMainLink?.setAttribute('aria-current','page');
+  else teamsMainLink?.removeAttribute('aria-current');
   closeMenu();
+  closeDesktopTeams();
   window.scrollTo({top:0,behavior:'instant'});
   if(path==='/')setupChapters();
   if(path==='/mon-espace') void mountAuth(); else unmountAuth();
   if(path==='/matchs') void mountSport(); else unmountSport();
+  const activeTeam=teams.find(t=>teamRoute(t).slice(1)===path);
+  if(activeTeam)void mountTeamProfile(activeTeam.code);else unmountTeamProfile();
   if(path==='/matchs') void mountTeamStats(); else unmountTeamStats();
   if(path==='/actualites') void mountNews(); else unmountNews();
   if(path==='/evenements') void mountEvents(); else unmountEvents();
@@ -146,7 +207,7 @@ function render(){
   if(path==='/presentation') mountPresentation(); else unmountPresentation();
   if(path==='/club') void mountIdentity(); else unmountIdentity();
   if(path==='/control-center') mountControlCenter(); else unmountControlCenter();
-  document.title=(path==='/'?'Boissy-UJ — Club officiel':`Boissy-UJ — ${({ '/matchs':'Match Center','/equipes':'Nos équipes','/actualites':'Actualités','/communaute':'Communauté','/awards':'Awards','/evenements':'Événements','/agenda':'Agenda','/soutenir':'Soutenir le club','/rejoindre':'Nous rejoindre','/infos-pratiques':'Infos pratiques','/presentation':'Démonstration interactive','/club':'Notre club','/mon-espace':'Mon espace','/control-center':'Control Center — aperçu'})[path]}`);
+  document.title=(path==='/'?'Boissy-UJ — Club officiel':`Boissy-UJ — ${({ '/matchs':'Match Center','/equipes':'Nos équipes','/actualites':'Actualités','/communaute':'Communauté','/awards':'Awards','/evenements':'Événements','/agenda':'Agenda','/soutenir':'Soutenir le club','/rejoindre':'Nous rejoindre','/infos-pratiques':'Infos pratiques','/presentation':'Démonstration interactive','/club':'Notre club','/mon-espace':'Mon espace','/control-center':'Control Center — aperçu',...Object.fromEntries(DISCIPLINES.map(d=>[categoryRoute(d.id).slice(1),disciplineLabel(d.id)])),...Object.fromEntries(teams.map(t=>[teamRoute(t).slice(1),t.name]))})[path]}`);
 }
 function setupChapters(){
   const sections=[...document.querySelectorAll('.chapter')];
@@ -165,10 +226,27 @@ function setupChapters(){
   },{threshold:[0.25,0.5,0.75]});
   sections.forEach(section=>observer.observe(section));
 }
+function closeDesktopTeams({returnFocus=false}={}){
+  const dropdown=$('#desktop-teams-submenu'),toggle=$('#desktop-teams-toggle');
+  if(!dropdown||!toggle)return;
+  dropdown.hidden=true;
+  toggle.setAttribute('aria-expanded','false');
+  if(returnFocus)toggle.focus();
+}
+const desktopTeamsToggle=$('#desktop-teams-toggle');
+desktopTeamsToggle?.addEventListener('click',()=>{
+  const dropdown=$('#desktop-teams-submenu');
+  const willOpen=dropdown.hidden;
+  dropdown.hidden=!willOpen;
+  desktopTeamsToggle.setAttribute('aria-expanded',String(willOpen));
+});
+document.addEventListener('click',event=>{
+  if(!event.target.closest('.desktop-team-nav'))closeDesktopTeams();
+});
 function closeMenu(){const menu=$('#mobile-menu'),toggle=$('#menu-toggle');menu.hidden=true;toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Ouvrir le menu');document.body.classList.remove('menu-open');}
 $('#menu-toggle').addEventListener('click',()=>{const menu=$('#mobile-menu'),toggle=$('#menu-toggle');const open=menu.hidden;menu.hidden=!open;toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Fermer le menu':'Ouvrir le menu');document.body.classList.toggle('menu-open',open);if(open)menu.querySelector('a')?.focus();});
 $('#mobile-menu').addEventListener('click',e=>{if(e.target.closest('a'))closeMenu()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeMenu();closeDesktopTeams({returnFocus:document.activeElement?.closest('.desktop-team-nav')!==null})}});
 main.addEventListener('click',e=>{const discipline=e.target.closest('[data-discipline-target]');if(discipline){document.getElementById(discipline.dataset.disciplineTarget)?.scrollIntoView({behavior:'smooth',block:'start'});return;}const next=e.target.closest('[data-next]');const dot=e.target.closest('[data-chapter]');const target=next?.dataset.next??dot?.dataset.chapter;if(target)document.getElementById(target)?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});});
 window.addEventListener('hashchange',render);
 render();
