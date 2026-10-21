@@ -12,6 +12,10 @@ Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement.
 - Premium : 10 € mensuels ou 100 € pour douze mois, sans renouvellement automatique annuel ; aucune transaction réelle.
 - Matrice de recette pondérée, seuil des 85 % pour lancer la recette finale.
 
+## Présentation du jeudi 22 octobre
+
+**Démonstration interactive accessible sur** [Boissy-UJ — Le site en action](https://diegosmp94.github.io/Boissy-UJ/#/presentation) : liens vers les véritables pages, contrôle de l'accès aux catalogues publics Supabase, ateliers locaux interactifs (matchs, actualités, convocations et saisons) sans données fictives publiées. Voir [scénario de démonstration et limites](docs/DEMO_JEUDI_20261022.md).
+
 ## Cahier des charges et droits des membres
 
 [Cahier des charges fonctionnel V1.1](docs/CAHIER_DES_CHARGES.md) : règles de cumul joueur / entraîneur / administrateur (doubles et triples rôles), approbation administrative obligatoire pour chaque nouveau rôle, équipe éducateur distincte et MFA AAL2 sur les opérations administratives. Le schéma de base prend en charge les rôles cumulés, mais **le flux d'approbation réel est encore à développer**.
