@@ -9,6 +9,7 @@ import {mountIdentity,unmountIdentity} from './club-identity.mjs';
 import {mountAgenda,unmountAgenda} from './agenda.mjs';
 import {mountNews,unmountNews} from './media-center.mjs';
 import {mountSport,unmountSport} from './sport-center.mjs';
+import {teamDeepLink,parsePublicRoute} from './team-links.mjs';
 import {mountTeamStats,unmountTeamStats} from './team-stats.mjs';
 import {controlCenterMarkup,mountControlCenter,unmountControlCenter} from './control-center.mjs';
 import {authMarkup,mountAuth,unmountAuth} from './auth.mjs';
@@ -148,8 +149,8 @@ function singleTeamPage(team){
       </div>
       <nav class="team-profile-actions" aria-label="Navigation sportive">
         <a href="${categoryRoute(team.discipline)}">← Toutes les équipes ${disciplineLabel(team.discipline)}</a>
-        <a href="#/matchs">Match Center ↗</a>
-        <a href="#/actualites">Actualités du club ↗</a>
+        <a href="${teamDeepLink('matchs',team.code)}">Matchs de cette équipe ↗</a>
+        <a href="${teamDeepLink('actualites',team.code)}">Actualités de cette équipe ↗</a>
       </nav>
       <section class="team-sibling-section" aria-label="Autres équipes de la discipline">
         <h2>Autres équipes</h2><div class="team-siblings">
@@ -181,7 +182,8 @@ const routes={'/':home,'/matchs':matches,'/equipes':teamPage,'/actualites':news,
 let observer;
 function render(){
   if(observer)observer.disconnect();
-  let path=decodeURI(location.hash.replace(/^#/,''))||'/';
+  const route=parsePublicRoute(location.hash);
+  let path=route.path;
   if(!Object.hasOwn(routes,path))path='/';
   main.innerHTML=routes[path]();
   document.body.classList.toggle('on-home',path==='/');
@@ -200,12 +202,12 @@ function render(){
   window.scrollTo({top:0,behavior:'instant'});
   if(path==='/')setupChapters();
   if(path==='/mon-espace') void mountAuth(); else unmountAuth();
-  if(path==='/matchs') void mountSport(); else unmountSport();
+  if(path==='/matchs') void mountSport(route.teamCode); else unmountSport();
   const activeTeam=teams.find(t=>teamRoute(t).slice(1)===path);
   if(activeTeam){void mountTeamProfile(activeTeam.code);void mountTeamPublicExtras(activeTeam.code);}
   else {unmountTeamProfile();unmountTeamPublicExtras();}
   if(path==='/matchs') void mountTeamStats(); else unmountTeamStats();
-  if(path==='/actualites') void mountNews(); else unmountNews();
+  if(path==='/actualites') void mountNews(route.teamCode); else unmountNews();
   if(path==='/evenements') void mountEvents(); else unmountEvents();
   if(path==='/agenda') void mountAgenda(); else unmountAgenda();
   if(path==='/awards') void mountAwards(); else unmountAwards();
