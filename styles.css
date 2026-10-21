@@ -716,3 +716,36 @@ textarea.staff-input {resize:vertical;line-height:1.6;}
 .callups-preview-status {color:#f1c77e;font-size:20px;}
 .callups-preview .staff-form {margin:8px 0 0;}
 @media(max-width:750px){.sport-form-grid{grid-template-columns:1fr;}.callups-preview{margin-top:26px;}}
+
+
+/* Multi-role approval: readable local admin preview + authenticated member request list. */
+.cc-role-notice {
+  margin:15px 0 22px;padding:18px;border:1px solid #e2bd7987;
+  border-left:4px solid var(--gold);border-radius:10px;
+  background:#c89c3416;color:#f4dfbc;font-size:13px;line-height:1.7;
+}
+.cc-role-step {
+  padding:19px;border:1px solid #afc9e54f;border-radius:12px;
+  background:linear-gradient(145deg,#163c65,#071b35);
+}
+.cc-role-step strong {font-size:14px;color:#f6d18c;}
+.cc-role-step p {color:#bfd2e8;font-size:13px;line-height:1.6;margin:10px 0 0;}
+.member-role-requests {
+  margin-top:29px;padding-top:22px;border-top:1px solid #c1d6ed4d;
+}
+.member-role-requests h3 {font-size:22px;}
+.member-role-requests h4 {margin:20px 0 12px;font-size:16px;}
+.member-requests-list {display:grid;gap:8px;}
+.member-request-row {
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:11px;
+  background:#0d2a4b;border:1px solid #b8d3f054;
+  padding:12px 15px;border-radius:9px;
+  font-size:13px;color:#f3f7ff;
+}
+.member-request-row span {color:#f0d18a;}
+.member-role-requests .staff-form {max-width:530px;margin-top:15px;}
+.member-role-requests .staff-action:disabled {opacity:.55;cursor:not-allowed;}
+@media(max-width:650px){
+  .cc-role-step {padding:16px;}
+  .member-request-row {flex-direction:column;}
+}
