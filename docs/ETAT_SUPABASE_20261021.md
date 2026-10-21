@@ -29,6 +29,10 @@ Ce document décrit **l'état effectivement vérifié dans Supabase**, et rempla
 
 13. `boissy_uj_cumulative_role_approvals_20261021` : demandes de rôle joueur / entraîneur / admin, validation par autre administrateur MFA AAL2, affectations coach par équipe, refus et révocations indépendantes, journal privé. `role_requests` et `app_private.role_change_audit` sont vides ; RLS activée. Test SQL : refus d'accès aux demandes pour `anon`, refus d'exécution des RPC pour `anon`, refus de toute opération par `authenticated` sans session valide, aucune permission client d'écriture et vérification du niveau `aal2` dans le contrôleur d'admin. Les tests avec vraies sessions / rôles et MFA restent à faire.
 
+## Catalogue Awards — migration 14
+
+14. **`boissy_uj_public_awards_catalog_20261021` appliquée** : catégories publiques Seniors A, B et C, noms publiables uniquement après vérification du consentement, et résultat officiel masqué tant qu'il n'a pas été annoncé après clôture. Trois nouvelles tables protégées par RLS : `club_awards`, `club_award_nominees`, `club_award_results`. Les clients ne disposent que de SELECT. Vérification sous rôle `anon` réussie : lecture permise, écritures refusées. Les trois tables contiennent **0 ligne** ; aucun candidat ni prix inventé.
+
 ## État des données
 
 - `public.club_teams` : **4 équipes réelles comme catégories**, A D3 / B D4 / C amicaux / Vétérans D3.
