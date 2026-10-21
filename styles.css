@@ -796,3 +796,92 @@ textarea.staff-input {resize:vertical;line-height:1.6;}
   .admin-role-actions{display:grid;grid-template-columns:1fr;}
   .admin-role-actions button{width:100%;justify-content:center;}
 }
+
+
+/* Boissy-UJ Awards public catalogue — approved nominations only, no ballots. */
+.community-awards-teaser {
+  margin-top:36px;
+  border-radius:18px;
+  border:1px solid #eaca8355;
+  padding:clamp(26px,5vw,52px);
+  background:radial-gradient(circle at 84% 12%,#b8883728,transparent 45%),
+    linear-gradient(125deg,#143e6e,#06172d);
+}
+.community-awards-teaser h2 {font-size:clamp(27px,4vw,48px);line-height:1.08;margin:16px 0;}
+.community-awards-teaser p {max-width:610px;color:#cadef4;font-size:15px;line-height:1.7;}
+.community-awards-teaser .btn {display:inline-flex;justify-content:center;margin-top:16px;}
+.awards-intro-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;}
+.awards-intro-grid .detail-card {min-width:0;}
+.awards-intro-grid h2 {font-size:clamp(21px,2.4vw,29px);line-height:1.1;margin:16px 0 10px;}
+.awards-intro-grid p {font-size:13px;color:#bcd0e8;line-height:1.65;}
+.awards-catalog {margin:30px 0 70px;min-height:170px;}
+.awards-loading {border:1px solid #a1c6e44f;border-radius:14px;padding:23px;color:#c3d9ee;}
+.award-controls {display:grid;grid-template-columns:repeat(2,minmax(130px,1fr)) minmax(220px,2fr);gap:13px;align-items:end;}
+.award-label {display:grid;gap:9px;font-size:13px;font-weight:700;color:#d9eafc;min-width:0;}
+.award-select,.award-search {
+  width:100%;min-height:48px;min-width:0;
+  border-radius:10px;border:1px solid #a9c7e67d;
+  background:#071f3b;color:#f2f7ff;
+  padding:11px 13px;font:inherit;
+}
+.award-select:focus-visible,.award-search:focus-visible {
+  outline:3px solid var(--gold);outline-offset:2px;
+}
+.award-count {margin:20px 0;font-size:12px;color:#b7cfe6;}
+.award-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;}
+.award-card {
+  min-width:0;display:flex;flex-direction:column;gap:13px;
+  border-radius:18px;
+  border:1px solid #acc8e754;
+  padding:clamp(22px,3vw,31px);
+  background:radial-gradient(circle at 100% 0,#f0c56e15,transparent 45%),
+    linear-gradient(145deg,#174576,#081c36);
+}
+.award-card-meta {display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;}
+.award-team {
+  color:#f3cd84;font-size:12px;letter-spacing:.06em;
+  font-weight:900;text-transform:uppercase;
+}
+.award-status {
+  padding:7px 10px;border-radius:20px;background:#c3d6f119;
+  border:1px solid #b8d1ed57;color:#e5f1ff;font-size:11px;
+}
+.award-card h3 {font-size:clamp(23px,2.6vw,32px);line-height:1.15;margin:7px 0 0;overflow-wrap:anywhere;}
+.award-card h4 {font-size:14px;letter-spacing:.025em;margin:16px 0 0;color:#f2d18d;}
+.award-desc {color:#c4d7ed;font-size:14px;margin:0;white-space:pre-line;overflow-wrap:anywhere;}
+.award-season,.award-dates {font-size:12px;color:#a9cae8;margin:0;line-height:1.6;}
+.award-nominees {display:grid;gap:9px;list-style:none;padding:0;margin:0;}
+.award-nominees li {
+  border-left:3px solid #e6c071;padding:12px 13px;
+  border-radius:0 8px 8px 0;
+  background:#081d39b0;color:#eff6ff;font-size:14px;overflow-wrap:anywhere;
+}
+.award-empty-nominees {color:#a9c5e1;font-size:13px;line-height:1.6;margin:0;}
+.award-winner {display:grid;gap:8px;border:1px solid #f0c56e87;border-radius:12px;padding:18px;background:#f0c56e1b;}
+.award-winner-label {font-size:10px;letter-spacing:.13em;color:#ebc16c;font-weight:900;}
+.award-winner strong {font-size:20px;color:#fff0d2;overflow-wrap:anywhere;}
+.award-vote-note {margin:auto 0 0;font-size:12px;color:#b9cde5;border-top:1px solid #b0cee543;padding-top:17px;line-height:1.6;}
+.award-no-content {
+  grid-column:1/-1;display:grid;place-items:center;text-align:center;
+  min-height:200px;padding:30px 24px;
+  border:1px dashed #c1d4ee73;border-radius:15px;
+  background:#102f5282;color:#cadef2;font-size:14px;line-height:1.6;
+}
+@media(max-width:850px){
+  .awards-intro-grid {grid-template-columns:1fr;}
+  .award-grid {grid-template-columns:1fr;}
+}
+@media(max-width:700px){
+  .award-controls {grid-template-columns:repeat(2,minmax(0,1fr));}
+  .award-controls .award-label:last-child {grid-column:1/-1;}
+  .community-awards-teaser {padding:25px 21px;}
+  .community-awards-teaser .btn {width:100%;max-width:400px;}
+  .awards-catalog {margin-bottom:calc(105px + env(safe-area-inset-bottom,0px));}
+}
+@media(max-width:370px){
+  .award-controls {grid-template-columns:1fr;}
+  .award-controls .award-label:last-child {grid-column:auto;}
+}
+@media(prefers-reduced-motion:reduce){
+  .award-card,.community-awards-teaser {animation:none!important;transition:none!important;}
+}
