@@ -25,6 +25,10 @@ Ce document décrit **l'état effectivement vérifié dans Supabase**, et rempla
 
 **Contrôles convocations du 21 octobre :** test sous rôle `anon` validé pour la vue `team_form_summary` (4 lignes, 0 résultat) ; schéma `app_private` interdit aux visiteurs et fonctions d'invitation inaccessibles. Test sous rôle `authenticated` sans session réelle : les RPC d'invitation et de réponse rejettent l'appel avec SQLSTATE `28000`. Aucun joueur, convocation ni historique créé. Les tests avec plusieurs identités réelles restent indispensables.
 
+## Mise à jour de la gestion des rôles cumulés — migration 13
+
+13. `boissy_uj_cumulative_role_approvals_20261021` : demandes de rôle joueur / entraîneur / admin, validation par autre administrateur MFA AAL2, affectations coach par équipe, refus et révocations indépendantes, journal privé. `role_requests` et `app_private.role_change_audit` sont vides ; RLS activée. Test SQL : refus d'accès aux demandes pour `anon`, refus d'exécution des RPC pour `anon`, refus de toute opération par `authenticated` sans session valide, aucune permission client d'écriture et vérification du niveau `aal2` dans le contrôleur d'admin. Les tests avec vraies sessions / rôles et MFA restent à faire.
+
 ## État des données
 
 - `public.club_teams` : **4 équipes réelles comme catégories**, A D3 / B D4 / C amicaux / Vétérans D3.
