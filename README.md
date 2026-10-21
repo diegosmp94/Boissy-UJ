@@ -1,22 +1,19 @@
-# Boissy-UJ — développement par étapes
+# Boissy-UJ — préversion du site officiel
 
-Dépôt privé. Branche de travail : `feat/fondations-site-v1`. Aucune fusion dans `main` sans tests et validation.
+Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
-## Plan
-1. **Audit : effectué.** Dépôt créé, branche présente. Projet Supabase existant, schéma applicatif vide.
-2. **Socle visuel : en cours de validation.** La branche GitHub contient déjà un prototype statique avec plusieurs pages, navigation mobile, huit chapitres et tests de structure. Une autre variante locale utilise le véritable écusson. Il reste à **consolider les deux versions**, remplacer le monogramme temporaire de la branche par l'écusson du club et réaliser des tests navigateur.
-3. Supabase : authentification, profils, rôles, RLS.
-4. Sport : quatre équipes, effectifs, matchs, convocations, FFF autorisée ou mode manuel.
-5. Médias et communauté : actualités, réactions, premium et Awards.
-6. Stripe : exclusivement TEST tant que conformité et accord LIVE ne sont pas confirmés.
-7. Control Center : administration, versioning, sécurité et rapports.
-8. Recette : contrôle pondéré sur 100 points, lancement de recette finale à 85 %, puis blocages critiques à lever avant production.
+## Contenu disponible
+- Accueil immersif avec huit chapitres et véritable écusson.
+- Navigation ordinateur et mobile.
+- Présentation des équipes, des matchs, des actualités, des événements, de la communauté et des dons.
+- Interface « Mon espace » implémentée et reliée à Supabase, mais **inscription et connexion désactivées dans cette préversion publique** en attendant la recette réelle (RGPD, e-mails et sécurité).
+- Premium : 10 € mensuels ou 100 € pour douze mois, sans renouvellement automatique annuel ; aucune transaction réelle.
+- Matrice de recette pondérée, seuil des 85 % pour lancer la recette finale.
 
-## Règles de sécurité et de produit
-- Pas de paiements réels ni de données de membres tant que les parcours ne sont pas sécurisés.
-- Premium : 10 €/mois sans engagement ou 100 €/12 mois sans reconduction automatique.
-- Pas de score officiel FFF non vérifié.
-- Aucune fonctionnalité non testée n'est considérée comme livrée.
-- Aucun déploiement public effectif n'est attesté par ce README.
+## Tests
+Exécuter `npm test`. Les tests GitHub Actions sont lancés sur les branches de développement, les pull requests et `main`.
 
-Voir `docs/MATRICE_RECETTE.md` pour les pondérations, validations obligatoires et seuil des 85 %.
+## Publication
+Le projet est statique et peut être visualisé via GitHub Pages depuis la branche `main`, dossier `/(root)`, une fois Pages activé dans les paramètres GitHub.
+
+**Attention : version de prévisualisation uniquement.** Les modules métier, les tests d'authentification en conditions réelles, la configuration légale et les paiements restent à homologuer. Les statistiques FFF ne sont pas simulées. Ne saisir aucune donnée personnelle réelle dans les fonctionnalités non validées.
