@@ -25,5 +25,14 @@ Migration : `supabase/migrations/202610210018_club_identity_admin_cms.sql`.
 - Supabase : rôle `anon` ne peut exécuter aucune RPC ; `authenticated` sans identité/MFA ne peut lire de brouillon ni écrire. Droits RLS inchangés, journal non accessible aux clients.
 - Une recette réelle avec au moins deux administrateurs distincts, MFA activé et autorisations de contenu valides reste obligatoire avant toute ouverture des comptes.
 
+## État de déploiement — 21 octobre 2026
+- Migration **`boissy_uj_secure_club_cms_20261021` effectivement appliquée** au projet Boissy-UJ (17 migrations enregistrées).
+- Aucune section ni entrée d'audit créée au déploiement : **0 contenu / 0 événement**.
+- Contrôles SQL : les rôles anonymes n'ont pas d'exécution sur les RPC ; aucune écriture directe des contenus depuis `anon` ou `authenticated` ; la lecture directe du journal est refusée.
+- Tests de refus des deux RPC sans utilisateur connecté : succès (erreur d'authentification attendue).
+- CI du lot : **161 tests sur 161 réussis**, deux workflows GitHub verts avant intégration.
+- Deux avertissements du linter Supabase concernent les nouvelles RPC `SECURITY DEFINER` exécutables par les sessions `authenticated` : c'est volontaire et **elles refusent toute requête dépourvue de rôle admin confirmé et de MFA AAL2**. Le linter ne certifie pas à lui seul la sécurité fonctionnelle.
+- Test avec véritables comptes administrateur MFA AAL2 toujours à mener, aucune activation des comptes dans la préversion.
+
 ## Limites
 L’authentification publique **reste désactivée** dans `auth-config.mjs`. Aucun utilisateur n’a été créé, aucun abonnement, paiement ou vote n'a été activé. Le module en production restera invisible jusqu’à la recette des comptes et de la MFA. Cette étape ne fait pas atteindre, à elle seule, les 85 % de recette globale.
