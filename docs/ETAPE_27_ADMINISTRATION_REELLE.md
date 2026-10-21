@@ -46,3 +46,19 @@ Les listes de brouillons des matchs et articles nécessitent la migration additi
 GitHub Actions, 11 nouveaux tests de sécurité et des tests de non-régression historiques (ajustés lorsque le produit abandonne volontairement les démonstrations). Application et validation séparée de la migration, contrôle `has_function_privilege` pour interdire `anon`.
 
 **Pour l'administrateur initial** : se connecter dans Mon espace avec le compte déjà promu, activer TOTP puis ouvrir **Centre de gestion**. Aucun changement de mot de passe n'est requis.
+
+## Correctif MFA — Facteur non vérifié / erreur de doublon (étape 28)
+Le diagnostic Supabase de la procédure réelle a confirmé une erreur `mfa_factor_name_conflict`, provoquée par un facteur **TOTP non vérifié** conservé après une première tentative d'enrôlement.
+
+**Cause technique :** `mfa.listFactors().totp` contient les facteurs vérifiés ; les facteurs en cours de configuration sont dans `mfa.listFactors().all`. L'ancien code cherchait le facteur non vérifié dans `.totp`, ne le trouvait jamais, puis tentait une nouvelle création sous le même nom.
+
+**Correction :**
+1. Dans `Mon espace`, cliquer sur « Configurer ou vérifier le second facteur ».
+2. Si une configuration inachevée existe, le panneau propose explicitement « Recommencer la configuration MFA ». Aucun facteur validé n'est retiré.
+3. Au second clic, **seul le facteur TOTP non vérifié** du panneau Boissy-UJ est désinscrit via l'API `mfa.unenroll`, puis une configuration neuve avec QR et secret facultatif est proposée.
+4. Scanner le QR avec une application d'authentification et vérifier un code à six chiffres. Supabase doit confirmer AAL2 avant d'autoriser `#/control-center`.
+5. Les erreurs connues (conflit, session expirée, plafond de facteurs, MFA désactivé, code rejeté, limite de débit) affichent désormais une explication sans divulguer d'identifiants techniques ni secrets.
+
+Le compte Supabase Auth, ses rôles, son mot de passe et **les facteurs MFA déjà vérifiés** ne sont pas supprimés. La migration n'est pas modifiée. Le fonctionnement doit être confirmé par l'utilisateur sur son navigateur réel après déploiement et rechargement de la page.
+
+Documentation : [Supabase MFA List Factors](https://supabase.com/docs/reference/javascript/auth-mfa-listfactors), [Supabase MFA Unenroll](https://supabase.com/docs/reference/javascript/auth-mfa-unenroll).

@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Étape 28 · Récupération de configuration MFA inachevée
+
+Le compte administrateur peut reprendre une activation TOTP abandonnée sans créer un facteur au nom déjà utilisé. Un redémarrage explicite remplace uniquement le facteur non vérifié, sans toucher au compte ni aux protections AAL2. [Guide de reprise MFA](docs/ETAPE_27_ADMINISTRATION_REELLE.md#correctif-mfa--facteur-non-vérifié--erreur-de-doublon-étape-28).
+
 ## Étape 27 · Administration réelle MFA AAL2
 
 Le Control Center public de simulation est remplacé par le vrai back-office. Le compte administrateur doit activer sa double authentification TOTP dans Mon espace, puis rejoindre le panneau protégé. Modules actifs : membres et rôles, validations, effectifs publiables, saisons, matchs, actualités et identité du club. Aucune fonction non opérationnelle n’est simulée. [Documentation étape 27](docs/ETAPE_27_ADMINISTRATION_REELLE.md).
