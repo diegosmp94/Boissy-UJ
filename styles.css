@@ -246,3 +246,43 @@
   .chapter-identity .hero-ctas { margin-top: 12px; }
   .chapter-identity .chapter-next { margin-top: 8px; }
 }
+
+
+/* Match Center : donnees publiques verifiees / saisies par le club */
+.sport-root{border:1px solid var(--stroke);border-radius:16px;background:linear-gradient(150deg,#102e53,#081a35);padding:clamp(18px,3vw,30px);margin:24px 0 44px;min-height:180px}
+.sport-loading,.sport-error{margin:22px 0;color:#d1e1f5;line-height:1.7}
+.sport-error{color:#f5ca88}
+.sport-filter-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--stroke);padding-bottom:21px}
+.sport-filter-bar label{display:flex;align-items:center;gap:11px;color:#d7e8fb;font-size:13px;font-weight:700}
+.sport-team-select{border:1px solid #accbe670;background:#071d3b;color:#eff6ff;border-radius:9px;padding:12px 14px;min-height:45px;max-width:100%;font:inherit}
+.sport-team-select:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.sport-count{font-size:12px;color:#b3cae6}
+.sport-fixtures{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.sport-fixture-group{min-width:0}
+.sport-fixture-group h3{font-size:clamp(21px,2vw,27px);margin:26px 0 16px}
+.sport-match-list{display:grid;gap:12px}
+.sport-match-card{min-width:0;border:1px solid #b1d6ff2d;background:linear-gradient(130deg,#19416b6b,#071832);padding:19px;border-radius:12px}
+.sport-match-meta,.sport-foot{display:flex;gap:8px 12px;justify-content:space-between;flex-wrap:wrap;align-items:center;color:#bdd4ee;font-size:12px}
+.sport-pill{color:var(--gold);font-weight:800;text-transform:uppercase;letter-spacing:.12em;font-size:10px}
+.sport-sides{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:13px;padding:21px 0 15px;text-align:center}
+.sport-sides strong{font-size:clamp(14px,1.8vw,19px);overflow-wrap:anywhere;min-width:0}
+.sport-score{font-weight:900;font-size:clamp(20px,2.2vw,27px);color:#f3ca77;white-space:nowrap}
+.sport-foot{border-top:1px solid var(--stroke);padding-top:14px;line-height:1.5}
+.sport-empty{border:1px dashed #9bb9df50;border-radius:12px;min-height:165px;display:grid;align-content:center;justify-items:center;padding:25px;text-align:center}
+.sport-empty p{color:#b8cce5;margin:8px 0 0;font-size:13px;max-width:300px}
+.sport-empty-icon{font-size:27px}
+@media(max-width:900px){.sport-fixtures{grid-template-columns:1fr}}
+@media(max-width:500px){.sport-root{padding:16px}.sport-filter-bar label{width:100%;justify-content:space-between}.sport-team-select{width:min(100%,220px)}.sport-sides{gap:8px}.sport-match-card{padding:14px}}
+
+/* Module sportif en attente de base : statut explicite, sans fausses rencontres. */
+.sport-notice{
+  margin:0 0 18px;
+  padding:14px 17px;
+  border:1px solid #efc16c7a;
+  border-left:4px solid var(--gold);
+  border-radius:10px;
+  background:#e2b75f14;
+  color:#f5e2be;
+  font-size:13px;
+  line-height:1.65;
+}
