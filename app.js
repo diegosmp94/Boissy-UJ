@@ -1,6 +1,7 @@
 import {mountEvents,unmountEvents} from './events-center.mjs';
 import {mountNews,unmountNews} from './media-center.mjs';
 import {mountSport,unmountSport} from './sport-center.mjs';
+import {controlCenterMarkup,mountControlCenter,unmountControlCenter} from './control-center.mjs';
 import {authMarkup,mountAuth,unmountAuth} from './auth.mjs';
 function initIntro(){
   const intro=document.getElementById('cinema-intro');
@@ -85,8 +86,9 @@ function events(){return pageShell('La vie associative','NOS <em>ÉVÉNEMENTS.</
 
 function support(){return pageShell('Ensemble, plus loin','SOUTENIR <em>BOISSY-UJ.</em>','Dons ponctuels, soutien mensuel et campagnes par projet : une future façon de contribuer au développement du club.',`<div class="detail-grid two"><article class="detail-card support-card"><span class="tiny-label">01 / SOUTIEN</span><h2>Fonds général</h2><p>Aider le club à financer ses activités associatives et sportives.</p><div class="chip">Ouverture des dons à venir</div></article><article class="detail-card support-card"><span class="tiny-label">02 / PROJETS</span><h2>Campagnes dédiées</h2><p>Participer à un projet identifié et consulter sa progression.</p><div class="chip">Campagnes à publier</div></article></div><div class="info-banner"><span class="info-icon">i</span><div><strong>Aucun paiement actif</strong><p>La collecte via Stripe sera accessible uniquement après validation de l’association, des conditions légales et des parcours de paiement.</p></div></div>`);}
 function join(){return pageShell('Faire partie du club','NOUS <em>REJOINDRE.</em>','Les demandes de recrutement des joueurs seront examinées directement par les dirigeants de Boissy-UJ.',`<div class="detail-grid two"><article class="detail-card"><span class="tiny-label">JOUEURS</span><h2>Rejoindre une équipe</h2><p>Un formulaire simplifié permettra de choisir une catégorie et de communiquer ses coordonnées en toute sécurité.</p><div class="chip">Formulaire sécurisé en préparation</div></article><article class="detail-card"><span class="tiny-label">SUPPORTERS</span><h2>Suivre le club</h2><p>Un compte supporter permettra de suivre les actualités, les équipes et les événements.</p><a class="text-link" href="#/communaute">Découvrir la communauté ↗</a></article></div>`);}
-function account(){return pageShell('Espace personnel','MON <em>ESPACE.</em>','Un seul compte, plusieurs rôles : supporter, licencié, éducateur ou administrateur. Inscription et connexion sécurisées via Supabase.',authMarkup());}
-const routes={'/':home,'/matchs':matches,'/equipes':teamPage,'/actualites':news,'/communaute':community,'/evenements':events,'/soutenir':support,'/rejoindre':join,'/mon-espace':account};
+function account(){return pageShell('Espace personnel','MON <em>ESPACE.</em>','Un seul compte, plusieurs rôles : supporter, licencié, éducateur ou administrateur. Inscription et connexion sécurisées via Supabase.',authMarkup()+`<div class="cc-entry-link"><span class="tiny-label">FUTUR ESPACE ADMINISTRATEUR</span><h2>Control Center Boissy-UJ</h2><p>Découvrez un aperçu sans données personnelles, sans édition réelle et sans accès privilégié.</p><a class="btn btn-outline" href="#/control-center">Voir l’aperçu du Control Center <span aria-hidden="true">↗</span></a></div>`);}
+function controlCenter(){return controlCenterMarkup();}
+const routes={'/':home,'/matchs':matches,'/equipes':teamPage,'/actualites':news,'/communaute':community,'/evenements':events,'/soutenir':support,'/rejoindre':join,'/mon-espace':account,'/control-center':controlCenter};
 let observer;
 function render(){
   if(observer)observer.disconnect();
@@ -106,7 +108,8 @@ function render(){
   if(path==='/matchs') void mountSport(); else unmountSport();
   if(path==='/actualites') void mountNews(); else unmountNews();
   if(path==='/evenements') void mountEvents(); else unmountEvents();
-  document.title=(path==='/'?'Boissy-UJ — Club officiel':`Boissy-UJ — ${({ '/matchs':'Match Center','/equipes':'Nos équipes','/actualites':'Actualités','/communaute':'Communauté','/evenements':'Événements','/soutenir':'Soutenir le club','/rejoindre':'Nous rejoindre','/mon-espace':'Mon espace'})[path]}`);
+  if(path==='/control-center') mountControlCenter(); else unmountControlCenter();
+  document.title=(path==='/'?'Boissy-UJ — Club officiel':`Boissy-UJ — ${({ '/matchs':'Match Center','/equipes':'Nos équipes','/actualites':'Actualités','/communaute':'Communauté','/evenements':'Événements','/soutenir':'Soutenir le club','/rejoindre':'Nous rejoindre','/mon-espace':'Mon espace','/control-center':'Control Center — aperçu'})[path]}`);
 }
 function setupChapters(){
   const sections=[...document.querySelectorAll('.chapter')];
