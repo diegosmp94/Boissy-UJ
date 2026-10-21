@@ -21,4 +21,11 @@ Migration `202610210022_admin_free_events.sql` :
 - L'utilisateur ordinaire ne peut pas afficher ou écrire les brouillons, même en accédant directement au lien `#/control-center`.
 
 ## Vérifications
-Tests unitaires Node des validations, dates, RPC, droits anonyme, audit, verrouillage optimiste et raccordement dans le back-office. La migration doit être appliquée sur Supabase et ses permissions vérifiées avant la fusion GitHub.
+Tests unitaires Node des validations, dates, RPC, droits anonyme, audit, verrouillage optimiste et raccordement dans le back-office. La migration est nécessaire **pour activer le module dans l'interface**, mais ne bloque pas l'intégration de son code : tant que `admin_list_free_events()` échoue ou est absente, le menu **Événements gratuits reste masqué** après vérification de la session administrateur AAL2. Aucun faux formulaire n'est montré.
+
+### Activation après déploiement de la migration
+Le connecteur Supabase n'a pas permis l'application automatique de la migration pendant ce sprint. Un administrateur du projet doit ouvrir [SQL Editor](https://supabase.com/dashboard/project/dahzewvbybujqhogumte/sql/new), prendre le SQL du fichier `supabase/migrations/202610210022_admin_free_events.sql` **à partir de la branche fusionnée**, vérifier qu'il correspond au changement approuvé, puis exécuter le script dans le projet Boissy-UJ.
+
+Après exécution, contrôler l'existence de `public.admin_list_free_events()`, `public.admin_save_free_event(...)` et de `app_private.admin_free_events_audit`. Vérifier également que les rôles `anon` n'ont pas le droit d'exécuter les fonctions, que le rôle `authenticated` nécessite réellement un administrateur avec MFA AAL2 et que l'annuaire des événements publics ne présente aucun brouillon. Actualiser ensuite le panneau administrateur. **Aucun événement de test n'est créé automatiquement**.
+
+Les deux workflows GitHub sont nécessaires pour fusionner le code, mais les tests navigateur et la recette Supabase doivent précéder l'utilisation réelle du module.
