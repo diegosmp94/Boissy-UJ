@@ -172,3 +172,77 @@
   .chapters { scroll-snap-type: none; }
   .chapter { scroll-snap-align: none; }
 }
+
+/* BOISSY-UJ MOBILE POLISH v2 — balance the first screen after iPhone feedback. */
+@media (max-width: 760px) {
+  .chapter.chapter-identity {
+    justify-content: flex-start;
+    gap: 0;
+    padding-top: 80px;
+    padding-bottom: calc(103px + env(safe-area-inset-bottom, 0px));
+    min-height: 100svh;
+    height: auto;
+  }
+  .chapter-identity .hero-content { width: 100%; max-width: 420px; gap: 0; }
+  .chapter-identity .hero-content .eyebrow {
+    max-width: 100%;
+    margin: 0 auto 16px;
+    font-size: clamp(9px, 2.4vw, 10px);
+    letter-spacing: .13em;
+    line-height: 1.35;
+    text-wrap: balance;
+  }
+  .chapter-identity .crest-halo {
+    width: clamp(82px, 22vw, 108px);
+    height: clamp(82px, 22vw, 108px);
+    margin: 0 auto;
+  }
+  .chapter-identity .crest-halo::before { inset: -11px; }
+  .chapter-identity .crest-halo::after { inset: -22px; }
+  .chapter.chapter-identity .hero-content h1 {
+    max-width: 100%;
+    font-size: clamp(27px, 7.7vw, 35px);
+    line-height: 1.13;
+    margin: 18px auto 12px;
+    letter-spacing: -.045em;
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+  }
+  .chapter-identity .hero-content p {
+    max-width: 34ch;
+    font-size: clamp(13px, 3.5vw, 15px);
+    line-height: 1.5;
+    margin: 0 auto;
+    text-wrap: pretty;
+  }
+  .chapter-identity .hero-ctas {
+    width: min(100%, 340px);
+    gap: 9px;
+    margin: 19px auto 0;
+  }
+  .chapter-identity .hero-ctas .btn {
+    width: 100%;
+    min-height: 47px;
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+  .chapter-identity .chapter-next {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    margin: 16px auto 0;
+  }
+}
+@media (max-width: 760px) and (max-height: 650px) {
+  .chapter.chapter-identity { padding-top: 74px; }
+  .chapter-identity .hero-content .eyebrow { margin-bottom: 10px; }
+  .chapter-identity .crest-halo { width: 76px; height: 76px; }
+  .chapter.chapter-identity .hero-content h1 {
+    font-size: clamp(26px, 7.35vw, 31px);
+    margin: 12px auto 7px;
+  }
+  .chapter-identity .hero-content p { font-size: 13px; line-height: 1.42; }
+  .chapter-identity .hero-ctas { margin-top: 12px; }
+  .chapter-identity .chapter-next { margin-top: 8px; }
+}
