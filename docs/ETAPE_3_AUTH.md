@@ -1,5 +1,7 @@
 # Étape 3 — comptes et rôles Boissy-UJ
 
+> **Exigence produit V1.1 (21/10/2026) :** rôles `player`, `coach`, `admin` cumulables par deux ou trois, chaque nouveau rôle conditionné à une **validation d'administrateur distinct avec MFA AAL2**. Schéma actuel compatible, mais circuit de demandes/approbations **non développé**. Voir [cahier des charges](CAHIER_DES_CHARGES.md). Les migrations appliquées et l'état réel du projet sont suivis dans [État Supabase](ETAT_SUPABASE_20261021.md).
+
 **Avancement : fondation DB + interface intégrées sur la branche. Pas encore prêt pour production.**
 
 ## Réalisé et vérifié

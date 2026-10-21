@@ -27,6 +27,14 @@ Les modifications sont réalisées sur une branche dédiée et font l'objet de c
 - Dons ponctuels et mensuels ; fonds général et campagnes par projet.
 - Événements gratuits ou payants, avantages premium configurables.
 
+## Exigence ajoutée : double / triple rôle
+
+- Un compte peut cumuler `player`, `coach`, `admin` (toutes les paires et le triple rôle).
+- Un nouvel ajout de rôle exige l'approbation d'un administrateur autre que le bénéficiaire, avec MFA AAL2 ; une demande en attente n'accorde aucun droit.
+- L'ajout d'un rôle ne retire pas les autres ; toute affectation entraîneur à une équipe est validée séparément.
+- Développement restant : demande / approbation / rejet / révocation auditée, contrôle des affectations et tests de permissions multi-identités avant ouverture de Mon espace.
+- Exigences détaillées : [Cahier des charges V1.1](CAHIER_DES_CHARGES.md).
+
 ## Vérifications à mener plus tard
 
 Statuts juridiques détaillés, conformité fiscale, reçus fiscaux, durée de priorité événements, compte Stripe, connexion éventuelle FFF, droit à l'image.

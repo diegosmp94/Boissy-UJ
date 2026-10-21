@@ -1,5 +1,9 @@
 # Étape 7 — Boissy-UJ Control Center
 
+> **Exigence V1.1 :** un compte peut être joueur et entraîneur, entraîneur et administrateur, joueur et administrateur, ou les trois simultanément. Chaque ajout de rôle est validé par **un autre administrateur MFA AAL2** et journalisé. Prévoir gestion séparée des rôles, des équipes éducateur et de leur révocation ; la prévisualisation n'attribue jamais de rôle. Voir [cahier des charges](CAHIER_DES_CHARGES.md).
+>
+> Les anciennes mentions de migrations non appliquées ci-dessous sont historiques : voir [État Supabase actuel](ETAT_SUPABASE_20261021.md).
+
 **Version : aperçu de conception interactif, sans privilège administrateur et sans connexion réelle.**
 
 ## Développement effectué
