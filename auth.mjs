@@ -31,7 +31,7 @@ function safeMessage(error) {
 async function client() {
   if (!supabaseConfig.enabled) throw new Error("L'authentification est temporairement désactivée.");
   if (!clientPromise) {
-    clientPromise = import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm")
+    clientPromise = import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/+esm")
       .then(({ createClient }) => createClient(supabaseConfig.url, supabaseConfig.publishableKey, {
         auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" }
       }))
