@@ -9,10 +9,11 @@
 import {mountTeamWorkspace,mountMediaWorkspace} from './staff-workflows.mjs';
 import {mountMatchWorkspace} from './match-workspace.mjs';
 import {mountCallupsPreview} from './callups-preview.mjs';
+import {mountRoleManagementPreview} from './role-workflow.mjs';
 
 export const CONTROL_MODULES = Object.freeze([
   {id:'overview',name:'Vue générale',group:'Pilotage',phase:'socle',description:'Tableau de bord associatif et synthèse des opérations, alimentés plus tard par des indicateurs autorisés.',publicRoute:null},
-  {id:'members',name:'Utilisateurs & rôles',group:'Pilotage',phase:'a-venir',description:'Comptes, rôles cumulables, invitations et réinitialisation par e-mail, avec audit et protection des mineurs.',publicRoute:'#/mon-espace'},
+  {id:'members',name:'Utilisateurs & rôles',group:'Pilotage',phase:'apercu',description:'Doubles et triples rôles, demandes approuvées par un autre administrateur MFA AAL2 et révocations indépendantes.',publicRoute:'#/mon-espace'},
   {id:'teams',name:'Équipes & effectifs',group:'Sport',phase:'socle',description:'Quatre équipes validées, saisons, affectations et autorisations des éducateurs.',publicRoute:'#/equipes'},
   {id:'matches',name:'Match Center',group:'Sport',phase:'socle',description:'Calendriers, compositions, résultats et statistiques vérifiées ou saisies par le club.',publicRoute:'#/matchs'},
   {id:'media',name:'Actualités & médias',group:'Contenu',phase:'socle',description:'Gestion éditoriale, versions, publication encadrée et respect des droits à l’image.',publicRoute:'#/actualites'},
@@ -143,6 +144,7 @@ function sectionEditor(root){
 function modulePanel(root,module){
   root.replaceChildren();
   if(module.id==='appearance'){sectionEditor(root);return}
+  if(module.id==='members'){mountRoleManagementPreview(root);return}
   if(module.id==='teams'){mountTeamWorkspace(root);return}
   if(module.id==='matches'){mountMatchWorkspace(root);mountCallupsPreview(root);return}
   if(module.id==='media'){mountMediaWorkspace(root);return}
