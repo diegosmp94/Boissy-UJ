@@ -17,6 +17,23 @@ export function authCallbackError(search=''){
   if(code==='otp_expired'||code==='access_denied')return 'Le lien de connexion a expiré ou a déjà été utilisé. Demande un nouveau lien.';
   return 'Le lien de confirmation n’a pas pu être utilisé. Réessaie depuis Mon espace.';
 }
+/** Consomme les paramètres temporaires une fois l'échange PKCE terminé.
+ * Préserve le chemin GitHub Pages, le hash-route et les autres paramètres du site.
+ */
+export function sanitizedAuthCallbackUrl(href){
+  const url=new URL(String(href));
+  for(const key of ['code','error','error_code','error_description']){
+    url.searchParams.delete(key);
+  }
+  return url.toString();
+}
+export function loginSuccessMessage(mode,{session=null}={}){
+  if(mode==='register'&&session)return 'Compte créé et connexion établie.';
+  if(mode==='register')return 'Demande reçue. Vérifie ton e-mail pour confirmer le compte si nécessaire.';
+  if(mode==='newPassword')return 'Mot de passe mis à jour. Ton espace personnel est accessible.';
+  if(mode==='login')return 'Connexion réussie.';
+  return '';
+}
 export function validateAuthInput(mode,input={}){
   const errors=[];
   const email=String(input.email||'').trim();

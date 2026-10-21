@@ -1,0 +1,14 @@
+/* Connexion — messages de succès stables après transition de session. */
+.auth-success{
+  margin:0 0 18px;
+  padding:14px 16px;
+  border-radius:12px;
+  border:1px solid rgba(229,191,113,.6);
+  background:linear-gradient(130deg,#163d60,#102b48);
+  color:#fbe5b0;
+  font-size:.94rem;
+  font-weight:700;
+  line-height:1.5;
+}
+.auth-success:focus-visible{outline:3px solid #f0c67b;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.auth-success{scroll-behavior:auto}}

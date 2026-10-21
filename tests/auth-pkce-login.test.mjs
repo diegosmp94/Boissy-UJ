@@ -84,6 +84,6 @@ test('standard supporter account retains proper getUser verification and logout'
  assert.match(auth,/api.auth.signOut\(\)/);
  assert.match(auth,/api.from\("profiles"\).select\("display_name"\).eq\("id", user.id\)/);
  assert.match(auth,/api.from\("user_roles"\).select\("role"\).eq\("user_id", user.id\)/);
- assert.match(auth,/if \(!root.isConnected\) return/);
+  assert.match(auth,/if \(!root\.isConnected\|\|view!==sessionViewGeneration\) return/);
  assert.doesNotMatch(auth,/\.innerHTML\s*=/);
 });

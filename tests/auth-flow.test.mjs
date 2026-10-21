@@ -35,6 +35,6 @@ test("Role changes are denied to authenticated browser users", () => {
 test("Account UI escapes server-supplied profile and email content using textContent", () => {
   assert.match(auth, /node\.textContent = text/);
   assert.match(auth, /profileResult\.data\?\.display_name/);
-  assert.match(auth, /if \(!root\.isConnected\) return/);
+  assert.match(auth,/if \(!root\.isConnected\|\|view!==sessionViewGeneration\) return/);
   assert.match(styles, /\.auth-field input:focus-visible/);
 });
