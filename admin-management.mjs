@@ -3,6 +3,7 @@
  */
 import {adminSessionStatus} from './admin-security.mjs';
 import {CLUB_TEAMS} from './club-teams.mjs';
+import {validateSeasonDraft,validateMatchDraft,validateNewsDraft,adminSaveErrorMessage} from './admin-editor-rules.mjs';
 
 const el=(tag,cls='',value=null)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(value!==null)n.textContent=String(value);return n;};
 const option=(value,label)=>{const x=el('option','',label);x.value=value;return x;};
@@ -12,9 +13,6 @@ const textarea=()=>{const n=el('textarea','admin-form-control');n.rows=5;return 
 const select=items=>{const n=el('select','admin-form-control');for(const [value,name] of items)n.append(option(value,name));return n;};
 const check=label=>{const n=input('checkbox');return {n,label:field(label,n)};};
 const btn=(name)=>{const n=el('button','admin-primary-btn',name);n.type='submit';return n;};
-const err=(error)=>error?.code==='42501'
- ?'Action refusée : MFA AAL2 ou rôle administrateur manquant.'
- :'Enregistrement indisponible ou refusé par Supabase. Vérifie la saisie.';
 const teamsKnown=teams=>teams.filter(t=>CLUB_TEAMS.some(c=>c.code===t.code));
 async function guarded(api,userId){
  const check=await adminSessionStatus(api,userId);
@@ -27,8 +25,10 @@ function shell(root,title){
  const list=el('select','admin-form-control');
  list.setAttribute('aria-label','Document à modifier');
  const form=el('form','admin-operation-form');
- root.append(message,field('Sélectionner un dossier existant ou créer un nouveau',list),form);
- return {message,list,form};
+ const refresh=el('button','admin-secondary-btn','Actualiser les dossiers');refresh.type='button';
+ const actions=el('div','admin-editor-list-actions');actions.append(refresh);
+ root.append(message,field('Sélectionner un dossier existant ou créer un nouveau',list),actions,form);
+ return {message,list,form,refresh};
 }
 const indexSelect=(selectNode,rows,display,preferred=null)=>{
  selectNode.replaceChildren(option('new','+ Créer un nouveau dossier'));
@@ -57,6 +57,7 @@ function editor(root,title,api,userId,{rpcList,rpcSave,fields,validate,args,prev
   UI.message.textContent=item?'Dossier chargé. Vérifie avant d’enregistrer.':'Nouveau brouillon. Aucun contenu créé.';
  };
  async function reload(focus=null){
+  if(!root.isConnected)return;
   if(!await guarded(api,userId)){UI.message.textContent='Accès administrateur MFA perdu.';action.disabled=true;return;}
   const result=await api.rpc(rpcList);
   if(!root.isConnected)return;
@@ -69,6 +70,13 @@ function editor(root,title,api,userId,{rpcList,rpcSave,fields,validate,args,prev
   action.disabled=false;reset();
  }
  UI.list.addEventListener('change',reset);
+ UI.refresh.addEventListener('click',async()=>{
+  if(busy||UI.refresh.disabled)return;
+  UI.refresh.disabled=true;
+  const keep=selected()?.id||null;
+  try{await reload(keep);}catch{if(root.isConnected)UI.message.textContent='Impossible d’actualiser. Réessaie plus tard.';}
+  finally{UI.refresh.disabled=false;}
+ });
  form.addEventListener('input',()=>{confirmKey=null;});
  form.addEventListener('change',()=>{confirmKey=null;});
  form.addEventListener('submit',async event=>{
@@ -90,7 +98,7 @@ function editor(root,title,api,userId,{rpcList,rpcSave,fields,validate,args,prev
    if(!root.isConnected)return;
    const result=await api.rpc(rpcSave,payload);
    if(!root.isConnected)return;
-   if(result.error){UI.message.textContent=err(result.error);return;}
+   if(result.error){UI.message.textContent=adminSaveErrorMessage(result.error);return;}
    await reload(result.data);
    if(root.isConnected)UI.message.textContent='Dossier enregistré par Supabase. La publication dépend de ses droits et contrôles serveur.';
   }catch{if(root.isConnected)UI.message.textContent='Service temporairement indisponible. Aucun enregistrement confirmé.';}
@@ -116,11 +124,7 @@ export function mountAdminSeasons(root,api,userId){
    end:{element:field('Fin',end),fill:row=>end.value=get('ends_on')(row)}
   }),
   preview:()=>({label:label.value.trim(),state:state.value,start:start.value,end:end.value,publish:state.value==='active'}),
-  validate:d=>!/^20\d{2}\/20\d{2}$/.test(d.label)||Number(d.label.slice(5))!==Number(d.label.slice(0,4))+1
-   ?'Format de saison attendu : 2026/2027.'
-   :!d.start||!d.end||d.end<=d.start?'Indique une période de saison valide.'
-   :Number(d.start.slice(0,4))!==Number(d.label.slice(0,4))||Number(d.end.slice(0,4))!==Number(d.label.slice(5))
-    ?'Les dates doivent correspondre aux années de la saison.':null,
+  validate:validateSeasonDraft,
   args:(d,row)=>({p_season_id:row?.id||null,p_label:d.label,p_state:d.state,p_starts_on:d.start,p_ends_on:d.end}),
   display:row=>row.label+' · '+row.state
  });
@@ -163,12 +167,7 @@ export function mountAdminMatches(root,api,userId){
    preview:()=>({team:team.value,season:season.value,opponent:opponent.value.trim(),
     date:date.value,venue:venue.value.trim(),home:home.n.checked,state:state.value,
     hScore:hScore.value,aScore:aScore.value,publish:publish.n.checked}),
-   validate:d=>!teams.some(t=>t.id===d.team)?'Sélectionne une équipe du club.'
-    :d.opponent.length<2||d.opponent.length>120?'Indique un adversaire valide.'
-    :!d.date||!Number.isFinite(Date.parse(d.date))?'Choisis la date et l’heure du match.'
-    :d.state==='played'&&(![d.hScore,d.aScore].every(v=>v!==''&&Number.isInteger(Number(v))&&Number(v)>=0&&Number(v)<=99))
-      ?'Pour un match joué, indique deux scores entre 0 et 99.'
-    :d.state!=='played'&&(d.hScore!==''||d.aScore!=='')?'Les scores sont réservés aux matchs joués.':null,
+   validate:d=>validateMatchDraft(d,teams,seasons),
    args:(d,row)=>({p_match_id:row?.id||null,p_team_id:d.team,p_season_id:d.season||null,
     p_opponent_name:d.opponent,p_scheduled_at:new Date(d.date).toISOString(),p_venue:d.venue,
     p_is_home:d.home,p_match_status:d.state,p_home_score:d.state==='played'?Number(d.hScore):null,
@@ -188,11 +187,12 @@ export function mountAdminNews(root,api,userId){
  void api.from('club_teams').select('id,code,name').then(res=>{
   if(!root.isConnected)return;
   if(res.error)throw new Error('teams unavailable');
-  teams=teamsKnown(res.data||[]);team.replaceChildren(...teams.map(t=>option(t.id,t.name)));
+  teams=teamsKnown(res.data||[]);
+  team.replaceChildren(option('','Actualité générale du club'),...teams.map(t=>option(t.id,t.name)));
   editor(root,'Articles et actualités',api,userId,{
    rpcList:'admin_list_management_news',rpcSave:'staff_save_news_article',
    fields:()=>({
-    team:{element:field('Équipe',team),fill:r=>team.value=r?.team_id||teams[0]?.id||''},
+    team:{element:field('Équipe ou club entier',team),fill:r=>team.value=r?.team_id??''},
     title:{element:field('Titre',title),fill:r=>title.value=r?.title||''},
     excerpt:{element:field('Résumé',excerpt),fill:r=>excerpt.value=r?.excerpt||''},
     body:{element:field('Article',body),fill:r=>body.value=r?.body||''},
@@ -201,11 +201,8 @@ export function mountAdminNews(root,api,userId){
    }),
    preview:()=>({team:team.value,title:title.value.trim(),excerpt:excerpt.value.trim(),
     body:body.value.trim(),rights:rights.n.checked,publish:publish.n.checked}),
-   validate:d=>!teams.some(t=>t.id===d.team)?'Sélectionne une équipe valide.'
-     :d.title.length<4||d.title.length>180?'Le titre doit comporter 4 à 180 caractères.'
-     :d.excerpt.length>400||d.body.length<1||d.body.length>20000?'Vérifie la longueur du résumé et du texte.'
-     :d.publish&&!d.rights?'Une publication exige la vérification des droits et des autorisations.':null,
-   args:(d,row)=>({p_post_id:row?.id||null,p_team_id:d.team,p_title:d.title,
+   validate:d=>validateNewsDraft(d,teams),
+   args:(d,row)=>({p_post_id:row?.id||null,p_team_id:d.team||null,p_title:d.title,
     p_excerpt:d.excerpt,p_body:d.body,p_publish:d.publish,p_rights_confirmed:d.rights}),
    display:r=>r.title+' · '+(r.status==='published'?'Publié':'Brouillon')
   });
