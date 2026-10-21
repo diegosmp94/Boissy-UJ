@@ -1,4 +1,5 @@
 import { supabaseConfig } from "./auth-config.mjs";
+import {authRedirectUrl,authCallbackError,hasAuthCallback,validateAuthInput} from "./auth-flow.mjs";
 import {mountMemberRoleRequests} from './role-workflow.mjs';
 import {mountAdminRoleModeration} from './admin-role-moderation.mjs';
 import {mountAuthenticatedClubIdentityEditor} from './club-editor.mjs';
@@ -8,6 +9,9 @@ let clientPromise;
 let mounted = null;
 let generation = 0;
 let recoveryMode = false;
+const RECOVERY_KEY = 'boissy-uj-recovery-requested';
+const getRecoveryIntent=()=>{try{return window.sessionStorage.getItem(RECOVERY_KEY)==='1';}catch{return false;}};
+const setRecoveryIntent=value=>{try{if(value)window.sessionStorage.setItem(RECOVERY_KEY,'1');else window.sessionStorage.removeItem(RECOVERY_KEY);}catch{}};
 
 function safeMessage(error) {
   if (!error) return "";
@@ -16,6 +20,10 @@ function safeMessage(error) {
   if (code === "email_not_confirmed") return "Vérifie ton adresse e-mail avant de te connecter.";
   if (code.includes("rate_limit") || code.includes("over_request")) return "Trop de tentatives : réessaie plus tard.";
   if (code === "weak_password") return "Choisis un mot de passe plus robuste.";
+  if (code === "email_address_invalid") return "Cette adresse e-mail n’est pas valide.";
+  if (code === "email_provider_disabled" || code === "signup_disabled") return "Les inscriptions par e-mail sont momentanément indisponibles.";
+  if (code === "over_email_send_rate_limit") return "Limite d’envois atteinte. Réessaie plus tard.";
+  if (code === "email_exists" || code === "user_already_exists") return "Cette adresse est déjà associée à un compte. Essaie la connexion.";
   return "L'opération n'a pas pu aboutir. Vérifie les informations et réessaie.";
 }
 
@@ -81,7 +89,11 @@ function authCard(root, mode = "login") {
   const form = el("form", "auth-form");
   form.dataset.authMode = mode;
   form.noValidate = false;
-  if (mode === "register") form.append(field("Nom d'affichage", "display_name", "text", "nickname"));
+  if (mode === "register"){
+    const name=field("Nom d'affichage", "display_name", "text", "nickname");
+    name.querySelector('input').minLength=2;
+    form.append(name);
+  }
   if (mode !== "newPassword") form.append(field("Adresse e-mail", "email", "email", "email"));
   if (["login", "register", "newPassword"].includes(mode)) form.append(field(mode === "newPassword" ? "Nouveau mot de passe (8 caractères minimum)" : "Mot de passe (8 caractères minimum)", "password", "password", mode === "register" || mode === "newPassword" ? "new-password" : "current-password"));
   form.append(button({
@@ -108,34 +120,50 @@ function authCard(root, mode = "login") {
     submit.disabled = true;
     alertFor(root, "Opération en cours…");
     const formData = new FormData(form);
-    const email = String(formData.get("email") || "").trim();
-    const password = String(formData.get("password") || "");
+    const review=validateAuthInput(mode,{
+      email:formData.get("email"),password:formData.get("password"),
+      displayName:formData.get("display_name")
+    });
+    if(!review.valid){
+      alertFor(root,review.errors[0],true);
+      submit.disabled=false;return;
+    }
+    const {email,password}=review;
     try {
       const api = await client();
       let result;
-      const redirectTo = window.location.origin + window.location.pathname + "#/mon-espace";
+      // Callback volontairement SANS hash : Supabase renvoie ?code=... avant le router.
+      const redirectTo = authRedirectUrl(window.location);
       if (mode === "login") result = await api.auth.signInWithPassword({ email, password });
       if (mode === "register") {
-        const display_name = String(formData.get("display_name") || "").trim().slice(0, 100);
-        if (!display_name) throw new Error("Nom d'affichage requis");
-        result = await api.auth.signUp({ email, password, options: { data: { display_name }, emailRedirectTo: redirectTo } });
+        result = await api.auth.signUp({ email, password, options: {
+          data: { display_name: review.displayName }, emailRedirectTo: redirectTo
+        } });
       }
-      if (mode === "reset") result = await api.auth.resetPasswordForEmail(email, { redirectTo });
+      if (mode === "reset") {
+        setRecoveryIntent(true);
+        result = await api.auth.resetPasswordForEmail(email,{redirectTo});
+      }
       if (mode === "newPassword") result = await api.auth.updateUser({ password });
       form.querySelectorAll('input[type="password"]').forEach(input => { input.value = ""; });
-      if (result?.error) { alertFor(root, safeMessage(result.error), true); return; }
+      if (result?.error) {
+        if(mode==='reset')setRecoveryIntent(false);
+        alertFor(root, safeMessage(result.error), true);
+        return;
+      }
       if (mode === "register") {
         alertFor(root, "Demande reçue. Si une confirmation est nécessaire, consulte les messages de ta boîte e-mail.");
       } else if (mode === "reset") {
         alertFor(root, "Si cette adresse possède un compte, un lien de récupération sera envoyé.");
       } else if (mode === "newPassword") {
-        recoveryMode = false;
+        recoveryMode = false;setRecoveryIntent(false);
         alertFor(root, "Mot de passe mis à jour.");
         await showSession(root, api);
       } else {
         await showSession(root, api);
       }
     } catch (error) {
+      if(mode==='reset')setRecoveryIntent(false);
       alertFor(root, safeMessage(error), true);
     } finally {
       if (submit.isConnected) submit.disabled = false;
@@ -160,7 +188,8 @@ async function showSession(root, api) {
   const roleNames = { supporter: "Supporter", player: "Joueur", coach: "Éducateur", admin: "Administrateur" };
   account.append(el("p", "auth-role-summary", "Rôles : " + (roles.length ? roles.map(x => roleNames[x] || x).join(", ") : "en cours de chargement")));
   if (profileResult.error || rolesResult.error) account.append(el("p", "auth-warning", "Impossible de vérifier toutes les informations du profil pour le moment."));
-  if (roles.includes("admin")) account.append(el("p", "auth-warning", "Le Control Center restera inaccessible tant que les protections MFA et l'audit ne seront pas finalisés."));
+  if (roles.includes("admin")) account.append(el("p", "auth-warning",
+    "Les fonctions administratives exigent un second facteur MFA AAL2 ; le simple rôle admin ne donne pas accès aux opérations protégées."));
   account.append(el("p", "auth-footnote", "Aucun abonnement premium n'est actif par défaut. Les autorisations sont contrôlées par Supabase."));
   const signOut = button("Se déconnecter", "auth-submit", "button");
   signOut.addEventListener("click", async () => {
@@ -169,7 +198,7 @@ async function showSession(root, api) {
     if (signOutError) {
       signOut.disabled = false;
       account.append(el("p", "auth-warning", safeMessage(signOutError)));
-    } else authCard(root, "login");
+    } else {recoveryMode=false;setRecoveryIntent(false);authCard(root, "login");}
   });
   account.append(signOut);
   root.append(account);
@@ -185,47 +214,60 @@ export function authMarkup() {
 }
 
 export async function mountAuth() {
-  generation += 1;
-  const turn = generation;
-  if (mounted?.subscription) mounted.subscription.unsubscribe();
-  mounted = null;
-  const root = document.querySelector("[data-auth-root]");
-  if (!root) return;
-  if (!supabaseConfig.enabled) {
+  generation+=1;
+  const turn=generation;
+  if(mounted?.subscription)mounted.subscription.unsubscribe();
+  mounted=null;
+  const root=document.querySelector('[data-auth-root]');
+  if(!root)return;
+  if(!supabaseConfig.enabled){
     root.replaceChildren(
-      el("span", "tiny-label", "PRÉVERSION BOISSY-UJ"),
-      el("h2", "", "Mon espace arrive bientôt"),
-      el("p", "auth-footnote", "Les inscriptions et connexions ouvriront après la validation des tests de sécurité, de confidentialité et des e-mails. Aucun compte ni mot de passe n’est demandé dans cette préversion.")
+      el('span','tiny-label','PRÉVERSION BOISSY-UJ'),
+      el('h2','','Mon espace arrive bientôt'),
+      el('p','auth-footnote','Les inscriptions et connexions ouvriront après validation de la configuration des e-mails et des tests de sécurité.')
     );
     return;
   }
-  try {
-    const api = await client();
-    if (turn !== generation || !root.isConnected) return;
-    const { data: { session }, error } = await api.auth.getSession();
-    if (turn !== generation || !root.isConnected) return;
-    if (error) throw error;
-    if (recoveryMode) authCard(root, "newPassword");
-    else if (session) await showSession(root, api);
-    else authCard(root, "login");
-    const { data: { subscription } } = api.auth.onAuthStateChange((event) => {
-      if (turn !== generation || !root.isConnected) { subscription.unsubscribe(); return; }
-      if (event === "PASSWORD_RECOVERY") recoveryMode = true;
-      // Supabase: never await getUser inside onAuthStateChange itself.
-      window.setTimeout(() => {
-        if (turn !== generation || !root.isConnected) return;
-        if (recoveryMode) authCard(root, "newPassword");
-        else if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
-          if (event === "SIGNED_IN") void showSession(root, api);
-          else authCard(root, "login");
-        }
-      }, 0);
+  const callbackError=authCallbackError(window.location.search);
+  const isCallback=hasAuthCallback(window.location.search);
+  const recoveryExpected=isCallback&&getRecoveryIntent();
+  root.replaceChildren(el('p','auth-loading','Vérification de la session sécurisée…'));
+  try{
+    const api=await client();
+    if(turn!==generation||!root.isConnected)return;
+    // Abonnement AVANT getSession : PASSWORD_RECOVERY peut surgir pendant l’échange PKCE.
+    const {data:{subscription}}=api.auth.onAuthStateChange((event)=>{
+      if(turn!==generation||!root.isConnected)return;
+      if(event==='PASSWORD_RECOVERY')recoveryMode=true;
+      if(event==='SIGNED_OUT'){recoveryMode=false;setRecoveryIntent(false);}
+      if(!['PASSWORD_RECOVERY','SIGNED_IN','SIGNED_OUT'].includes(event))return;
+      // Pas d'await Supabase dans le callback auth : évite un deadlock de session.
+      window.setTimeout(()=>{
+        if(turn!==generation||!root.isConnected)return;
+        if(event==='SIGNED_OUT')authCard(root,'login');
+        else if(recoveryMode)authCard(root,'newPassword');
+        else void showSession(root,api);
+      },0);
     });
-    mounted = { subscription };
-  } catch {
-    if (turn !== generation || !root.isConnected) return;
-    root.replaceChildren(el("h2", "", "Service temporairement indisponible"), el("p", "auth-warning", "La connexion nécessite le service Supabase. Réessaie dans quelques instants."), button("Réessayer", "auth-submit", "button"));
-    root.lastElementChild.addEventListener("click", () => { void mountAuth(); });
+    mounted={subscription};
+    const {data:{session},error}=await api.auth.getSession();
+    if(turn!==generation||!root.isConnected)return;
+    if(error)throw error;
+    if(recoveryExpected&&session)recoveryMode=true;
+    if(recoveryMode&&session)authCard(root,'newPassword');
+    else if(session)await showSession(root,api);
+    else authCard(root,'login');
+    if(callbackError){
+      if(!session)alertFor(root,callbackError,true);
+      else root.prepend(el('p','auth-warning',callbackError));
+    }
+  }catch{
+    if(turn!==generation||!root.isConnected)return;
+    root.replaceChildren(el('h2','','Service temporairement indisponible'),
+      el('p','auth-warning','La connexion nécessite le service Supabase. Réessaie dans quelques instants.'));
+    const retry=button('Réessayer','auth-submit','button');
+    retry.addEventListener('click',()=>{void mountAuth();});
+    root.append(retry);
   }
 }
 
