@@ -1,0 +1,20 @@
+/* Étape 22 — liens directs équipe ↔ résultats ↔ médias. */
+@media(min-width:761px){
+  .news-controls{grid-template-columns:minmax(0,1.7fr) minmax(145px,.8fr) minmax(175px,1fr)}
+}
+.sport-team-profile-link,.team-extras-more-link{
+  display:inline-flex;gap:8px;align-items:center;align-self:flex-start;
+  padding:9px 13px;margin-top:12px;border:1px solid #e6c2747d;border-radius:9px;
+  color:#f1ce81;font-size:12px;font-weight:800;transition:border-color .15s,background .15s
+}
+.sport-team-profile-link:hover,.team-extras-more-link:hover,
+.sport-team-profile-link:focus-visible,.team-extras-more-link:focus-visible{
+  background:#1e4b7c;border-color:#e7c57c;color:#fff
+}
+.news-team-link{
+  display:inline-flex;align-items:center;color:#eac982;font-size:11px;font-weight:800;
+  border:1px solid #e5bd735e;padding:6px 10px;border-radius:100px
+}
+.news-team-link:hover,.news-team-link:focus-visible{background:#163b67;color:#fff}
+.team-extras-more-link{margin-top:16px}
+@media(prefers-reduced-motion:reduce){.sport-team-profile-link,.team-extras-more-link{transition:none}}
