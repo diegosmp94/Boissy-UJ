@@ -30,6 +30,8 @@ test('news columns needed by public REST remain readable but author identity is 
  for(const col of ['id','title','excerpt','body','content_kind','visibility','status','consent_reviewed','published_at']){
    assert.ok(columnPrivacy.includes(col),col);
  }
- assert.doesNotMatch(columnPrivacy,/\) on public\.news_posts[\s\S]*author_user_id/);
+ const columns=columnPrivacy.split('grant select (')[1]?.split(') on public.news_posts')[0]||'';
+ assert.ok(columns.length>0);
+ assert.doesNotMatch(columns,/author_user_id|created_at|updated_at/);
  assert.match(deployment,/boissy_uj_news_column_privacy_20261021/);
 });
