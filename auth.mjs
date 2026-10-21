@@ -182,6 +182,14 @@ export async function mountAuth() {
   mounted = null;
   const root = document.querySelector("[data-auth-root]");
   if (!root) return;
+  if (!supabaseConfig.enabled) {
+    root.replaceChildren(
+      el("span", "tiny-label", "PRÉVERSION BOISSY-UJ"),
+      el("h2", "", "Mon espace arrive bientôt"),
+      el("p", "auth-footnote", "Les inscriptions et connexions ouvriront après la validation des tests de sécurité, de confidentialité et des e-mails. Aucun compte ni mot de passe n’est demandé dans cette préversion.")
+    );
+    return;
+  }
   try {
     const api = await client();
     if (turn !== generation || !root.isConnected) return;
