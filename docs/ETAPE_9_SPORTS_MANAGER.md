@@ -32,3 +32,11 @@ Migration `supabase/migrations/202610210009_sport_seasons_match_manager.sql`.
 - Tests Node et GitHub Actions, code synchronisé sur `main` après validation.
 - Migration appliquée sur Supabase : vérifier via la liste des migrations, colonnes, permissions et une transaction de test sans création permanente.
 - Recette Safari mobile et navigateur réel différée selon décision de revoir le site à la fin.
+
+## Vérification Supabase effectuée le 21/10/2026
+- Migration `boissy_uj_seasons_staff_matches_20261021` **appliquée avec succès**.
+- Tables `public.club_seasons` et `app_private.match_change_log` créées, RLS activée.
+- La table des saisons contient **0 entrée** ; pas de résultat ou de rencontre ajouté.
+- Droits contrôlés via `has_table_privilege` : lecture des saisons autorisée aux visiteurs, écritures refusées à `anon` et `authenticated` ; journal de match privé inaccessible.
+- Test en transaction annulée avec rôle `authenticated` et identifiant sans affectation : tentative `staff_save_match` rejetée en `42501`, sans création de ligne.
+- Le linter signale la fonction `SECURITY DEFINER` exposée aux utilisateurs connectés : garde interne volontaire ; **tests multi-comptes avec authentification réelle toujours indispensables**.
