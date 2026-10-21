@@ -1,21 +1,44 @@
 /* Étape 20 — Menu Équipes à deux niveaux et fiches sportives dédiées */
-.desktop-team-nav{position:relative;display:flex;align-items:center;gap:3px}
-.desktop-team-nav>a{padding:13px 1px}
-.desktop-team-nav>button{display:grid;place-items:center;height:30px;width:24px;border:0;border-radius:6px;background:transparent;color:#bfd3ef;font-size:19px;line-height:1}
-.desktop-team-nav>button:hover,.desktop-team-nav>button[aria-expanded="true"]{background:#24476c;color:var(--gold)}
+.desktop-team-nav{position:relative;display:flex;align-items:center;isolation:isolate}
+.desktop-links .desktop-team-nav>a{position:relative;display:inline-flex;align-items:center;min-height:44px;
+  padding:12px 5px;color:#c7d7ec;transition:color .16s ease}
+.desktop-links .desktop-team-nav>a::after{content:"";position:absolute;left:5px;right:5px;bottom:4px;
+  height:2px;border-radius:100px;background:linear-gradient(90deg,#ffe5a2,#d7a951);transform:scaleX(0);
+  transform-origin:center;transition:transform .2s ease}
+.desktop-links .desktop-team-nav:hover>a,.desktop-links .desktop-team-nav[data-open="true"]>a,
+.desktop-links .desktop-team-nav>a[aria-current="page"]{color:#f7d88c}
+.desktop-links .desktop-team-nav:hover>a::after,.desktop-links .desktop-team-nav[data-open="true"]>a::after,
+.desktop-links .desktop-team-nav>a[aria-current="page"]::after{transform:scaleX(1)}
 .desktop-teams-submenu[hidden]{display:none!important}
-.desktop-teams-submenu{position:absolute;top:calc(100% + 15px);left:-130px;width:min(490px,88vw);padding:19px;
-  background:linear-gradient(150deg,#0f3159,#07192f 90%);border:1px solid #e3bd6c83;border-radius:16px;
-  box-shadow:0 22px 75px #000b;z-index:150}
-.desktop-teams-submenu::before{content:"";position:absolute;top:-15px;height:15px;left:0;right:0}
-.desktop-links .desktop-teams-all{display:block;border-bottom:1px solid #ffffff2b;padding:6px 10px 15px;color:var(--gold);font-size:13px}
-.desktop-teams-columns{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:13px}
-.desktop-teams-columns section{display:flex;flex-direction:column;gap:3px;min-width:0}
-.desktop-links .desktop-teams-columns a{display:flex;justify-content:space-between;gap:9px;align-items:center;border-radius:9px;padding:10px;font-size:12px;white-space:normal}
-.desktop-links .desktop-teams-columns a:hover,.desktop-links .desktop-teams-columns a[aria-current="page"]{background:#185180;color:#fff}
-.desktop-teams-columns small{color:#f3ce84;font-size:10px;flex:0 0 auto}
-.desktop-links .desktop-teams-columns .desktop-teams-category{font-size:13px;color:var(--gold);font-weight:900;letter-spacing:.02em;border-bottom:1px solid #ffffff18;border-radius:0 0 9px 9px}
-.desktop-team-nav:has([aria-current="page"])>a{color:var(--gold)}
+/* La zone transparente relie physiquement le libellé au panneau : aucun trou de survol. */
+.desktop-teams-submenu{position:absolute;top:100%;left:-120px;width:min(524px,calc(100vw - 32px));
+  padding-top:16px;z-index:150}
+.desktop-teams-surface{padding:22px 23px 23px;background:linear-gradient(145deg,#163c68 0%,#0a2446 48%,#06182e 100%);
+  border:1px solid rgba(239,196,109,.51);border-radius:17px;box-shadow:0 28px 80px #000c,0 0 33px #20589130;
+  animation:desktop-teams-reveal .18s cubic-bezier(.2,.7,.25,1) both}
+.desktop-teams-intro{display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding-bottom:16px;border-bottom:1px solid #d9b9793b}
+.desktop-teams-intro>div{display:grid;gap:7px}
+.desktop-teams-kicker{font-size:9px;color:#dfbb73;letter-spacing:.2em;font-weight:900}
+.desktop-teams-intro strong{font:800 22px/1.15 Outfit,system-ui,sans-serif;color:#fff;letter-spacing:-.03em}
+.desktop-links .desktop-teams-all{display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;
+  padding:11px 13px;border-radius:100px;background:#dfba72;color:#102139;font-size:11px;font-weight:900;
+  transition:background .15s ease,transform .15s ease}
+.desktop-links .desktop-teams-all:hover,.desktop-links .desktop-teams-all:focus-visible{color:#0b1b35;background:#fce0a2;transform:translateY(-1px)}
+.desktop-teams-columns{display:grid;grid-template-columns:1.1fr 1fr;gap:22px;margin-top:16px}
+.desktop-teams-columns section{display:flex;flex-direction:column;gap:5px;min-width:0}
+.desktop-links .desktop-teams-columns a{display:flex;justify-content:space-between;gap:9px;align-items:center;
+  border-radius:9px;padding:11px 12px;font-size:12px;white-space:normal;
+  border:1px solid transparent;transition:background .15s ease,border-color .15s ease,color .15s ease}
+.desktop-links .desktop-teams-columns a:hover,.desktop-links .desktop-teams-columns a:focus-visible,
+.desktop-links .desktop-teams-columns a[aria-current="page"]{background:rgba(36,101,153,.38);
+  border-color:#aecdee50;color:#fff}
+.desktop-teams-columns small{color:#f3ce84;font-size:10px;flex:0 0 auto;
+  padding:4px 7px;background:rgba(248,216,156,.10);border-radius:100px}
+.desktop-links .desktop-teams-columns .desktop-teams-category{font-size:13px;color:#f3cf84;font-weight:900;
+  letter-spacing:.01em;border-radius:9px;background:#0b213f9c;margin-bottom:4px}
+.desktop-links .desktop-teams-columns .desktop-teams-category span{color:#e6bf77}
+@keyframes desktop-teams-reveal{from{opacity:0;transform:translateY(-8px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
 .mobile-teams{min-width:0}
 .mobile-teams summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;
   padding:14px 12px;color:#ecf3fe;border-radius:8px;font-size:14px;font-weight:800;min-height:46px}
@@ -78,4 +101,4 @@
   .team-profile-match{padding:18px}
   .team-profile-actions{display:grid}
 }
-@media(prefers-reduced-motion:reduce){.mobile-teams summary span{transition:none}}
+@media(prefers-reduced-motion:reduce){.mobile-teams summary span,.desktop-team-nav>a,.desktop-team-nav>a::after,.desktop-teams-all,.desktop-teams-columns a{transition:none!important}.desktop-teams-surface{animation:none!important}}
