@@ -33,6 +33,10 @@ Ce document décrit **l'état effectivement vérifié dans Supabase**, et rempla
 
 14. **`boissy_uj_public_awards_catalog_20261021` appliquée** : catégories publiques Seniors A, B et C, noms publiables uniquement après vérification du consentement, et résultat officiel masqué tant qu'il n'a pas été annoncé après clôture. Trois nouvelles tables protégées par RLS : `club_awards`, `club_award_nominees`, `club_award_results`. Les clients ne disposent que de SELECT. Vérification sous rôle `anon` réussie : lecture permise, écritures refusées. Les trois tables contiennent **0 ligne** ; aucun candidat ni prix inventé.
 
+## Pages Rejoindre et Infos pratiques — migration 15
+
+15. **`boissy_uj_join_public_information_20261021` appliquée** : annonces de recrutement, informations pratiques (entraînement, adhésion, jour de match, accès, FAQ) et canaux de contact officiels, chacun publié explicitement par le club. Les trois tables `club_join_opportunities`, `club_public_notices`, `club_contact_channels` possèdent RLS et **aucun accès client d'écriture**. Contrôles sous rôle `anon` réussis : lecture des lignes publiées uniquement et refus d'INSERT/UPDATE/DELETE. **Aucune donnée insérée** à l'installation. Le total atteint 15 migrations.
+
 ## État des données
 
 - `public.club_teams` : **4 équipes réelles comme catégories**, A D3 / B D4 / C amicaux / Vétérans D3.
