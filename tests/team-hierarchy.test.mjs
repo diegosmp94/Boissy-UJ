@@ -19,16 +19,25 @@ test('two category pages and five unique deep-linked team pages',()=>{
  assert.equal(resolveTeamRoute('/equipes/admin'),null);
  assert.equal(resolveTeamRoute('/equipes/football/boissy-uj-futsal'),null);
 });
-test('desktop menu presents two named categories and all teams with usable links',()=>{
- assert.match(html,/id="desktop-teams-toggle"/);
- assert.match(html,/aria-expanded="false" aria-controls="desktop-teams-submenu"/);
+test('desktop menu has premium hover trigger and working navigation links',()=>{
+ assert.match(html,/id="desktop-team-nav"/);
+ assert.match(html,/id="desktop-teams-trigger" aria-controls="desktop-teams-submenu" aria-expanded="false"/);
+ assert.doesNotMatch(html,/id="desktop-teams-toggle"|aria-label="Afficher les sous-pages des équipes"/);
  assert.match(html,/id="desktop-teams-submenu"[^>]*hidden/);
+ assert.match(html,/class="desktop-teams-surface"/);
  for(const d of DISCIPLINES)assert.ok(html.includes('href="'+categoryRoute(d.id)+'"'));
  for(const team of CLUB_TEAMS)assert.ok(html.includes('href="'+teamRoute(team)+'"'));
- assert.match(html,/Toutes les équipes ↗/);
+ assert.match(html,/Tout voir/);
+ assert.match(app,/function openDesktopTeams\(\)/);
  assert.match(app,/function closeDesktopTeams/);
- assert.match(app,/desktopTeamsToggle\.setAttribute\('aria-expanded',String\(willOpen\)\)/);
- assert.match(app,/if\(e\.key==='Escape'\)/);
+ assert.match(app,/addEventListener\('pointerenter'/);
+ assert.match(app,/addEventListener\('pointerleave'/);
+ assert.match(app,/addEventListener\('focusin'/);
+ assert.match(app,/addEventListener\('focusout'/);
+ assert.match(app,/if\(e\.key!=='Escape'\)return/);
+ assert.match(css,/\.desktop-teams-submenu\{position:absolute;top:100%/);
+ assert.match(css,/@keyframes desktop-teams-reveal/);
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
 });
 test('mobile nested semantic details and dedicated team quick access',()=>{
  assert.match(html,/<details class="mobile-teams">/);
