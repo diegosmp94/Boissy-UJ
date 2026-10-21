@@ -1,0 +1,145 @@
+/** Protected administration hub. No preview-only controls are mounted anywhere.
+ * All protected data is loaded after getUser + MFA AAL2 + admin role verification.
+ */
+import {supabaseConfig} from './auth-config.mjs';
+import {adminSessionStatus} from './admin-security.mjs';
+import {mountAdminRoleModeration} from './admin-role-moderation.mjs';
+import {mountAuthenticatedClubIdentityEditor} from './club-editor.mjs';
+import {mountAuthenticatedTeamPeopleEditor} from './team-person-editor.mjs';
+import {mountAdminMembers} from './admin-users.mjs';
+import {mountAdminSeasons,mountAdminMatches,mountAdminNews} from './admin-management.mjs';
+
+export const ADMIN_MODULES=Object.freeze([
+ {id:'overview',name:'Vue générale',group:'Pilotage',caption:'Données réelles, aucun chiffre fictif'},
+ {id:'users',name:'Membres et rôles',group:'Pilotage',caption:'Consultation et retraits validés'},
+ {id:'approvals',name:'Validation des rôles',group:'Pilotage',caption:'Demandes et approbations MFA'},
+ {id:'teams',name:'Effectifs publics',group:'Sport',caption:'Brouillons et publication contrôlée'},
+ {id:'seasons',name:'Saisons',group:'Sport',caption:'Gestion des saisons sportives'},
+ {id:'matches',name:'Matchs et résultats',group:'Sport',caption:'Rencontres officielles du club'},
+ {id:'news',name:'Actualités',group:'Contenu',caption:'Articles et droits de publication'},
+ {id:'identity',name:'Identité du club',group:'Contenu',caption:'Contenus et histoire du club'}
+]);
+export function canOpenAdmin(status,enabled=true){
+ return enabled===true&&status?.status==='admin'&&status?.level==='aal2'&&status?.roles?.includes('admin');
+}
+const el=(tag,cls='',text=null)=>{
+ const e=document.createElement(tag);if(cls)e.className=cls;
+ if(text!==null)e.textContent=String(text);return e;
+};
+const button=label=>{const e=el('button','admin-module-tab',label);e.type='button';return e;};
+let currentGeneration=0;
+let activeSubscription=null;
+export function adminCenterMarkup(){
+ return '<div id="real-admin-root" class="real-admin-root" aria-live="polite"><p role="status">Vérification de l’accès administrateur…</p></div>';
+}
+export function unmountAdminCenter(){
+ currentGeneration++;
+ activeSubscription?.unsubscribe();activeSubscription=null;
+ const target=document.getElementById('real-admin-root');
+ target?.replaceChildren();
+}
+export async function mountAdminCenter(getClient){
+ unmountAdminCenter();
+ const serial=currentGeneration;
+ const root=document.getElementById('real-admin-root');
+ if(!root)return;
+ if(!supabaseConfig.adminEnabled){
+  root.replaceChildren(el('p','admin-empty','Les outils d’administration sont temporairement verrouillés.'));
+  return;
+ }
+ let api=null;
+ try{
+  api=await getClient();
+  const verified=await adminSessionStatus(api);
+  if(serial!==currentGeneration||!root.isConnected)return;
+  if(!canOpenAdmin(verified,supabaseConfig.adminEnabled)){
+   root.replaceChildren();
+   root.append(el('h2','','Administration protégée'));
+   const message=verified.status==='mfa-required'
+     ?'Ton compte est administrateur. Valide d’abord le MFA depuis Mon espace.'
+     :verified.status==='supporter'?'Accès réservé aux administrateurs du club.':'Connecte-toi pour accéder au centre de gestion.';
+   root.append(el('p','admin-empty',message));
+   const a=el('a','admin-console-back','Retour à Mon espace →');a.href='#/mon-espace';root.append(a);
+   return;
+  }
+  // Subscription registered only after verification. On sign-out, never render a stale admin view.
+  const {data:{subscription}}=api.auth.onAuthStateChange(event=>{
+   if(event==='SIGNED_OUT'&&serial===currentGeneration){
+    root.replaceChildren(el('p','admin-empty','Session fermée. Reconnecte-toi dans Mon espace.'));
+    window.setTimeout(()=>{if(serial===currentGeneration)window.location.hash='#/mon-espace';},0);
+   }
+  });
+  activeSubscription=subscription;
+  root.replaceChildren();
+  const head=el('header','real-admin-heading');
+  head.append(el('span','tiny-label','BOISSY-UJ · ADMINISTRATION SÉCURISÉE'),
+   el('h1','','Centre de gestion'),
+   el('p','','Actions réelles enregistrées par Supabase. Accès réservé au rôle administrateur avec MFA AAL2.'));
+  const home=el('a','admin-console-back','← Mon espace');home.href='#/mon-espace';
+  head.append(home);root.append(head);
+  const layout=el('div','real-admin-layout'),sidebar=el('nav','real-admin-sidebar');
+  sidebar.setAttribute('aria-label','Modules d’administration');
+  const pane=el('section','real-admin-pane');
+  pane.setAttribute('aria-label','Outil de gestion');
+  layout.append(sidebar,pane);root.append(layout);
+  let active='overview';
+  async function overview(){
+   const h=el('h2','','Activité du club'),p=el('p','admin-workflow-status','Chargement des données réelles…');
+   pane.append(h,p);
+   const [teams,requests,matches,posts]=await Promise.all([
+    api.from('club_teams').select('id').limit(100),
+    api.from('role_requests').select('id').eq('status','pending').limit(100),
+    api.rpc('admin_list_management_matches'),
+    api.rpc('admin_list_management_news')
+   ]);
+   if(serial!==currentGeneration||!pane.isConnected||active!=='overview')return;
+   if([teams,requests,matches,posts].some(x=>x.error)){
+    p.textContent='Une partie des indicateurs n’a pas pu être vérifiée. Aucun chiffre estimé n’est affiché.';return;
+   }
+   p.textContent='Les valeurs ci-dessous proviennent uniquement des données enregistrées.';
+   const grid=el('div','real-admin-kpis');
+   for(const [label,value] of [
+    ['Équipes',teams.data?.length||0],['Demandes en attente',requests.data?.length||0],
+    ['Rencontres enregistrées',matches.data?.length||0],
+    ['Articles enregistrés',posts.data?.length||0]
+   ]){
+    const box=el('div','real-admin-kpi');box.append(el('span','',label),el('strong','',value));grid.append(box);
+   }
+   pane.append(grid,el('p','admin-workflow-status','Les nombres de rencontres et articles concernent au maximum 250 et 200 dossiers respectivement ; aucune statistique n’est simulée.'));
+  }
+  async function selectSection(id){
+   active=id;
+   for(const item of sidebar.querySelectorAll('button')){
+    item.setAttribute('aria-current',String(item.dataset.module===id));
+   }
+   pane.replaceChildren();
+   // Must re-check identity and MFA before showing private data on every module change.
+   const check=await adminSessionStatus(api,verified.userId);
+   if(serial!==currentGeneration||!pane.isConnected||active!==id)return;
+   if(!canOpenAdmin(check,supabaseConfig.adminEnabled)){
+    pane.replaceChildren(el('p','admin-empty','Accès suspendu : droits administrateur ou MFA à renouveler.'));
+    return;
+   }
+   switch(id){
+    case 'overview':await overview();break;
+    case 'users':void mountAdminMembers(pane,api,verified.userId);break;
+    case 'approvals':void mountAdminRoleModeration(pane,api,verified.userId);break;
+    case 'teams':void mountAuthenticatedTeamPeopleEditor(pane,api,verified.userId);break;
+    case 'seasons':mountAdminSeasons(pane,api,verified.userId);break;
+    case 'matches':mountAdminMatches(pane,api,verified.userId);break;
+    case 'news':mountAdminNews(pane,api,verified.userId);break;
+    case 'identity':void mountAuthenticatedClubIdentityEditor(pane,api,verified.userId);break;
+   }
+  }
+  for(const item of ADMIN_MODULES){
+   const b=button(item.name);b.dataset.module=item.id;
+   b.append(el('small','',item.caption));b.addEventListener('click',()=>void selectSection(item.id));
+   sidebar.append(b);
+  }
+  await selectSection(active);
+ }catch{
+  if(serial!==currentGeneration||!root.isConnected)return;
+  root.replaceChildren(el('h2','','Service administratif temporairement indisponible'),
+   el('p','admin-empty','Impossible de vérifier ton rôle et le MFA. Aucun privilège n’est accordé.'));
+ }
+}

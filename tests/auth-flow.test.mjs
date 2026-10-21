@@ -7,7 +7,7 @@ const app = read("app.js"), auth = read("auth.mjs"), cfg = read("auth-config.mjs
   styles = read("styles.css");
 
 test("Supabase Auth is wired to the existing Mon espace route", () => {
-  assert.match(app, /import \{authMarkup,mountAuth,unmountAuth\} from '\.\/auth\.mjs'/);
+  assert.match(app,/authMarkup,mountAuth,unmountAuth,getAuthClient/);
   assert.match(app, /if\(path==='\/mon-espace'\) void mountAuth\(\); else unmountAuth\(\);/);
   assert.match(auth, /export function authMarkup\(/);
   assert.match(auth, /export async function mountAuth\(/);

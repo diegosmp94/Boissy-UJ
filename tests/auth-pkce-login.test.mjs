@@ -6,9 +6,9 @@ import {supabaseConfig} from '../auth-config.mjs';
 const read=file=>readFileSync(new URL('../'+file,import.meta.url),'utf8');
 const auth=read('auth.mjs'),app=read('app.js');
 const valid={email:'user@example.org',password:'unMotDePasseFiable123',displayName:'Supporter A'};
-test('login and signup are enabled without opening administration or payments',()=>{
+test('login and signup are enabled without bypassing secured admin access or payments',()=>{
  assert.equal(supabaseConfig.enabled,true);
- assert.equal(supabaseConfig.adminEnabled,false);
+ assert.equal(supabaseConfig.adminEnabled,true);
  assert.equal(supabaseConfig.url,'https://dahzewvbybujqhogumte.supabase.co');
  assert.match(auth,/if \(!supabaseConfig.enabled\)/);
  assert.match(read('admin-role-moderation.mjs'),/supabaseConfig.adminEnabled/);

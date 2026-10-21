@@ -1,0 +1,46 @@
+/* Étape 27 · Administration réelle — bleu nuit et doré. Pas de démonstration publique. */
+.real-admin-root{max-width:1320px;margin:0 auto;min-height:65vh;padding:clamp(25px,4vw,56px) clamp(16px,3.4vw,42px);color:#eaf3ff}
+.real-admin-heading{padding:23px 0 30px}
+.real-admin-heading h1{margin:7px 0 12px;font:900 clamp(31px,5vw,55px)/1.1 Outfit,system-ui,sans-serif;letter-spacing:-.035em}
+.real-admin-heading p{max-width:780px;color:#bcd4ee;line-height:1.55;font-size:14px;margin-bottom:18px}
+.admin-console-back{display:inline-flex;border:1px solid #d0a95f99;color:#f3d391;border-radius:10px;padding:10px 15px;font-size:12px;font-weight:800}
+.real-admin-layout{display:grid;grid-template-columns:minmax(220px,270px) minmax(0,1fr);gap:22px;align-items:start}
+.real-admin-sidebar{display:grid;gap:9px;position:sticky;top:92px;border:1px solid #d4c29b42;border-radius:16px;padding:13px;background:linear-gradient(170deg,#143a64,#081f3d)}
+.admin-module-tab{display:grid;gap:6px;text-align:left;padding:15px;border-radius:11px;border:1px solid #aec6e33b;background:#0c294c;color:#f6f8fc;font:750 14px DM Sans,system-ui,sans-serif;cursor:pointer}
+.admin-module-tab small{color:#bacce1;font-size:11px;font-weight:500}
+.admin-module-tab:hover,.admin-module-tab:focus-visible,.admin-module-tab[aria-current="true"]{background:#1e4773;border-color:#f1c879}
+.admin-module-tab[aria-current="true"]{box-shadow:inset 3px 0 0 #efc16e}
+.real-admin-pane{min-width:0;border:1px solid #b3c9e251;border-radius:17px;background:linear-gradient(160deg,#12365e,#061c37);padding:clamp(18px,3vw,32px);min-height:360px}
+.real-admin-pane h2{font:850 clamp(22px,3vw,34px)/1.18 Outfit,system-ui,sans-serif;margin:0 0 18px;color:#fff}
+.real-admin-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}
+.real-admin-kpi{border:1px solid #e0bc6f66;border-radius:13px;padding:19px;display:grid;gap:10px;background:#102e51}
+.real-admin-kpi span{font-size:12px;color:#b8cde6;font-weight:700}
+.real-admin-kpi strong{font:900 clamp(25px,4vw,38px) Outfit,system-ui,sans-serif;color:#f4cc7b}
+.admin-empty,.admin-workflow-status{font-size:13px;line-height:1.55;color:#c7d9ed;margin:12px 0;padding:13px 16px;border:1px solid #80a1c955;border-radius:10px;background:#0c2b50}
+.admin-operation-form{display:grid;gap:17px;max-width:840px;margin:22px 0}
+.admin-form-field{display:grid;gap:8px;color:#cbdcf1;font-size:12px;font-weight:800}
+.admin-form-control{width:100%;max-width:100%;box-sizing:border-box;min-height:45px;border-radius:10px;border:1px solid #a5c3e277;background:#061b35;padding:11px;color:#f9fbfe;font:600 14px DM Sans,system-ui,sans-serif}
+.admin-form-control[type="checkbox"]{width:22px;min-height:22px;accent-color:#ecc477;justify-self:start}
+textarea.admin-form-control{line-height:1.5;resize:vertical}
+.admin-primary-btn{min-height:48px;border:0;border-radius:11px;background:linear-gradient(130deg,#e5bd70,#f3db9f);color:#10203a;font:850 14px DM Sans,system-ui,sans-serif;padding:13px 19px;cursor:pointer}
+.admin-primary-btn:disabled{cursor:not-allowed;opacity:.55}
+.admin-secondary-btn{border:1px solid #d0ad6c99;color:#efd39c;background:#113b66;padding:9px 12px;border-radius:9px;font:750 12px DM Sans,system-ui,sans-serif;cursor:pointer}
+.admin-member-list{display:grid;gap:12px;margin-top:14px}
+.admin-member-card{display:grid;gap:11px;padding:17px;border:1px solid #a9c3de45;background:#0e3057;border-radius:13px}
+.admin-member-card strong{font-size:15px}
+.admin-member-card small{font-size:11px;color:#bcd1e6}
+.admin-member-roles{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.admin-role-pill{background:#dabb7c24;border:1px solid #d6b56e80;color:#f1d59d;border-radius:20px;font-size:11px;padding:7px 11px;font-weight:800}
+.admin-mfa-card{display:grid;gap:12px;margin:20px 0;padding:clamp(17px,3vw,26px);border-radius:15px;background:#0e345e;border:1px solid #d7b67685}
+.admin-mfa-card h3{font:850 25px Outfit,system-ui,sans-serif;margin:0}
+.admin-mfa-message{font-size:13px;line-height:1.55;color:#d7e5f6}
+.admin-mfa-message[data-error="true"]{color:#ffd1a4}
+.admin-mfa-workflow{display:grid;gap:13px;max-width:400px}
+.admin-mfa-qr{display:grid;justify-items:start;gap:13px}
+.admin-mfa-qr img{background:#fff;border-radius:10px;padding:12px;box-sizing:content-box}
+.admin-mfa-qr details{max-width:100%;overflow-wrap:anywhere;color:#ddedff;font-size:12px}
+.admin-mfa-open{display:inline-flex;justify-self:start;background:#e2bd78;border-radius:10px;padding:12px 17px;color:#06182f;font:850 13px DM Sans,system-ui,sans-serif}
+.real-admin-root button:focus-visible,.real-admin-root a:focus-visible,.admin-mfa-card button:focus-visible,.admin-mfa-card a:focus-visible,.admin-form-control:focus-visible{outline:3px solid #f2cb83;outline-offset:3px}
+@media(max-width:850px){.real-admin-layout{grid-template-columns:1fr}.real-admin-sidebar{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}.real-admin-pane{min-height:280px}}
+@media(max-width:530px){.real-admin-sidebar{grid-template-columns:1fr}.real-admin-kpis{grid-template-columns:1fr}.real-admin-root{padding:22px 13px}.real-admin-heading h1{font-size:31px}}
+@media(prefers-reduced-motion:reduce){.admin-module-tab{scroll-behavior:auto}}

@@ -62,7 +62,7 @@ test('browser library is pinned to a verified stable major-v2 package version',(
 });
 test('only normal supporter login is enabled; privileged administration stays closed',()=>{
  assert.equal(supabaseConfig.enabled,true);
- assert.equal(supabaseConfig.adminEnabled,false);
+ assert.equal(supabaseConfig.adminEnabled,true);
  for(const filename of ['admin-role-moderation.mjs','club-editor.mjs','team-person-editor.mjs']){
   assert.match(read(filename),/supabaseConfig.adminEnabled/);
  }

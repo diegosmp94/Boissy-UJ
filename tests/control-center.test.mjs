@@ -48,19 +48,14 @@ test('module search is accent-insensitive and scoped by group',()=>{
     ['teams','matches']);
   assert.equal(filterControlModules(CONTROL_MODULES,'zzz not found').length,0);
 });
-test('route is exposed through Mon espace, not the public navigation',()=>{
-  assert.match(app,/import \{controlCenterMarkup,mountControlCenter,unmountControlCenter\} from '\.\/control-center\.mjs'/);
+test('public preview is unreachable, actual dashboard rejects non MFA users',()=>{
+  const secure=read('admin-center.mjs');
+  assert.match(app,/import \{adminCenterMarkup,mountAdminCenter,unmountAdminCenter\} from '\.\/admin-center\.mjs'/);
   assert.match(app,/'\/control-center':controlCenter/);
-  assert.match(app,/href="#\/control-center"/);
-  assert.match(app,/if\(path==='\/control-center'\) mountControlCenter\(\); else unmountControlCenter\(\);/);
-});
-test('the admin preview has no actual admin access, private reads or writes',()=>{
-  assert.match(moduleCode,/MODE PRÉVISUALISATION — AUCUN ACCÈS ADMINISTRATEUR/);
-  assert.match(moduleCode,/aucun membre, billet ou paiement réel n’est exposé/i);
-  assert.match(moduleCode,/Les changements sont temporaires, non sauvegardés/);
-  assert.doesNotMatch(moduleCode,
-    /\.from\(|\.rpc\(|fetch\(|localStorage|sessionStorage|service_role|sb_secret_|\.insert\(|\.update\(|\.delete\(/);
-  assert.match(config,/adminEnabled:\s*false/);
+  assert.match(app,/mountAdminCenter\(getAuthClient\)/);
+  assert.doesNotMatch(app,/mountControlCenter\(|controlCenterMarkup\(|href="#\/presentation"/);
+  assert.match(secure,/if\(!canOpenAdmin\(verified,supabaseConfig.adminEnabled\)\)/);
+  assert.match(config,/adminEnabled:\s*true/);
 });
 test('mobile and keyboard support are present',()=>{
   assert.match(css,/\.cc-layout\s*\{\s*grid-template-columns:\s*1fr/);

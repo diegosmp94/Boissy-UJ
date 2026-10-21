@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Étape 27 · Administration réelle MFA AAL2
+
+Le Control Center public de simulation est remplacé par le vrai back-office. Le compte administrateur doit activer sa double authentification TOTP dans Mon espace, puis rejoindre le panneau protégé. Modules actifs : membres et rôles, validations, effectifs publiables, saisons, matchs, actualités et identité du club. Aucune fonction non opérationnelle n’est simulée. [Documentation étape 27](docs/ETAPE_27_ADMINISTRATION_REELLE.md).
+
 ## Étape 26 · Confirmation e-mail et renvoi du message
 
 Un bouton « Renvoyer l'e-mail de confirmation » est ajouté aux formulaires de connexion et d'inscription. Il utilise l'URL officielle GitHub Pages pour demander un nouveau lien via Supabase Auth. Le renvoi depuis localhost exige également le paramétrage de **Site URL** et de **Redirect URLs** dans le tableau de bord Supabase. [Guide de configuration](docs/ETAPE_25_SESSIONS_AUTH.md#correctif-étape-26--confirmation-e-mail-redirigée-vers-localhost).

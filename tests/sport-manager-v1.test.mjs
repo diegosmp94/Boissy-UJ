@@ -96,7 +96,7 @@ test('Match Center only lists verified seasons actually stored in Supabase',()=>
 
 test('the public application never exposes match write operations before sign-in',()=>{
  const authConfig=read('auth-config.mjs');
- assert.match(authConfig,/adminEnabled:\s*false/);
+ assert.match(authConfig,/adminEnabled:\s*true/);
  assert.doesNotMatch(matches,/\b(?:fetch|localStorage|sessionStorage)\s*\(/);
  assert.match(schema,/revoke all on function public\.staff_save_match/);
 });
