@@ -56,7 +56,7 @@ test('route is exposed through Mon espace, not the public navigation',()=>{
 });
 test('the admin preview has no actual admin access, private reads or writes',()=>{
   assert.match(moduleCode,/MODE PRÉVISUALISATION — AUCUN ACCÈS ADMINISTRATEUR/);
-  assert.match(moduleCode,/sans données personnelles/);
+  assert.match(moduleCode,/aucun membre, billet ou paiement réel n’est exposé/i);
   assert.match(moduleCode,/Les changements sont temporaires, non sauvegardés/);
   assert.doesNotMatch(moduleCode,
     /\.from\(|\.rpc\(|fetch\(|localStorage|sessionStorage|service_role|sb_secret_|\.insert\(|\.update\(|\.delete\(/);
