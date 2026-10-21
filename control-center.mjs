@@ -6,6 +6,8 @@
  * version MUST authorize each action on a secured server using
  * Supabase Auth + assigned team scope + AAL2 for administrators.
  */
+import {mountTeamWorkspace,mountMediaWorkspace} from './staff-workflows.mjs';
+
 export const CONTROL_MODULES = Object.freeze([
   {id:'overview',name:'Vue générale',group:'Pilotage',phase:'socle',description:'Tableau de bord associatif et synthèse des opérations, alimentés plus tard par des indicateurs autorisés.',publicRoute:null},
   {id:'members',name:'Utilisateurs & rôles',group:'Pilotage',phase:'a-venir',description:'Comptes, rôles cumulables, invitations et réinitialisation par e-mail, avec audit et protection des mineurs.',publicRoute:'#/mon-espace'},
@@ -139,6 +141,8 @@ function sectionEditor(root){
 function modulePanel(root,module){
   root.replaceChildren();
   if(module.id==='appearance'){sectionEditor(root);return}
+  if(module.id==='teams'){mountTeamWorkspace(root);return}
+  if(module.id==='media'){mountMediaWorkspace(root);return}
   const head=textEl('div','cc-pane-head');
   head.append(textEl('span','cc-phase',phaseLabel[module.phase]),
     textEl('h2','',module.name),textEl('p','',module.description));

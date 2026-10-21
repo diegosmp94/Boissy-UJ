@@ -559,3 +559,89 @@
   .cc-editor-actions {flex-wrap:wrap;}
 }
 @media(prefers-reduced-motion: reduce){.cc-root button{transition:none!important;}}
+
+
+/* Boissy-UJ: read-only staff preparation workspaces, never production editors. */
+.staff-alert {
+  padding:18px 20px;
+  border-radius:12px;
+  border:1px solid #e9c47796;
+  border-left:4px solid var(--gold);
+  background:rgba(210,157,62,.085);
+  margin:18px 0 24px;
+}
+.staff-alert strong {color:#ffe6b9;font-size:13px;letter-spacing:.01em;}
+.staff-alert p {color:#cedef1;font-size:13px;line-height:1.65;margin:8px 0 0;}
+.staff-label {
+  display:grid;gap:8px;min-width:0;
+  color:#dbeafc;font-size:13px;font-weight:750;
+}
+.staff-label .staff-input {min-width:0;width:100%;}
+.staff-input {
+  box-sizing:border-box;
+  background:#061a34;
+  color:#f3f9ff;
+  font:inherit;font-size:14px;
+  border:1px solid #9ec6ee92;
+  border-radius:9px;
+  padding:12px 14px;
+  min-height:47px;
+}
+.staff-input:focus-visible,.staff-action:focus-visible {
+  outline:3px solid var(--gold);outline-offset:3px;
+}
+textarea.staff-input {resize:vertical;line-height:1.6;}
+.staff-form {display:grid;gap:18px;margin-top:20px;max-width:760px;}
+.staff-form h3 {font-size:clamp(19px,2.5vw,26px);margin:12px 0 0;}
+.staff-checkline {
+  display:flex;align-items:flex-start;gap:10px;
+  color:#d4e1f1;font-size:13px;line-height:1.65;
+}
+.staff-checkline input {width:18px;height:18px;accent-color:#f0c56e;flex-shrink:0;margin-top:2px;}
+.staff-action {
+  justify-self:start;
+  padding:13px 21px;
+  min-height:47px;
+  background:var(--gold);
+  border:1px solid #ffe4a4;
+  color:#08203e;
+  border-radius:9px;
+  font:inherit;
+  font-weight:900;font-size:13px;
+  cursor:pointer;
+}
+.staff-action:hover{background:#ffdb8c;}
+.staff-team-division {color:#f2d291;font-size:13px;margin:14px 0;}
+.staff-step-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.staff-step {
+  min-width:0;background:#092646;
+  border:1px solid #b1d2f83d;
+  border-radius:12px;padding:17px;
+}
+.staff-step strong {color:#f1d39a;font-size:14px;}
+.staff-step p{font-size:12px;color:#c1d1e7;line-height:1.55;margin:9px 0 0;}
+.staff-feedback {margin:12px 0 0;font-size:13px;color:#cce0f5;}
+.staff-feedback:empty,.staff-preview:empty {display:none;}
+.staff-feedback-error {color:#ffdbb6;border-left:3px solid #f0a15d;padding:11px 17px;}
+.staff-feedback-error ul{margin:0;padding-left:18px;}
+.staff-preview {
+  padding:22px;
+  border-radius:12px;
+  border:1px solid #a3c6f15e;
+  background:linear-gradient(150deg,#183e6a,#061c36);
+  color:#e9f4ff;
+  display:grid;gap:10px;
+  overflow-wrap:anywhere;
+}
+.staff-preview h3{font-size:clamp(22px,3vw,32px);margin:0;}
+.staff-preview p{margin:0;font-size:14px;}
+.staff-preview small{color:#b8cde5;line-height:1.5;font-size:12px;}
+.staff-preview-kicker{font-size:11px;color:var(--gold);letter-spacing:.13em;font-weight:900;}
+.staff-preview-lead{font-weight:700;}
+.staff-preview-body{white-space:pre-wrap;overflow-wrap:anywhere;}
+@media(max-width:650px){
+  .staff-step-grid{grid-template-columns:1fr;}
+  .staff-preview{padding:18px;}
+  .staff-form{gap:15px;}
+  .staff-alert{padding:16px;}
+}
