@@ -14,11 +14,15 @@ function el(tag,className='',text=null){
 export function humanKind(kind){
   return ({article:'Article',photo:'Galerie',video:'Vidéo'})[kind] || 'Actualité';
 }
+function normalizeSearch(value){
+  return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .toLocaleLowerCase('fr-FR');
+}
 export function filterNews(rows,{kind='all',query=''}={}){
-  const term=query.trim().toLocaleLowerCase('fr-FR');
+  const term=normalizeSearch(query.trim());
   return rows.filter(post=>(kind==='all'||post.content_kind===kind)
     && (!term||[post.title,post.excerpt,post.body].some(v=>
-      String(v||'').toLocaleLowerCase('fr-FR').includes(term))));
+      normalizeSearch(v).includes(term))));
 }
 function publishDate(value){
   if(!value||Number.isNaN(Date.parse(value)))return 'Date non disponible';
