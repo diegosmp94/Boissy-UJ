@@ -20,7 +20,7 @@ create table if not exists public.role_requests (
   ),
   constraint decision_is_final check (
     (status in ('pending','cancelled') and reviewed_by is null and reviewed_at is null)
-    or (status in ('approved','rejected') and reviewed_by is not null and reviewed_at is not null)
+    or (status in ('approved','rejected') and reviewed_at is not null)
   ),
   constraint never_self_review check (reviewed_by is null or reviewed_by<>user_id)
 );
