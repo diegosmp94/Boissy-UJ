@@ -79,7 +79,8 @@ function authCard(root, mode = "login") {
   root.replaceChildren();
   const title = {
     login: "Se connecter", register: "Créer un compte supporter",
-    reset: "Réinitialiser son mot de passe", newPassword: "Choisir un nouveau mot de passe"
+    reset: "Réinitialiser son mot de passe", resend: "Renvoyer la confirmation",
+    newPassword: "Choisir un nouveau mot de passe"
   }[mode];
   const head = el("div", "auth-head");
   head.append(el("span", "tiny-label", "COMPTE BOISSY-UJ"), el("h2", "", title));
@@ -99,13 +100,17 @@ function authCard(root, mode = "login") {
   if (["login", "register", "newPassword"].includes(mode)) form.append(field(mode === "newPassword" ? "Nouveau mot de passe (8 caractères minimum)" : "Mot de passe (8 caractères minimum)", "password", "password", mode === "register" || mode === "newPassword" ? "new-password" : "current-password"));
   form.append(button({
     login: "Connexion", register: "Créer le compte",
-    reset: "Envoyer le lien de récupération", newPassword: "Mettre à jour le mot de passe"
+    reset: "Envoyer le lien de récupération", resend: "Renvoyer la confirmation",
+    newPassword: "Mettre à jour le mot de passe"
   }[mode]));
   const actions = el("div", "auth-links");
   if (mode !== "login" && mode !== "newPassword") actions.append(button("Retour à la connexion", "auth-text-button", "button"));
   if (mode === "login") {
     actions.append(button("S'inscrire", "auth-text-button", "button"));
     actions.append(button("Mot de passe oublié", "auth-text-button", "button"));
+  }
+  if (mode === "login" || mode === "register") {
+    actions.append(button("Renvoyer l'e-mail de confirmation", "auth-text-button", "button"));
   }
   root.append(head, status, form, actions, el("p", "auth-footnote",
     mode==="reset"
@@ -116,6 +121,7 @@ function authCard(root, mode = "login") {
     const value = b.textContent;
     if (value === "S'inscrire") authCard(root, "register");
     else if (value === "Mot de passe oublié") authCard(root, "reset");
+    else if (value === "Renvoyer l'e-mail de confirmation") authCard(root, "resend");
     else authCard(root, "login");
   }));
   form.addEventListener("submit", async (event) => {
@@ -149,6 +155,11 @@ function authCard(root, mode = "login") {
         setRecoveryIntent(true);
         result = await api.auth.resetPasswordForEmail(email,{redirectTo});
       }
+      if (mode === "resend") {
+        result = await api.auth.resend({
+          type: "signup",email,options:{emailRedirectTo:redirectTo}
+        });
+      }
       if (mode === "newPassword") result = await api.auth.updateUser({ password });
       form.querySelectorAll('input[type="password"]').forEach(input => { input.value = ""; });
       if (result?.error) {
@@ -163,6 +174,8 @@ function authCard(root, mode = "login") {
         }else alertFor(root,loginSuccessMessage(mode,result?.data));
       } else if (mode === "reset") {
         alertFor(root, "Si cette adresse possède un compte, un lien de récupération sera envoyé.");
+      } else if (mode === "resend") {
+        alertFor(root, "Si cette adresse possède un compte en attente de confirmation, un nouveau message pourra être envoyé. Vérifie aussi les courriers indésirables.");
       } else if (mode === "newPassword") {
         recoveryMode = false;setRecoveryIntent(false);
         await showSession(root, api);
