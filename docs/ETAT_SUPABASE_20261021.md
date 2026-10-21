@@ -18,8 +18,12 @@ Ce document décrit **l'état effectivement vérifié dans Supabase**, et rempla
 
 9. `boissy_uj_seasons_staff_matches_20261021` : registre des saisons, affectation des rencontres, sauvegarde sécurisée par rôle/équipe et audit privé.
 10. `boissy_uj_admin_season_management_20261021` : création et modification des saisons réservées à l'administration MFA AAL2, journal privé et unicité de la saison active.
+11. `boissy_uj_private_callups_team_form_20261021` : bilans publics agrégés par équipe, affiliations joueur-équipe privées, convocations et réponses personnelles protégées.
+12. `boissy_uj_callups_final_match_guard_20261021` : blocage des invitations pour rencontres jouées ou annulées.
 
 **Contrôles complémentaires :** `club_seasons` et `app_private.season_change_log` ont RLS activée ; droits INSERT/UPDATE absents pour les clients ordinaires, audit inaccessible ; RPC `admin_save_season` refusée à `anon` et bloquée sans session `auth.uid()`. Zéro saison, zéro rencontre et zéro trace d'audit créée durant le test (transaction annulée). Les parcours réellement authentifiés n'ont pas encore été exécutés.
+
+**Contrôles convocations du 21 octobre :** test sous rôle `anon` validé pour la vue `team_form_summary` (4 lignes, 0 résultat) ; schéma `app_private` interdit aux visiteurs et fonctions d'invitation inaccessibles. Test sous rôle `authenticated` sans session réelle : les RPC d'invitation et de réponse rejettent l'appel avec SQLSTATE `28000`. Aucun joueur, convocation ni historique créé. Les tests avec plusieurs identités réelles restent indispensables.
 
 ## État des données
 
@@ -30,7 +34,7 @@ Ce document décrit **l'état effectivement vérifié dans Supabase**, et rempla
 
 ## Résultats sécurité
 
-- RLS activée sur les 8 tables applicatives.
+- RLS activée sur les tables applicatives et privées inspectées, avec refus d'accès direct aux convocations, affiliations et journaux d'audit.
 - Lecture anonyme sur les quatre équipes et uniquement sur matchs/actualités/événements explicitement publiés.
 - Aucun INSERT / UPDATE / DELETE permis au navigateur `anon` ou `authenticated` sur les catalogues.
 - **Tests SQL simulant les rôles** `anon` et `authenticated` : lecture des quatre équipes confirmée, accès aux écritures et à l'audit refusé, appel du RPC sans `auth.uid()` rejeté avec SQLSTATE `28000`. Ces contrôles ne remplacent pas les tests avec des sessions réelles.
