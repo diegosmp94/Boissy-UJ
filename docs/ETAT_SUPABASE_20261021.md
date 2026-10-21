@@ -14,6 +14,13 @@ Ce document décrit **l'état effectivement vérifié dans Supabase**, et rempla
 7. `boissy_uj_security_indexes_20261021` : révocation des droits d'exécution de la fonction événementielle `public.rls_auto_enable()` aux rôles `anon` et `authenticated`; six index de FK ; maintien des catalogues en lecture seule.
 8. `boissy_uj_news_column_privacy_20261021` : lecture des colonnes nécessaires aux actualités publiques, sans exposer `author_user_id` ni les horodatages techniques.
 
+## Migrations complémentaires appliquées le 21 octobre
+
+9. `boissy_uj_seasons_staff_matches_20261021` : registre des saisons, affectation des rencontres, sauvegarde sécurisée par rôle/équipe et audit privé.
+10. `boissy_uj_admin_season_management_20261021` : création et modification des saisons réservées à l'administration MFA AAL2, journal privé et unicité de la saison active.
+
+**Contrôles complémentaires :** `club_seasons` et `app_private.season_change_log` ont RLS activée ; droits INSERT/UPDATE absents pour les clients ordinaires, audit inaccessible ; RPC `admin_save_season` refusée à `anon` et bloquée sans session `auth.uid()`. Zéro saison, zéro rencontre et zéro trace d'audit créée durant le test (transaction annulée). Les parcours réellement authentifiés n'ont pas encore été exécutés.
+
 ## État des données
 
 - `public.club_teams` : **4 équipes réelles comme catégories**, A D3 / B D4 / C amicaux / Vétérans D3.
