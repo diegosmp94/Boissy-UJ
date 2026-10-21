@@ -15,7 +15,7 @@ test('admin moderation requires identity and AAL2 on the enabled private route',
  assert.match(cfg,/adminEnabled:\s*true/);
  assert.equal(canShowRoleModeration('admin-1','admin-1',['admin'],'aal2'),true);
  assert.match(src,/if\(!supabaseConfig\.adminEnabled \|\| !container\?\.isConnected/);
- assert.match(read('admin-center.mjs'),/mountAdminRoleModeration\(pane,api,verified\.userId\)/);
+ assert.match(read('admin-center.mjs'),/mountAdminRoleModeration\(view,api,verified\.userId\)/);
  assert.match(src,/if\(!gate\.authorized\)/);
 });
 test('true access requires getUser verification, admin role AND MFA level AAL2',()=>{
