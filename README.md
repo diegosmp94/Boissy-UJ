@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Étape 31 · Espaces Joueur et Entraîneur réels
+
+Le tableau de bord connecté affiche les contextes Joueur et Entraîneur uniquement si les rôles sont validés. Un joueur peut consulter ses propres convocations et répondre via RPC privée. Un entraîneur voit ses affectations et les rencontres publiées de ses équipes et peut enregistrer une nouvelle rencontre **en brouillon** via le serveur sécurisé. Aucune sélection nominative d'effectif n'est ouverte avant finalisation de sa protection. [Documentation](docs/ETAPE_31_ESPACES_JOUEUR_ENTRAINEUR.md).
+
 ## Étape 30 · Navigation administrateur accélérée
 
 Le back-office réel propose une recherche de modules (sans tenir compte des accents), un menu classé par familles et des raccourcis depuis la vue générale vers les modules opérationnels. La mise en page téléphone est condensée ; tous les changements de rubrique repassent par la vérification MFA AAL2. [Étape 30](docs/ETAPE_30_NAVIGATION_ADMIN.md).

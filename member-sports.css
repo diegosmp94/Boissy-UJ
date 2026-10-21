@@ -1,0 +1,58 @@
+/* Étape 31 — espaces privés Joueur / Entraîneur et navigation multi-rôles. */
+.member-sports-workspace{display:grid;gap:16px;margin:25px 0 12px;padding:clamp(16px,3vw,28px);
+ border:1px solid #d5ba7b71;border-radius:16px;background:linear-gradient(145deg,#0e2c50,#08203d);color:#f3f7fe}
+.member-sports-workspace>h3{font:850 clamp(21px,3vw,29px)/1.2 Outfit,system-ui,sans-serif;margin:0;color:#fff}
+.member-sports-tabs{display:flex;gap:7px;flex-wrap:wrap;padding:5px;background:#061b32;border:1px solid #c9ac7957;border-radius:12px}
+.member-sports-tab{flex:1;min-width:95px;min-height:44px;background:transparent;border:1px solid transparent;
+ border-radius:9px;color:#c3d5e9;font:750 13px DM Sans,system-ui,sans-serif;cursor:pointer}
+.member-sports-tab[aria-selected=true]{background:#e7c67e;color:#101e35}
+.member-sports-tab:focus-visible,.member-sports-action:focus-visible,
+.member-sports-secondary:focus-visible,.member-callup-choice:focus-visible,
+.member-sports-admin-link:focus-visible,.member-sports-input:focus-visible{
+ outline:3px solid #f2ce85;outline-offset:3px}
+.member-sports-panel,.member-sports-view{min-width:0}
+.member-sports-view{display:grid;gap:17px}
+.member-sports-view h3,.member-sports-view h4{font:800 19px Outfit,system-ui,sans-serif;line-height:1.3;color:#fff;margin:0 0 5px}
+.member-sports-intro,.member-sports-intro-note{color:#bcd0e8;line-height:1.55}
+.member-sports-intro{display:grid;gap:8px}
+.member-sports-intro p,.member-sports-intro-note{font-size:13px;margin:0}
+.member-sports-status,.member-callup-feedback,.member-sports-empty{font-size:13px;line-height:1.55;color:#cbdcf0;
+ padding:11px 13px;background:#102f55;border-radius:10px;margin:0}
+.member-sports-empty{border:1px dashed #97b5d98a}
+.member-sports-secondary{min-height:40px;border-radius:10px;border:1px solid #e4c37b91;background:#143b67;
+ color:#f4d99f;font:800 12px DM Sans,system-ui,sans-serif;padding:10px 16px;cursor:pointer;justify-self:start}
+.member-sports-secondary:disabled,.member-sports-action:disabled,.member-callup-choice:disabled{opacity:.65;cursor:not-allowed}
+.member-callup-list,.member-coach-team-list,.member-coach-fixtures{display:grid;gap:12px}
+.member-callup-card,.member-coach-team,.member-coach-fixture{display:grid;gap:12px;border-radius:13px;
+ border:1px solid #9fbddb68;background:#0e2a4a;padding:17px;min-width:0}
+.member-callup-info{display:grid;gap:7px}
+.member-callup-info h4{font-size:16px;margin:0}
+.member-callup-info p{font-size:12px;color:#c1d4eb;margin:0}
+.member-sports-tag{font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:850;color:#e7c479}
+.member-callup-state{justify-self:start;border:1px solid #e0c17e7b;border-radius:20px;padding:5px 9px;
+ font-size:11px;color:#f2d89c}
+.member-callup-actions{display:flex;flex-wrap:wrap;gap:8px}
+.member-callup-choice{min-height:40px;flex:1;border:1px solid #9dbbd897;border-radius:9px;padding:8px 10px;
+ background:#12365d;color:#fff;font:750 12px DM Sans,system-ui,sans-serif;cursor:pointer}
+.member-callup-choice.is-selected{background:#376385;border-color:#edca8d}
+.member-coach-team,.member-coach-fixture{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.member-coach-team strong,.member-coach-fixture strong{font-size:13px;color:#fff}
+.member-coach-team span,.member-coach-fixture span{font-size:12px;color:#cadcf0}
+.member-coach-editor{display:grid;gap:11px;padding-top:6px;border-top:1px solid #b5d1ee48}
+.member-coach-draft-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.member-sports-field{min-width:0;display:grid;gap:8px;font-size:12px;color:#d4e1f4;font-weight:800}
+.member-sports-input{background:#05192e;border:1px solid #a3c5e399;border-radius:9px;color:#fff;
+ padding:11px;min-height:43px;width:100%;max-width:100%;box-sizing:border-box;font:600 13px DM Sans,system-ui,sans-serif}
+.member-sports-input[type=checkbox]{width:23px;min-height:23px;accent-color:#e2c079;justify-self:start}
+.member-sports-action{min-height:45px;border:none;border-radius:10px;background:linear-gradient(120deg,#dfb96e,#f4daa1);
+ color:#13223c;padding:12px 17px;font:850 13px DM Sans,system-ui,sans-serif;cursor:pointer}
+.member-coach-draft-form>.member-sports-action{align-self:end}
+.member-coach-draft-form>.member-sports-status{grid-column:1/-1}
+.member-sports-admin-link{display:inline-flex;padding:13px 17px;background:#e7c67e;
+ color:#071a36;font:800 13px DM Sans,system-ui,sans-serif;border-radius:9px;justify-self:start}
+@media(max-width:620px){.member-sports-workspace{padding:16px 12px;gap:13px}
+ .member-coach-draft-form{grid-template-columns:1fr}
+ .member-coach-draft-form>.member-sports-status{grid-column:1}
+ .member-callup-choice{min-width:calc(50% - 8px)}
+ .member-sports-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .member-sports-tab{min-width:0}}
