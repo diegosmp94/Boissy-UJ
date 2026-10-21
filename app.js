@@ -186,8 +186,9 @@ function render(){
     if(active)el.setAttribute('aria-current','page'); else el.removeAttribute('aria-current');
   });
   document.querySelectorAll('.bottom-nav a').forEach(el=>el.classList.toggle('active',el.getAttribute('href')===`#${path}`||(el.dataset.nav==='equipes'&&path.startsWith('/equipes/'))));
-  document.querySelector('.desktop-team-nav > a')?.setAttribute('aria-current',path.startsWith('/equipes/')?'page':path==='/equipes'?'page':'false');
-  if(!path.startsWith('/equipes'))document.querySelector('.desktop-team-nav > a')?.removeAttribute('aria-current');
+  const teamsMainLink=document.querySelector('.desktop-team-nav > a');
+  if(path==='/equipes'||path.startsWith('/equipes/'))teamsMainLink?.setAttribute('aria-current','page');
+  else teamsMainLink?.removeAttribute('aria-current');
   closeMenu();
   closeDesktopTeams();
   window.scrollTo({top:0,behavior:'instant'});
