@@ -1,5 +1,6 @@
 import { supabaseConfig } from "./auth-config.mjs";
 import {mountMemberRoleRequests} from './role-workflow.mjs';
+import {mountAdminRoleModeration} from './admin-role-moderation.mjs';
 
 let clientPromise;
 let mounted = null;
@@ -171,6 +172,7 @@ async function showSession(root, api) {
   account.append(signOut);
   root.append(account);
   void mountMemberRoleRequests(account,api,user.id);
+  void mountAdminRoleModeration(account,api,user.id);
 }
 
 export function authMarkup() {
