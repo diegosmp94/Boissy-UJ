@@ -7,7 +7,7 @@ const migration=read('supabase/migrations/202610210003_sport_public_v1.sql');
 const loader=read('sport-center.mjs');
 const app=read('app.js');
 
-test('club teams match the four validated categories',()=>{
+test('legacy football teams stay intact before adding D2 futsal',()=>{
  for (const text of ["'a','Seniors A','Départemental 3'","'b','Seniors B','Départemental 4'","'c','Seniors C','Matchs amicaux'","'veterans','Vétérans','Départemental 3'"]) assert.ok(migration.includes(text));
 });
 test('published scores must be complete, all others scoreless',()=>{
@@ -55,10 +55,11 @@ test('previous conflicting unused SQL is explicitly archived',()=>{
  assert.match(read('docs/ARCHIVE_CORE_V1.md'),/Ne pas l.exécuter/);
 });
 
-test('missing database retains four teams and clearly marked empty fixture lists',()=>{
+test('missing database retains five teams and clearly marked empty fixture lists',()=>{
  assert.match(loader,/const FALLBACK_TEAMS = Object\.freeze\(\[/);
  assert.match(loader,/id:'pending-a'/);
  assert.match(loader,/id:'pending-veterans'/);
+ assert.match(loader,/id:'pending-futsal'/);
  assert.match(loader,/displayFixtures\(root,FALLBACK_TEAMS,\[\]\)/);
  assert.match(loader,/source du calendrier n’est pas encore disponible/);
  assert.match(loader,/notice\.setAttribute\('role','status'\)/);
