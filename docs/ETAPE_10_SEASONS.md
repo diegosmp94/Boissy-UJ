@@ -7,6 +7,9 @@
 - Aucun bouton ne réalise d'enregistrement : la connexion publique n'est pas homologuée.
 
 ## Base Supabase
+
+**Mise à jour vérifiée :** migration `boissy_uj_admin_season_management_20261021` appliquée sur Supabase, table `app_private.season_change_log` protégée par RLS, aucune saison créée. Le test transactionnel a confirmé qu'une session sans `auth.uid()` ne peut pas appeler la fonction ; les parcours avec de vraies identités et MFA restent à tester.
+
 Migration : `supabase/migrations/202610210010_admin_season_management.sql`.
 - RPC `admin_save_season` : exige `auth.uid()` et `app_private.is_admin()` (administrateur MFA AAL2).
 - Aucun utilisateur / coach ordinaire ne peut créer ni modifier la saison.
