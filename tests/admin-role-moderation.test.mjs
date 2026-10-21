@@ -12,7 +12,7 @@ const sql=read('supabase/migrations/202610210013_cumulative_roles_approvals.sql'
 const css=read('styles.css');
 
 test('admin moderation remains unavailable while public authentication is disabled',()=>{
- assert.match(cfg,/enabled:\s*false/);
+ assert.match(cfg,/adminEnabled:\s*false/);
  assert.equal(canShowRoleModeration('admin-1','admin-1',['admin'],'aal2'),false);
  assert.match(src,/if\(!supabaseConfig\.enabled \|\| !container\?\.isConnected/);
  assert.match(auth,/mountAdminRoleModeration\(account,api,user\.id\)/);
