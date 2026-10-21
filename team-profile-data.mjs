@@ -1,5 +1,6 @@
 import {supabaseConfig} from './auth-config.mjs';
 import {CLUB_TEAMS} from './club-teams.mjs';
+import {teamDeepLink} from './team-links.mjs';
 
 const BASE=supabaseConfig.url+'/rest/v1/';
 const element=(tag,cls='',value=null)=>{
@@ -107,7 +108,7 @@ function statsSection(root,stats,unavailable){
  }
  root.append(section);
 }
-function newsSection(root,posts,unavailable){
+function newsSection(root,posts,unavailable,teamCode){
  const section=element('section','team-extras-group');
  section.append(element('h2','','Actualités de l’équipe'));
  if(unavailable)section.append(empty('Les actualités de cette équipe sont momentanément indisponibles.'));
@@ -125,6 +126,8 @@ function newsSection(root,posts,unavailable){
   }
   section.append(list);
  }
+ const link=element('a','team-extras-more-link','Voir toutes les actualités de cette équipe ↗');
+ link.href=teamDeepLink('actualites',teamCode);section.append(link);
  root.append(section);
 }
 let active=null,generation=0;
@@ -151,7 +154,7 @@ export async function mountTeamPublicExtras(code){
   group(root,'Effectif',data.people.filter(p=>p.person_kind==='player'));
   group(root,'Encadrement',data.people.filter(p=>p.person_kind!=='player'));
   statsSection(root,data.metrics,data.errors.includes('metrics'));
-  newsSection(root,data.news,data.errors.includes('news'));
+  newsSection(root,data.news,data.errors.includes('news'),code);
   root.append(element('p','team-extras-note','Aucun nom, photographie ou contenu personnel n’est ajouté automatiquement. Les fiches publiques requièrent les autorisations de publication vérifiées par le club. Les statistiques proviennent des résultats publiés.'));
  }catch{
   if(controller.signal.aborted||generation!==id||!root.isConnected)return;
