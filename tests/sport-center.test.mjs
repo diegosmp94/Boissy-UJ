@@ -54,3 +54,13 @@ test('previous conflicting unused SQL is explicitly archived',()=>{
  assert.match(read('supabase/migrations/20261020220000_core_v1.sql'),/ancienne proposition de migration NON appliquée/);
  assert.match(read('docs/ARCHIVE_CORE_V1.md'),/Ne pas l.exécuter/);
 });
+
+test('missing database retains four teams and clearly marked empty fixture lists',()=>{
+ assert.match(loader,/const FALLBACK_TEAMS = Object\.freeze\(\[/);
+ assert.match(loader,/id:'pending-a'/);
+ assert.match(loader,/id:'pending-veterans'/);
+ assert.match(loader,/displayFixtures\(root,FALLBACK_TEAMS,\[\]\)/);
+ assert.match(loader,/source du calendrier n’est pas encore disponible/);
+ assert.match(loader,/notice\.setAttribute\('role','status'\)/);
+ assert.match(read('styles.css'),/\.sport-notice\s*\{/);
+});
