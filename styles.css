@@ -645,3 +645,22 @@ textarea.staff-input {resize:vertical;line-height:1.6;}
   .staff-form{gap:15px;}
   .staff-alert{padding:16px;}
 }
+
+
+/* Sports Manager — match preview and conditional score/source fields. */
+.staff-goals {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  padding:15px;
+  border:1px solid #b1d2f344;
+  border-radius:11px;
+  background:#071d3b;
+}
+.staff-goals[hidden], .staff-label[hidden] { display:none!important; }
+.staff-goals input {width:100%;min-width:0;}
+.sport-filter-bar > label {flex-wrap:wrap;}
+@media(max-width:440px){
+  .staff-goals {grid-template-columns:1fr;}
+  .sport-filter-bar > label {width:100%;justify-content:space-between;}
+}
