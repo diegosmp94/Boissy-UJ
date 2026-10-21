@@ -108,5 +108,5 @@ test('home and directory cards navigate to individual profiles',()=>{
  assert.match(app,/team-detail-link/);
  assert.match(app,/categoryRoute\(groupTeams\[0\]\.discipline\)/);
  assert.match(html,/team-pages\.css/);
- assert.match(read('auth-config.mjs'),/enabled:\s*false/);
+ assert.match(read('auth-config.mjs'),/adminEnabled:\s*false/);
 });
