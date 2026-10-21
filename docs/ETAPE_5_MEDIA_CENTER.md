@@ -1,5 +1,8 @@
 # Étape 5 — Media Center public Boissy-UJ
 
+> **Mise à jour du 21 octobre 2026 : les migrations Supabase correspondantes sont maintenant APPLIQUÉES.** Les mentions ci-dessous indiquant « non appliquée » ou « en attente d’autorisation » sont l’historique des étapes précédentes, et non l’état actuel. Voir [État Supabase vérifié](ETAT_SUPABASE_20261021.md). Les écritures réelles et l’authentification publique restent désactivées jusqu’aux essais fonctionnels.
+
+
 **Livraison : interface et schéma prêts dans GitHub. Aucune migration éditoriale appliquée.**
 
 ## Fonctionnalités du lot
