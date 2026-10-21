@@ -24,6 +24,12 @@ Migration : `supabase/migrations/202610210015_join_public_information.sql`.
 
 Toutes ces tables utilisent `published=false` par défaut. La RLS est active ; le navigateur dispose uniquement de **SELECT sur les lignes publiées**, sans INSERT/UPDATE/DELETE. Aucune ligne d'exemple, adresse, horaire ou contact personnel n'est inséré par la migration.
 
+## Supabase — déploiement confirmé
+
+La migration **`boissy_uj_join_public_information_20261021` est appliquée** sur le projet Boissy-UJ. Les trois tables ont RLS activée. Le rôle `anon` peut consulter les lignes publiées mais ne peut pas écrire, et `authenticated` ne peut pas modifier directement le catalogue. Un contrôle transactionnel sous rôle `anon` a réussi. Les tables contiennent **0 annonce, 0 information pratique et 0 contact officiel** ; aucune donnée fictive n'a été créée.
+
+La liste globale Supabase comprend désormais **15 migrations**. Les avertissements préexistants relatifs aux fonctions privilégiées authentifiées restent distincts de ce catalogue, qui n'expose aucune nouvelle RPC.
+
 ## Sécurité / confidentialité
 - Aucun formulaire public de candidature n'est ouvert ; aucun envoi d'identité, numéro de licence, pièce d'identité, données de mineurs ou dossier médical.
 - Les données externes sont rendues avec `textContent`, sans insertion HTML depuis Supabase.
