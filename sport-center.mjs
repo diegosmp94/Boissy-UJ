@@ -2,6 +2,15 @@ import { supabaseConfig } from './auth-config.mjs';
 
 const ENDPOINT = supabaseConfig.url + '/rest/v1/';
 const TEAM_CODES = ['a','b','c','veterans'];
+/* Fallback de présentation uniquement, sans rencontre inventée.
+   Ces identités correspondent aux catégories confirmées dans le cahier des charges. */
+const FALLBACK_TEAMS = Object.freeze([
+  { id:'pending-a', code:'a', name:'Seniors A', division:'Départemental 3' },
+  { id:'pending-b', code:'b', name:'Seniors B', division:'Départemental 4' },
+  { id:'pending-c', code:'c', name:'Seniors C', division:'Matchs amicaux' },
+  { id:'pending-veterans', code:'veterans', name:'Vétérans', division:'Départemental 3' }
+]);
+
 let currentRequest;
 let renderGeneration = 0;
 
@@ -141,7 +150,12 @@ export async function mountSport() {
     displayFixtures(root,teams,matches);
   } catch(err){
     if (abort.signal.aborted || generation!==renderGeneration || !root.isConnected) return;
-    root.replaceChildren(element('p','sport-error',
-      'Le calendrier ne peut pas être chargé actuellement. Réessaie ultérieurement.'));
+    // La migration sportive n'est pas encore présente dans tous les environnements.
+    // Conserver l'interface sans annoncer faussement un calendrier vide ou un score.
+    displayFixtures(root,FALLBACK_TEAMS,[]);
+    const notice=element('p','sport-notice',
+      'La source du calendrier n’est pas encore disponible. Présentation des équipes uniquement ; aucun match ni résultat ne peut être confirmé pour le moment.');
+    notice.setAttribute('role','status');
+    root.prepend(notice);
   }
 }
