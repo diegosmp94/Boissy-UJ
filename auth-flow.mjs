@@ -39,7 +39,7 @@ export function validateAuthInput(mode,input={}){
   const email=String(input.email||'').trim();
   const password=String(input.password||'');
   const displayName=String(input.displayName||'').trim();
-  if(!['login','register','reset','newPassword'].includes(mode))
+  if(!['login','register','reset','resend','newPassword'].includes(mode))
     errors.push('Action de compte invalide.');
   if(mode!=='newPassword'&&(email.length>254||!/^\S+@\S+\.\S+$/.test(email)))
     errors.push('Saisis une adresse e-mail valide.');
