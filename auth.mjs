@@ -134,8 +134,9 @@ function authCard(root, mode = "login") {
       let result;
       // Callback volontairement SANS hash : Supabase renvoie ?code=... avant le router.
       const redirectTo = authRedirectUrl(window.location);
-      if (mode === "login") result = await api.auth.signInWithPassword({ email, password });
+      if (mode === "login") {setRecoveryIntent(false);result = await api.auth.signInWithPassword({ email, password });}
       if (mode === "register") {
+        setRecoveryIntent(false);
         result = await api.auth.signUp({ email, password, options: {
           data: { display_name: review.displayName }, emailRedirectTo: redirectTo
         } });
@@ -189,7 +190,9 @@ async function showSession(root, api) {
   account.append(el("p", "auth-role-summary", "Rôles : " + (roles.length ? roles.map(x => roleNames[x] || x).join(", ") : "en cours de chargement")));
   if (profileResult.error || rolesResult.error) account.append(el("p", "auth-warning", "Impossible de vérifier toutes les informations du profil pour le moment."));
   if (roles.includes("admin")) account.append(el("p", "auth-warning",
-    "Les fonctions administratives exigent un second facteur MFA AAL2 ; le simple rôle admin ne donne pas accès aux opérations protégées."));
+    supabaseConfig.adminEnabled
+      ?"Les fonctions administratives exigent un second facteur MFA AAL2 ; le simple rôle admin ne donne pas accès aux opérations protégées."
+      :"La connexion est disponible, mais les outils administrateurs restent temporairement désactivés avant leur recette MFA."));
   account.append(el("p", "auth-footnote", "Aucun abonnement premium n'est actif par défaut. Les autorisations sont contrôlées par Supabase."));
   const signOut = button("Se déconnecter", "auth-submit", "button");
   signOut.addEventListener("click", async () => {
@@ -263,6 +266,8 @@ export async function mountAuth() {
     }
   }catch{
     if(turn!==generation||!root.isConnected)return;
+    if(mounted?.subscription)mounted.subscription.unsubscribe();
+    mounted=null;
     root.replaceChildren(el('h2','','Service temporairement indisponible'),
       el('p','auth-warning','La connexion nécessite le service Supabase. Réessaie dans quelques instants.'));
     const retry=button('Réessayer','auth-submit','button');
