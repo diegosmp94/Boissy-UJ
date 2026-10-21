@@ -107,7 +107,10 @@ function authCard(root, mode = "login") {
     actions.append(button("S'inscrire", "auth-text-button", "button"));
     actions.append(button("Mot de passe oublié", "auth-text-button", "button"));
   }
-  root.append(head, status, form, actions, el("p", "auth-footnote", "Préversion : confirmation par e-mail et liens de récupération sous réserve de la configuration Supabase. Aucun paiement actif."));
+  root.append(head, status, form, actions, el("p", "auth-footnote",
+    mode==="reset"
+      ?"Ouvre le lien de récupération dans le même navigateur et sur le même appareil que celui utilisé pour la demande. Aucun paiement actif."
+      :"Confirmation par e-mail selon la configuration Supabase. Aucun paiement actif."));
   const switches = actions.querySelectorAll("button");
   switches.forEach(b => b.addEventListener("click", () => {
     const value = b.textContent;
@@ -280,6 +283,9 @@ export async function mountAuth() {
     }
   }catch{
     if(turn!==generation||!root.isConnected)return;
+    if(isCallback){
+      window.history.replaceState(null,'',sanitizedAuthCallbackUrl(window.location.href));
+    }
     if(mounted?.subscription)mounted.subscription.unsubscribe();
     mounted=null;
     root.replaceChildren(el('h2','','Service temporairement indisponible'),
