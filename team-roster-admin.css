@@ -1,0 +1,46 @@
+/* Étape 23 : index privé des profils publics, sans données hors session admin. */
+.team-roster-directory{
+ margin:22px 0 24px;padding:clamp(18px,2.5vw,26px);border:1px solid #b9d1e04f;
+ border-radius:17px;background:linear-gradient(145deg,#103358 0%,#081d38 100%)
+}
+.team-roster-directory-intro h3{
+ font:800 clamp(20px,2.6vw,28px)/1.2 Outfit,system-ui,sans-serif;margin:0 0 9px;color:#f7faff
+}
+.team-roster-directory-intro p{font-size:13px;line-height:1.5;color:#c7d5eb;margin:0 0 20px}
+.team-roster-directory-filters{
+ display:grid;grid-template-columns:1fr minmax(135px,.68fr) minmax(170px,1.15fr);gap:11px;
+ align-items:end;margin-bottom:14px
+}
+.team-roster-directory-filters .club-editor-field{min-width:0;font-size:12px}
+.team-roster-directory-filters input,.team-roster-directory-filters select{max-width:100%}
+.team-roster-directory-summary{font-size:12px;font-weight:750;color:#e8c67c;margin:8px 0 15px}
+.team-roster-directory-list{max-height:330px;overflow:auto;display:grid;gap:8px;padding-right:4px}
+.team-roster-directory-person{
+ appearance:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:14px;
+ padding:14px 15px;border:1px solid #94b3d14f;border-radius:11px;background:#0b2a4b;
+ color:#fff;text-align:left;font:inherit;transition:border-color .16s,background .16s
+}
+.team-roster-directory-person:hover,.team-roster-directory-person:focus-visible,
+.team-roster-directory-person[aria-pressed="true"]{border-color:#e7c17b;background:#1a426a}
+.team-roster-directory-person-main{min-width:0;display:grid;gap:5px}
+.team-roster-directory-person strong{font-size:14px}
+.team-roster-directory-person small{color:#b4cfe1;font-size:11px}
+.team-roster-directory-state{display:inline-flex;flex:0 0 auto;font-size:10px;
+ font-weight:850;padding:8px 10px;border-radius:100px;color:#c5d6e8;background:#45607c52}
+.team-roster-directory-state[data-published="true"]{color:#f8d899;background:#b68e3a2e}
+.team-roster-directory-empty{color:#c3d5e5;font-size:13px;padding:15px 10px;margin:0}
+.team-person-secondary-actions{display:flex;flex-wrap:wrap;gap:12px;margin:9px 0 0}
+.team-person-secondary-button{
+ display:inline-flex;justify-content:center;align-items:center;border-radius:9px;border:1px solid #d0b07087;
+ background:#173c63;color:#f7d590;padding:11px 14px;font:750 12px DM Sans,system-ui,sans-serif;cursor:pointer
+}
+.team-person-secondary-button:hover,.team-person-secondary-button:focus-visible{background:#24537d;color:#fff}
+.team-person-secondary-button[hidden]{display:none!important}
+@media(max-width:740px){
+ .team-roster-directory-filters{grid-template-columns:1fr 1fr}
+ .team-roster-directory-filters>.club-editor-field:last-child{grid-column:1/-1}
+ .team-roster-directory-person{padding:12px}
+}
+@media(max-width:420px){.team-roster-directory-filters{grid-template-columns:1fr}
+ .team-roster-directory-filters>.club-editor-field:last-child{grid-column:auto}}
+@media(prefers-reduced-motion:reduce){.team-roster-directory-person{transition:none}}
