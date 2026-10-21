@@ -2,6 +2,7 @@ import { supabaseConfig } from "./auth-config.mjs";
 import {authRedirectUrl,authCallbackError,hasAuthCallback,sanitizedAuthCallbackUrl,loginSuccessMessage,validateAuthInput} from "./auth-flow.mjs";
 import {mountMemberRoleRequests} from './role-workflow.mjs';
 import {mountAdminMfaSetup} from './admin-security.mjs';
+import {mountMemberSports} from './member-sports.mjs';
 
 let clientPromise;
 let mounted = null;
@@ -228,6 +229,7 @@ async function showSession(root, api) {
   account.append(signOut);
   root.append(account);
   void mountMemberRoleRequests(account,api,user.id);
+  if(!rolesResult.error)mountMemberSports(account,api,user.id,roles);
   // Compte ordinaire : seul le rôle admin attribué par le serveur voit le parcours MFA.
   if(!rolesResult.error&&roles.includes('admin'))void mountAdminMfaSetup(account,api,user.id);
 }
