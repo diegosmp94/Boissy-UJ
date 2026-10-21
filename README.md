@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Étape 23 · Répertoire des effectifs en administration
+
+Un nouveau répertoire privé filtre les fiches d'effectifs/encadrement par équipe, brouillon ou publication, nom et rôle. Il propose actualisation, sélection directe et dépublication préparée avec confirmation. La gestion réelle reste fermée jusqu'à la recette Auth + MFA. Voir [étape 23](docs/ETAPE_23_GESTION_EFFECTIFS.md).
+
 ## Étape 22 · Liens directs entre équipes, matchs et actualités
 
 Les liens depuis chaque fiche présélectionnent son équipe dans le Match Center et dans les actualités, grâce à des URL partageables et validées. Les cartes des rencontres et des actualités ramènent à la fiche de l'équipe. [Documentation étape 22](docs/ETAPE_22_LIENS_EQUIPES_MATCHS_ACTUALITES.md).

@@ -4,6 +4,7 @@
  */
 import {supabaseConfig} from './auth-config.mjs';
 import {CLUB_TEAMS} from './club-teams.mjs';
+import {mountAdminRosterDirectory} from './team-roster-admin.mjs';
 
 const make=(tag,cls='',value=null)=>{
  const n=document.createElement(tag);if(cls)n.className=cls;
@@ -141,11 +142,26 @@ export async function mountAuthenticatedTeamPeopleEditor(container,api,userId){
  const selector=make('select','club-editor-control');
  selectLabel.append(selector);frameData.form.insertBefore(selectLabel,frameData.form.firstChild);
  let teams=[],entries=[],loading=false,confirmation=null;
+ const directory=make('section','team-roster-directory');
+ directory.setAttribute('aria-label','Répertoire privé des fiches sportives');
+ root.insertBefore(directory,frameData.form);
+ const controls=make('div','team-person-secondary-actions');
+ const refresh=button('Actualiser les profils','team-person-secondary-button');
+ const withdraw=button('Préparer la dépublication','team-person-secondary-button');
+ controls.append(refresh,withdraw);
+ frameData.form.append(controls);
  const selected=()=>entries.find(r=>r.id===selector.value)||null;
+ const browser=mountAdminRosterDirectory(directory,id=>{
+   if(loading)return;
+   selector.value=id;choose();
+   frameData.f.name.focus();
+ });
  const choose=()=>{
   frameData.fill(selected(),teams);
   confirmation=null;
   frameData.feedback.textContent=selected()?'Profil chargé · modifications non enregistrées.':'Nouveau brouillon.';
+  withdraw.hidden=selected()?.published!==true;
+  browser.update(entries,teams,selected()?.id||null);
  };
  async function reload(preferred=null){
   if(!await verifyAdmin(api,userId)){
@@ -159,10 +175,11 @@ export async function mountAuthenticatedTeamPeopleEditor(container,api,userId){
   if(!root.isConnected)return;
   if(teamData.error||peopleData.error||!Array.isArray(peopleData.data)){
    frameData.action.disabled=true;
-   frameData.feedback.textContent='Chargement sécurisé indisponible. Aucune donnée modifiée.';
+   frameData.feedback.textContent='Chargement sécurisé indisponible. Aucune donnée modifiée. Utilise « Actualiser les profils » pour réessayer.';
    return;
   }
   teams=teamData.data||[];entries=peopleData.data;
+  frameData.action.disabled=false;
   selector.replaceChildren();
   const fresh=make('option','','+ Nouveau profil');fresh.value='new';selector.append(fresh);
   for(const person of entries){
@@ -172,6 +189,20 @@ export async function mountAuthenticatedTeamPeopleEditor(container,api,userId){
   selector.value=entries.some(r=>r.id===preferred)?preferred:'new';choose();
  }
  selector.addEventListener('change',choose);
+ refresh.addEventListener('click',async()=>{
+   if(loading)return;
+   refresh.disabled=true;
+   try{await reload(selected()?.id||null);}
+   finally{refresh.disabled=false;}
+ });
+ withdraw.addEventListener('click',()=>{
+   if(loading||selected()?.published!==true)return;
+   frameData.f.publish.checked=false;
+   frameData.f.consent.checked=false;
+   confirmation=null;frameData.draw();
+   frameData.feedback.textContent='Retrait préparé. Vérifie la fiche, puis utilise « Enregistrer en sécurité » deux fois pour confirmer la dépublication.';
+   frameData.action.focus();
+ });
  for(const ev of ['input','change'])frameData.form.addEventListener(ev,()=>{confirmation=null});
  frameData.action.addEventListener('click',async()=>{
   if(loading||!root.isConnected)return;
