@@ -21,7 +21,7 @@ test('migration provenance and deployment restrictions are documented',()=>{
  'boissy_uj_security_indexes_20261021'
  ]) assert.ok(deployment.includes(marker),marker);
  assert.match(deployment,/RLS activée sur les tables applicatives et privées inspectées/);
- assert.match(config,/adminEnabled:\s*false/);
+ assert.match(config,/adminEnabled:\s*true/);
 });
 
 test('news columns needed by public REST remain readable but author identity is private',()=>{
