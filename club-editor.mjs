@@ -29,7 +29,7 @@ export function validateClubIdentityDraft(raw){
   if(publish&&!rightsConfirmed)errors.push('Confirme les droits et l’exactitude avant publication.');
   return {valid:errors.length===0,errors,section,title,body,sortOrder:order,publish,rightsConfirmed};
 }
-export function canEditClubIdentity(expectedId,verifiedId,roles,aal,enabled=supabaseConfig.enabled){
+export function canEditClubIdentity(expectedId,verifiedId,roles,aal,enabled=supabaseConfig.adminEnabled){
   return Boolean(enabled&&expectedId&&expectedId===verifiedId
     &&Array.isArray(roles)&&roles.includes('admin')&&aal==='aal2');
 }
@@ -133,7 +133,7 @@ export function mountClubIdentityPreview(root){
   return frame;
 }
 async function verifyAdmin(api,expectedId){
-  if(!supabaseConfig.enabled||!expectedId||!api)return false;
+  if(!supabaseConfig.adminEnabled||!expectedId||!api)return false;
   const [user,mfa]=await Promise.all([
     api.auth.getUser(),api.auth.mfa.getAuthenticatorAssuranceLevel()
   ]);
@@ -146,7 +146,7 @@ async function verifyAdmin(api,expectedId){
 }
 /** Private screen, never mounted from #/control-center. */
 export async function mountAuthenticatedClubIdentityEditor(container,api,userId){
-  if(!supabaseConfig.enabled||!container?.isConnected||!api||!userId)return;
+  if(!supabaseConfig.adminEnabled||!container?.isConnected||!api||!userId)return;
   const gate=await verifyAdmin(api,userId);
   if(!container.isConnected||!gate)return;
   const root=make('section','club-editor-private');
