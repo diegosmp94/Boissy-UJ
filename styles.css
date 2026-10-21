@@ -692,3 +692,27 @@ textarea.staff-input {resize:vertical;line-height:1.6;}
 .staff-season-item strong {color:#f5f9ff;font-size:16px;}
 .staff-season-item span {color:#f2cc7b;font-size:12px;font-weight:800;}
 .staff-seasons .staff-form {margin-top:6px;}
+
+
+/* Boissy-UJ - anonymised published team form and private-callup UX preview. */
+.sport-team-form {margin:25px 0 40px;min-height:170px;}
+.sport-form-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;}
+.sport-form-card {
+  background:linear-gradient(150deg,#164477,#06182e);
+  border:1px solid #bad2f246;border-radius:15px;
+  padding:clamp(20px,3vw,26px);min-width:0;
+}
+.sport-form-card h3 {font-size:clamp(22px,3vw,30px);margin:16px 0;}
+.sport-form-empty {color:#bfcee3;font-size:14px;line-height:1.6;}
+.sport-form-record {display:block;color:#f3d18d;font-size:clamp(20px,2.8vw,29px);margin:10px 0;}
+.sport-form-details {display:grid;grid-template-columns:1fr auto;gap:12px 10px;border-top:1px solid #bed8ed4b;padding-top:18px;font-size:13px;}
+.sport-form-details dt {color:#bdcee5;}
+.sport-form-details dd {margin:0;color:#f1f7ff;font-weight:900;}
+.sport-form-disclaimer {color:#a6c7e4;font-size:12px;line-height:1.6;margin:15px 0;}
+.callups-preview {margin-top:32px;border-top:1px solid #bed4eb4d;padding-top:24px;display:grid;gap:13px;}
+.callups-preview h2 {font-size:clamp(23px,3vw,31px);margin:0;}
+.callups-alert {border-left:4px solid var(--gold);background:#e5b95816;border-radius:7px;padding:17px;color:#f0dfba;font-size:13px;line-height:1.65;margin:0;}
+.callups-steps {color:#d5e2f2;font-size:13px;line-height:1.65;padding-left:23px;display:grid;gap:11px;}
+.callups-preview-status {color:#f1c77e;font-size:20px;}
+.callups-preview .staff-form {margin:8px 0 0;}
+@media(max-width:750px){.sport-form-grid{grid-template-columns:1fr;}.callups-preview{margin-top:26px;}}
