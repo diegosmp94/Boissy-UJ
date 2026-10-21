@@ -1,12 +1,6 @@
 /** Boissy-UJ — éditeurs de préparation, exclusivement en mémoire. */
 import {mountSeasonPreview} from './season-workspace.mjs';
-export const CLUB_TEAMS=Object.freeze([
-  {code:'a',name:'Seniors A',division:'Départemental 3',source:'FFF'},
-  {code:'b',name:'Seniors B',division:'Départemental 4',source:'FFF'},
-  {code:'c',name:'Seniors C',division:'Matchs amicaux',source:'Manuelle'},
-  {code:'veterans',name:'Vétérans',division:'Départemental 3',source:'FFF'}
-]);
-
+import {CLUB_TEAMS} from './club-teams.mjs';
 export function checkArticle(values){
   const title=String(values.title||'').trim(),excerpt=String(values.excerpt||'').trim();
   const body=String(values.body||'').trim();
@@ -47,13 +41,19 @@ function labeled(text,control){
 function teamPicker(){
   const picker=document.createElement('select');
   picker.className='staff-input';picker.name='team';
-  for(const team of CLUB_TEAMS){
-    const option=el('option','',team.name);
-    option.value=team.code;
-    picker.append(option);
+  for(const discipline of ['football','futsal']){
+    const group=document.createElement('optgroup');
+    group.label=discipline==='football'?'Football à 11':'Futsal';
+    for(const team of CLUB_TEAMS.filter(t=>t.discipline===discipline)){
+      const option=el('option','',team.name);
+      option.value=team.code;
+      group.append(option);
+    }
+    picker.append(group);
   }
   return picker;
 }
+
 function note(root){
   const warning=el('div','staff-alert');
   warning.setAttribute('role','note');
