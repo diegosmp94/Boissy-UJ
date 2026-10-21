@@ -15,7 +15,7 @@ test('double and triple roles remain additive, never exclusive',()=>{
  assert.deepEqual(roleSummary(['player','coach','admin']),
    ['Joueur','Entraîneur','Administrateur']);
  assert.deepEqual(roleSummary(['supporter','player','player']),['Supporter','Joueur']);
- assert.match(sql,/primary key \(id\)/);
+ assert.match(sql,/id uuid primary key default gen_random_uuid\(\)/);
  assert.match(sql,/on conflict\(user_id,role\) do nothing/);
  assert.doesNotMatch(sql,/delete from public\.user_roles where user_id=v_request\.user_id/);
 });
