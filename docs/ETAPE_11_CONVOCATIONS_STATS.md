@@ -15,6 +15,7 @@ Migration `supabase/migrations/202610210011_callups_team_stats.sql`.
 - `app_private.callup_action_audit` : journal privé des invitations et réponses. Les références aux comptes dans l'audit peuvent être mises à null à la suppression des comptes.
 - Aucune politique de lecture/écriture directe des tables privées depuis le navigateur ; RLS et révocations explicites.
 - `staff_set_callup` : RPC réservée à l'éducateur disposant du rôle coach ET de l'affectation active à l'équipe du match, ou à l'administrateur avec MFA AAL2 ; un joueur invité doit avoir le rôle player et appartenir activement à la même équipe.
+- Migration complémentaire `202610210012_callups_final_match_guard.sql` : interdit les convocations sur matchs terminés ou annulés.
 - `player_respond_callup` : le joueur répond seulement à sa propre invitation, jamais à celle d'un autre ; impossible si le match est joué/annulé ou si l'invitation est retirée.
 - `player_my_callups` : renvoie seulement les invitations non annulées du compte connecté. Aucune liste publique des convocations.
 
