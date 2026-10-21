@@ -7,7 +7,7 @@ import {mountAdminRoleModeration} from './admin-role-moderation.mjs';
 import {mountAuthenticatedClubIdentityEditor} from './club-editor.mjs';
 import {mountAuthenticatedTeamPeopleEditor} from './team-person-editor.mjs';
 import {mountAdminMembers} from './admin-users.mjs';
-import {mountAdminSeasons,mountAdminMatches,mountAdminNews} from './admin-management.mjs';
+import {mountAdminSeasons,mountAdminMatches,mountAdminNews,mountAdminFreeEvents} from './admin-management.mjs';
 
 export const ADMIN_MODULES=Object.freeze([
  {id:'overview',name:'Vue générale',group:'Pilotage',caption:'Données réelles, aucun chiffre fictif'},
@@ -16,6 +16,7 @@ export const ADMIN_MODULES=Object.freeze([
  {id:'teams',name:'Effectifs publics',group:'Sport',caption:'Brouillons et publication contrôlée'},
  {id:'seasons',name:'Saisons',group:'Sport',caption:'Gestion des saisons sportives'},
  {id:'matches',name:'Matchs et résultats',group:'Sport',caption:'Rencontres officielles du club'},
+ {id:'events',name:'Événements gratuits',group:'Sport',caption:'Agenda sans billetterie ni paiements'}, 
  {id:'news',name:'Actualités',group:'Contenu',caption:'Articles et droits de publication'},
  {id:'identity',name:'Identité du club',group:'Contenu',caption:'Contenus et histoire du club'}
 ]);
@@ -70,6 +71,10 @@ export async function mountAdminCenter(getClient){
    }
   });
   activeSubscription=subscription;
+  // Fail-closed: do not show an editor without its MFA-only database RPC.
+  const eventProbe=await api.rpc('admin_list_free_events');
+  if(serial!==currentGeneration||!root.isConnected)return;
+  const eventsReady=!eventProbe.error&&Array.isArray(eventProbe.data);
   root.replaceChildren();
   const head=el('header','real-admin-heading');
   head.append(el('span','tiny-label','BOISSY-UJ · ADMINISTRATION SÉCURISÉE'),
@@ -131,11 +136,12 @@ export async function mountAdminCenter(getClient){
     case 'teams':void mountAuthenticatedTeamPeopleEditor(view,api,verified.userId);break;
     case 'seasons':mountAdminSeasons(view,api,verified.userId);break;
     case 'matches':mountAdminMatches(view,api,verified.userId);break;
+    case 'events':mountAdminFreeEvents(view,api,verified.userId);break;
     case 'news':mountAdminNews(view,api,verified.userId);break;
     case 'identity':void mountAuthenticatedClubIdentityEditor(view,api,verified.userId);break;
    }
   }
-  for(const item of ADMIN_MODULES){
+  for(const item of ADMIN_MODULES.filter(module=>module.id!=='events'||eventsReady)){
    const b=button(item.name);b.dataset.module=item.id;
    b.append(el('small','',item.caption));b.addEventListener('click',()=>void selectSection(item.id));
    sidebar.append(b);

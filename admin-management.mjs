@@ -4,6 +4,7 @@
 import {adminSessionStatus} from './admin-security.mjs';
 import {CLUB_TEAMS} from './club-teams.mjs';
 import {validateSeasonDraft,validateMatchDraft,validateNewsDraft,adminSaveErrorMessage} from './admin-editor-rules.mjs';
+import {eventDateInput,validateFreeEventDraft,eventRpcArgs} from './admin-event-rules.mjs';
 
 const el=(tag,cls='',value=null)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(value!==null)n.textContent=String(value);return n;};
 const option=(value,label)=>{const x=el('option','',label);x.value=value;return x;};
@@ -207,4 +208,37 @@ export function mountAdminNews(root,api,userId){
    display:r=>r.title+' · '+(r.status==='published'?'Publié':'Brouillon')
   });
  }).catch(()=>{if(root.isConnected)status.textContent='Catalogue des équipes indisponible. Aucune actualité modifiée.';});
+}
+
+/** No ticket sales, no payments and no premium access are enabled by this form. */
+export function mountAdminFreeEvents(root,api,userId){
+ const title=input(),description=textarea(),category=select([
+  ['club','Vie du club'],['sport','Sport'],['community','Communauté'],['other','Autre']
+ ]);
+ title.maxLength=150;description.maxLength=4000;description.rows=7;
+ const start=input('datetime-local'),end=input('datetime-local'),
+  location=input(),capacity=input('number'),publish=check('Publier cet événement gratuit');
+ location.maxLength=160;capacity.min='1';capacity.max='100000';capacity.step='1';
+ editor(root,'Événements gratuits',api,userId,{
+  rpcList:'admin_list_free_events',rpcSave:'admin_save_free_event',
+  fields:()=>({
+   title:{element:field('Nom de l’événement',title),fill:r=>title.value=r?.title||''},
+   description:{element:field('Description',description),fill:r=>description.value=r?.description||''},
+   category:{element:field('Catégorie',category),fill:r=>category.value=r?.category||'club'},
+   start:{element:field('Début',start),fill:r=>start.value=eventDateInput(r?.starts_at)},
+   end:{element:field('Fin',end),fill:r=>end.value=eventDateInput(r?.ends_at)},
+   location:{element:field('Lieu (facultatif)',location),fill:r=>location.value=r?.location_label||''},
+   capacity:{element:field('Capacité (facultative)',capacity),fill:r=>capacity.value=r?.capacity??''},
+   publish:{label:publish.label,n:publish.n,fill:r=>publish.n.checked=r?.published===true}
+  }),
+  preview:()=>({
+   title:title.value.trim(),description:description.value,category:category.value,
+   start:start.value,end:end.value,location:location.value.trim(),capacity:capacity.value,
+   publish:publish.n.checked
+  }),
+  validate:validateFreeEventDraft,
+  args:eventRpcArgs,
+  display:r=>r.title+' · '+(r.published?'Publié':'Brouillon')+
+   (r.starts_at?' · '+new Date(r.starts_at).toLocaleDateString('fr-FR'):' · Date à préciser')
+ });
 }
