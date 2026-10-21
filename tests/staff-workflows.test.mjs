@@ -9,10 +9,10 @@ const control=read('control-center.mjs');
 const sql=read('supabase/migrations/202610210006_staff_content_workflows.sql');
 const auth=read('auth-config.mjs');
 
-test('four existing club categories are respected without inventing rosters',()=>{
-  assert.deepEqual(CLUB_TEAMS.map(t=>t.code),['a','b','c','veterans']);
+test('four football teams and futsal team are supported without rosters',()=>{
+  assert.deepEqual(CLUB_TEAMS.map(t=>t.code),['a','b','c','veterans','futsal']);
   assert.deepEqual(CLUB_TEAMS.map(t=>t.division),[
-    'Départemental 3','Départemental 4','Matchs amicaux','Départemental 3'
+    'Départemental 3','Départemental 4','Matchs amicaux','Départemental 3','Départemental 2'
   ]);
 });
 test('article draft validates title, body, team and excerpt',()=>{
