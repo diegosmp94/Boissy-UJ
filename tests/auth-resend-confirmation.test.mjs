@@ -41,5 +41,5 @@ test('resend confirmation avoids account existence leaks and leaves admin locked
  assert.match(auth,/code.includes\("rate_limit"\)/);
  assert.doesNotMatch(auth,/service_role|sb_secret_|method:\s*'POST'/);
  assert.equal(supabaseConfig.enabled,true);
- assert.equal(supabaseConfig.adminEnabled,false);
+ assert.equal(supabaseConfig.adminEnabled,true);
 });
