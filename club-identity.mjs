@@ -1,14 +1,12 @@
 import {supabaseConfig} from './auth-config.mjs';
+import {CLUB_TEAMS,DISCIPLINES,teamsByDiscipline} from './club-teams.mjs';
 export const IDENTITY_SECTIONS=Object.freeze([
  {id:'history',label:'Histoire'}, {id:'values',label:'Valeurs'},
  {id:'governance',label:'Organisation'}, {id:'projects',label:'Projets'}
 ]);
-export const TEAM_OVERVIEW=Object.freeze([
- {name:'Seniors A',level:'Départemental 3'},
- {name:'Seniors B',level:'Départemental 4'},
- {name:'Seniors C',level:'Matchs amicaux'},
- {name:'Vétérans',level:'Départemental 3'}
-]);
+export const TEAM_OVERVIEW=Object.freeze(CLUB_TEAMS.map(t=>({
+  name:t.name,level:t.division,discipline:t.discipline
+})));
 export function normalizeIdentitySearch(value){
  return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('fr-FR').trim();
 }
@@ -42,15 +40,19 @@ export async function mountIdentity(){
  if(!root)return;
  const ctrl=new AbortController();controller=ctrl;
  const top=node('section','identity-overview');
- top.append(node('p','identity-eyebrow','NOTRE CLUB'),node('h2','','Quatre collectifs. Une même passion.'),
-  node('p','identity-lead','Boissy-UJ rassemble des équipes seniors et vétérans autour du football. Découvre les équipes et les informations officiellement publiées par le club.'));
- const grid=node('div','identity-teams');
- for(const t of TEAM_OVERVIEW){
-  const card=node('article','identity-team');
-  card.append(node('h3','',t.name),node('p','',t.level));
-  grid.append(card);
+ top.append(node('p','identity-eyebrow','NOTRE CLUB'),node('h2','','Cinq équipes. Deux disciplines.'),
+  node('p','identity-lead','Boissy-UJ réunit le football à 11 et le futsal. Découvrez les équipes et les contenus officiellement publiés.'));
+ for(const discipline of DISCIPLINES){
+  const group=node('section','identity-discipline');
+  group.append(node('h3','identity-discipline-title',discipline.label));
+  const grid=node('div','identity-teams');
+  for(const t of teamsByDiscipline(discipline.id,TEAM_OVERVIEW)){
+   const card=node('article','identity-team');
+   card.append(node('h4','',t.name),node('p','',t.level));
+   grid.append(card);
+  }
+  group.append(grid);top.append(group);
  }
- top.append(grid);
  const published=node('section','identity-published');
  published.append(node('p','identity-eyebrow','PUBLICATIONS DU CLUB'),node('h2','','Notre histoire, nos valeurs et nos projets'),
   node('p','identity-lead','Les contenus ci-dessous sont affichés uniquement après validation et publication par le club.'));
