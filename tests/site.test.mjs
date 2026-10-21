@@ -16,4 +16,4 @@ test('weighted acceptance matrix totals 100',()=>{const doc=text('docs/MATRICE_R
 
 test('brief intro is accessible, skippable and respects reduced motion',()=>{assert.match(html,/id="cinema-intro"/);assert.match(html,/id="intro-skip"/);assert.match(app,/function initIntro\(/);assert.match(app,/prefers-reduced-motion/);assert.match(app,/sessionStorage/);assert.match(css,/@keyframes intro-reveal/)});
 
-test('events route is linked and explicitly disables paid reservations in preview',()=>{assert.match(app,/function events\(\)/);assert.match(app,/'\/evenements':events/);assert.match(html,/href="#\/evenements"/);assert.match(app,/Réservations désactivées en préversion/)});
+test('events route is linked and explicitly disables paid reservations in preview',()=>{assert.match(app,/function events\(\)/);assert.match(app,/'\/evenements':events/);assert.match(html,/href="#\/evenements"/);assert.match(app,/Billetterie non activée/)});
