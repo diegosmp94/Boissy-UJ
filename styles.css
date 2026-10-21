@@ -1149,3 +1149,110 @@ textarea.staff-input {resize:vertical;line-height:1.6;}
 @media(prefers-reduced-motion:reduce){
   .showcase-tab,.showcase-feature-link {transition:none!important;animation:none!important;}
 }
+
+
+/* Boissy-UJ official portrait: vetted story, chronology and club facts. */
+.club-portrait-public {display:grid;gap:54px;margin:26px 0 66px;min-width:0;}
+.club-portrait-kicker {color:#eed093;font-size:11px;letter-spacing:.15em;font-weight:900;text-transform:uppercase;}
+.club-portrait-confirmed {display:grid;gap:17px;min-width:0;}
+.club-portrait-identity {
+  display:grid;grid-template-columns:minmax(110px,170px) 1fr;
+  align-items:center;gap:clamp(15px,4vw,45px);
+  background:radial-gradient(circle at 12% 35%,#306cba48,transparent 40%),
+    linear-gradient(130deg,#163e6d,#07182f);
+  border:1px solid #a9cced61;border-radius:18px;
+  padding:clamp(21px,4vw,43px);min-width:0;
+}
+.club-portrait-emblem {
+  display:grid;place-items:center;width:clamp(110px,15vw,160px);
+  aspect-ratio:1;border-radius:50%;
+  border:1px solid #f1c87f85;
+  background:radial-gradient(circle,#234b79,#0c2044 72%);
+  box-shadow:0 0 40px #e7c77c18;
+}
+.club-portrait-emblem img {max-width:78%;height:auto;object-fit:contain;}
+.club-portrait-identity-copy {min-width:0;}
+.club-portrait-identity-copy h2 {
+  margin:13px 0 12px;font-size:clamp(26px,3.5vw,46px);line-height:1.06;
+}
+.club-portrait-identity-copy p,.club-portrait-lead {
+  font-size:14px;line-height:1.75;color:#c4d8ee;max-width:700px;margin:0;
+}
+.club-portrait-links {display:flex;gap:12px;flex-wrap:wrap;margin-top:21px;}
+.club-portrait-link {
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:43px;padding:10px 15px;border:1px solid #d7b67580;
+  border-radius:9px;color:#f4d594;background:#d4ad6214;
+  font-size:13px;font-weight:850;text-decoration:none;
+}
+.club-portrait-link:hover{background:#e7b96a31;}
+.club-portrait-link:focus-visible,.club-portrait-select:focus-visible,
+.club-portrait-search:focus-visible {outline:3px solid #e8c57e;outline-offset:3px;}
+.club-portrait-team-grid {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;}
+.club-portrait-team {
+  background:linear-gradient(150deg,#183f6a,#0b2442);
+  border:1px solid #bdd8ee58;border-radius:12px;padding:20px;min-width:0;
+  display:grid;gap:9px;
+}
+.club-portrait-team-category {font-size:10px;letter-spacing:.055em;color:#a5c8eb;text-transform:uppercase;}
+.club-portrait-team h3 {font-size:clamp(18px,2vw,25px);margin:5px 0 0;line-height:1.15;}
+.club-portrait-team strong {font-size:13px;color:#f3d38e;line-height:1.4;}
+.club-portrait-stories,.club-portrait-history,.club-portrait-more {display:grid;gap:18px;min-width:0;}
+.club-portrait-stories h2,.club-portrait-history h2,.club-portrait-more h2 {
+  font-size:clamp(26px,3.5vw,42px);line-height:1.13;margin:0;
+}
+.club-portrait-filter {display:flex;align-items:end;flex-wrap:wrap;gap:13px;margin:9px 0;}
+.club-portrait-label {display:grid;gap:7px;color:#d1e5f8;font-size:12px;font-weight:800;min-width:230px;}
+.club-portrait-select,.club-portrait-search {
+  background:#09203c;color:#f2f7fc;
+  border:1px solid #a8c8e5a1;border-radius:10px;
+  min-height:46px;padding:10px 13px;font:inherit;font-size:14px;min-width:0;
+}
+.club-portrait-search {flex:1 1 250px;}
+.club-portrait-story-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+.club-portrait-story-card {
+  padding:clamp(20px,3vw,29px);border-radius:14px;
+  background:linear-gradient(140deg,#194574,#091e3a);
+  border:1px solid #aecde86b;min-width:0;display:grid;align-content:start;gap:12px;
+}
+.club-portrait-story-card h3 {font-size:clamp(21px,2.4vw,29px);margin:0;overflow-wrap:anywhere;}
+.club-portrait-story-card p {color:#c9d9ec;line-height:1.72;font-size:14px;margin:0;white-space:pre-line;overflow-wrap:anywhere;}
+.club-portrait-empty,.club-portrait-loading {
+  grid-column:1/-1;
+  padding:26px;
+  border:1px dashed #acc6e87f;border-radius:13px;
+  color:#c3d8ed;background:#12345887;font-size:14px;line-height:1.7;margin:0;
+}
+.club-portrait-timeline {list-style:none;padding:0;margin:10px 0;display:grid;gap:13px;}
+.club-portrait-milestone {position:relative;border-left:3px solid #f0c474;padding:12px 16px 16px 22px;background:#102e50;border-radius:0 12px 12px 0;}
+.club-portrait-milestone-date {color:#e7c277;font-size:12px;font-weight:900;letter-spacing:.04em;}
+.club-portrait-milestone h3 {font-size:21px;margin:8px 0 7px;}
+.club-portrait-milestone p {margin:0;color:#c9dced;line-height:1.7;font-size:13px;white-space:pre-line;}
+.club-portrait-more {border-top:1px solid #b6d0e447;padding-top:30px;}
+.club-portrait-more-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;}
+.club-portrait-more-card {
+  padding:22px;background:linear-gradient(135deg,#12365f,#071b37);
+  border:1px solid #aaccea55;border-radius:12px;min-width:0;
+  display:grid;gap:12px;justify-items:start;
+}
+.club-portrait-more-card h3 {font-size:21px;margin:0;}
+.club-portrait-more-card p {font-size:13px;color:#c0d4ea;line-height:1.65;margin:0;}
+@media(max-width:850px){
+ .club-portrait-team-grid {grid-template-columns:repeat(2,minmax(0,1fr));}
+ .club-portrait-identity {grid-template-columns:110px 1fr;}
+}
+@media(max-width:680px){
+ .club-portrait-public {gap:35px;margin-bottom:calc(100px + env(safe-area-inset-bottom,0px));}
+ .club-portrait-identity {grid-template-columns:1fr;justify-items:start;}
+ .club-portrait-emblem {width:108px;}
+ .club-portrait-story-grid,.club-portrait-more-grid {grid-template-columns:1fr;}
+ .club-portrait-filter {display:grid;grid-template-columns:1fr;align-items:stretch;}
+ .club-portrait-label,.club-portrait-search {width:100%;min-width:0;}
+ .club-portrait-links {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media(max-width:380px){
+ .club-portrait-team-grid,.club-portrait-links {grid-template-columns:1fr;}
+}
+@media(prefers-reduced-motion:reduce){
+ .club-portrait-link {transition:none!important;animation:none!important;}
+}

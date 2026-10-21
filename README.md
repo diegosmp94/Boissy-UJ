@@ -6,6 +6,7 @@ Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement.
 - Accueil immersif avec huit chapitres et véritable écusson.
 - Navigation ordinateur et mobile.
 - Présentation des équipes, des matchs, des actualités, des événements, de la communauté et des dons.
+- **Le club** : page institutionnelle `#/le-club` avec quatre équipes confirmées, histoire, valeurs, organisation et projets après validation officielle, chronologie vérifiée et filtres de consultation. Voir [étape 16](docs/ETAPE_16_PORTRAIT_CLUB.md).
 - **Awards publics** des Seniors A, B et C : nouveau catalogue consultable avec filtres, nominations contrôlées et résultats publiés uniquement après vérification. Aucun vote actif. Voir [étape 14](docs/ETAPE_14_AWARDS_PUBLICS.md).
 - **Nous rejoindre et Infos pratiques** : parcours interactifs joueurs, éducateurs, bénévoles et partenaires ; annonces publiées, FAQ, lieux/horaires et contacts officiels seulement lorsqu'ils sont vérifiés. Aucun formulaire de collecte des données personnelles. Voir [étape 15](docs/ETAPE_15_REJOINDRE_INFOS.md).
 - Interface « Mon espace » implémentée et reliée à Supabase, mais **inscription et connexion désactivées dans cette préversion publique** en attendant la recette réelle (RGPD, e-mails et sécurité).
