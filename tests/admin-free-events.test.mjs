@@ -80,3 +80,10 @@ test('real event editor is registered behind admin MFA route',()=>{
  assert.match(code,/if\(requiresConfirmation&&key!==confirmKey\)/);
  assert.doesNotMatch(code,/\.insert\(|\.update\(|\.delete\(|innerHTML\s*=/);
 });
+
+test('missing database migration keeps free event module hidden instead of showing broken controls',()=>{
+ assert.match(hub,/const eventProbe=await api\.rpc\('admin_list_free_events'\)/);
+ assert.match(hub,/const eventsReady=!eventProbe\.error&&Array\.isArray\(eventProbe\.data\)/);
+ assert.match(hub,/ADMIN_MODULES\.filter\(module=>module\.id!=='events'\|\|eventsReady\)/);
+ assert.match(hub,/if\(serial!==currentGeneration\|\|!root\.isConnected\)return/);
+});
