@@ -44,3 +44,8 @@ textarea.admin-form-control{line-height:1.5;resize:vertical}
 @media(max-width:850px){.real-admin-layout{grid-template-columns:1fr}.real-admin-sidebar{position:static;grid-template-columns:repeat(2,minmax(0,1fr))}.real-admin-pane{min-height:280px}}
 @media(max-width:530px){.real-admin-sidebar{grid-template-columns:1fr}.real-admin-kpis{grid-template-columns:1fr}.real-admin-root{padding:22px 13px}.real-admin-heading h1{font-size:31px}}
 @media(prefers-reduced-motion:reduce){.admin-module-tab{scroll-behavior:auto}}
+
+/* Edition de dossiers : actualisation sans perdre la navigation au clavier. */
+.admin-editor-list-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin:9px 0 15px}
+.admin-editor-list-actions .admin-secondary-btn{min-height:40px}
+.admin-editor-list-actions .admin-secondary-btn:disabled{opacity:.5;cursor:not-allowed}
