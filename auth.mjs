@@ -1,9 +1,7 @@
 import { supabaseConfig } from "./auth-config.mjs";
 import {authRedirectUrl,authCallbackError,hasAuthCallback,sanitizedAuthCallbackUrl,loginSuccessMessage,validateAuthInput} from "./auth-flow.mjs";
 import {mountMemberRoleRequests} from './role-workflow.mjs';
-import {mountAdminRoleModeration} from './admin-role-moderation.mjs';
-import {mountAuthenticatedClubIdentityEditor} from './club-editor.mjs';
-import {mountAuthenticatedTeamPeopleEditor} from './team-person-editor.mjs';
+import {mountAdminMfaSetup} from './admin-security.mjs';
 
 let clientPromise;
 let mounted = null;
@@ -230,10 +228,8 @@ async function showSession(root, api) {
   account.append(signOut);
   root.append(account);
   void mountMemberRoleRequests(account,api,user.id);
-  void mountAdminRoleModeration(account,api,user.id);
-  // L'éditeur réel est monté uniquement après vérification MFA AAL2 et rôle admin ; RPC = autorité finale.
-  void mountAuthenticatedClubIdentityEditor(account,api,user.id);
-  void mountAuthenticatedTeamPeopleEditor(account,api,user.id);
+  // Compte ordinaire : seul le rôle admin attribué par le serveur voit le parcours MFA.
+  if(!rolesResult.error&&roles.includes('admin'))void mountAdminMfaSetup(account,api,user.id);
 }
 
 export function authMarkup() {
@@ -315,3 +311,6 @@ export function unmountAuth(){
   if (mounted?.subscription) mounted.subscription.unsubscribe();
   mounted = null;
 }
+
+/** Same cached Supabase client used by private admin route. */
+export async function getAuthClient(){return client();}
