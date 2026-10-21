@@ -286,3 +286,28 @@
   font-size:13px;
   line-height:1.65;
 }
+
+
+/* Media Center : catalogue public sans images/personnes non autorisées */
+.news-root{margin:22px 0 44px;min-height:180px}
+.news-loading{padding:22px;border:1px solid var(--stroke);border-radius:12px;color:var(--muted)}
+.news-controls{display:grid;grid-template-columns:minmax(0,2fr) minmax(160px,1fr);gap:16px;align-items:end;margin-bottom:14px}
+.news-label{display:grid;gap:7px;color:#dceaff;font-weight:700;font-size:13px}
+.news-search,.news-select{width:100%;min-width:0;min-height:48px;padding:12px 15px;border:1px solid #a5c2e777;border-radius:10px;background:#071b36;color:#f5faff;font:inherit}
+.news-search:focus-visible,.news-select:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.news-count{font-size:12px;color:#a6c7e6;margin:12px 0 22px}
+.news-feed{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}
+.news-card{min-width:0;padding:28px 25px;border:1px solid #afcff046;border-radius:16px;background:linear-gradient(155deg,#14385e,#091a34)}
+.news-meta{display:flex;justify-content:space-between;align-items:center;gap:8px 16px;flex-wrap:wrap}
+.news-kind{text-transform:uppercase;color:var(--gold);font-size:11px;font-weight:900;letter-spacing:.14em}
+.news-date{font-size:12px;color:#a9bfd9}
+.news-card h3{font-size:clamp(22px,2.8vw,31px);line-height:1.16;margin:19px 0 10px;overflow-wrap:anywhere}
+.news-excerpt{color:#d0deee;font-size:15px}
+.news-details{border-top:1px solid var(--stroke);padding-top:18px;margin-top:18px}
+.news-details summary{color:#f0c56e;font-weight:800;cursor:pointer}
+.news-details summary:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.news-body{color:#d7e5f5;white-space:pre-line;overflow-wrap:anywhere;font-size:14px;line-height:1.8}
+.news-empty,.news-notice{padding:22px;border:1px dashed #b1cef05c;background:#0d2748;border-radius:12px;color:#d1e1f4;font-size:14px;line-height:1.6}
+.news-empty{grid-column:1/-1;min-height:145px;display:grid;place-items:center;text-align:center}
+.news-notice{margin:0 0 20px;border-left:4px solid var(--gold);border-style:solid}
+@media(max-width:760px){.news-controls,.news-feed{grid-template-columns:1fr}.news-card{padding:22px 19px}.news-controls{gap:12px}}
