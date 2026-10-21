@@ -11,11 +11,11 @@ const cfg=read('auth-config.mjs');
 const sql=read('supabase/migrations/202610210013_cumulative_roles_approvals.sql');
 const css=read('styles.css');
 
-test('admin moderation remains unavailable while public authentication is disabled',()=>{
- assert.match(cfg,/adminEnabled:\s*false/);
- assert.equal(canShowRoleModeration('admin-1','admin-1',['admin'],'aal2'),false);
+test('admin moderation requires identity and AAL2 on the enabled private route',()=>{
+ assert.match(cfg,/adminEnabled:\s*true/);
+ assert.equal(canShowRoleModeration('admin-1','admin-1',['admin'],'aal2'),true);
  assert.match(src,/if\(!supabaseConfig\.adminEnabled \|\| !container\?\.isConnected/);
- assert.match(auth,/mountAdminRoleModeration\(account,api,user\.id\)/);
+ assert.match(read('admin-center.mjs'),/mountAdminRoleModeration\(pane,api,verified\.userId\)/);
  assert.match(src,/if\(!gate\.authorized\)/);
 });
 test('true access requires getUser verification, admin role AND MFA level AAL2',()=>{
