@@ -43,7 +43,7 @@ test('section visibility toggles only selected section; no server storage',()=>{
 });
 test('module search is accent-insensitive and scoped by group',()=>{
   assert.deepEqual(filterControlModules(CONTROL_MODULES,'équipes').map(x=>x.id),
-    ['teams','matches']); // team mentions in match description
+    ['teams']);
   assert.deepEqual(filterControlModules(CONTROL_MODULES,'','Sport').map(x=>x.id),
     ['teams','matches']);
   assert.equal(filterControlModules(CONTROL_MODULES,'zzz not found').length,0);
