@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#071a38" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="description" content="Boissy-UJ — site officiel. Découvrez nos équipes, les compétitions, la vie du club et notre communauté." />
+  <title>Boissy-UJ — Club officiel</title>
+  <link rel="icon" type="image/webp" href="./assets/ecusson-boissy-uj.webp" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Aller au contenu principal</a>
+  <div class="cinema-intro" id="cinema-intro" role="region" aria-label="Introduction cinématique du club">
+    <div class="intro-glow" aria-hidden="true"></div>
+    <div class="intro-center">
+      <img src="./assets/ecusson-boissy-uj.webp" alt="Écusson officiel Boissy-UJ" width="154" height="154" />
+      <p class="intro-eyebrow">UNION JEUNES</p>
+      <strong>BOISSY–UJ</strong>
+      <span>Un club. Quatre équipes. Une histoire.</span>
+    </div>
+    <button type="button" class="intro-skip" id="intro-skip" aria-label="Passer l'introduction et afficher le site">Passer l'introduction <span aria-hidden="true">↗</span></button>
+  </div>
+  <header class="topbar" id="topbar">
+    <a class="brand" href="#/" aria-label="Boissy-UJ — accueil"><img src="./assets/ecusson-boissy-uj.webp" alt="" width="42" height="42"/><span>BOISSY<span class="brand-accent">–UJ</span><small>UNION JEUNES</small></span></a>
+    <nav class="desktop-links" aria-label="Navigation principale">
+      <a href="#/">Accueil</a><a href="#/matchs">Matchs</a><a href="#/equipes">Équipes</a><a href="#/actualites">Actualités</a><a href="#/communaute">Communauté</a><a href="#/evenements">Événements</a><a href="#/soutenir">Soutenir</a>
+    </nav>
+    <div class="header-actions"><a class="header-account" href="#/mon-espace">Mon espace <span aria-hidden="true">↗</span></a><button class="menu-toggle" id="menu-toggle" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span><span></span></button></div>
+  </header>
+  <nav class="mobile-menu" id="mobile-menu" aria-label="Menu mobile" hidden>
+    <a href="#/">Accueil</a><a href="#/matchs">Match Center</a><a href="#/equipes">Nos équipes</a><a href="#/actualites">Actualités & médias</a><a href="#/communaute">Communauté</a><a href="#/evenements">Événements</a><a href="#/soutenir">Soutenir le club</a><a href="#/rejoindre">Nous rejoindre</a><a href="#/mon-espace">Mon espace</a>
+  </nav>
+  <main id="main" tabindex="-1"></main>
+  <nav class="bottom-nav" aria-label="Raccourcis mobiles"><a href="#/" data-nav="home"><span aria-hidden="true">⌂</span><small>Accueil</small></a><a href="#/matchs" data-nav="matchs"><span aria-hidden="true">⚑</span><small>Matchs</small></a><a href="#/actualites" data-nav="actualites"><span aria-hidden="true">▣</span><small>Actus</small></a><a href="#/mon-espace" data-nav="compte"><span aria-hidden="true">♙</span><small>Mon espace</small></a></nav>
+</body>
+</html>

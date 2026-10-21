@@ -1,0 +1,21 @@
+name: Vérifications du socle Boissy-UJ
+on:
+  push:
+    branches: [main, feat/fondations-site-v1]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Contrôle syntaxe
+        run: node --check app.js
+      - name: Tests du projet
+        run: npm test
