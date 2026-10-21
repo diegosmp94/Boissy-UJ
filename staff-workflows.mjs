@@ -1,4 +1,5 @@
 /** Boissy-UJ — éditeurs de préparation, exclusivement en mémoire. */
+import {mountSeasonPreview} from './season-workspace.mjs';
 export const CLUB_TEAMS=Object.freeze([
   {code:'a',name:'Seniors A',division:'Départemental 3',source:'FFF'},
   {code:'b',name:'Seniors B',division:'Départemental 4',source:'FFF'},
@@ -128,6 +129,7 @@ export function mountTeamWorkspace(root){
       el('small','','Aucune rencontre créée dans Supabase.'));
   });
   root.append(selector,division,boxes,form,feedback,preview);
+  mountSeasonPreview(root);
   updateTeam();
 }
 export function mountMediaWorkspace(root){

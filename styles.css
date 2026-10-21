@@ -664,3 +664,31 @@ textarea.staff-input {resize:vertical;line-height:1.6;}
   .staff-goals {grid-template-columns:1fr;}
   .sport-filter-bar > label {width:100%;justify-content:space-between;}
 }
+
+
+/* Sports Manager — season planning and read-only database list. */
+.staff-seasons {
+  display:grid;
+  gap:14px;
+  margin-top:35px;
+  border-top:1px solid #abd0f43b;
+  padding-top:25px;
+}
+.staff-seasons h3 {font-size:clamp(23px,3vw,30px);margin:0;}
+.staff-seasons h4 {font-size:clamp(17px,2.5vw,22px);margin:0;}
+.staff-muted {color:#b2cce9;font-size:13px;line-height:1.7;margin:3px 0;}
+.staff-season-list {display:grid;gap:10px;}
+.staff-season-item {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:12px;
+  padding:13px 17px;
+  border-radius:11px;
+  border:1px solid #accdee57;
+  background:#0c294c;
+}
+.staff-season-item strong {color:#f5f9ff;font-size:16px;}
+.staff-season-item span {color:#f2cc7b;font-size:12px;font-weight:800;}
+.staff-seasons .staff-form {margin-top:6px;}
