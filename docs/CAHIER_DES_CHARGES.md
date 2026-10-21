@@ -1,8 +1,8 @@
 # Cahier des charges fonctionnel — Boissy-UJ
 
-**Version : 1.4 — 21 octobre 2026**  
+**Version : 1.5 — 21 octobre 2026**  
 **Référence :** site public Boissy-UJ, espace membre et Control Center.  
-**Statut :** exigences validées côté produit ; fonctionnalités administratives réelles encore à homologuer.  
+**Statut :** administration réelle en cours d'ouverture derrière MFA AAL2 ; validation en navigateur encore requise.  
 **Priorité :** les règles de rôles ci-dessous prévalent sur toute ancienne mention suggérant qu'un joueur, un éducateur ou un administrateur ne peut occuper qu'une seule fonction.
 
 ## 1. Objectifs et périmètre
@@ -11,7 +11,8 @@ Boissy-UJ est le site d'une association de football. Le projet couvre :
 - Une vitrine publique immersive bleu nuit, bleu royal, blanc et doré, avec écusson officiel, accueil en huit chapitres et navigation responsive.
 - Les **cinq équipes** validées par le club, désormais séparées par discipline : **football à 11** avec Seniors A (Départemental 3), Seniors B (Départemental 4), Seniors C (matchs amicaux, saisie manuelle), Vétérans (Départemental 3) ; **futsal** avec Boissy-UJ Futsal (Départemental 2, source club manuelle tant que la référence officielle n'est pas fournie). Les équipes ont des identifiants, calendriers, affectations et statistiques distincts.
 - Le Match Center, les saisons, les statistiques réellement publiées, les convocations privées et la préparation des articles.
-- La gestion des personnes publiques dispose d'un répertoire privé administrateur filtrable par équipe, publication et recherche, ainsi que d'une actualisation et d'une préparation explicite de dépublication sans écriture immédiate. Les vrais enregistrements sont bloqués jusqu'à la validation de l'authentification MFA AAL2. Le Control Center public ne simule que localement.
+- Le Control Center ne présente plus de modules de démonstration aux visiteurs. L'accès réel exige une session vérifiée, le rôle admin et MFA AAL2. Les écrans disposant d'une RPC serveur autorisée et traçable sont activés ; les paiements, réservations et fonctions sans backend fiable restent non disponibles. Le rôle Supporter ordinaire ne peut pas accéder à l'administration.
+- La gestion des personnes publiques dispose d'un répertoire privé administrateur filtrable par équipe, publication et recherche, ainsi que d'une actualisation et d'une préparation explicite de dépublication sans écriture immédiate. Les vrais enregistrements sont bloqués jusqu'à la validation de l'authentification MFA AAL2. Le Control Center est désormais réservé aux administrateurs AAL2.
 - Chaque fiche d’équipe est dotée de rubriques d’effectif public, d’encadrement public, de bilan des matchs terminés et d’actualités ciblées. Les noms publics sont distincts des comptes privés ; leur publication exige validation admin MFA AAL2, consentement et droits vérifiés (représentants légaux si nécessaire), audit et dépublication possible. Les données manquantes ne sont jamais inventées.
 - Actualités, médias, événements, vie associative et espace supporters ; pas de messagerie privée ni de commentaires publics.
 - Un **Control Center** administratif, traçable et protégé.
