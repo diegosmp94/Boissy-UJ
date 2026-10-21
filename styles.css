@@ -885,3 +885,138 @@ textarea.staff-input {resize:vertical;line-height:1.6;}
 @media(prefers-reduced-motion:reduce){
   .award-card,.community-awards-teaser {animation:none!important;transition:none!important;}
 }
+
+
+/* Boissy-UJ — Joining journeys and club-verified practical information. */
+.join-public-hub {display:grid;gap:34px;margin:24px 0 45px;min-width:0;}
+.join-choose {display:grid;gap:18px;}
+.join-eyebrow {color:#efcc88;font-size:11px;font-weight:900;letter-spacing:.17em;text-transform:uppercase;margin:0;}
+.join-choose h2,.join-journey h2,.join-listing-section h2,.join-static-help h2 {
+  font-size:clamp(23px,3.5vw,37px);line-height:1.15;letter-spacing:-.035em;margin:0;
+}
+.join-audience-tabs {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
+.join-audience-btn {
+  min-width:0;min-height:60px;padding:14px 10px;
+  border:1px solid #a5c7ec76;background:#113156;
+  color:#daeafb;border-radius:12px;font:inherit;
+  font-size:14px;font-weight:800;cursor:pointer;
+  transition:background .2s,border-color .2s;
+}
+.join-audience-btn:hover {background:#1f4c7d;}
+.join-audience-btn[aria-pressed="true"] {
+  background:linear-gradient(135deg,#f2cc82,#c99c4f);
+  border-color:#f8dea6;color:#082039;box-shadow:0 8px 26px #f5c86a26;
+}
+.join-audience-btn:focus-visible,.join-select:focus-visible,.join-search:focus-visible,
+.join-contact-link:focus-visible,.join-faq-item summary:focus-visible {
+  outline:3px solid var(--gold);outline-offset:3px;
+}
+.join-dynamic {display:grid;gap:34px;}
+.join-journey,.join-listing-section,.join-static-help,.join-contacts {
+  display:grid;gap:16px;min-width:0;
+}
+.join-journey {
+  padding:clamp(20px,3vw,35px);
+  background:radial-gradient(circle at 96% 8%,#397ac62c,transparent 43%),
+    linear-gradient(135deg,#123862,#081b37);
+  border:1px solid #adccee59;border-radius:17px;
+}
+.join-intro {color:#bfcee5;font-size:14px;max-width:700px;line-height:1.75;margin:0;}
+.join-step-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:0;list-style:none;margin:4px 0;}
+.join-step {
+  border:1px solid #abcaed47;background:#091f3b9c;
+  border-radius:12px;padding:20px;min-width:0;
+}
+.join-step-number {
+  display:block;color:#f0c56e;font-size:29px;font-weight:900;
+  font-family:Outfit,system-ui,sans-serif;line-height:1;
+}
+.join-step p {font-size:13px;color:#c8def3;line-height:1.65;margin:15px 0 0;}
+.join-listing-tools {display:flex;align-items:end;flex-wrap:wrap;gap:12px;}
+.join-search,.join-select {
+  min-height:48px;padding:11px 14px;
+  background:#081f3e;color:#f2f8ff;border:1px solid #a5c5e68b;
+  border-radius:10px;font:inherit;font-size:14px;min-width:0;
+}
+.join-search {flex:1 1 240px;}
+.join-select-label {display:grid;gap:8px;color:#c7dff9;font-size:12px;font-weight:750;min-width:175px;}
+.join-select {width:100%;}
+.join-listings {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;min-width:0;}
+.join-listing-card {
+  display:grid;gap:14px;align-content:start;min-width:0;
+  border-radius:13px;border:1px solid #bbd5f15e;
+  background:linear-gradient(140deg,#14416e,#0a2447);padding:22px;
+}
+.join-listing-meta {display:flex;align-items:center;flex-wrap:wrap;gap:8px;}
+.join-listing-stage {color:#ffdc9c;border:1px solid #d9b3697a;padding:6px 10px;border-radius:20px;font-size:11px;font-weight:800;}
+.join-listing-team {color:#c6e0ff;font-size:12px;font-weight:800;}
+.join-listing-card h3 {font-size:21px;margin:0;line-height:1.15;overflow-wrap:anywhere;}
+.join-listing-card p {color:#c6d8eb;font-size:13px;line-height:1.65;margin:0;white-space:pre-line;overflow-wrap:anywhere;}
+.join-neutral,.join-loading {
+  grid-column:1/-1;
+  border:1px dashed #b1cbe66b;border-radius:12px;
+  background:#0b294b;padding:25px;color:#c5d9ed;
+  font-size:14px;line-height:1.7;margin:0;
+}
+.join-contacts {border-top:1px solid #bed6e540;padding-top:26px;}
+.join-contacts h3 {font-size:clamp(20px,2.5vw,27px);margin:0;}
+.join-contact-links {display:flex;flex-wrap:wrap;gap:12px;}
+.join-contact-link {
+  padding:13px 17px;border:1px solid #e7c47d78;
+  background:#debd7818;color:#f5d797;border-radius:9px;
+  font-size:13px;font-weight:850;overflow-wrap:anywhere;
+}
+.join-contact-link:hover {background:#dab26737;}
+.join-privacy-note {font-size:12px;color:#aac3dc;line-height:1.6;margin:0;}
+.join-static-help {padding-top:26px;border-top:1px solid #b7cde646;}
+.join-faq-item {
+  min-width:0;background:linear-gradient(110deg,#143861,#0a2240);
+  border:1px solid #aacbed56;border-radius:11px;padding:0 17px;
+}
+.join-faq-item summary {
+  cursor:pointer;padding:18px 0;color:#f0f7ff;font-size:15px;
+  font-weight:800;line-height:1.5;
+}
+.join-faq-item summary::marker {color:#f0c56e;}
+.join-faq-item[open] {border-color:#e7c4796b;}
+.join-faq-item p {
+  margin:0 0 20px;padding:0 4px 0 14px;border-left:2px solid #dab268a3;
+  color:#c4d7ed;font-size:14px;line-height:1.75;white-space:pre-line;
+}
+.join-practical-items {display:grid;gap:10px;min-width:0;}
+.join-back-link {display:inline-flex;width:max-content;max-width:100%;
+  border-bottom:1px solid #f0c56e;color:#f3d28c;
+  font-size:14px;font-weight:850;line-height:1.8;}
+.join-practical-cta {
+  display:grid;gap:13px;
+  margin:30px 0 30px;padding:clamp(24px,4vw,40px);
+  border:1px solid #edc57962;border-radius:17px;
+  background:radial-gradient(circle at 90% 5%,#f0c56e1c,transparent 50%),
+    linear-gradient(125deg,#173e70,#071a34);
+}
+.join-practical-cta h2 {font-size:clamp(23px,3.5vw,35px);margin:0;}
+.join-practical-cta p {font-size:14px;color:#c2d7e9;margin:0;max-width:590px;}
+.join-practical-cta .btn {width:max-content;max-width:100%;margin-top:10px;}
+@media(max-width:900px){
+  .join-step-grid {grid-template-columns:1fr;}
+  .join-step {display:flex;align-items:center;gap:22px;}
+  .join-step-number {min-width:48px;}
+  .join-step p {margin:0;}
+}
+@media(max-width:700px){
+  .join-public-hub {gap:25px;margin-bottom:calc(110px + env(safe-area-inset-bottom,0px));}
+  .join-audience-tabs {grid-template-columns:repeat(2,minmax(0,1fr));}
+  .join-audience-btn {min-height:55px;font-size:13px;}
+  .join-listings {grid-template-columns:1fr;}
+  .join-listing-tools {display:grid;grid-template-columns:1fr;align-items:stretch;}
+  .join-select-label,.join-search {width:100%;min-width:0;}
+  .join-practical-cta .btn {width:100%;justify-content:center;}
+}
+@media(max-width:380px){
+  .join-step {align-items:flex-start;}
+  .join-step-number {min-width:34px;font-size:24px;}
+  .join-step p {font-size:12px;}
+}
+@media(prefers-reduced-motion:reduce){
+  .join-audience-btn {transition:none;}
+}
