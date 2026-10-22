@@ -25,6 +25,12 @@ Nouvelle migration additive `supabase/migrations/202610220003_admin_coach_team_a
 - `app_private.coach_team_assignment_audit` : journal sous RLS, non accessible par lecture directe depuis un navigateur.
 - Les fonctions exigent **un compte administrateur avec MFA AAL2**, la présence de `auth.uid()` et l'absence de droits d'exécution anonymes. Aucun `GRANT` en écriture sur les tables privées.
 
+## Activation de l'étape 34 — prérequis à l'utilisation
+
+Le code applicatif peut être intégré sans altérer les autres écrans. Tant que les RPC `admin_list_team_coaches(uuid)` et `admin_set_coach_team_assignment(uuid,uuid,boolean)` ne sont pas en base, **Affectations entraîneurs reste masqué** grâce à une vérification réelle de la lecture pour une équipe autorisée. Le seul déploiement GitHub ne signifie pas que les affectations sont utilisables.
+
+Pour l'activer, exécuter la migration revue dans `supabase/migrations/202610220003_admin_coach_team_assignments.sql` via [SQL Editor Supabase](https://supabase.com/dashboard/project/dahzewvbybujqhogumte/sql/new), puis contrôler les droits EXECUTE et RLS avant d'essayer avec un vrai compte coach validé. Aucune opération de création de compte ou affectation de joueur n'est requise au déploiement.
+
 ## Recette automatisée et tests réels
 
 Les tests Node couvrent notamment l'absence d'élévation de rôle côté client/serveur, l'interdiction d'auto-affectation, les gardes MFA, les restrictions des équipes privées, l'audit, le cumul des rôles et les formulaires de convocation. Les tests GitHub ne remplacent pas une session réelle de chaque catégorie.
