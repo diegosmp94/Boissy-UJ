@@ -26,6 +26,7 @@ jobs:
       - name: Préparer la préproduction sans fichiers internes
         run: |
           npm run build:preview
+          npm run audit:preview
           test -f dist/index.html
           test -f dist/app.js
           test -f dist/assets/ecusson.svg

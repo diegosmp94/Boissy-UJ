@@ -31,6 +31,7 @@ function initIntro(){
   const dismiss=()=>{
     if(intro.classList.contains('is-dismissed'))return;
     window.clearTimeout(timer);
+    if(document.activeElement===skip)document.getElementById('main')?.focus({preventScroll:true});
     intro.classList.add('is-dismissed');
     intro.setAttribute('aria-hidden','true');
     try{window.sessionStorage.setItem('boissy-intro-seen','1');}catch{}
@@ -178,14 +179,45 @@ function join(){return pageShell('Faire partie du club','NOUS <em>REJOINDRE.</em
 function practical(){return pageShell('Toutes les informations utiles','INFOS <em>PRATIQUES.</em>','Entraînements, rencontres, lieux, adhésions et vie associative : consulte uniquement les informations confirmées et publiées par Boissy-UJ.',`<div class="info-banner"><span class="info-icon">i</span><div><strong>Des informations fiables, pas d’estimations</strong><p>Les horaires, adresses et contacts non renseignés ne sont pas supposés. Vérifie les publications du club avant tout déplacement.</p></div></div><div id="practical-public-hub" class="join-public-hub" aria-live="polite"><p class="join-loading">Chargement des informations pratiques…</p></div>`);}
 
 function agenda(){return pageShell("La vie du club, en un regard","AGENDA <em>DU CLUB.</em>","Matchs et événements publiés par Boissy-UJ, réunis dans un calendrier lisible et consultable sur mobile.",'<div id="agenda-public-root" class="agenda-public-root" aria-live="off"><p class="agenda-status">Chargement de l’agenda officiel…</p></div>');}
-function account(){return pageShell('Espace personnel','MON <em>ESPACE.</em>','Un seul compte, plusieurs rôles : supporter, licencié, éducateur ou administrateur. Inscription et connexion sécurisées via Supabase.',authMarkup()+`<div class="cc-entry-link"><span class="tiny-label">ADMINISTRATION PROTÉGÉE</span><h2>Centre de gestion Boissy-UJ</h2><p>Ce panneau est réservé aux administrateurs habilités et nécessite la double authentification MFA AAL2. Les autres comptes n’y ont pas accès.</p><a class="btn btn-outline" href="#/control-center">Ouvrir le Centre de gestion <span aria-hidden="true">↗</span></a></div>`);}
+/** Public privacy information. Legal fields remain explicitly pending verification by the club. */
+function privacy(){
+ return pageShell('Vie privée et transparence','CONFIDENTIALITÉ <em>& DONNÉES.</em>',
+  'Comment les informations nécessaires aux comptes, aux équipes et aux convocations sont utilisées.',
+  `<div class="trust-page" aria-label="Information sur les données personnelles">
+    <aside class="trust-alert" role="note"><strong>Information en cours de validation</strong><p>Les durées de conservation, les coordonnées du responsable de traitement et les éventuels transferts hors UE doivent être confirmés officiellement avant homologation RGPD.</p></aside>
+    <section><h2>Responsable et finalités</h2><p>Le site est exploité pour la vie du club Boissy-UJ. Les coordonnées de l'association responsable du traitement seront renseignées après validation de ses représentants. Les données de compte servent à l'authentification, à l'administration des rôles, aux affiliations d'équipe et, pour les personnes autorisées, aux convocations sportives.</p></section>
+    <section><h2>Informations concernées</h2><p>Selon ton utilisation : adresse e-mail de connexion, nom d'affichage, identifiant technique, rôles accordés, équipes attribuées, convocations et réponses, et journaux de sécurité ou d'administration. Les coordonnées et informations privées des joueurs ne sont pas publiées par défaut.</p></section>
+    <section><h2>Destinataires et prestataires</h2><p>L'accès aux données privées dépend du rôle et des autorisations vérifiés côté serveur. Le site utilise GitHub Pages pour son hébergement statique, Supabase pour la connexion et les données, ainsi que Google Fonts et jsDelivr pour des ressources techniques. Le statut juridique des transferts éventuels et les garanties applicables doivent être documentés par l'association.</p></section>
+    <section><h2>Conservation et sécurité</h2><p>Les périodes de conservation par traitement sont à documenter et valider par le club. Les données privées sont protégées par des restrictions d'accès en base, les opérations administratives par une double authentification et des journaux d'audit. Ces contrôles ne dispensent pas d'un audit de sécurité complet.</p></section>
+    <section><h2>Témoins et stockage du navigateur</h2><p>Le site retient dans le stockage de session le passage de l'introduction et certaines étapes techniques de récupération de compte. La session d'authentification peut être conservée localement par Supabase afin de rester connecté. Aucun outil de suivi publicitaire n'est intégré au code actuel. Si des traceurs non essentiels sont ajoutés, un choix de consentement devra être mis en place avant leur activation.</p></section>
+    <section><h2>Exercer tes droits</h2><p>Selon les conditions du RGPD, tu peux demander l'accès, la rectification, l'effacement ou la limitation de certaines données, ou t'opposer à certains traitements. Le contact dédié du responsable sera affiché dès confirmation par le club ; aucune adresse non vérifiée n'est publiée ici. Pour les questions urgentes, contacte directement l'association par un canal officiel que tu connais déjà.</p>
+    <a class="trust-link" href="#/infos-pratiques">Consulter les contacts officiellement publiés ↗</a></section>
+    <p class="trust-review-date">Page de transparence technique · Révision du 22 octobre 2026 · Validation juridique à compléter.</p>
+   </div>`);
+}
+function legal(){
+ return pageShell('Informations de l’éditeur','MENTIONS <em>LÉGALES.</em>',
+  'Informations sur l’éditeur du site et ses services techniques.',
+  `<div class="trust-page" aria-label="Mentions légales du site">
+    <aside class="trust-alert" role="note"><strong>Mentions légales provisoires</strong><p>Ce document est une préparation à compléter par les représentants de l'association : l'identité légale définitive, le siège, les numéros administratifs et la direction de publication ne sont pas encore vérifiés.</p></aside>
+    <section><h2>Éditeur</h2><p>Site du club Boissy-UJ, association sportive. La dénomination juridique complète, le siège social, le numéro RNA ou SIREN lorsqu'applicable, le responsable de la publication et le moyen de contact officiel restent à confirmer.</p></section>
+    <section><h2>Hébergement technique</h2><p>Les pages publiques sont servies via GitHub Pages. L'authentification et les données applicatives reposent sur Supabase. Les informations contractuelles complètes des prestataires et le cas échéant de leurs sous-traitants devront figurer dans la version juridique approuvée.</p></section>
+    <section><h2>Contenus et droits</h2><p>Les noms, l'écusson et les créations du site sont destinés à la présentation du club. Les crédits et autorisations de reproduction de chaque photo, vidéo ou document publié doivent être vérifiés avant diffusion. Les statistiques sportives ne sont présentées comme officielles FFF qu'après validation de leurs sources et des droits associés.</p></section>
+    <section><h2>Services et paiements</h2><p>Le site propose actuellement des informations sur les offres de soutien, les événements et Premium. Aucun encaissement en ligne n'est activé dans cette préversion. Les conditions de vente et la politique commerciale devront être validées avant toute mise en service financière.</p></section>
+    <section><h2>Données personnelles</h2><p>Les informations liées à l'utilisation des comptes sont détaillées sur la page de confidentialité.</p><a class="trust-link" href="#/confidentialite">Consulter la confidentialité ↗</a></section>
+    <p class="trust-review-date">Projet de mentions légales · Révision du 22 octobre 2026 · Validation de l'association requise.</p>
+   </div>`);
+}
+
+function account(){return pageShell('Espace personnel','MON <em>ESPACE.</em>','Un seul compte, plusieurs rôles : supporter, licencié, éducateur ou administrateur. Inscription et connexion sécurisées via Supabase.',`<div class="trust-auth-notice"><strong>Protection des données</strong><p>Les informations saisies servent à gérer ton compte et les fonctionnalités du club. Consulte les finalités, les prestataires et les droits applicables avant de t’inscrire.</p><a href="#/confidentialite">Lire la politique de confidentialité ↗</a></div>`+authMarkup()+`<div class="cc-entry-link"><span class="tiny-label">ADMINISTRATION PROTÉGÉE</span><h2>Centre de gestion Boissy-UJ</h2><p>Ce panneau est réservé aux administrateurs habilités et nécessite la double authentification MFA AAL2. Les autres comptes n’y ont pas accès.</p><a class="btn btn-outline" href="#/control-center">Ouvrir le Centre de gestion <span aria-hidden="true">↗</span></a></div>`);}
 function controlCenter(){return adminCenterMarkup();}
 const teamRoutes=Object.fromEntries([
   ...DISCIPLINES.map(d=>[categoryRoute(d.id).slice(1),()=>categoryTeamPage(d.id)]),
   ...teams.map(t=>[teamRoute(t).slice(1),()=>singleTeamPage(t)])
 ]);
-const routes={'/':home,'/matchs':matches,'/equipes':teamPage,'/actualites':news,'/communaute':community,'/awards':awards,'/evenements':events,'/agenda':agenda,'/soutenir':support,'/rejoindre':join,'/infos-pratiques':practical,'/club':identity,'/mon-espace':account,'/control-center':controlCenter,...teamRoutes};
+const routes={'/':home,'/matchs':matches,'/equipes':teamPage,'/actualites':news,'/communaute':community,'/awards':awards,'/evenements':events,'/agenda':agenda,'/soutenir':support,'/rejoindre':join,'/infos-pratiques':practical,'/club':identity,'/mon-espace':account,'/control-center':controlCenter,'/confidentialite':privacy,'/mentions-legales':legal,...teamRoutes};
 let observer;
+let hasRenderedRoute=false;
 function render(){
   if(observer)observer.disconnect();
   const route=parsePublicRoute(location.hash);
@@ -206,6 +238,8 @@ function render(){
   closeMenu();
   closeDesktopTeams();
   window.scrollTo({top:0,behavior:'instant'});
+  if(hasRenderedRoute)main.focus({preventScroll:true});
+  hasRenderedRoute=true;
   if(path==='/')setupChapters();
   if(path==='/mon-espace') void mountAuth(); else unmountAuth();
   if(path==='/matchs') void mountSport(route.teamCode); else unmountSport();
@@ -222,7 +256,7 @@ function render(){
   
   if(path==='/club') void mountIdentity(); else unmountIdentity();
   if(path==='/control-center') void mountAdminCenter(getAuthClient); else unmountAdminCenter();
-  document.title=(path==='/'?'Boissy-UJ — Club officiel':`Boissy-UJ — ${({ '/matchs':'Match Center','/equipes':'Nos équipes','/actualites':'Actualités','/communaute':'Communauté','/awards':'Awards','/evenements':'Événements','/agenda':'Agenda','/soutenir':'Soutenir le club','/rejoindre':'Nous rejoindre','/infos-pratiques':'Infos pratiques','/club':'Notre club','/mon-espace':'Mon espace','/control-center':'Administration sécurisée',...Object.fromEntries(DISCIPLINES.map(d=>[categoryRoute(d.id).slice(1),disciplineLabel(d.id)])),...Object.fromEntries(teams.map(t=>[teamRoute(t).slice(1),t.name]))})[path]}`);
+  document.title=(path==='/'?'Boissy-UJ — Club officiel':`Boissy-UJ — ${({ '/matchs':'Match Center','/equipes':'Nos équipes','/actualites':'Actualités','/communaute':'Communauté','/awards':'Awards','/evenements':'Événements','/agenda':'Agenda','/soutenir':'Soutenir le club','/rejoindre':'Nous rejoindre','/infos-pratiques':'Infos pratiques','/club':'Notre club','/mon-espace':'Mon espace','/control-center':'Administration sécurisée','/confidentialite':'Confidentialité','/mentions-legales':'Mentions légales',...Object.fromEntries(DISCIPLINES.map(d=>[categoryRoute(d.id).slice(1),disciplineLabel(d.id)])),...Object.fromEntries(teams.map(t=>[teamRoute(t).slice(1),t.name]))})[path]}`);
 }
 function setupChapters(){
   const sections=[...document.querySelectorAll('.chapter')];
@@ -281,16 +315,16 @@ desktopTeamNav?.addEventListener('click',event=>{
 document.addEventListener('pointerdown',event=>{
   if(!desktopTeamNav?.contains(event.target))closeDesktopTeams();
 });
-function closeMenu(){const menu=$('#mobile-menu'),toggle=$('#menu-toggle');menu.hidden=true;toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Ouvrir le menu');document.body.classList.remove('menu-open');}
+function closeMenu({returnFocus=false}={}){const menu=$('#mobile-menu'),toggle=$('#menu-toggle');const wasOpen=!menu.hidden;menu.hidden=true;toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Ouvrir le menu');document.body.classList.remove('menu-open');if(returnFocus&&wasOpen)toggle.focus();}
 $('#menu-toggle').addEventListener('click',()=>{const menu=$('#mobile-menu'),toggle=$('#menu-toggle');const open=menu.hidden;menu.hidden=!open;toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Fermer le menu':'Ouvrir le menu');document.body.classList.toggle('menu-open',open);if(open)menu.querySelector('a')?.focus();});
 $('#mobile-menu').addEventListener('click',e=>{if(e.target.closest('a'))closeMenu()});
 document.addEventListener('keydown',e=>{
   if(e.key!=='Escape')return;
-  closeMenu();
+  closeMenu({returnFocus:true});
   const wasOpen=desktopTeamsPanel&&!desktopTeamsPanel.hidden;
   const focusedInside=desktopTeamNav?.contains(document.activeElement);
   closeDesktopTeams({returnFocus:Boolean(wasOpen&&focusedInside)});
 });
-main.addEventListener('click',e=>{const discipline=e.target.closest('[data-discipline-target]');if(discipline){document.getElementById(discipline.dataset.disciplineTarget)?.scrollIntoView({behavior:'smooth',block:'start'});return;}const next=e.target.closest('[data-next]');const dot=e.target.closest('[data-chapter]');const target=next?.dataset.next??dot?.dataset.chapter;if(target)document.getElementById(target)?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});});
+main.addEventListener('click',e=>{const discipline=e.target.closest('[data-discipline-target]');if(discipline){document.getElementById(discipline.dataset.disciplineTarget)?.scrollIntoView({behavior:'smooth',block:'start'});return;}const next=e.target.closest('[data-next]');const dot=e.target.closest('[data-chapter]');const target=next?.dataset.next??dot?.dataset.chapter;if(target){const section=document.getElementById(target);section?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});if(section){section.tabIndex=-1;section.focus({preventScroll:true});}}});
 window.addEventListener('hashchange',render);
 render();

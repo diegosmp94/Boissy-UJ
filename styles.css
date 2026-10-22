@@ -1175,3 +1175,49 @@ textarea.staff-input {resize:vertical;line-height:1.6;}
 .identity-next-link{display:inline-flex;align-items:center;padding:14px 17px;border:1px solid #efc77c80;border-radius:10px;color:#f1d08c;background:#c7a05218;font-weight:800;font-size:13px}
 @media(max-width:850px){.identity-teams{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){.identity-articles{grid-template-columns:1fr}.identity-controls{display:grid}.identity-select,.identity-search{width:100%}.identity-public-root{margin-bottom:calc(110px + env(safe-area-inset-bottom,0px))}.identity-next-link{width:100%;justify-content:center}}
+
+/* P1 2026-10 : accessible navigation, legal transparency and small-screen resilience. */
+#main:focus{outline:none}
+#main:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
+.chapter[tabindex="-1"]:focus{outline:none}
+.chapter[tabindex="-1"]:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
+.mobile-menu{max-height:calc(100dvh - 76px);overflow-y:auto;overscroll-behavior:contain}
+@media(max-width:760px){
+ .mobile-menu{max-height:calc(100dvh - 65px - env(safe-area-inset-bottom,0px))}
+ .mobile-menu a,.mobile-menu summary{min-height:44px;display:flex;align-items:center}
+ .bottom-nav a{min-height:48px}
+ .trust-page{padding-bottom:calc(100px + env(safe-area-inset-bottom,0px))}
+}
+.global-legal-footer{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;
+ border-top:1px solid var(--stroke);padding:22px clamp(18px,4vw,64px);
+ color:#bcd0e7;background:#06152d;font-size:12px;line-height:1.6;position:relative;z-index:1}
+.global-legal-footer nav{display:flex;gap:18px;flex-wrap:wrap}
+.global-legal-footer a{color:#f0cd88;text-decoration:underline;text-underline-offset:4px}
+.global-legal-footer a:hover{color:#fff}
+.trust-page{max-width:870px;display:grid;gap:21px;margin:10px auto 50px}
+.trust-page section{display:grid;gap:11px;padding:clamp(20px,3vw,30px);
+ border:1px solid #a9c6e764;background:linear-gradient(145deg,#133b66,#092440);border-radius:16px}
+.trust-page h2{margin:0;font:800 clamp(19px,2.7vw,25px)/1.25 Outfit,system-ui,sans-serif;color:#fff}
+.trust-page p{margin:0;font-size:14px;line-height:1.8;color:#d4e3f2}
+.trust-alert{border-left:4px solid #f0c56e;background:#f0c56e18;padding:18px 20px;border-radius:10px}
+.trust-alert strong{color:#f4d594;font:850 14px DM Sans,system-ui,sans-serif}
+.trust-alert p{margin:8px 0 0;color:#dbe5f1}
+.trust-link{display:inline-flex;min-height:44px;align-items:center;justify-self:start;border:1px solid #e8c47c93;
+ border-radius:10px;padding:10px 15px;color:#f3d79d;font-weight:800;font-size:13px}
+.trust-link:hover{background:#dec07724}
+.trust-review-date{font-size:12px!important;color:#a9bcd7!important}
+.trust-auth-notice{margin:0 0 18px;padding:17px 20px;background:#1942666b;border:1px solid #a5c6e375;
+ border-left:3px solid #e3c57f;border-radius:12px;display:grid;gap:8px}
+.trust-auth-notice strong{color:#f6dca4;font-size:14px}
+.trust-auth-notice p{margin:0;font-size:13px;line-height:1.6;color:#d3e4f3}
+.trust-auth-notice a{color:#f6d79c;text-decoration:underline;text-underline-offset:3px;font-size:13px;font-weight:800}
+@media(max-width:530px){
+ .trust-page{gap:15px}
+ .trust-page section{padding:17px 15px}
+ .global-legal-footer{display:grid;justify-content:stretch;padding-bottom:calc(95px + env(safe-area-inset-bottom,0px))}
+ .global-legal-footer nav{display:grid;gap:12px}
+}
+@media(prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto!important}
+ *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}

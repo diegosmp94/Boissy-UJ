@@ -19,3 +19,7 @@ jobs:
         run: node --check app.js
       - name: Tests du projet
         run: npm test
+      - name: Contrôler la publication statique isolée
+        run: |
+          npm run build:preview
+          npm run audit:preview

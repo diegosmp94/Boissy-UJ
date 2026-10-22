@@ -43,6 +43,10 @@ La priorité P1 de l'audit est **développée côté application et fonctions Su
 
 L'étape 35 ajoute la correction du **nom d'affichage** d'un membre par un autre administrateur MFA AAL2, avec audit privé. Les modifications de l'identité de connexion, la création/suppression de comptes et la réinitialisation du mot de passe exigent toujours des workflows distincts ; elles ne sont pas actives. [Documentation](ETAPE_35_P2_PROFILS_MEMBRES.md).
 
+## Priorité P1 — Identité, accueil, navigation et qualité (2026-10-22)
+
+L'interface publique dispose de liens légaux accessibles, d'une présentation technique des traitements, d'un parcours clavier amélioré, de cibles mobiles adaptées et d'un export préproduction plus fiable avec audit automatique GitHub Actions. **Restent avant homologation :** coordonnées et mentions validées de l'association, bases légales/durées RGPD, tests iPhone/Android et lecteurs d'écran, mesures de performance et preuve de restauration Supabase. L'indexation reste volontairement désactivée pendant cette phase. [Checklist détaillée](P1_IDENTITE_RGPD_DEPLOIEMENT.md).
+
 ## Vérifications à mener plus tard
 
 Statuts juridiques détaillés, conformité fiscale, reçus fiscaux, durée de priorité événements, compte Stripe, connexion éventuelle FFF, droit à l'image.
