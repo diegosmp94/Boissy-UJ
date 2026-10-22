@@ -4,6 +4,7 @@ import {publicExternalFixtures,EXTERNAL_FIXTURE_REVIEWED_AT} from './external-ma
 import {clubOutcome} from './league-standings.mjs';
 import {victoryCongratulations} from './victory-congratulations.mjs';
 import {createVictoryNotice} from './victory-notice.mjs';
+import {buildCompetitionTabs,competitionKind,cupInformation} from './competition-tabs.mjs';
 
 const ROOT=supabaseConfig.url+'/rest/v1/';
 const node=(tag,cls='',value=null)=>{
@@ -39,7 +40,7 @@ export async function loadTeamPublishedMatches(code,{signal,fetcher=fetch}={}){
   const remote=teams.find(t=>t.code===code&&t.discipline===team.discipline);
   if(!remote)return {configured:false,matches:[]};
   const rows=await request('matches',{
-    select:'id,team_id,opponent_name,scheduled_at,venue,is_home,match_status,home_score,away_score,published',
+    select:'id,team_id,opponent_name,scheduled_at,venue,is_home,match_status,home_score,away_score,published,competition_kind,competition_label',
     team_id:'eq.'+remote.id,published:'eq.true',order:'scheduled_at.desc',limit:'80'
   },signal,fetcher);
   return {configured:true,matches:rows.filter(m=>m.team_id===remote.id
@@ -78,6 +79,29 @@ export async function mountTeamProfile(code){
       legend.append(node('span','sport-outcome sport-outcome-'+result,label));
     }
     root.append(legend);
+    const notices=[],cards=[],sections=[];
+    let activeCompetition='league',activeSeason='all';
+    const renderCategory=()=>{
+      for(const item of cards){
+        const category=item.kind;
+        item.node.hidden=(category!=='unspecified'&&category!==activeCompetition)||
+          (item.season!=='all'&&activeSeason!=='all'&&activeSeason!==item.season);
+      }
+      for(const sec of sections){
+        sec.hidden=!cards.some(item=>item.section===sec&&!item.node.hidden);
+      }
+      for(const notice of notices)notice.hidden=activeCompetition!=='cup';
+    };
+    buildCompetitionTabs(root,{onChange:value=>{
+      activeCompetition=value;renderCategory();
+    }});
+    const competitionNote=node('p','team-competition-help',
+      'Championnat et coupe sont séparés par équipe. Les résultats sourcés restent non homologués ; seules les dates ont été confirmées par le club.');
+    root.append(competitionNote);
+    const cupDetails=cupInformation(code,'2026-2027');
+    const cupNotice=node('aside','team-cup-participation');
+    cupNotice.append(node('strong','',cupDetails.headline),node('p','',cupDetails.detail));
+    cupNotice.hidden=true;notices.push(cupNotice);root.append(cupNotice);
     for(const [heading,items,empty] of [
       ['Prochaines rencontres',groups.upcoming,'Aucune rencontre à venir publiée.'],
       ['Derniers résultats',groups.played,'Aucun résultat publié pour le moment.']
@@ -105,9 +129,11 @@ export async function mountTeamProfile(code){
         }
         const celebration=victoryCongratulations(match,code);
         if(celebration)card.append(createVictoryNotice(celebration));
+        card.hidden=competitionKind(match)!=='league'&&competitionKind(match)!=='unspecified';
+        cards.push({node:card,kind:competitionKind(match),season:'all',section});
         list.append(card);
       }
-      section.append(list);root.append(section);
+      section.append(list);root.append(section);sections.push(section);
     }
     {
       // Retain attributed historical seasons even when the club has published a few current fixtures.
@@ -126,9 +152,8 @@ export async function mountTeamProfile(code){
         }
         filter.append(select);section.append(filter);
         const list=node('div','team-profile-matches');
-        const cards=[];
         select.addEventListener('change',()=>{
-          for(const card of cards)card.node.hidden=select.value!=='all'&&card.season!==select.value;
+          activeSeason=select.value;renderCategory();
         });
         for(const m of sourced.slice().sort((a,b)=>b.time-a.time)){
           const item=node('article','team-profile-match');
@@ -152,11 +177,14 @@ export async function mountTeamProfile(code){
           }
           const a=node('a','team-profile-source','Vérifier sur '+m.source_label+' ↗');
           a.href=m.source;a.target='_blank';a.rel='noopener noreferrer';
-          item.append(a);cards.push({node:item,season:m.season});list.append(item);
+          item.append(a);
+          cards.push({node:item,season:m.season,kind:competitionKind(m),section});
+          list.append(item);
         }
-        section.append(list);root.append(section);
+        section.append(list);root.append(section);sections.push(section);
       }
     }
+    renderCategory();
     root.append(node('p','team-profile-disclaimer',
       'Les résultats publiés par le club et les références de sources externes ne sont pas équivalents. Aucun classement officiel FFF ne peut être déduit du seul bilan de notre équipe.'));
   }catch{
