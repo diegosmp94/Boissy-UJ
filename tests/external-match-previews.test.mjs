@@ -33,7 +33,7 @@ test('site clearly distinguishes sourced previews from real club-published fixtu
  assert.match(agenda,/Vérifier sur SportCorico/);
  assert.match(agenda,/exportedEntries=selected/);
  assert.doesNotMatch(agenda,/exportedEntries=\w*(?:suggestions|external)/);
- assert.match(sport,/if\(!matches\.length\)/);
+ assert.match(sport,/publicExternalFixtures\(/);
  assert.match(sport,/Historique des matchs · sources externes/);
  assert.match(sport,/name:'Senior',division:'Départemental 2'/);
  assert.match(styles,/agenda-thirdparty/);
