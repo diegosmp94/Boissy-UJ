@@ -186,17 +186,17 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
       section.append(cards);
       data.append(section);
     }
-    if(!matches.length){
+    {
       const team=teams.find(t=>t.id===select.value);
       const external=publicExternalFixtures({
         team:team?.code||'all',discipline:disciplineSelect.value,
         includePast:true,period:'all'
       });
       if(external.length){
-        thirdParty.append(element('h2','','Rencontres externes — à confirmer'));
+        thirdParty.append(element('h2','','Historique des matchs · sources externes'));
         thirdParty.append(element('p','agenda-external-note',
-          'Calendrier et résultats relevés sur SportCorico le '+
-          EXTERNAL_FIXTURE_REVIEWED_AT+'. Aucune homologation par le club ou synchronisation FFF.'));
+          'Calendrier 2026–2027 relevé le '+EXTERNAL_FIXTURE_REVIEWED_AT+
+          ' · archives 2025–2026 SportCorico et TheFootData. Aucun score de ces sources n’est homologué par le club.'));
         const grid=element('div','agenda-external-grid');
         for(const match of external){
           const card=element('article','agenda-external-card');
@@ -209,7 +209,8 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
             :match.status==='unknown'?'Match passé · résultat non communiqué'
             :match.is_home?'Domicile indiqué':'Extérieur indiqué';
           card.append(date,element('h3','',match.team_name+' — '+match.opponent),
-            element('p','',result));
+            element('p','',result),
+            element('p','sport-date',match.season+' · '+(match.competition||'Compétition non précisée')));
           if(match.status==='played'){
             const win=clubOutcome({...match,match_status:'played'});
             if(win){
@@ -218,7 +219,7 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
                 win==='V'?'Victoire':win==='D'?'Défaite':'Match nul'));
             }
           }
-          const link=element('a','agenda-link','Vérifier la source ↗');
+          const link=element('a','agenda-link','Vérifier sur '+match.source_label+' ↗');
           link.href=match.source;link.target='_blank';link.rel='noopener noreferrer';
           card.append(link);
           const teamProfile=CLUB_TEAMS.find(t=>t.code===match.team_code);
