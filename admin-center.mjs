@@ -80,6 +80,18 @@ export async function mountAdminCenter(getClient){
   const eventProbe=await api.rpc('admin_list_free_events');
   if(serial!==currentGeneration||!root.isConnected)return;
   const eventsReady=!eventProbe.error&&Array.isArray(eventProbe.data);
+  // Probe an actual authorized club team so that a pending migration cannot
+  // expose a nonfunctional coach editor. Keep other admin tools available.
+  let coachTeamsReady=false;
+  try{
+   const candidates=await api.from('club_teams').select('id').limit(1);
+   const candidate=candidates.data?.[0]?.id;
+   if(!candidates.error&&candidate){
+    const probe=await api.rpc('admin_list_team_coaches',{p_team_id:candidate});
+    coachTeamsReady=!probe.error&&Array.isArray(probe.data);
+   }
+  }catch{coachTeamsReady=false;}
+  if(serial!==currentGeneration||!root.isConnected)return;
   root.replaceChildren();
   const head=el('header','real-admin-heading');
   head.append(el('span','tiny-label','BOISSY-UJ · ADMINISTRATION SÉCURISÉE'),
@@ -92,7 +104,7 @@ export async function mountAdminCenter(getClient){
   const pane=el('section','real-admin-pane');
   pane.setAttribute('aria-label','Outil de gestion');
   layout.append(sidebar,pane);root.append(layout);
-  const availableModules=availableAdminModules(ADMIN_MODULES,{eventsReady});
+  const availableModules=availableAdminModules(ADMIN_MODULES,{eventsReady,coachTeamsReady});
   const navTools=el('div','admin-nav-tools');
   const navLabel=el('label','admin-nav-label','Trouver un module');
   const moduleSearch=el('input','admin-nav-search');
