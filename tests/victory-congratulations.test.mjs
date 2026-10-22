@@ -89,8 +89,8 @@ test('team page, Match Center and homepage mount conditional notices with no uns
  assert.match(sport,/collectiveVictoryCongratulations\(matches,teams\)/);
  assert.match(sport,/createVictoryNotice\(collective,\{collective:true\}\)/);
  assert.match(team,/victoryCongratulations\(match,code\)/);
- assert.match(sport,/source_kind,published'/);
- assert.match(team,/home_score,away_score,published'/);
+ assert.match(sport,/source_kind,published,competition_kind,competition_label'/);
+ assert.match(team,/home_score,away_score,published,competition_kind,competition_label'/);
  assert.match(app,/id="home-victory-banner"/);
  assert.match(app,/mountHomeVictory\(\)/);
  assert.match(app,/unmountHomeVictory\(\)/);

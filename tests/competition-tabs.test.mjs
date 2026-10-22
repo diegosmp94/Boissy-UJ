@@ -1,0 +1,76 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {competitionKind,cupInformation,SEASON_2026_COMPETITIONS,COMPETITION_KINDS} from '../competition-tabs.mjs';
+import {publicExternalFixtures} from '../external-match-previews.mjs';
+import {CLUB_TEAMS} from '../club-teams.mjs';
+const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
+const fixtures=publicExternalFixtures({season:'2026-2027',period:'all',includePast:true});
+test('each of five team profiles gets independent championship and cup options',()=>{
+ assert.deepEqual(COMPETITION_KINDS,['league','cup']);
+ assert.deepEqual(CLUB_TEAMS.map(t=>t.code),['a','b','c','veterans','futsal']);
+ for(const code of ['a','b','c','veterans','futsal'])assert.ok(SEASON_2026_COMPETITIONS[code]);
+ assert.equal(SEASON_2026_COMPETITIONS.a.cupParticipation,'played');
+ assert.equal(SEASON_2026_COMPETITIONS.veterans.cupParticipation,'reported');
+ assert.equal(SEASON_2026_COMPETITIONS.b.cup,null);
+ assert.equal(SEASON_2026_COMPETITIONS.c.cup,null);
+ assert.equal(SEASON_2026_COMPETITIONS.c.league,'Rencontres amicales');
+ assert.match(cupInformation('a').headline,/Val-de-Marne/);
+ assert.match(cupInformation('veterans').detail,/Participation en coupe confirmée/);
+ assert.match(cupInformation('b').detail,/Aucune participation en coupe annoncée/);
+ assert.equal(cupInformation('c').available,false);
+ assert.match(cupInformation('futsal').headline,/futsal/);
+});
+test('2026–27 cup results do not appear in league and vice versa',()=>{
+ const a=fixtures.filter(x=>x.team_code==='a');
+ assert.equal(a.filter(x=>competitionKind(x)==='cup').length,1);
+ assert.equal(a.filter(x=>competitionKind(x)==='cup')[0].opponent,'Villejuif US 1');
+ assert.equal(a.filter(x=>competitionKind(x)==='league').length,a.length-1);
+ assert.equal(fixtures.filter(x=>x.team_code==='b'&&competitionKind(x)==='cup').length,0);
+ assert.equal(fixtures.filter(x=>x.team_code==='veterans'&&competitionKind(x)==='cup').length,0);
+ assert.equal(fixtures.find(x=>x.opponent==='Petits Anges ES 1').competition,'Coupe nationale futsal');
+ assert.ok(fixtures.every(x=>x.date_confirmed_by_club===true));
+ assert.ok(fixtures.every(x=>x.validated_by_club===false));
+});
+test('historical 2025–26 cup for B stays in prior season but is not silently assigned to 2026–27',()=>{
+ const previous=publicExternalFixtures({team:'b',season:'2025-2026',period:'all',includePast:true});
+ assert.equal(previous.filter(x=>competitionKind(x)==='cup').length,1);
+ assert.equal(previous.find(x=>competitionKind(x)==='cup').opponent,'Bry FC');
+ assert.equal(cupInformation('b','2026-2027',previous).available,false);
+ assert.equal(cupInformation('b','2025-2026',previous).available,true);
+});
+test('unclassified club match does not get auto-classified as championship',()=>{
+ assert.equal(competitionKind({competition_kind:'unspecified',competition_label:'Seniors D3'}),'unspecified');
+ assert.equal(competitionKind({competition_kind:'cup',competition_label:'Coupe du Val-de-Marne'}),'cup');
+ assert.equal(competitionKind({competition:'Coupe VDM Seniors'}),'cup');
+ assert.equal(competitionKind({competition:'Seniors D4 · Poule B'}),'league');
+ assert.equal(competitionKind({competition:'Match amical'}),'unspecified');
+});
+test('DOM interface uses two real selectable tabs in team page and Match Center',()=>{
+ const comp=read('competition-tabs.mjs'),team=read('team-pages.mjs'),center=read('sport-center.mjs'),style=read('league-standings.css');
+ assert.match(comp,/aria-pressed/);
+ assert.match(comp,/role','group/);
+ assert.match(team,/buildCompetitionTabs\(root/);
+ assert.match(center,/buildCompetitionTabs\(root/);
+ assert.match(team,/cupInformation\(code/);
+ assert.match(center,/cupInformation\(selectedTeam\.code/);
+ assert.match(team,/Seniors C : rencontres amicales/);
+ assert.match(center,/unclassified\.length/);
+ assert.match(style,/\.competition-tab\.is-active/);
+ assert.match(style,/\.team-profile-group\[hidden\]/);
+});
+test('database classify RPC is AAL2-only with audit and does not modify match date or score',()=>{
+ const sql=read('supabase/migrations/202610220012_match_competition_categories.sql');
+ const admin=read('admin-match-competition.mjs'),management=read('admin-management.mjs');
+ assert.match(sql,/create or replace function public\.admin_set_match_competition/);
+ assert.match(sql,/app_private\.is_admin\(\)/);
+ assert.match(sql,/app_private\.match_competition_audit/);
+ assert.match(sql,/revoke all on function public\.admin_set_match_competition/);
+ assert.match(sql,/security definer set search_path=''/);
+ assert.doesNotMatch(sql,/set home_score|set away_score|set scheduled_at|update public\.external_sourced_match_archive/);
+ assert.match(admin,/api\.rpc\('admin_set_match_competition',payload\)/);
+ assert.match(admin,/adminSessionStatus\(api,userId\)/);
+ assert.match(admin,/confirmKey!==key/);
+ assert.match(management,/mountAdminMatchCompetition\(competitionPanel,api,userId\)/);
+ assert.doesNotMatch(admin,/service_role|\.insert\(|\.delete\(/);
+});

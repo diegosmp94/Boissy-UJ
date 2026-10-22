@@ -66,6 +66,7 @@ export function publicExternalFixtures({now=Date.now(),query='',team='all',disci
    team_name:labels[item.team_code],
    source_label:item.source.includes('thefootdata.com')?'TheFootData':EXTERNAL_FIXTURE_PROVIDER,
    validated_by_club:false,
+   date_confirmed_by_club:item.season==='2026-2027',
    result:item.status==='played'?item.home_score+' – '+item.away_score:null
  })).sort((a,b)=>a.time-b.time);
 }
