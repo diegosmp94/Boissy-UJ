@@ -13,18 +13,18 @@ export const ARCHIVED_LEAGUE_POSITIONS=Object.freeze({
   source:'https://thefootdata.com/clubs/boissy-uj?equipe=25504-SEM-2&saison=2025'})
 });
 export function knownClubSeasonForm(code,{season='2026-2027'}={}){
- const matches=publicExternalFixtures({team:code,season,includePast:true,period:'all'})
-  .filter(x=>x.status==='played'&&x.competition&&!/^Coupe\b/i.test(x.competition)&&
-    Number.isInteger(x.home_score)&&Number.isInteger(x.away_score)&&
-    x.competition.toLowerCase().includes('d3')||
-    false);
- // Only 2026-27 first-team D3 is accurately scoped. For other teams
- // require matching known competition labels; cups and friendlies never count.
- const eligible=code==='a'?matches:
-  publicExternalFixtures({team:code,season,includePast:true,period:'all'}).filter(x=>
-    x.status==='played'&&x.competition&&!/^Coupe\b/i.test(x.competition)&&
-    /\b(?:D1|D2|D3|D4)\b/i.test(x.competition)&&
-    Number.isInteger(x.home_score)&&Number.isInteger(x.away_score));
+ const competitions={
+  '2026-2027':{
+   a:'Seniors D3 · Poule B',b:'Seniors D4 · Poule C',
+   veterans:'Anciens D3 · Poule C',futsal:'Senior futsal D2 · Poule B'},
+  '2025-2026':{
+   a:'Seniors D4 · Poule A',b:'Seniors D4 · Poule B',futsal:'Senior futsal D1'}
+ };
+ const competition=competitions[season]?.[code];
+ if(!competition)return null;
+ const eligible=publicExternalFixtures({team:code,season,includePast:true,period:'all'})
+  .filter(x=>x.status==='played'&&x.competition===competition&&
+   Number.isInteger(x.home_score)&&Number.isInteger(x.away_score));
  if(!eligible.length)return null;
  const stats={played:0,wins:0,draws:0,losses:0,goals_for:0,goals_against:0,points:0};
  for(const x of eligible){
@@ -35,8 +35,9 @@ export function knownClubSeasonForm(code,{season='2026-2027'}={}){
  }
  stats.points=3*stats.wins+stats.draws;
  const sources=[...new Set(eligible.map(x=>x.source))];
- return Object.freeze({...stats,season,sources,partial:true});
+ return Object.freeze({...stats,season,sources,competition,partial:true});
 }
+
 const e=(tag,cls='',value=null)=>{const n=document.createElement(tag);
  if(cls)n.className=cls;if(value!==null)n.textContent=String(value);return n;};
 export function appendSourcedSportContext(container,teamCode){
