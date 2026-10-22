@@ -1,4 +1,5 @@
 import {supabaseConfig} from './auth-config.mjs';
+import {buildPublicCalendar} from './calendar-export.mjs';
 
 const ROOT = supabaseConfig.url + '/rest/v1/';
 const OPTIONS = Object.freeze([
@@ -97,6 +98,10 @@ export async function mountAgenda(){
   search.placeholder='Équipe, adversaire, lieu…';search.setAttribute('aria-label','Rechercher dans l’agenda');
   searchLabel.append(search);
   form.append(kindLabel,periodLabel,searchLabel);
+  const exportBtn=make('button','agenda-export','Exporter les dates sélectionnées (.ics)');
+  exportBtn.type='button';
+  exportBtn.disabled=true;
+  exportBtn.setAttribute('aria-label','Exporter le calendrier public filtré au format iCalendar');
   const status=make('p','agenda-status','Consultation des calendriers publiés…');
   status.setAttribute('role','status');
   const list=make('div','agenda-list');list.setAttribute('aria-live','polite');
@@ -104,7 +109,24 @@ export async function mountAgenda(){
   for(const [href,label] of [['#/matchs','Match Center'],['#/evenements','Événements'],['#/infos-pratiques','Infos pratiques']]){
     const a=make('a','agenda-link',label+' ↗');a.href=href;links.append(a);
   }
-  root.replaceChildren(intro,form,status,list,links);
+  root.replaceChildren(intro,form,exportBtn,status,list,links);
+  let exportedEntries=[];
+  exportBtn.addEventListener('click',()=>{
+    if(!exportedEntries.length||exportBtn.disabled)return;
+    try{
+      const content=buildPublicCalendar(exportedEntries);
+      const blob=new Blob([content],{type:'text/calendar;charset=utf-8'});
+      const url=URL.createObjectURL(blob);
+      const anchor=make('a');anchor.href=url;
+      anchor.download='boissy-uj-agenda.ics';
+      anchor.hidden=true;root.append(anchor);
+      anchor.click();anchor.remove();
+      window.setTimeout(()=>URL.revokeObjectURL(url),1000);
+      status.textContent=exportedEntries.length+' rendez-vous public(s) exporté(s) au format iCalendar.';
+    }catch{
+      status.textContent='L’export du calendrier est indisponible. Aucun fichier n’a été créé.';
+    }
+  });
   try{
     const rows=await loadPublicAgenda(controller.signal);
     if(controller.signal.aborted||generation!==active||!root.isConnected)return;
@@ -112,6 +134,8 @@ export async function mountAgenda(){
       const selected=combinePublishedAgenda(rows.matches,rows.events,rows.teams,{
         kind:type.value,period:period.value,query:search.value
       });
+      exportedEntries=selected;
+      exportBtn.disabled=selected.length===0;
       list.replaceChildren();
       if(selected.length===0){
         list.append(make('p','agenda-empty','Aucune date officielle publiée pour ces critères.'));
@@ -140,6 +164,8 @@ export async function mountAgenda(){
   }catch{
     if(controller.signal.aborted||generation!==active||!root.isConnected)return;
     status.textContent='Agenda temporairement indisponible : consulte directement les pages Match Center et Événements.';
+    exportedEntries=[];
+    exportBtn.disabled=true;
     list.replaceChildren();
   }
 }
