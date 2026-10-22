@@ -90,3 +90,13 @@ textarea.admin-form-control{line-height:1.5;resize:vertical}
 @media(max-width:370px){
  .admin-nav-section{grid-template-columns:1fr}
 }
+
+/* Étape 33 · Affectations privées joueurs/équipes. */
+.admin-player-team-meta{display:grid;gap:6px;min-width:0}
+.admin-player-team-meta strong{color:#fff;font-size:14px;overflow-wrap:anywhere}
+.admin-player-team-meta small{color:#c4d6eb;font-size:12px}
+.admin-member-card>.admin-secondary-btn{justify-self:start}
+.admin-member-card>.admin-workflow-status{margin:0}
+@media(max-width:560px){
+ .admin-member-card>.admin-secondary-btn{justify-self:stretch;text-align:center;min-height:42px}
+}
