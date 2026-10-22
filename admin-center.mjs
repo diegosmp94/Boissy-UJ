@@ -8,6 +8,7 @@ import {mountAuthenticatedClubIdentityEditor} from './club-editor.mjs';
 import {mountAuthenticatedTeamPeopleEditor} from './team-person-editor.mjs';
 import {mountAdminMembers} from './admin-users.mjs';
 import {mountAdminPlayerTeams} from './admin-player-teams.mjs';
+import {mountAdminCoachTeams} from './admin-coach-teams.mjs';
 import {mountAdminSeasons,mountAdminMatches,mountAdminNews,mountAdminFreeEvents} from './admin-management.mjs';
 import {filterAdminModules,groupAdminModules,availableAdminModules} from './admin-navigation.mjs';
 
@@ -16,7 +17,8 @@ export const ADMIN_MODULES=Object.freeze([
  {id:'users',name:'Membres et rôles',group:'Pilotage',caption:'Consultation et retraits validés'},
  {id:'approvals',name:'Validation des rôles',group:'Pilotage',caption:'Demandes et approbations MFA'},
  {id:'teams',name:'Effectifs publics',group:'Sport',caption:'Brouillons et publication contrôlée'},
- {id:'player-teams',name:'Affectations joueurs',group:'Sport',caption:'Rattachement sécurisé des joueurs aux équipes'}, 
+ {id:'player-teams',name:'Affectations joueurs',group:'Sport',caption:'Rattachement sécurisé des joueurs aux équipes'},
+ {id:'coach-teams',name:'Affectations entraîneurs',group:'Sport',caption:'Gérer les équipes attribuées aux éducateurs'},  
  {id:'seasons',name:'Saisons',group:'Sport',caption:'Gestion des saisons sportives'},
  {id:'matches',name:'Matchs et résultats',group:'Sport',caption:'Rencontres officielles du club'},
  {id:'events',name:'Événements gratuits',group:'Sport',caption:'Agenda sans billetterie ni paiements'}, 
@@ -180,6 +182,7 @@ export async function mountAdminCenter(getClient){
     case 'approvals':void mountAdminRoleModeration(view,api,verified.userId);break;
     case 'teams':void mountAuthenticatedTeamPeopleEditor(view,api,verified.userId);break;
     case 'player-teams':void mountAdminPlayerTeams(view,api,verified.userId);break;
+    case 'coach-teams':void mountAdminCoachTeams(view,api,verified.userId);break;
     case 'seasons':mountAdminSeasons(view,api,verified.userId);break;
     case 'matches':mountAdminMatches(view,api,verified.userId);break;
     case 'events':mountAdminFreeEvents(view,api,verified.userId);break;
