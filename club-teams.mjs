@@ -11,7 +11,7 @@ export const CLUB_TEAMS=Object.freeze([
   {code:'b',slug:'seniors-b',name:'Seniors B',division:'Départemental 4',discipline:'football',tag:'D4',source:'FFF',description:'La dynamique du collectif.'},
   {code:'c',slug:'seniors-c',name:'Seniors C',division:'Matchs amicaux',discipline:'football',tag:'AMICAL',source:'Manuelle',description:'Le football et le plaisir du jeu.'},
   {code:'veterans',slug:'veterans',name:'Vétérans',division:'Départemental 3',discipline:'football',tag:'D3',source:'FFF',description:'L’expérience au service du collectif.'},
-  {code:'futsal',slug:'boissy-uj-futsal',name:'Seniors Futsal',division:'Départemental 2',discipline:'futsal',tag:'D2',source:'Manuelle',description:'Notre équipe de futsal, engagée en Départemental 2.'}
+  {code:'futsal',slug:'boissy-uj-futsal',name:'Senior',division:'Départemental 2',discipline:'futsal',tag:'D2',source:'Manuelle',description:'Notre équipe de futsal, engagée en Départemental 2.'}
 ]);
 export function teamsByDiscipline(discipline='all',teams=CLUB_TEAMS){
   return teams.filter(team=>discipline==='all'||team.discipline===discipline);
