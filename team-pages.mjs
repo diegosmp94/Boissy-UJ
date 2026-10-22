@@ -80,7 +80,7 @@ export async function mountTeamProfile(code){
     }
     root.append(legend);
     const notices=[],cards=[],sections=[];
-    let activeCompetition='league',activeSeason='all';
+    let activeCompetition='league',activeSeason='2026-2027';
     const renderCategory=()=>{
       for(const item of cards){
         const category=item.kind;
@@ -153,6 +153,7 @@ export async function mountTeamProfile(code){
         for(const [value,label] of [['all','Toutes les saisons'],['2026-2027','2026–2027'],['2025-2026','2025–2026']]){
           const option=node('option','',label);option.value=value;select.append(option);
         }
+        select.value=activeSeason;
         filter.append(select);section.append(filter);
         const list=node('div','team-profile-matches');
         select.addEventListener('change',()=>{
