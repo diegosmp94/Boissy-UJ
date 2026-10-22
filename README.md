@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Étape 35 · P2 — Modification sécurisée des profils membres
+
+Le Centre de gestion permet de corriger le nom d'affichage d'un autre compte membre, sous double confirmation et MFA AAL2 côté Supabase, avec historique privé et sans modifier le compte Auth, les rôles ou les affectations. Fonctionnalité inactive tant que la migration sécurisée n'est pas disponible. [Documentation P2](docs/ETAPE_35_P2_PROFILS_MEMBRES.md).
+
 ## Étape 34 · P1 — Affectations entraîneurs et gestion complète des rôles sportifs
 
 Le Centre de gestion inclut désormais l'affectation MFA AAL2 des entraîneurs validés à une ou plusieurs équipes, avec retrait d'affectation et audit privé sans modification du rôle. Avec les espaces Joueur/Entraîneur, les convocations et la gestion des affiliations joueurs, le développement P1 est couvert ; il reste la recette multi-comptes. [Plan P1](docs/P1_ESPACES_SPORTIFS_RECETTE.md).

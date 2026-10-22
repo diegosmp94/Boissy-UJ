@@ -100,3 +100,14 @@ textarea.admin-form-control{line-height:1.5;resize:vertical}
 @media(max-width:560px){
  .admin-member-card>.admin-secondary-btn{justify-self:stretch;text-align:center;min-height:42px}
 }
+
+/* P2 — édition contrôlée du nom affiché d'un compte membre. */
+.admin-member-edit{width:100%;min-width:0;display:grid;gap:12px;border-radius:12px;
+ border:1px solid #d8bc7b6b;background:#08213f;padding:16px;box-sizing:border-box}
+.admin-member-edit[hidden]{display:none}
+.admin-member-edit-actions{display:flex;gap:10px;flex-wrap:wrap}
+.admin-member-edit-actions>button{min-height:42px;flex:1}
+.admin-member-edit .admin-workflow-status{margin:0}
+@media(max-width:560px){.admin-member-edit{padding:12px}
+ .admin-member-edit-actions{display:grid;grid-template-columns:1fr}
+}

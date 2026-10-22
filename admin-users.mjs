@@ -2,6 +2,7 @@
  * This UI does NOT create or delete Auth users. Role revocation uses audited server RPC.
  */
 import {adminSessionStatus} from './admin-security.mjs';
+import {canEditMemberDisplayName,normalizeMemberDisplayName,isProfileNameChanged} from './admin-member-rules.mjs';
 const el=(tag,cls='',t=null)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(t!==null)n.textContent=String(t);return n;};
 export function canRevokeRole(currentId,subjectId,role){
  return Boolean(currentId&&subjectId&&currentId!==subjectId&&['player','coach','admin'].includes(role));
@@ -19,7 +20,10 @@ export async function mountAdminMembers(root,api,userId){
  search.setAttribute('aria-label','Rechercher un membre');
  const list=el('div','admin-member-list');root.append(status,search,list);
  let profiles=[],roles=[];
- const verified=async()=> (await adminSessionStatus(api,userId)).status==='admin';
+ const verified=async()=> {
+  const gate=await adminSessionStatus(api,userId);
+  return gate.status==='admin'&&gate.level==='aal2';
+ };
  async function reload(){
   if(!await verified()){status.textContent='Accès administratif refusé. Un MFA AAL2 est obligatoire.';list.replaceChildren();return;}
   const [p,r]=await Promise.all([
@@ -38,6 +42,76 @@ export async function mountAdminMembers(root,api,userId){
   for(const profile of chosen){
    const card=el('article','admin-member-card');
    card.append(el('strong','',profile.display_name||'Membre'),el('small','',profile.id===userId?'Votre compte':'Compte membre'));
+   if(canEditMemberDisplayName(userId,profile.id)){
+    const edit=el('button','admin-secondary-btn','Modifier le nom affiché');
+    edit.type='button';
+    const editor=el('div','admin-member-edit');
+    editor.hidden=true;
+    const field=el('label','admin-form-field','Nouveau nom affiché');
+    const name=el('input','admin-form-control');
+    name.type='text';name.maxLength=80;name.autocomplete='off';name.value=profile.display_name||'';
+    field.append(name);
+    const buttons=el('div','admin-member-edit-actions');
+    const save=el('button','admin-primary-btn','Préparer la modification');save.type='button';
+    const cancel=el('button','admin-secondary-btn','Annuler');cancel.type='button';
+    const note=el('p','admin-workflow-status','');
+    note.setAttribute('role','status');note.setAttribute('aria-live','polite');
+    buttons.append(save,cancel);editor.append(field,buttons,note);
+    let confirmedValue=null,saving=false;
+    edit.addEventListener('click',()=>{
+     if(saving)return;
+     editor.hidden=!editor.hidden;
+     if(!editor.hidden)name.focus();
+     else{confirmedValue=null;save.textContent='Préparer la modification';}
+    });
+    name.addEventListener('input',()=>{
+     confirmedValue=null;save.textContent='Préparer la modification';note.textContent='';
+    });
+    cancel.addEventListener('click',()=>{
+     if(saving)return;
+     editor.hidden=true;confirmedValue=null;name.value=profile.display_name||'';
+     save.textContent='Préparer la modification';note.textContent='';
+    });
+    save.addEventListener('click',async()=>{
+     if(saving||!card.isConnected)return;
+     const validation=normalizeMemberDisplayName(name.value);
+     if(!validation.valid){note.textContent=validation.message;return;}
+     if(!isProfileNameChanged(profile.display_name,validation.value)){
+      note.textContent='Aucune modification du nom à enregistrer.';return;
+     }
+     if(confirmedValue!==validation.value){
+      confirmedValue=validation.value;save.textContent='Confirmer la modification';
+      note.textContent='Confirme le nouveau nom. La modification sera conservée dans le journal privé.';
+      return;
+     }
+     saving=true;save.disabled=true;edit.disabled=true;
+     note.textContent='Vérification MFA AAL2…';
+     try{
+      if(!await verified()){
+       if(card.isConnected)note.textContent='Droits ou MFA expirés. La modification est refusée.';
+       return;
+      }
+      if(!card.isConnected)return;
+      const result=await api.rpc('admin_update_member_display_name',{
+       p_member_id:profile.id,p_display_name:validation.value
+      });
+      if(!card.isConnected)return;
+      if(result.error||result.data!==true){
+       note.textContent='Modification refusée ou fonctionnalité non activée dans Supabase.';
+       return;
+      }
+      status.textContent='Nom du membre enregistré et journalisé dans Supabase.';
+      await reload();
+     }catch{
+      if(card.isConnected)note.textContent='Service indisponible. Aucun enregistrement confirmé.';
+     }finally{
+      saving=false;if(save.isConnected){save.disabled=false;save.textContent='Préparer la modification';}
+      if(edit.isConnected)edit.disabled=false;
+      confirmedValue=null;
+     }
+    });
+    card.append(edit,editor);
+   }
    const ownRoles=roles.filter(x=>x.user_id===profile.id).map(x=>x.role);
    const tags=el('div','admin-member-roles');
    for(const role of ownRoles){
