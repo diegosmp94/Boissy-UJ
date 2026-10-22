@@ -31,7 +31,7 @@ export function cupInformation(code,season='2026-2027',cupFixtures=[]){
  if(!conf?.cup)return {available:false,headline:'Aucune coupe pour cette équipe',
   detail:'Aucune participation en coupe annoncée pour 2026–2027. Les archives des saisons précédentes restent consultables.'};
  if(code==='veterans')return {available:true,headline:conf.cup,
-  detail:'Participation indiquée par le club. Aucune rencontre ni date de coupe vétérans n’est encore documentée ici ; la catégorie exacte reste à préciser.'};
+  detail:'Participation en coupe confirmée par le club. Aucun adversaire, résultat ou date de coupe des Vétérans n’est encore renseigné ici ; l’intitulé exact reste à préciser.'};
  return {available:true,headline:conf.cup,
   detail:'Rencontres de coupe retrouvées pour cette équipe ; seules les dates ont été confirmées par le club, pas les scores externes.'};
 }
