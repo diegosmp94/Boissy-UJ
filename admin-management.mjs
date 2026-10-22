@@ -4,6 +4,7 @@
 import {adminSessionStatus} from './admin-security.mjs';
 import {previewAuthorizedFffFeed,FFF_CLUB_AFFILIATION,FFF_PUBLIC_PORTAL} from './fff-provider.mjs';
 import {CLUB_TEAMS} from './club-teams.mjs';
+import {publicExternalFixtures} from './external-match-previews.mjs';
 import {validateSeasonDraft,validateMatchDraft,validateNewsDraft,adminSaveErrorMessage} from './admin-editor-rules.mjs';
 import {eventDateInput,validateFreeEventDraft,eventRpcArgs} from './admin-event-rules.mjs';
 
@@ -220,6 +221,57 @@ export function mountAdminMatches(root,api,userId){
    display:r=>r.opponent_name+' · '+(r.published?'Publié':'Brouillon')+' · '+new Date(r.scheduled_at).toLocaleDateString('fr-FR')
   });
   mountFffPreview(root,api,userId);
+  // A sourced result is NOT a club-confirmed match. Administrators must select
+  // a new dossier, check its source and then explicitly save/publish via MFA RPC.
+  const reviews=publicExternalFixtures({includePast:true,period:'all'});
+  const box=el('details','admin-fff-preview admin-match-reviews');
+  const label=el('summary','','Préparer la validation des matchs sourcés (aucun import automatique)');
+  const info=el('p','admin-fff-info',
+    'Sélectionne une rencontre de SportCorico, consulte sa source puis vérifie chaque champ. '
+    +'Une date historique sans heure doit être complétée manuellement. Aucun match ne sera publié ici.');
+  const selector=select(reviews.map((m,i)=>[String(i),m.team_name+' · '+m.localDay+' · '+m.opponent]));
+  selector.setAttribute('aria-label','Choisir un match sourcé à vérifier');
+  const link=el('a','admin-fff-link','Ouvrir la source du match ↗');
+  link.target='_blank';link.rel='noopener noreferrer';
+  const setLink=()=>{link.href=reviews[Number(selector.value)]?.source||'https://www.sportcorico.com/clubs/boissy-uj';};
+  selector.addEventListener('change',setLink);setLink();
+  const review=el('button','admin-secondary-btn','Pré-remplir un nouveau match sans le publier');
+  review.type='button';
+  const note=el('p','admin-workflow-status','Validation par un administrateur MFA requise avant publication.');
+  note.setAttribute('role','status');
+  review.addEventListener('click',async()=>{
+    if(!root.isConnected)return;
+    review.disabled=true;
+    try{
+      if(!await guarded(api,userId)){note.textContent='Administration MFA AAL2 requise.';return;}
+      const fixture=reviews[Number(selector.value)];
+      const known=teams.find(t=>t.code===fixture?.team_code);
+      const dossier=root.querySelector('select[aria-label="Document à modifier"]');
+      if(!fixture||!known||!dossier){note.textContent='Équipe ou éditeur indisponible.';return;}
+      dossier.value='new';
+      dossier.dispatchEvent(new Event('change',{bubbles:true}));
+      team.value=known.id;
+      opponent.value=fixture.opponent;
+      const timestamp=new Date(fixture.time);
+      date.value=fixture.dateOnly?'':new Intl.DateTimeFormat('sv-SE',{
+        timeZone:'Europe/Paris',year:'numeric',month:'2-digit',day:'2-digit',
+        hour:'2-digit',minute:'2-digit',hourCycle:'h23'
+      }).format(timestamp).replace(' ','T');
+      venue.value='';
+      home.n.checked=fixture.is_home;
+      state.value=fixture.status==='played'?'played':'scheduled';
+      hScore.value=fixture.status==='played'?String(fixture.home_score):'';
+      aScore.value=fixture.status==='played'?String(fixture.away_score):'';
+      publish.n.checked=false;
+      note.textContent=fixture.dateOnly
+        ?'Brouillon rempli sauf l’heure exacte, à confirmer. Compare la source, complète la date et enregistre après revue.'
+        :'Brouillon pré-rempli, non enregistré. Vérifie la source, l’équipe et le score, puis utilise Enregistrer les modifications.';
+      root.querySelector('.admin-operation-form')?.scrollIntoView({behavior:'smooth',block:'start'});
+    }catch{note.textContent='Le pré-remplissage n’a pas abouti ; aucune rencontre enregistrée.';}
+    finally{review.disabled=false;}
+  });
+  box.append(label,info,selector,link,review,note);
+  root.append(box);
  }).catch(()=>{if(root.isConnected)status.textContent='Impossible de charger les équipes et saisons. Aucun match modifié.';});
 }
 export function mountAdminNews(root,api,userId){

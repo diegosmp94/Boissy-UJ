@@ -171,20 +171,27 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
     if(!matches.length){
       const team=teams.find(t=>t.id===select.value);
       const external=publicExternalFixtures({
-        team:team?.code||'all',discipline:disciplineSelect.value
+        team:team?.code||'all',discipline:disciplineSelect.value,
+        includePast:true,period:'all'
       });
       if(external.length){
         thirdParty.append(element('h2','','Rencontres externes — à confirmer'));
         thirdParty.append(element('p','agenda-external-note',
-          'Calendrier consultatif provenant de SportCorico, relevé le '+
-          EXTERNAL_FIXTURE_REVIEWED_AT+'. Aucun de ces matchs n’est confirmé dans le calendrier du club.'));
+          'Calendrier et résultats relevés sur SportCorico le '+
+          EXTERNAL_FIXTURE_REVIEWED_AT+'. Aucune homologation par le club ou synchronisation FFF.'));
         const grid=element('div','agenda-external-grid');
         for(const match of external){
           const card=element('article','agenda-external-card');
-          const date=element('time','agenda-date',dateLabel(match.time));
-          date.dateTime=new Date(match.time).toISOString();
+          const date=element('time','agenda-date',match.dateOnly
+            ?new Intl.DateTimeFormat('fr-FR',{dateStyle:'long',timeZone:'UTC'}).format(new Date(match.localDay+'T12:00:00Z'))
+            :dateLabel(match.time));
+          date.dateTime=match.localDay;
+          const result=match.status==='played'
+            ?'Score relevé : '+match.result+' · non homologué par le club'
+            :match.status==='unknown'?'Match passé · résultat non communiqué'
+            :match.is_home?'Domicile indiqué':'Extérieur indiqué';
           card.append(date,element('h3','',match.team_name+' — '+match.opponent),
-            element('p','',match.is_home?'Domicile indiqué':'Extérieur indiqué'));
+            element('p','',result));
           const link=element('a','agenda-link','Vérifier la source ↗');
           link.href=match.source;link.target='_blank';link.rel='noopener noreferrer';
           card.append(link);grid.append(card);

@@ -1,6 +1,8 @@
 import {supabaseConfig} from './auth-config.mjs';
 import {buildPublicCalendar} from './calendar-export.mjs';
 import {publicExternalFixtures,EXTERNAL_FIXTURE_REVIEWED_AT} from './external-match-previews.mjs';
+import {mergeCalendarPublicEntries,parisDateKey} from './calendar-month.mjs';
+import {mountMonthCalendar} from './calendar-view.mjs';
 
 const ROOT = supabaseConfig.url + '/rest/v1/';
 const OPTIONS = Object.freeze([
@@ -18,14 +20,18 @@ const dateMs = value => value && Number.isFinite(Date.parse(value))?Date.parse(v
 export function combinePublishedAgenda(matches=[],events=[],teams=[],{
   now=Date.now(),kind='all',period='future',query=''
 }={}){
-  const clubTeams=new Map(teams.map(t=>[t.id,{name:t.name,discipline:t.discipline}]));
+  const clubTeams=new Map(teams.map(t=>[t.id,{name:t.name,code:t.code,discipline:t.discipline}]));
   const merged=[];
   for(const m of matches){
     const time=dateMs(m.scheduled_at);
-    if(m.published!==true||m.match_status!=='scheduled'||time===null)continue;
+    if(m.published!==true||!['scheduled','played'].includes(m.match_status)||time===null)continue;
     merged.push({kind:'match',id:m.id,time,title:'Boissy-UJ — '+(m.opponent_name||'Adversaire à confirmer'),
       subtitle:(clubTeams.get(m.team_id)?.discipline==='futsal'?'Futsal · ':'Football · ')+(clubTeams.get(m.team_id)?.name||'Équipe du club'),place:m.venue||'Lieu à confirmer',
-      info:m.is_home===true?'À domicile':'À l’extérieur',href:'#/matchs'});
+      info:m.match_status==='played'&&Number.isInteger(m.home_score)&&Number.isInteger(m.away_score)
+        ?'Résultat : '+m.home_score+' – '+m.away_score
+        :m.is_home===true?'À domicile':'À l’extérieur',
+      href:'#/matchs',teamId:m.team_id,teamCode:clubTeams.get(m.team_id)?.code,
+      opponent:m.opponent_name,status:m.match_status,localDay:parisDateKey(time)});
   }
   for(const e of events){
     const time=dateMs(e.starts_at),end=dateMs(e.ends_at);
@@ -46,11 +52,11 @@ export function combinePublishedAgenda(matches=[],events=[],teams=[],{
 }
 export async function loadPublicAgenda(signal,fetcher=fetch){
   const entries=[
-    ['matches',{select:'id,team_id,opponent_name,scheduled_at,venue,is_home,match_status,published',
-      published:'eq.true',match_status:'eq.scheduled',order:'scheduled_at.asc',limit:'100'}],
+    ['matches',{select:'id,team_id,opponent_name,scheduled_at,venue,is_home,match_status,published,home_score,away_score',
+      published:'eq.true',order:'scheduled_at.asc',limit:'300'}],
     ['club_events',{select:'id,title,starts_at,ends_at,location_label,access_kind,published',
       published:'eq.true',access_kind:'eq.public',order:'starts_at.asc',limit:'100'}],
-    ['club_teams',{select:'id,name,discipline',order:'sort_order.asc',limit:'5'}]
+    ['club_teams',{select:'id,code,name,discipline',order:'sort_order.asc',limit:'5'}]
   ];
   const settled=await Promise.allSettled(entries.map(async([table,params])=>{
     const response=await fetcher(ROOT+table+'?'+new URLSearchParams(params),{
@@ -82,7 +88,7 @@ export async function mountAgenda(){
   const generation=active,root=document.getElementById('agenda-public-root');
   if(!root)return;
   const controller=new AbortController();pending=controller;
-  const intro=make('p','agenda-note','Dates et lieux affichés uniquement après publication par le club. Les rencontres annulées ou reportées ne sont pas présentées comme à venir.');
+  const intro=make('p','agenda-note','Parcourez les mois passés et à venir. Les résultats et rencontres du club sont distingués des données d’un site tiers, qui restent à valider.');
   const form=make('div','agenda-filters');
   const kindLabel=make('label','agenda-field','Catégorie');
   const type=make('select','agenda-select');type.setAttribute('aria-label','Catégorie du calendrier');
@@ -90,7 +96,7 @@ export async function mountAgenda(){
   kindLabel.append(type);
   const periodLabel=make('label','agenda-field','Période');
   const period=make('select','agenda-select');period.setAttribute('aria-label','Période du calendrier');
-  for(const [value,label] of [['future','À venir'],['week','7 prochains jours'],['all','Toutes les dates']]){
+  for(const [value,label] of [['future','À venir'],['week','7 prochains jours'],['all','Toutes les dates (archives incluses)']]){
     const o=make('option','',label);o.value=value;period.append(o);
   }
   periodLabel.append(period);
@@ -114,7 +120,9 @@ export async function mountAgenda(){
   federation.href='https://epreuves.fff.fr/';
   federation.target='_blank';federation.rel='noopener noreferrer';links.append(federation);
   const external=make('section','agenda-thirdparty');
-  root.replaceChildren(intro,form,exportBtn,status,list,external,links);
+  const monthRoot=make('div','agenda-month-root');
+  root.replaceChildren(intro,form,monthRoot,exportBtn,status,list,external,links);
+  const monthly=mountMonthCalendar(monthRoot);
   let exportedEntries=[];
   exportBtn.addEventListener('click',()=>{
     if(!exportedEntries.length||exportBtn.disabled)return;
@@ -139,8 +147,15 @@ export async function mountAgenda(){
       const selected=combinePublishedAgenda(rows.matches,rows.events,rows.teams,{
         kind:type.value,period:period.value,query:search.value
       });
-      exportedEntries=selected;
-      exportBtn.disabled=selected.length===0;
+      const allPublished=combinePublishedAgenda(rows.matches,rows.events,rows.teams,{
+        kind:type.value,period:'all',query:search.value
+      });
+      const sourced=type.value==='event'?[]:publicExternalFixtures({
+        includePast:true,period:'all',query:search.value
+      });
+      monthly.update(mergeCalendarPublicEntries(allPublished,sourced,rows.teams));
+      exportedEntries=selected.filter(x=>x.kind!=='match'||x.status==='scheduled');
+      exportBtn.disabled=exportedEntries.length===0;
       list.replaceChildren();
       external.replaceChildren();
       // Never represent third-party references as club-published matches. A club
@@ -193,6 +208,8 @@ export async function mountAgenda(){
     if(controller.signal.aborted||generation!==active||!root.isConnected)return;
     status.textContent='Agenda temporairement indisponible : consulte directement les pages Match Center et Événements.';
     exportedEntries=[];
+    monthly.update(mergeCalendarPublicEntries([],
+      publicExternalFixtures({includePast:true,period:'all'}),[]));
     exportBtn.disabled=true;
     list.replaceChildren();
   }
