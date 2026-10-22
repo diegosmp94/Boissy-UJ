@@ -54,3 +54,22 @@
 @media(max-width:780px){.league-editor-stat-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.league-editor-controls{grid-template-columns:1fr}}
 @media(max-width:420px){.league-editor-row-heading{gap:5px}.league-editor-row-heading button{padding:8px}.league-table td,.league-table th{padding:9px 7px}}
 @media(prefers-reduced-motion:reduce){.league-standing *{transition:none!important}}
+
+/* Transparence des classements sourcés : saison actuelle partielle vs saison précédente archivée. */
+.sourced-standings-context{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px;margin:18px 0}
+.sourced-standings-context section{min-width:0;padding:18px;border:1px solid #a0bedb59;border-radius:13px;background:#0c294a}
+.sourced-standings-context .sourced-standings-archive{border-color:#e1bc7470}
+.sourced-standings-context h3{font:800 clamp(17px,2.2vw,21px)/1.25 Outfit,system-ui,sans-serif;color:#ffdc91;margin:0 0 12px}
+.sourced-standings-stat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0}
+.sourced-standings-stat-grid>div{display:grid;gap:3px;padding:10px 12px;border:1px solid #ffffff21;border-radius:9px;background:#08203d}
+.sourced-standings-stat-grid dt{color:#c1d8f0;font-size:12px}
+.sourced-standings-stat-grid dd{margin:0;font:850 20px/1.15 Outfit,system-ui,sans-serif;color:#fff}
+.sourced-standings-rank{font:900 clamp(23px,3vw,31px)/1.2 Outfit,system-ui,sans-serif;color:#ffe2a3;margin:5px 0 12px}
+.sourced-standings-source{display:inline-flex;align-items:center;min-height:44px;padding:8px 0;color:#f3d08c;text-decoration:underline;text-underline-offset:3px;font-size:12px;font-weight:800;margin:6px 13px 0 0}
+.sourced-standings-source:focus-visible{outline:3px solid #ffe19a;outline-offset:3px}
+
+/* Season filters expose all known archives on demand without overflowing on mobile. */
+.team-profile-match[hidden]{display:none!important}
+.sport-source-season-label,.team-archive-season-label{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:10px 0 18px;color:#d5e8ff;font-size:13px;font-weight:800}
+.sport-source-season-label select,.team-archive-season-label select{min-height:44px;max-width:100%;flex:0 1 230px}
+@media(max-width:520px){.sport-source-season-label select,.team-archive-season-label select{flex:1 1 100%}}

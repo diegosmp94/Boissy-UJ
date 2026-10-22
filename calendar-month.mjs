@@ -43,9 +43,10 @@ export function mergeCalendarPublicEntries(published,external,teams=[]){
   .map((x,index)=>({
    id:'external-'+x.team_code+'-'+x.localDay+'-'+index,kind:'match',
    time:x.time,localDay:x.localDay,dateOnly:x.dateOnly,
-   title:x.team_name+' — '+x.opponent,subtitle:x.status==='played'?'Résultat relevé sur SportCorico':
-    x.status==='unknown'?'Match passé · score à confirmer':'Rencontre annoncée sur SportCorico',
-   place:'',info:x.status==='played'?x.result:x.is_home?'Domicile annoncé':'Extérieur annoncé',
+   title:x.team_name+' — '+x.opponent,subtitle:x.status==='played'?'Résultat relevé sur '+x.source_label:
+    x.status==='unknown'?'Match passé · score à confirmer':'Rencontre annoncée sur '+x.source_label,
+   place:'',info:(x.status==='played'?x.result:x.is_home?'Domicile annoncé':'Extérieur annoncé')+
+    ' · '+x.season+' · '+x.competition,
    href:x.source,external:true,status:x.status,teamCode:x.team_code,opponent:x.opponent,
    outcome:x.status==='played'?clubOutcome({...x,match_status:'played'}):null
   }));

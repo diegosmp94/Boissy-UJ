@@ -9,7 +9,7 @@ const read=x=>readFileSync(new URL('../'+x,import.meta.url),'utf8');
 const now=Date.parse('2026-10-22T17:00:00+02:00');
 test('calendar displays source-attributed real past scored games and upcoming fixtures, not just future',()=>{
  const matches=publicExternalFixtures({now,period:'all',includePast:true});
- const history=matches.filter(x=>x.status==='played');
+ const history=matches.filter(x=>x.status==='played'&&x.season==='2026-2027');
  assert.equal(history.filter(x=>x.team_code==='a').length,4);
  assert.equal(history.find(x=>x.opponent==="Bann'zanmi 2").result,'6 – 1');
  assert.equal(history.find(x=>x.opponent==='Moldavie FC 1').result,'1 – 3');
@@ -18,12 +18,12 @@ test('calendar displays source-attributed real past scored games and upcoming fi
  assert.equal(history.find(x=>x.opponent==='Petits Anges ES 1').result,'3 – 7');
  assert.ok(matches.some(x=>x.status==='scheduled'&&x.team_code==='futsal'));
  assert.ok(matches.every(x=>x.validated_by_club===false));
- assert.ok(matches.every(x=>x.source.startsWith('https://www.sportcorico.com/')));
+ assert.ok(matches.every(x=>x.source.startsWith('https://www.sportcorico.com/')||x.source.startsWith('https://thefootdata.com/')));
 });
 test('incorrect other-club fixtures are removed, Seniors B is sourced to its actual opponent',()=>{
  const matches=publicExternalFixtures({now,period:'all',includePast:true});
  assert.ok(!matches.some(x=>x.opponent==='SFC Canavérois 1'&&x.team_code==='b'));
- const b=matches.find(x=>x.team_code==='b');
+ const b=matches.find(x=>x.team_code==='b'&&x.season==='2026-2027');
  assert.equal(b.opponent,'Val de Fontenay AS 2');
  assert.match(b.source,/val-de-fontenay-as/);
  assert.ok(matches.some(x=>x.team_code==='futsal'&&x.team_name==='Senior · Futsal'));
@@ -35,7 +35,7 @@ test('month grid shows September historical results and handles Monday-start off
  assert.equal(september.length%7,0);
  assert.ok(september.find(x=>x.key==='2026-09-20').entries.some(x=>x.title.includes("Bann'zanmi")));
  const october=monthGrid(2026,9,all);
- assert.ok(october.find(x=>x.key==='2026-10-04').entries.some(x=>x.info==='1 – 3'));
+ assert.ok(october.find(x=>x.key==='2026-10-04').entries.some(x=>x.info.startsWith('1 – 3')));
  assert.equal(shiftCalendarMonth(2026,0,-1).year,2025);
  assert.deepEqual(shiftCalendarMonth(2026,11,1),{year:2027,month:0});
  assert.match(calendarMonthTitle(2026,9),/octobre 2026/i);

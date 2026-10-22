@@ -109,26 +109,39 @@ export async function mountTeamProfile(code){
       }
       section.append(list);root.append(section);
     }
-    if(!result.matches.length){
+    {
+      // Retain attributed historical seasons even when the club has published a few current fixtures.
       const sourced=publicExternalFixtures({team:code,includePast:true,period:'all'});
       if(sourced.length){
         const section=node('section','team-profile-group team-profile-external');
-        section.append(node('h2','','Archives et rencontres externes à confirmer'),
+        section.append(node('h2','','Résultats précédents et archives sourcées'),
           node('p','team-profile-disclaimer',
-            'Références SportCorico relevées le '+EXTERNAL_FIXTURE_REVIEWED_AT+
-            '. Non validées par le club ; dates et scores susceptibles de correction.'));
+            'Sources SportCorico et TheFootData · saisons 2025–2026 et 2026–2027 · dernier contrôle du calendrier '+
+            EXTERNAL_FIXTURE_REVIEWED_AT+'. Non homologuées par le club ; les scores peuvent être corrigés.'));
+        const filter=node('label','team-archive-season-label','Afficher les résultats de : ');
+        const select=node('select','sport-team-select');
+        select.setAttribute('aria-label','Saison des rencontres archivées de cette équipe');
+        for(const [value,label] of [['all','Toutes les saisons'],['2026-2027','2026–2027'],['2025-2026','2025–2026']]){
+          const option=node('option','',label);option.value=value;select.append(option);
+        }
+        filter.append(select);section.append(filter);
         const list=node('div','team-profile-matches');
-        for(const m of sourced){
+        const cards=[];
+        select.addEventListener('change',()=>{
+          for(const card of cards)card.node.hidden=select.value!=='all'&&card.season!==select.value;
+        });
+        for(const m of sourced.slice().sort((a,b)=>b.time-a.time)){
           const item=node('article','team-profile-match');
           item.append(node('span','team-profile-match-kind',
-            m.status==='played'?'Résultat de source externe':
-              m.status==='unknown'?'Score non communiqué':'Rencontre annoncée'),
+            m.season+' · '+(m.status==='played'?'Résultat sourcé':
+              m.status==='unknown'?'Score non communiqué':'Rencontre annoncée')),
             node('p','team-profile-match-date',m.dateOnly
               ?new Intl.DateTimeFormat('fr-FR',{dateStyle:'long',timeZone:'UTC'})
                 .format(new Date(m.localDay+'T12:00:00Z'))
               :dateText(m.time)),
             node('strong','',m.is_home?'Boissy-UJ — '+m.opponent:m.opponent+' — Boissy-UJ'),
-            node('p','team-profile-score',m.result||'Score non confirmé'));
+            node('p','team-profile-score',m.result||'Score non confirmé'),
+            node('small','',m.competition||'Compétition non précisée'));
           if(m.status==='played'){
             const outcome=clubOutcome({...m,match_status:'played'});
             if(outcome){
@@ -137,10 +150,9 @@ export async function mountTeamProfile(code){
                 outcome==='V'?'Victoire':outcome==='D'?'Défaite':'Match nul'));
             }
           }
-          const a=node('a','team-profile-source','Vérifier le match sur SportCoriko ↗');
-          a.textContent='Vérifier sur SportCorico ↗';
+          const a=node('a','team-profile-source','Vérifier sur '+m.source_label+' ↗');
           a.href=m.source;a.target='_blank';a.rel='noopener noreferrer';
-          item.append(a);list.append(item);
+          item.append(a);cards.push({node:item,season:m.season});list.append(item);
         }
         section.append(list);root.append(section);
       }
