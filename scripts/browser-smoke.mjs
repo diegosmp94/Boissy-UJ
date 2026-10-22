@@ -34,7 +34,7 @@ function resolveBrowser(){
  return [process.env.CHROME_BIN,'/usr/bin/google-chrome','/usr/bin/chromium','/usr/bin/chromium-browser']
   .filter(Boolean);
 }
-async function startBrowser(){
+async function launchBrowserOnce(){
  const candidates=resolveBrowser();
  const binary=await (async()=>{
   for(const name of candidates)if(await exists(name))return name;
@@ -94,6 +94,22 @@ async function startBrowser(){
   ws.close();browser.kill('SIGKILL');await rm(dir,{recursive:true,force:true});
  };
  return {send,shutdown,networkOrigins};
+}
+/** Retry only the ephemeral browser launch. Each attempt has a fresh profile,
+ * and the failed DevTools startup cleans up its Chrome process and temp folder.
+ * A repeat failure is reported as a real CI failure, never marked as passed. */
+async function startBrowser(){
+ let lastError;
+ for(let attempt=1;attempt<=2;attempt++){
+  try{return await launchBrowserOnce();}
+  catch(error){
+   lastError=error;
+   if(attempt===2)break;
+   console.warn('Chromium startup unavailable (attempt 1/2); retrying with a clean profile.');
+   await sleep(500);
+  }
+ }
+ throw lastError;
 }
 async function evaluate(send,expression){
  const result=await send('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});
