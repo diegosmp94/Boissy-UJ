@@ -31,7 +31,7 @@
 | Sauvegarde ET restauration d'un export Supabase | Base isolée sans altération de production, checksum ou contrôles d'intégrité, procès-verbal | **À faire** |
 | Information légale du club, hébergement, droits des sportifs, conservation des données et sous-traitants | Mentions validées par représentant habilité du club | **À faire** |
 | Mise à jour Auth « leaked password protection » | Option effective si l'offre le permet, sinon risque documenté | **À décider** |
-| Déblocage SEO | Décision expresse après conformité et recette complète | **Non autorisé** |
+| Déblocage SEO / retrait du `noindex` | Décision expresse après conformité et recette complète | **Non autorisé** |
 
 ## Protocole pour la recette multi-identités
 
