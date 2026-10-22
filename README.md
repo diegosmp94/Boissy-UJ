@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Calendrier mensuel et résultats anciens (22 octobre 2026)
+
+L'Agenda possède désormais une **vue mensuelle dynamique** (mois passés et futurs), avec affichage des matchs joués et scores sourcés de la saison 2026-2027. Les rencontres publiées par le club restent distinguées des résultats externes qui ne sont **pas homologués officiellement**. Dans le Control Center, l'administrateur peut préparer une fiche à partir d'une source et la valider manuellement via le flux MFA existant. [Détails et sources](docs/ETAPE_38_CALENDRIER_DYNAMIQUE_ARCHIVES.md).
+
 ## Calendrier : affichage de dates sourcées même sans matchs publiés (22 octobre 2026)
 
 Le calendrier Club et le Match Center avaient **0 match disponible dans Supabase**. Lorsqu'aucun match du club n'est publié, ils affichent maintenant des rencontres de sources externes datées, attribuées et explicitement **non confirmées par le club**. L'export `.ics` reste limité aux dates validées. Voir [correctif et provenance](docs/CORRECTIF_CALENDRIER_VISIBLE_20261022.md).
