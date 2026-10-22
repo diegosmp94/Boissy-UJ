@@ -14,7 +14,7 @@ test('a published fixture has an outcome from Boissy UJ perspective, both home a
  const matches=[sample('green',2,0),sample('amber',1,1),sample('red',0,2),
   sample('away-green',0,2,false),sample('away-red',3,0,false)];
  const data=combinePublishedAgenda(matches,[],[team],{period:'all'});
- assert.deepEqual(data.map(x=>x.outcome),['V','N','D','V','D']);
+ assert.deepEqual(Object.fromEntries(data.map(x=>[x.id,x.outcome])),{green:'V',amber:'N',red:'D','away-green':'V','away-red':'D'});
  assert.deepEqual(data.map(x=>x.status),Array(5).fill('played'));
  assert.equal(clubOutcome({...sample('draft',2,1),match_status:'scheduled'}),null);
  assert.equal(combinePublishedAgenda([sample('private',3,0)],[],[team],{
