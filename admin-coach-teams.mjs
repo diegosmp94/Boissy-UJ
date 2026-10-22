@@ -79,7 +79,7 @@ export async function mountAdminCoachTeams(root,api,userId){
      feedback.textContent='Confirme le compte et l’équipe ; cette opération modifie ses accès sportifs.';
      return;
     }
-    intentKey=null;busy=true;button.disabled=true;
+    intentKey=null;busy=true;button.disabled=true;select.disabled=true;refresh.disabled=true;
     const expectedTeam=select.value;
     feedback.textContent='Vérification du MFA et des permissions…';
     try{
@@ -100,7 +100,9 @@ export async function mountAdminCoachTeams(root,api,userId){
     }catch{
      if(root.isConnected)feedback.textContent='Service momentanément indisponible : aucun changement confirmé.';
     }finally{
-     busy=false;if(button.isConnected){button.disabled=false;button.textContent=label;}
+     busy=false;if(select.isConnected)select.disabled=false;
+     if(refresh.isConnected)refresh.disabled=false;
+     if(button.isConnected){button.disabled=false;button.textContent=label;}
     }
    });
    card.append(button,feedback);listing.append(card);
