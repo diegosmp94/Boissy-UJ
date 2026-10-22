@@ -109,6 +109,9 @@ export async function mountAgenda(){
   for(const [href,label] of [['#/matchs','Match Center'],['#/evenements','Événements'],['#/infos-pratiques','Infos pratiques']]){
     const a=make('a','agenda-link',label+' ↗');a.href=href;links.append(a);
   }
+  const federation=make('a','agenda-link','Consulter le portail FFF ↗');
+  federation.href='https://epreuves.fff.fr/';
+  federation.target='_blank';federation.rel='noopener noreferrer';links.append(federation);
   root.replaceChildren(intro,form,exportBtn,status,list,links);
   let exportedEntries=[];
   exportBtn.addEventListener('click',()=>{
@@ -138,7 +141,7 @@ export async function mountAgenda(){
       exportBtn.disabled=selected.length===0;
       list.replaceChildren();
       if(selected.length===0){
-        list.append(make('p','agenda-empty','Aucune date officielle publiée pour ces critères.'));
+        list.append(make('p','agenda-empty','Aucune date validée et publiée par le club pour ces critères.'));
       }
       for(const item of selected){
         const article=make('article','agenda-item');
