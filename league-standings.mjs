@@ -1,3 +1,4 @@
+import {appendSourcedSportContext} from './sourced-standings.mjs';
 import {supabaseConfig} from './auth-config.mjs';
 import {CLUB_TEAMS,teamRoute} from './club-teams.mjs';
 
@@ -58,7 +59,8 @@ export function renderLeagueStanding(root,standing,team){
  const section=el('section','league-standing');
  section.append(el('h2','','Classement · '+team.division));
  if(!standing){
-  section.append(el('p','league-empty','Classement non encore publié pour ce championnat. Le club peut le mettre à jour après chaque journée. Aucun rang fictif n’est affiché.'));
+  section.append(el('p','league-empty','Rang 2026–2027 non vérifié : aucun classement de poule confirmé par le club. Voir le bilan partiel et les archives ci-dessous.'));
+  appendSourcedSportContext(section,team.code);
   root.append(section);return;
  }
  section.append(el('p','league-source',
