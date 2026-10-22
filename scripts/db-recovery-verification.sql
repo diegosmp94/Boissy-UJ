@@ -42,7 +42,22 @@ select jsonb_build_object(
   select coalesce(jsonb_agg(proname order by proname),'[]'::jsonb)
   from privileged_rpcs where anon_exec
  ),
- 'profiles_can_update_identity_or_timestamps',(
+ 'user_roles_authenticated_can_write',(
+  has_table_privilege('authenticated','public.user_roles','INSERT')
+  or has_table_privilege('authenticated','public.user_roles','UPDATE')
+  or has_table_privilege('authenticated','public.user_roles','DELETE')
+ ),
+ 'user_roles_anon_can_write',(
+  has_table_privilege('anon','public.user_roles','INSERT')
+  or has_table_privilege('anon','public.user_roles','UPDATE')
+  or has_table_privilege('anon','public.user_roles','DELETE')
+ ),
+ 'role_requests_authenticated_can_write_directly',(
+  has_table_privilege('authenticated','public.role_requests','INSERT')
+  or has_table_privilege('authenticated','public.role_requests','UPDATE')
+  or has_table_privilege('authenticated','public.role_requests','DELETE')
+ ),
+  'profiles_can_update_identity_or_timestamps',(
   has_column_privilege('authenticated','public.profiles','id','UPDATE')
   or has_column_privilege('authenticated','public.profiles','created_at','UPDATE')
   or has_column_privilege('authenticated','public.profiles','updated_at','UPDATE')
