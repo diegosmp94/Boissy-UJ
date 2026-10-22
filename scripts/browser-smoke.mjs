@@ -58,7 +58,7 @@ async function launchBrowserOnce(){
   await sleep(150);
  }
  if(!port){
-  browser.kill('SIGKILL');await rm(dir,{recursive:true,force:true});
+  browser.kill('SIGKILL');await rm(dir,{recursive:true,force:true,maxRetries:6,retryDelay:200});
   throw new Error('Chrome DevTools unavailable: '+stderr.slice(-4).join(' ').slice(0,500));
  }
  const targets=await (await fetch('http://127.0.0.1:'+port+'/json')).json();
@@ -91,7 +91,7 @@ async function launchBrowserOnce(){
   ws.send(JSON.stringify({id,method,params}));
  });
  const shutdown=async()=>{
-  ws.close();browser.kill('SIGKILL');await rm(dir,{recursive:true,force:true});
+  ws.close();browser.kill('SIGKILL');await rm(dir,{recursive:true,force:true,maxRetries:6,retryDelay:200});
  };
  return {send,shutdown,networkOrigins};
 }
