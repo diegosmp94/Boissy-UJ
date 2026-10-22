@@ -27,6 +27,8 @@ export function groupAdminModules(modules){
  }
  return groups;
 }
-export function availableAdminModules(modules,{eventsReady=false}={}){
- return modules.filter(module=>module.id!=='events'||eventsReady===true);
+export function availableAdminModules(modules,{eventsReady=false,coachTeamsReady=false}={}){
+ return modules.filter(module=>
+  (module.id!=='events'||eventsReady===true)&&
+  (module.id!=='coach-teams'||coachTeamsReady===true));
 }

@@ -27,15 +27,26 @@ test('grouping preserves all actual modules, with fixed operational group priori
 });
 
 test('free events never appear in navigation if backend probe fails',()=>{
- const disabled=availableAdminModules(ADMIN_MODULES,{eventsReady:false});
- const enabled=availableAdminModules(ADMIN_MODULES,{eventsReady:true});
+ const disabled=availableAdminModules(ADMIN_MODULES,{eventsReady:false,coachTeamsReady:true});
+ const enabled=availableAdminModules(ADMIN_MODULES,{eventsReady:true,coachTeamsReady:true});
  assert.equal(disabled.some(m=>m.id==='events'),false);
  assert.equal(enabled.some(m=>m.id==='events'),true);
  assert.equal(disabled.some(m=>m.id==='matches'),true);
  assert.equal(enabled.length,disabled.length+1);
  assert.match(center,/const eventProbe=await api\.rpc\('admin_list_free_events'\)/);
  assert.match(center,/const eventsReady=!eventProbe\.error&&Array\.isArray\(eventProbe\.data\)/);
- assert.match(center,/const availableModules=availableAdminModules\(ADMIN_MODULES,\{eventsReady\}\)/);
+ assert.match(center,/const availableModules=availableAdminModules\(ADMIN_MODULES,\{eventsReady,coachTeamsReady\}\)/);
+});
+
+test('coach teams tools are fail-closed until their protected read RPC is deployed',()=>{
+ const noMigrations=availableAdminModules(ADMIN_MODULES);
+ assert.equal(noMigrations.some(m=>m.id==='coach-teams'),false);
+ assert.equal(noMigrations.some(m=>m.id==='events'),false);
+ const ready=availableAdminModules(ADMIN_MODULES,{eventsReady:true,coachTeamsReady:true});
+ assert.equal(ready.some(m=>m.id==='coach-teams'),true);
+ assert.equal(ready.some(m=>m.id==='events'),true);
+ assert.match(center,/const probe=await api\.rpc\('admin_list_team_coaches',\{p_team_id:candidate\}\)/);
+ assert.match(center,/coachTeamsReady=!probe\.error&&Array\.isArray\(probe\.data\)/);
 });
 
 test('admin sidebar is searchable and displays real grouped links only',()=>{
