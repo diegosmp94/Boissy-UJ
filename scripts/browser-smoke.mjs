@@ -130,8 +130,10 @@ try{
    const width=${scenario.width};
    const errors=[];
    if(location.hash!==expected)errors.push('Incorrect route');
-   if(document.documentElement.clientWidth!==width)errors.push('Incorrect viewport');
-   if(document.documentElement.scrollWidth>width+2)errors.push('Horizontal page overflow');
+   const availableWidth=document.documentElement.clientWidth;
+   // Desktop Chromium may reserve ~15px of the viewport for the native scrollbar.
+   if(availableWidth>width||width-availableWidth>20)errors.push('Incorrect viewport');
+   if(document.documentElement.scrollWidth>availableWidth+2)errors.push('Horizontal page overflow');
    const main=document.querySelector('#main');
    if(!main||!main.textContent.trim())errors.push('Missing main content');
    if(!document.querySelector('a[href="#/confidentialite"]')||
