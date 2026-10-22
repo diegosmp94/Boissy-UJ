@@ -27,6 +27,12 @@ jobs:
         run: |
           npm run build:preview
           npm run audit:preview
+          test -f dist/index.html
+          test -f dist/app.js
+          test -f dist/assets/ecusson.svg
+          test ! -e dist/docs
+          test ! -e dist/tests
+          test ! -e dist/.github
       - name: Inventorier le stockage navigateur et les domaines tiers
         run: npm run audit:privacy
       - name: Tester dans Chromium les routes publiques et écrans mobiles
@@ -39,9 +45,3 @@ jobs:
           path: smoke-artifacts/
           if-no-files-found: ignore
           retention-days: 7
-          test -f dist/index.html
-          test -f dist/app.js
-          test -f dist/assets/ecusson.svg
-          test ! -e dist/docs
-          test ! -e dist/tests
-          test ! -e dist/.github
