@@ -11,8 +11,8 @@ test('Chromium CI launcher retries at most once without hiding a repeated startu
  assert.match(src,/if\(attempt===2\)break/);
  assert.match(src,/throw lastError/);
 });
-test('startup retry keeps failed Chrome processes and temporary profiles cleaned up',()=>{
- assert.match(src,/browser\.kill\('SIGKILL'\);await rm\(dir,\{recursive:true,force:true\}\)/);
+test('startup retry cleans up Chrome profiles even when Chrome children race filesystem deletion',()=>{
+ assert.match(src,/browser\.kill\('SIGKILL'\);await rm\(dir,\{recursive:true,force:true,maxRetries:6,retryDelay:200\}\)/);
  assert.match(src,/const dir=await mkdtemp/);
  assert.match(src,/not installed/);
 });
