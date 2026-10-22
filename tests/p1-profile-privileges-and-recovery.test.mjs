@@ -29,7 +29,7 @@ test('restore verification is read-only, excludes row identities and checks priv
  assert.doesNotMatch(recovery,/auth\.users\s+(?:u\s+)?where|select\s+(?:email|id|user_id|raw_user_meta_data)\s+from\s+auth\.users/i);
 });
 test('backup and restore plan requires a separate, authorized database and no credentials in git',()=>{
- for(const term of ['NON EFFECTUÉE','SOURCE_DATABASE_URL','ISOLATED_RESTORE_DATABASE_URL',
+ for(const term of ['NON EFFECTUÉE','SOURCE_DATABASE_URL','RECOVERY_DATABASE_URL',
    'sha256sum','supabase db dump','psql --single-transaction','Storage','Auth']){
   assert.ok(runbook.includes(term),term);
  }
