@@ -177,12 +177,13 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
       teamId:selection,seasonId:seasonSelect?.value||'all',
       discipline:disciplineSelect.value,teams
     });
-    const categorized=filtered.filter(m=>competitionKind(m)===activeCompetition);
+    const categorized=filtered.filter(m=>competitionKind(m)===activeCompetition||
+      activeCompetition==='league'&&teams.some(t=>t.id===m.team_id&&t.code==='c')&&competitionKind(m)==='friendly');
     const unclassified=filtered.filter(m=>competitionKind(m)==='unspecified');
     const blocks=splitMatches(categorized);
     const categoryHeading=element('p','team-competition-help',
       activeCompetition==='cup'?'Coupe : uniquement les rencontres identifiées dans une compétition de coupe.':
-      'Championnat : uniquement les rencontres classées en championnat.');
+      'Championnat : rencontres classées en championnat (ou amicaux pour Seniors C).');
     context.append(categoryHeading);
     const selectedTeam=teams.find(t=>t.id===select.value);
     if(activeCompetition==='cup'&&selectedTeam){
@@ -215,7 +216,8 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
         includePast:true,period:'all'
       });
       const external=availableExternal.filter(m=>(sourcedSeason==='all'||m.season===sourcedSeason)
-        &&competitionKind(m)===activeCompetition);
+        &&(competitionKind(m)===activeCompetition||
+          activeCompetition==='league'&&m.team_code==='c'&&competitionKind(m)==='friendly'));
       if(availableExternal.length){
         thirdParty.append(element('h2','','Historique des matchs · sources externes'));
         const seasonLabel=element('label','sport-source-season-label','Saison des résultats sourcés : ');
