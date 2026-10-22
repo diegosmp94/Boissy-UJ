@@ -23,3 +23,4 @@ jobs:
         run: |
           npm run build:preview
           npm run audit:preview
+          npm run audit:privacy
