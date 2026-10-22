@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Calendrier : affichage de dates sourcées même sans matchs publiés (22 octobre 2026)
+
+Le calendrier Club et le Match Center avaient **0 match disponible dans Supabase**. Lorsqu'aucun match du club n'est publié, ils affichent maintenant des rencontres de sources externes datées, attribuées et explicitement **non confirmées par le club**. L'export `.ics` reste limité aux dates validées. Voir [correctif et provenance](docs/CORRECTIF_CALENDRIER_VISIBLE_20261022.md).
+
 ## Calendrier exportable et préparation FFF (22 octobre 2026)
 
 La page Agenda propose un export `.ics` des rencontres et événements publics validés par le club, respectant les filtres affichés. Le Control Center propose une prévisualisation **sans écriture** d'un format de flux FFF partenaire futur pour le club d'affiliation **548423**. Aucune API FFF non documentée n'est appelée et **la synchronisation FFF n'est pas activée sans autorisation officielle**. [Détails, tests et prérequis d'accès](docs/ETAPE_37_CALENDRIER_FFF.md).
