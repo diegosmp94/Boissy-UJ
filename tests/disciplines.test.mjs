@@ -57,8 +57,8 @@ test('agenda contains distinct futsal discipline label',()=>{
   const published=[{id:'fixture',team_id:futsalId,opponent_name:'Adversaire',
     scheduled_at:'2026-11-08T15:00:00Z',published:true,match_status:'scheduled'}];
   const events=combinePublishedAgenda(published,[],[
-    {id:futsalId,name:'Boissy-UJ Futsal',discipline:'futsal'}],{now:Date.parse('2026-10-21T12:00:00Z')});
-  assert.equal(events[0].subtitle,'Futsal · Boissy-UJ Futsal');
+    {id:futsalId,name:'Senior',discipline:'futsal'}],{now:Date.parse('2026-10-21T12:00:00Z')});
+  assert.equal(events[0].subtitle,'Futsal · Senior');
 });
 test('migration preserves existing UUIDs and RLS and adds only futsal club team',()=>{
   assert.match(sql,/add column if not exists discipline text not null default 'football'/);
@@ -74,7 +74,7 @@ test('UI separates teams and provides safe local navigation, unchanged auth',()=
   assert.match(app,/group\('football-section'/);
   assert.match(app,/group\('futsal-section'/);
   assert.match(app,/data-discipline-target="futsal-section"/);
-  assert.match(app,/BOISSY-UJ FUTSAL/);
+  assert.match(app,/<strong>SENIOR<\/strong>/);
   assert.match(styles,/\.discipline-section/);
   assert.match(styles,/@media\(max-width:760px\)/);
   assert.match(read('auth-config.mjs'),/adminEnabled:\s*true/);
