@@ -2,6 +2,8 @@ import { supabaseConfig } from './auth-config.mjs';
 import {CLUB_TEAMS,teamRoute} from './club-teams.mjs';
 import {publicExternalFixtures,EXTERNAL_FIXTURE_REVIEWED_AT} from './external-match-previews.mjs';
 import {clubOutcome} from './league-standings.mjs';
+import {victoryCongratulations,collectiveVictoryCongratulations} from './victory-congratulations.mjs';
+import {createVictoryNotice} from './victory-notice.mjs';
 
 const ENDPOINT = supabaseConfig.url + '/rest/v1/';
 const TEAM_CODES = ['a','b','c','veterans','futsal'];
@@ -95,6 +97,8 @@ function matchCard(match,teamsById) {
   const team=CLUB_TEAMS.find(t=>t.code===linked?.code);
   if(team){const profile=element('a','sport-team-profile-link','Voir la fiche '+team.name+' ↗');profile.href=teamRoute(team);card.append(profile);}
   card.prepend(meta,sides,foot);
+  const celebration=victoryCongratulations(match,linked?.code);
+  if(celebration)card.append(createVictoryNotice(celebration));
   return card;
 }
 function mountEmpty(container,message) {
@@ -151,6 +155,8 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
   filter.append(element('span','sport-count',matches.length+' rencontre(s) publiée(s)'));
   const data=element('div','sport-fixtures');
   const thirdParty=element('section','agenda-thirdparty sport-external-fixtures');
+  const collective=collectiveVictoryCongratulations(matches,teams);
+  if(collective)root.append(createVictoryNotice(collective,{collective:true}));
   root.append(filter,data,thirdParty);
   function redraw(){
     data.replaceChildren();
@@ -237,7 +243,7 @@ export async function mountSport(initialTeamCode=null) {
   try{
     const [teams,matches,seasons]=await Promise.all([
       getRows('club_teams',{select:'id,code,name,division,source_kind,discipline,sort_order',order:'sort_order.asc'},abort.signal),
-      getRows('matches',{select:'id,team_id,season_id,opponent_name,scheduled_at,venue,is_home,home_score,away_score,match_status,source_kind',
+      getRows('matches',{select:'id,team_id,season_id,opponent_name,scheduled_at,venue,is_home,home_score,away_score,match_status,source_kind,published',
         published:'eq.true',order:'scheduled_at.asc',limit:'100'},abort.signal),
       getRows('club_seasons',{select:'id,label,state',order:'label.desc'},abort.signal)
     ]);
