@@ -37,3 +37,37 @@
 .agenda-external-card p{color:#bfd2e9;font-size:14px;line-height:1.55;margin:0}
 .agenda-external-card .agenda-date{display:block;text-transform:capitalize}
 @media(max-width:650px){.agenda-thirdparty{padding:16px}.agenda-external-grid{grid-template-columns:1fr}}
+
+/* Calendrier mensuel dynamique — navigation clavier, responsive, contraste. */
+.agenda-month-root{margin:26px 0 34px}
+.month-calendar{padding:clamp(16px,3vw,30px);background:linear-gradient(150deg,#0c2d50,#08182d);border:1px solid rgba(190,217,248,.3);border-radius:18px;box-shadow:0 15px 38px rgba(0,0,0,.17)}
+.month-calendar-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:12px}
+.month-calendar-title{margin:0;font-size:clamp(21px,3vw,31px);color:#fff;text-transform:capitalize}
+.month-calendar-actions{display:flex;flex-wrap:wrap;gap:8px}
+.month-calendar-nav{background:#123e6b;border:1px solid #a7c6e76e;border-radius:9px;padding:8px 13px;min-height:44px;color:#fff;font:inherit;font-weight:700;cursor:pointer}
+.month-calendar-nav:hover{border-color:#eac575;background:#235684}
+.month-calendar-today{background:#eac575;color:#0b223a;border-color:#eac575}
+.month-calendar-legend{margin:0 0 20px;color:#c9dbed;font-size:13px;line-height:1.65}
+.month-calendar-board{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.month-calendar-weekday{text-align:center;padding:10px 0;color:#f3d38e;font-weight:800;font-size:12px}
+.month-calendar-day{display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;gap:6px;min-height:71px;padding:9px;background:#143656;border:1px solid #6688ad50;border-radius:8px;color:#fff;font:inherit;text-align:left;cursor:pointer;min-width:0}
+.month-calendar-day.is-outside{opacity:.45;background:#071729}
+.month-calendar-day.is-today{border-color:#eac575}
+.month-calendar-day.is-selected{background:#225280;outline:2px solid #eac575;outline-offset:-2px}
+.month-calendar-number{font-size:13px;font-weight:800}
+.month-calendar-marks{display:flex;flex-wrap:wrap;gap:4px}
+.month-calendar-mark{display:inline-flex;align-items:center;justify-content:center;min-width:21px;min-height:21px;border-radius:6px;font-size:12px;font-weight:800}
+.month-calendar-mark.is-club{background:#76bdf6;color:#07223d}
+.month-calendar-mark.is-source{background:#eac575;color:#172840}
+.month-calendar-details{margin-top:22px;padding-top:18px;border-top:1px solid #bed9f833}
+.month-calendar-details h3{margin:0 0 12px;color:#fff;font-size:18px;text-transform:capitalize}
+.month-calendar-event{margin:10px 0;padding:17px;border:1px solid #76bdf655;border-radius:10px;background:#103354}
+.month-calendar-event.is-external{border-color:#eac57578}
+.month-calendar-event h4{font-size:17px;line-height:1.4;color:#fff;margin:0 0 8px}
+.month-calendar-event p{margin:6px 0;color:#cbdaed;line-height:1.5}
+.month-calendar-event .month-calendar-meta{color:#f0d18d;font-size:13px}
+.month-calendar-link{display:inline-flex;min-height:44px;align-items:center;color:#eed18f;font-weight:800;text-decoration:underline}
+.month-calendar-empty{color:#d4e2f2}
+.month-calendar-day:focus-visible,.month-calendar-nav:focus-visible,.month-calendar-link:focus-visible{outline:3px solid #f4d58d;outline-offset:2px}
+@media(max-width:600px){.month-calendar-board{gap:3px}.month-calendar{padding:12px}.month-calendar-day{min-height:51px;padding:5px 4px}.month-calendar-weekday{font-size:11px}.month-calendar-number{font-size:12px}.month-calendar-mark{min-height:17px;min-width:17px;font-size:10px}.month-calendar-head{align-items:stretch}.month-calendar-actions{width:100%;justify-content:space-between}.month-calendar-nav{padding:8px;font-size:12px}}
+@media(prefers-reduced-motion:reduce){.month-calendar *{scroll-behavior:auto;transition:none}}
