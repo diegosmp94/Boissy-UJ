@@ -118,7 +118,18 @@ export async function mountTeamProfile(code){
           node('p','team-profile-disclaimer',
             'Sources SportCorico et TheFootData · saisons 2025–2026 et 2026–2027 · dernier contrôle du calendrier '+
             EXTERNAL_FIXTURE_REVIEWED_AT+'. Non homologuées par le club ; les scores peuvent être corrigés.'));
+        const filter=node('label','team-archive-season-label','Afficher les résultats de : ');
+        const select=node('select','sport-team-select');
+        select.setAttribute('aria-label','Saison des rencontres archivées de cette équipe');
+        for(const [value,label] of [['all','Toutes les saisons'],['2026-2027','2026–2027'],['2025-2026','2025–2026']]){
+          const option=node('option','',label);option.value=value;select.append(option);
+        }
+        filter.append(select);section.append(filter);
         const list=node('div','team-profile-matches');
+        const cards=[];
+        select.addEventListener('change',()=>{
+          for(const card of cards)card.node.hidden=select.value!=='all'&&card.season!==select.value;
+        });
         for(const m of sourced.slice().sort((a,b)=>b.time-a.time)){
           const item=node('article','team-profile-match');
           item.append(node('span','team-profile-match-kind',
@@ -141,7 +152,7 @@ export async function mountTeamProfile(code){
           }
           const a=node('a','team-profile-source','Vérifier sur '+m.source_label+' ↗');
           a.href=m.source;a.target='_blank';a.rel='noopener noreferrer';
-          item.append(a);list.append(item);
+          item.append(a);cards.push({node:item,season:m.season});list.append(item);
         }
         section.append(list);root.append(section);
       }
