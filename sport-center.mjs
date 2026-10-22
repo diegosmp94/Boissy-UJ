@@ -165,6 +165,7 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
     legend.append(element('span','sport-outcome sport-outcome-'+code,label));
   }
   root.append(filter,legend,data,thirdParty);
+  let sourcedSeason='all';
   function redraw(){
     data.replaceChildren();
     const selection=select.value;
@@ -188,12 +189,24 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
     }
     {
       const team=teams.find(t=>t.id===select.value);
-      const external=publicExternalFixtures({
+      const availableExternal=publicExternalFixtures({
         team:team?.code||'all',discipline:disciplineSelect.value,
         includePast:true,period:'all'
       });
-      if(external.length){
+      const external=availableExternal.filter(m=>sourcedSeason==='all'||m.season===sourcedSeason);
+      if(availableExternal.length){
         thirdParty.append(element('h2','','Historique des matchs · sources externes'));
+        const seasonLabel=element('label','sport-source-season-label','Saison des résultats sourcés : ');
+        const seasonControl=element('select','sport-team-select');
+        seasonControl.setAttribute('aria-label','Filtrer les archives externes par saison');
+        for(const [value,label] of [['all','Toutes les saisons'],['2026-2027','2026–2027'],['2025-2026','2025–2026']]){
+          const option=element('option','',label);option.value=value;seasonControl.append(option);
+        }
+        seasonControl.value=sourcedSeason;
+        seasonControl.addEventListener('change',()=>{
+          sourcedSeason=seasonControl.value;redraw();
+        });
+        seasonLabel.append(seasonControl);thirdParty.append(seasonLabel);
         thirdParty.append(element('p','agenda-external-note',
           'Calendrier 2026–2027 relevé le '+EXTERNAL_FIXTURE_REVIEWED_AT+
           ' · archives 2025–2026 SportCorico et TheFootData. Aucun score de ces sources n’est homologué par le club.'));
@@ -229,7 +242,8 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
           }
           grid.append(card);
         }
-        thirdParty.append(grid);
+        if(external.length)thirdParty.append(grid);
+        else thirdParty.append(element('p','sport-form-empty','Aucune rencontre sourcée pour cette saison.'));
       }
     }
   }
