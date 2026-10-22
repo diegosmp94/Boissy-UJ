@@ -1,3 +1,4 @@
+import {HISTORICAL_SOURCE_RESULTS} from './historical-source-results.mjs';
 /** Public SportCorico fixtures and results; manually checked on 2026-10-22.
  * These facts are attributed third-party observations, NOT club approval or
  * an official FFF API. Never write them to Supabase automatically.
@@ -37,26 +38,33 @@ const data=[
  {team_code:'futsal',opponent:'Rungis US 2',date:'2026-12-04T21:15:00+01:00',is_home:false,source:sourceF,status:'scheduled'}
 ];
 const labels={a:'Seniors A',b:'Seniors B',veterans:'Vétérans',futsal:'Senior · Futsal'};
-export function publicExternalFixtures({now=Date.now(),query='',team='all',discipline='all',period='future',includePast=false}={}){
+export function publicExternalFixtures({now=Date.now(),query='',team='all',discipline='all',period='future',includePast=false,season='all'}={}){
  const normalize=value=>String(value??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
  const search=normalize(String(query).trim());
- return data.filter(item=>{
+ const enrichedCurrent=data.map(x=>({...x,season:'2026-2027',
+   competition:x.team_code==='a'
+     ?(x.opponent==='Villejuif US 1'?'Coupe VDM Seniors':'Seniors D3 · Poule B')
+     :x.team_code==='b'?'Seniors D4 · Poule C'
+     :x.team_code==='veterans'?'Anciens D3 · Poule C'
+     :x.opponent==='Petits Anges ES 1'?'Coupe nationale futsal':'Senior futsal D2 · Poule B'}));
+ return [...enrichedCurrent,...HISTORICAL_SOURCE_RESULTS].filter(item=>{
    const time=Date.parse(item.date.length===10?item.date+'T12:00:00Z':item.date);
    if(!Number.isFinite(time))return false;
    if(!includePast&&time<now-24*3600000)return false;
    if(period==='future'&&time<now-24*3600000)return false;
    if(period==='week'&&(time<now-24*3600000||time>now+7*86400000))return false;
+   if(season!=='all'&&season!==item.season)return false;
    if(team!=='all'&&team!==item.team_code)return false;
    if(discipline==='futsal'&&item.team_code!=='futsal')return false;
    if(discipline==='football'&&item.team_code==='futsal')return false;
-   return !search||normalize(item.opponent+' '+labels[item.team_code]).includes(search);
+   return !search||normalize(item.opponent+' '+labels[item.team_code]+' '+item.competition+' '+item.season).includes(search);
  }).map(item=>Object.freeze({
    ...item,
    time:Date.parse(item.date.length===10?item.date+'T12:00:00Z':item.date),
    localDay:item.date.slice(0,10),
    dateOnly:item.date.length===10,
    team_name:labels[item.team_code],
-   source_label:EXTERNAL_FIXTURE_PROVIDER,
+   source_label:item.source.includes('thefootdata.com')?'TheFootData':EXTERNAL_FIXTURE_PROVIDER,
    validated_by_club:false,
    result:item.status==='played'?item.home_score+' – '+item.away_score:null
  })).sort((a,b)=>a.time-b.time);
