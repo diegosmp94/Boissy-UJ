@@ -1,6 +1,7 @@
 /** Personal player/coach areas, connected only to existing authenticated Supabase APIs.
  * No member directory, secret keys or unrestricted private queries are exposed.
  */
+import {mountCoachCallups} from './coach-callups.mjs';
 import {
  PLAYER_RESPONSES,CALLOUT_STATUS,hasSportsRole,canRespondToCallup,
  normalizeCallupRows,scopedCoachTeams,validateCoachMatchDraft,coachDraftRpcArgs,sportsSafeError
@@ -183,6 +184,9 @@ async function mountCoachArea(view,api,userId){
     label('Date et heure',date),label('Lieu (facultatif)',venue),
     label('Match à domicile',home),submit,feedback);
   formRoot.append(h,explanation,form);
+  const callupArea=el('div','member-coach-callup-area');
+  view.append(callupArea);
+  void mountCoachCallups(callupArea,api,userId,teams);
   let saving=false;
   form.addEventListener('submit',async event=>{
    event.preventDefault();

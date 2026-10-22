@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Étape 32 · Convocations privées côté entraîneur
+
+Un éducateur officiellement affecté peut consulter les rencontres actives de son équipe, ses joueurs habilités et leurs statuts de réponse, puis inviter ou annuler une convocation après double confirmation. Les lectures privées sont assurées par deux RPC Supabase additionnelles limitées à ses équipes ; tant que la migration n'est pas appliquée, les commandes restent verrouillées. [Documentation](docs/ETAPE_32_CONVOCATIONS_ENTRAINEURS.md).
+
 ## Étape 31 · Espaces Joueur et Entraîneur réels
 
 Le tableau de bord connecté affiche les contextes Joueur et Entraîneur uniquement si les rôles sont validés. Un joueur peut consulter ses propres convocations et répondre via RPC privée. Un entraîneur voit ses affectations et les rencontres publiées de ses équipes et peut enregistrer une nouvelle rencontre **en brouillon** via le serveur sécurisé. Aucune sélection nominative d'effectif n'est ouverte avant finalisation de sa protection. [Documentation](docs/ETAPE_31_ESPACES_JOUEUR_ENTRAINEUR.md).
