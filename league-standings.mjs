@@ -82,6 +82,7 @@ export function renderLeagueStanding(root,standing,team){
   body.append(tr);
  }
  table.append(thead,body);wrap.append(table);section.append(wrap);
+ appendSourcedSportContext(section,team.code,{includeCurrent:false});
  const a=el('a','league-team-link','Voir la fiche '+team.name+' ↗');
  a.href=teamRoute(team);section.append(a);
  root.append(section);
