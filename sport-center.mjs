@@ -168,7 +168,7 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
     legend.append(element('span','sport-outcome sport-outcome-'+code,label));
   }
   root.append(filter);
-  let activeCompetition='league',sourcedSeason='all';
+  let activeCompetition='league',sourcedSeason='2026-2027';
   buildCompetitionTabs(root,{onChange:value=>{activeCompetition=value;redraw();}});
   root.append(context,legend,data,thirdParty);
   function redraw(){
