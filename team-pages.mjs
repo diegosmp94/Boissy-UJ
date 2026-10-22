@@ -85,7 +85,7 @@ export async function mountTeamProfile(code){
       for(const item of cards){
         const category=item.kind;
         const allowFriendly=code==='c'&&activeCompetition==='league'&&category==='friendly';
-        item.node.hidden=(!allowFriendly&&category!=='unspecified'&&category!==activeCompetition)||
+        item.node.hidden=(!allowFriendly&&category!==activeCompetition)||
           (item.season!=='all'&&activeSeason!=='all'&&activeSeason!==item.season);
       }
       for(const sec of sections){
@@ -188,6 +188,9 @@ export async function mountTeamProfile(code){
       }
     }
     renderCategory();
+    const unclassifiedCount=cards.filter(x=>x.kind==='unspecified').length;
+    if(unclassifiedCount)root.append(node('p','team-competition-unclassified',
+      unclassifiedCount+' rencontre(s) publiées ne sont pas encore classées. Un administrateur doit indiquer Championnat ou Coupe pour les afficher dans le bon onglet.'));
     root.append(node('p','team-profile-disclaimer',
       'Les résultats publiés par le club et les références de sources externes ne sont pas équivalents. Aucun classement officiel FFF ne peut être déduit du seul bilan de notre équipe.'));
   }catch{
