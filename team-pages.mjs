@@ -84,7 +84,8 @@ export async function mountTeamProfile(code){
     const renderCategory=()=>{
       for(const item of cards){
         const category=item.kind;
-        item.node.hidden=(category!=='unspecified'&&category!==activeCompetition)||
+        const allowFriendly=code==='c'&&activeCompetition==='league'&&category==='friendly';
+        item.node.hidden=(!allowFriendly&&category!=='unspecified'&&category!==activeCompetition)||
           (item.season!=='all'&&activeSeason!=='all'&&activeSeason!==item.season);
       }
       for(const sec of sections){
@@ -96,7 +97,9 @@ export async function mountTeamProfile(code){
       activeCompetition=value;renderCategory();
     }});
     const competitionNote=node('p','team-competition-help',
-      'Championnat et coupe sont séparés par équipe. Les résultats sourcés restent non homologués ; seules les dates ont été confirmées par le club.');
+      code==='c'
+        ?'Seniors C : rencontres amicales, sans championnat officiel. Aucun match de coupe annoncé en 2026–2027.'
+        :'Championnat et coupe sont séparés par équipe. Les résultats externes ne sont pas homologués ; les dates 2026–2027 ont été confirmées par le club.');
     root.append(competitionNote);
     const cupDetails=cupInformation(code,'2026-2027');
     const cupNotice=node('aside','team-cup-participation');
