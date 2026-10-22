@@ -117,9 +117,14 @@ const port=app.address().port;
 let chrome;
 const scenarios=[
  {name:'mobile-home',hash:'#/',width:320,height:760},
+ {name:'mobile-teams',hash:'#/equipes',width:390,height:844},
+ {name:'mobile-matches',hash:'#/matchs',width:390,height:844},
+ {name:'mobile-admin-guest',hash:'#/control-center',width:390,height:844},
  {name:'mobile-privacy',hash:'#/confidentialite',width:390,height:844},
  {name:'mobile-account',hash:'#/mon-espace',width:390,height:844},
  {name:'tablet-legal',hash:'#/mentions-legales',width:768,height:980},
+ {name:'tablet-join',hash:'#/rejoindre',width:768,height:980},
+ {name:'desktop-news',hash:'#/actualites',width:1366,height:850},
  {name:'desktop-futsal',hash:'#/equipes/futsal/boissy-uj-futsal',width:1366,height:850}
 ];
 const reports=[];
@@ -157,6 +162,16 @@ try{
       !document.querySelector('a[href="#/mentions-legales"]'))errors.push('Legal links missing');
    if(expected==='#/'){
     if(document.querySelectorAll('.chapter').length!==8)errors.push('Expected 8 cinematic chapters');
+    // The mobile menu and account entry must be comfortably tappable on a 320px device.
+    if(width<768){
+     for(const selector of ['#menu-toggle','.header-account']){
+      const element=document.querySelector(selector);
+      if(element&&element.getClientRects().length){
+       const rect=element.getBoundingClientRect();
+       if(rect.width<44||rect.height<44)errors.push('Insufficient mobile target size: '+selector);
+      }
+     }
+    }
     if(width<768){
      const menu=document.querySelector('#mobile-menu'),toggle=document.querySelector('#menu-toggle');
      if(!menu||!toggle)errors.push('Mobile navigation elements missing');
@@ -176,6 +191,10 @@ try{
      if(location.hash!==expected)errors.push('Skip link replaced current SPA route');
      if(document.activeElement!==main)errors.push('Skip link did not focus main');
     }
+   }
+   if(expected==='#/control-center'){
+    if(!main.querySelector('#real-admin-root'))errors.push('Protected administration guard absent');
+    if(main.querySelector('.admin-module-tab'))errors.push('Guest obtained administrator navigation');
    }
    if(expected==='#/mon-espace'){
     if(!main.querySelector('[data-auth-root]'))errors.push('Account authentication mount absent');
