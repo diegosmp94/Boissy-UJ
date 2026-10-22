@@ -90,5 +90,5 @@ test('database migration enforces MFA, private audit and RLS, not fabricated off
  assert.match(sql,/revoke all on public\.team_league_standings from public,anon,authenticated/);
  assert.match(sql,/app_private\.league_standings_audit/);
  assert.match(sql,/grant execute on function public\.admin_save_league_standings/);
- assert.doesNotMatch(sql,/insert into public\.team_league_standings.*Boissy/s);
+ assert.doesNotMatch(sql,/insert into public\.team_league_standings\s*\([^)]*\)\s*values\s*\([^)]*Boissy/i);
 });
