@@ -6,7 +6,7 @@
 | --- | ---: | --- |
 | Identité, accueil cinématique et navigation | 15 | Huit chapitres, affichage mobile, commandes clavier et animations réduites |
 | Comptes, rôles et sécurité | 16 | Supabase Auth, récupération, RLS, droits cumulables et MFA administrateur |
-| Équipes, licenciés, saisons et éducateurs | 13 | Quatre équipes, convocations, fiches, effectifs et reconduction |
+| Équipes, licenciés, saisons et éducateurs | 13 | Cinq équipes (dont Senior en futsal), convocations, fiches, effectifs et reconduction |
 | Match Center et FFF | 13 | Compositions, scores, statistiques, données officielles vérifiées ou saisie manuelle |
 | Actualités et Media Center | 8 | Médias autorisés, publication par éducateur, réactions sans commentaires |
 | Supporters, Premium et Awards | 8 | Gratuit, premium 10 €/mois et 100 €/an manuel, votes uniques |
@@ -30,6 +30,10 @@ Chaque module n'obtient ses points que lorsque ses critères sont réalisés et 
 - Aucun automatisme FFF non autorisé ; mode manuel fonctionnel.
 - Sauvegarde et restauration réellement testées avant lancement.
 - Pas de régression critique en navigation mobile et accessibilité.
+
+## Suivi P1 — identité, navigation et conformité (22 octobre 2026)
+
+Le correctif [P1 Identité / RGPD / déploiement](P1_IDENTITE_RGPD_DEPLOIEMENT.md) ajoute des pages de transparence, les points d'accès légaux, la navigation clavier/mobile et un contrôle de packaging en CI. **Aucun des 15 points du domaine visuel ni des 4 points du domaine RGPD/déploiement ne peut être qualifié d'intégralement homologué avant la recette multi-appareils, la validation des mentions, la preuve de restauration et la validation juridique.** Les points restent attribués uniquement lors de la recette réelle.
 
 ## État initial
 
