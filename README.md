@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## P1 — Contrôle HTTP manuel de GitHub Pages
+
+En complément de la recette Chromium locale, la commande `npm run smoke:live` vérifie en **lecture seule** les fichiers réellement servis par GitHub Pages. Le workflow GitHub Actions « Vérifier manuellement GitHub Pages Boissy-UJ » est déclenché à la demande, indépendamment des tests des PR, pour éviter les faux échecs liés au délai de publication. Les captures des scénarios navigateur et l'inventaire RGPD demeurent disponibles dans les artefacts de la CI. [Protocole et limites](docs/P1_BROWSER_RGPD_INVENTAIRE.md).
+
 ## Étape 36 · Vérifications réelles dans Chromium et inventaire RGPD
 
 La CI teste désormais les pages Accueil, Confidentialité, Mentions légales et Senior/Futsal dans Chrome headless, à 320, 390, 768 et 1366 pixels, et vérifie l'absence de débordement horizontal ainsi que l'accès au menu mobile et au clavier. Des captures PNG et un rapport sont fournis dans les artefacts GitHub Actions. Un inventaire des domaines externes et du stockage navigateur facilite l'audit technique RGPD. **La validation juridique et les essais physiques iPhone/Android restent à faire.** [Étape 36](docs/ETAPE_36_RECETTE_NAVIGATEUR_RGPD.md).
