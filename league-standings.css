@@ -67,3 +67,9 @@
 .sourced-standings-rank{font:900 clamp(23px,3vw,31px)/1.2 Outfit,system-ui,sans-serif;color:#ffe2a3;margin:5px 0 12px}
 .sourced-standings-source{display:inline-flex;align-items:center;min-height:44px;padding:8px 0;color:#f3d08c;text-decoration:underline;text-underline-offset:3px;font-size:12px;font-weight:800;margin:6px 13px 0 0}
 .sourced-standings-source:focus-visible{outline:3px solid #ffe19a;outline-offset:3px}
+
+/* Season filters expose all known archives on demand without overflowing on mobile. */
+.team-profile-match[hidden]{display:none!important}
+.sport-source-season-label,.team-archive-season-label{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:10px 0 18px;color:#d5e8ff;font-size:13px;font-weight:800}
+.sport-source-season-label select,.team-archive-season-label select{min-height:44px;max-width:100%;flex:0 1 230px}
+@media(max-width:520px){.sport-source-season-label select,.team-archive-season-label select{flex:1 1 100%}}
