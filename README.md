@@ -81,7 +81,7 @@ Les cinq pages d'équipes affichent désormais les sections Effectif, Encadremen
 - **Sous-pages Équipes** : menu à deux niveaux (Football à 11 / Futsal), pages catégorie, fiche pour chacune des cinq équipes, prochaines rencontres et résultats publiés sans données personnelles, navigation desktop/mobile accessible. [Étape 20](docs/ETAPE_20_MENU_EQUIPES.md).
 - **Agenda du club** : page publique `#/agenda` réunissant les matchs programmés et les événements autorisés avec dates vérifiées, recherche, filtres et version mobile. Aucun rendez-vous fictif. [Étape 17](docs/ETAPE_17_AGENDA_UNIFIE.md).
 - **CMS Histoire & identité** : atelier de prévisualisation du Control Center et futur éditeur d'administration protégé par MFA AAL2, workflow brouillon/publication/retrait et journal d'audit. L'authentification publique reste fermée. [Étape 18](docs/ETAPE_18_CMS_CLUB.md).
-- Interface « Mon espace » implémentée et reliée à Supabase, mais **inscription et connexion désactivées dans cette préversion publique** en attendant la recette réelle (RGPD, e-mails et sécurité).
+- « Mon espace » : formulaires d'inscription/connexion, traitement des retours e-mail et espaces Joueur/Entraîneur reliés à Supabase ; les tests réels e-mails, rôles et MFA sur plusieurs comptes sont encore nécessaires à l'homologation.
 - Premium : 10 € mensuels ou 100 € pour douze mois, sans renouvellement automatique annuel ; aucune transaction réelle.
 - Matrice de recette pondérée, seuil des 85 % pour lancer la recette finale.
 
@@ -91,11 +91,11 @@ Les cinq pages d'équipes affichent désormais les sections Effectif, Encadremen
 
 ## Cahier des charges et droits des membres
 
-[Cahier des charges fonctionnel V1.1](docs/CAHIER_DES_CHARGES.md) : règles de cumul joueur / entraîneur / administrateur (doubles et triples rôles), approbation administrative obligatoire pour chaque nouveau rôle, équipe éducateur distincte et MFA AAL2 sur les opérations administratives. Le schéma de base prend en charge les rôles cumulés, et les fonctions SQL d'approbation existent, mais **leur recette avec comptes distincts et MFA reste à mener avant ouverture**.
+[Cahier des charges fonctionnel V1.5](docs/CAHIER_DES_CHARGES.md) : règles de cumul joueur / entraîneur / administrateur (doubles et triples rôles), approbation administrative obligatoire pour chaque nouveau rôle, équipe éducateur distincte et MFA AAL2 sur les opérations administratives. Le schéma de base prend en charge les rôles cumulés, et les fonctions SQL d'approbation existent, mais **leur recette avec comptes distincts et MFA reste à mener avant ouverture**.
 
 ## État réel de Supabase
 
-Les migrations de comptes, équipes, matchs, actualités, événements, affectations éducateurs, audit et sécurité ont été **appliquées au projet Boissy-UJ**. Les tables métier sont vides, à l’exception des cinq équipes déclarées ; aucun compte, billet ni paiement réel créé. La connexion publique demeure désactivée dans cette préversion. Voir [État Supabase vérifié](docs/ETAT_SUPABASE_20261021.md).
+Les migrations de comptes, cinq équipes, matchs, actualités, événements, affectations sportives, contrôle des rôles cumulés, audit et sécurité sont présentes sur le projet Supabase. Les données réelles sont limitées : pas de matchs publiés, de billet ni de paiement réel ajouté par ces étapes. Les parcours de connexion et d'administration doivent encore être homologués avec des comptes autorisés. Voir [État Supabase vérifié](docs/ETAT_SUPABASE_20261021.md).
 
 ## Tests
 Exécuter `npm test`. Les tests GitHub Actions sont lancés sur les branches de développement, les pull requests et `main`.
