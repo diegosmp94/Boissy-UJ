@@ -10,6 +10,7 @@ import {mountNews,unmountNews} from './media-center.mjs';
 import {mountSport,unmountSport} from './sport-center.mjs';
 import {teamDeepLink,parsePublicRoute} from './team-links.mjs';
 import {mountTeamStats,unmountTeamStats} from './team-stats.mjs';
+import {mountHomeVictory,unmountHomeVictory} from './victory-home.mjs';
 import {mountLeagueStandings,unmountLeagueStandings} from './league-standings.mjs';
 import {adminCenterMarkup,mountAdminCenter,unmountAdminCenter} from './admin-center.mjs';
 import {authMarkup,mountAuth,unmountAuth,getAuthClient} from './auth.mjs';
@@ -83,7 +84,7 @@ function home(){return `
       ${arrow('competition')}
     </section>
     <section class="chapter chapter-competition" id="competition" aria-labelledby="competition-title">
-      <div class="section-copy"><span class="chapter-no">03 / 08</span>${tag('Le football au centre')}<h2 id="competition-title">CHAQUE MATCH<br/><em>COMPTE.</em></h2><p>Retrouvez les rencontres et les résultats officiels lorsqu’ils seront disponibles, ainsi que les statistiques du club.</p>${link('#/matchs','Ouvrir le Match Center','btn-primary')}${link('#/agenda','Agenda du club','btn-ghost')}</div>
+      <div class="section-copy"><span class="chapter-no">03 / 08</span>${tag('Le football au centre')}<h2 id="competition-title">CHAQUE MATCH<br/><em>COMPTE.</em></h2><p>Retrouvez les rencontres et les résultats officiels lorsqu’ils seront disponibles, ainsi que les statistiques du club.</p>${link('#/matchs','Ouvrir le Match Center','btn-primary')}${link('#/agenda','Agenda du club','btn-ghost')}<div id="home-victory-banner" class="home-victory-banner" aria-live="polite"></div></div>
       <div class="score-panel"><div class="panel-heading"><span class="live-dot"></span> PROCHAINES RENCONTRES</div><div class="versus"><span>BOISSY-UJ</span><strong>VS</strong><span>À VENIR</span></div><div class="panel-meta">Calendrier en cours de préparation</div><div class="score-divider"></div><div class="mini-stat"><span>5 équipes</span><span>Football & futsal</span></div></div>
       ${arrow('equipes')}
     </section>
@@ -245,6 +246,7 @@ function render(){
   if(path==='/')setupChapters();
   if(path==='/mon-espace') void mountAuth(); else unmountAuth();
   if(path==='/matchs') void mountSport(route.teamCode); else unmountSport();
+  if(path==='/') void mountHomeVictory(); else unmountHomeVictory();
   const activeTeam=teams.find(t=>teamRoute(t).slice(1)===path);
   if(activeTeam){void mountTeamProfile(activeTeam.code);void mountTeamPublicExtras(activeTeam.code);}
   else {unmountTeamProfile();unmountTeamPublicExtras();}

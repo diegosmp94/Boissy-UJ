@@ -2,6 +2,8 @@ import {supabaseConfig} from './auth-config.mjs';
 import {CLUB_TEAMS} from './club-teams.mjs';
 import {publicExternalFixtures,EXTERNAL_FIXTURE_REVIEWED_AT} from './external-match-previews.mjs';
 import {clubOutcome} from './league-standings.mjs';
+import {victoryCongratulations} from './victory-congratulations.mjs';
+import {createVictoryNotice} from './victory-notice.mjs';
 
 const ROOT=supabaseConfig.url+'/rest/v1/';
 const node=(tag,cls='',value=null)=>{
@@ -37,7 +39,7 @@ export async function loadTeamPublishedMatches(code,{signal,fetcher=fetch}={}){
   const remote=teams.find(t=>t.code===code&&t.discipline===team.discipline);
   if(!remote)return {configured:false,matches:[]};
   const rows=await request('matches',{
-    select:'id,team_id,opponent_name,scheduled_at,venue,is_home,match_status,home_score,away_score',
+    select:'id,team_id,opponent_name,scheduled_at,venue,is_home,match_status,home_score,away_score,published',
     team_id:'eq.'+remote.id,published:'eq.true',order:'scheduled_at.desc',limit:'80'
   },signal,fetcher);
   return {configured:true,matches:rows.filter(m=>m.team_id===remote.id
@@ -94,6 +96,8 @@ export async function mountTeamProfile(code){
           card.append(node('span','sport-outcome sport-outcome-'+outcome,
             outcome==='V'?'Victoire':outcome==='D'?'Défaite':'Match nul'));
         }
+        const celebration=victoryCongratulations(match,code);
+        if(celebration)card.append(createVictoryNotice(celebration));
         list.append(card);
       }
       section.append(list);root.append(section);
