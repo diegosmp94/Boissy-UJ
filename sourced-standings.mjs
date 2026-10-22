@@ -40,11 +40,11 @@ export function knownClubSeasonForm(code,{season='2026-2027'}={}){
 
 const e=(tag,cls='',value=null)=>{const n=document.createElement(tag);
  if(cls)n.className=cls;if(value!==null)n.textContent=String(value);return n;};
-export function appendSourcedSportContext(container,teamCode){
+export function appendSourcedSportContext(container,teamCode,{includeCurrent=true}={}){
  const current=knownClubSeasonForm(teamCode,{season:'2026-2027'});
  const archive=ARCHIVED_LEAGUE_POSITIONS[teamCode];
  const group=e('div','sourced-standings-context');
- if(current){
+ if(current&&includeCurrent){
   const card=e('section','sourced-standings-partial');
   card.append(e('h3','','Bilan partiel 2026–2027 · championnat'));
   const dl=e('dl','sourced-standings-stat-grid');
@@ -72,6 +72,6 @@ export function appendSourcedSportContext(container,teamCode){
   card.append(link);group.append(card);
  }
  if(group.children.length)container.append(group);
- else container.append(e('p','league-source',
+ else if(includeCurrent)container.append(e('p','league-source',
    'Aucun classement complet ni bilan actuel confirmé pour cette équipe. Le club doit publier sa poule et ses statistiques réelles.'));
 }
