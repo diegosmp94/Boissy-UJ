@@ -4,7 +4,7 @@ Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement.
 
 ## Homologation P1 — Phase 3 (22 octobre 2026)
 
-Droits Supabase des profils restreints aux colonnes `id` et `display_name` à la création, puis à `display_name` uniquement lors d'une modification, avec vérification de production. Audit SQL de reprise et procédure sécurisée de restauration préparés ; **aucune restauration n'a encore été exécutée**. Plan Supabase Free confirmé ; la protection contre les mots de passe compromis de l'offre Pro n'est pas activée. [Bilan phase 3](docs/P1_HOMOLOGATION_PHASE3.md) · [Guide de reprise](docs/P1_RECOVERY_PLAYBOOK.md).
+Droits Supabase des profils restreints aux colonnes `id` et `display_name` à la création, puis à `display_name` uniquement lors d'une modification, avec vérification de production. Audit SQL de reprise et procédure sécurisée de restauration préparés ; **aucune restauration n'a encore été exécutée**. Plan Supabase Free confirmé ; la protection contre les mots de passe compromis de l'offre Pro n'est pas activée. [Bilan phase 3](docs/P1_HOMOLOGATION_PHASE3.md) · [Guide de reprise](docs/P1_RECOVERY_PLAYBOOK.md). [Procès-verbal d'homologation à compléter](docs/P1_PV_HOMOLOGATION.md).
 
 ## Homologation P1 — Phase 2 (22 octobre 2026)
 
