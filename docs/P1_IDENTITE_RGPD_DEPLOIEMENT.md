@@ -26,6 +26,10 @@ Les traceurs soumis à consentement ne doivent pas être activés avant le choix
 
 Aucune adresse e-mail, durée ni coordonnées non vérifiées n'ont été inscrites dans l'application. Aucun faux bouton de demande RGPD n'a été publié.
 
+## Complément technique P1 — navigateur et inventaire (octobre 2026)
+
+La nouvelle recette automatisée [P1 navigateur / RGPD](P1_BROWSER_RGPD_INVENTAIRE.md) exécute les pages publiques dans un vrai Chromium sur quatre formats d'écran et collecte des captures sans compte connecté. Elle inventorie aussi les domaines tiers et API de stockage rencontrés dans le code client. Un contrôle **manuel** indépendant par HTTPS du site Pages publié est disponible, sans faire dépendre les PR de la synchronisation du déploiement. La validation juridique et les essais Safari réels restent exigés.
+
 ## Déploiement et validation
 
 Le déploiement est techniquement contrôlé par `npm run release:check`. Les fichiers clients nécessaires se retrouvent dans `dist/`, pas les fichiers internes. **La configuration actuelle conserve `noindex, nofollow` et un robots.txt bloquant** : ce choix évite l'indexation d'un site dont les mentions légales ne sont pas validées. La suppression du blocage SEO doit être une décision distincte après la publication des vraies mentions légales.
