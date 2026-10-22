@@ -1,6 +1,7 @@
 import { supabaseConfig } from './auth-config.mjs';
 import {CLUB_TEAMS,teamRoute} from './club-teams.mjs';
 import {publicExternalFixtures,EXTERNAL_FIXTURE_REVIEWED_AT} from './external-match-previews.mjs';
+import {clubOutcome} from './league-standings.mjs';
 
 const ENDPOINT = supabaseConfig.url + '/rest/v1/';
 const TEAM_CODES = ['a','b','c','veterans','futsal'];
@@ -80,6 +81,10 @@ function matchCard(match,teamsById) {
     element('span','sport-score',scoreLabel(match)),
     element('strong','',match.is_home?match.opponent_name:club)
   );
+  const outcome=clubOutcome(match);
+  if(outcome){const result=element('span','sport-outcome sport-outcome-'+outcome,
+    outcome==='V'?'Victoire':outcome==='D'?'Défaite':'Match nul');
+    meta.append(result);}
   const foot=element('div','sport-foot');
   const teamLabel=element('span','',club);
   const source=element('span','',match.source_kind === 'fff'
@@ -192,9 +197,20 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
             :match.is_home?'Domicile indiqué':'Extérieur indiqué';
           card.append(date,element('h3','',match.team_name+' — '+match.opponent),
             element('p','',result));
+          if(match.status==='played'){
+            const win=clubOutcome({...match,match_status:'played'});
+            if(win)card.append(element('span','sport-outcome sport-outcome-'+win,
+              win==='V'?'Victoire':win==='D'?'Défaite':'Match nul'));
+          }
           const link=element('a','agenda-link','Vérifier la source ↗');
           link.href=match.source;link.target='_blank';link.rel='noopener noreferrer';
-          card.append(link);grid.append(card);
+          card.append(link);
+          const teamProfile=CLUB_TEAMS.find(t=>t.code===match.team_code);
+          if(teamProfile){
+            const page=element('a','agenda-link','Fiche '+teamProfile.name+' ↗');
+            page.href=teamRoute(teamProfile);card.append(page);
+          }
+          grid.append(card);
         }
         thirdParty.append(grid);
       }
