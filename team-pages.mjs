@@ -1,5 +1,7 @@
 import {supabaseConfig} from './auth-config.mjs';
 import {CLUB_TEAMS} from './club-teams.mjs';
+import {publicExternalFixtures,EXTERNAL_FIXTURE_REVIEWED_AT} from './external-match-previews.mjs';
+import {clubOutcome} from './league-standings.mjs';
 
 const ROOT=supabaseConfig.url+'/rest/v1/';
 const node=(tag,cls='',value=null)=>{
@@ -87,11 +89,50 @@ export async function mountTeamProfile(code){
           node('p','team-profile-score',scoreText(match)),
           node('small','',match.venue||'Lieu non communiqué')
         );
+        const outcome=clubOutcome(match);
+        if(outcome){
+          card.append(node('span','sport-outcome sport-outcome-'+outcome,
+            outcome==='V'?'Victoire':outcome==='D'?'Défaite':'Match nul'));
+        }
         list.append(card);
       }
       section.append(list);root.append(section);
     }
-    root.append(node('p','team-profile-disclaimer','Seules les rencontres publiées par le club sont affichées. Aucun classement officiel n’est déduit. Les effectifs ne figurent que dans l’annuaire public validé.'));
+    if(!result.matches.length){
+      const sourced=publicExternalFixtures({team:code,includePast:true,period:'all'});
+      if(sourced.length){
+        const section=node('section','team-profile-group team-profile-external');
+        section.append(node('h2','','Archives et rencontres externes à confirmer'),
+          node('p','team-profile-disclaimer',
+            'Références SportCorico relevées le '+EXTERNAL_FIXTURE_REVIEWED_AT+
+            '. Non validées par le club ; dates et scores susceptibles de correction.'));
+        const list=node('div','team-profile-matches');
+        for(const m of sourced){
+          const item=node('article','team-profile-match');
+          item.append(node('span','team-profile-match-kind',
+            m.status==='played'?'Résultat de source externe':
+              m.status==='unknown'?'Score non communiqué':'Rencontre annoncée'),
+            node('p','team-profile-match-date',m.dateOnly
+              ?new Intl.DateTimeFormat('fr-FR',{dateStyle:'long',timeZone:'UTC'})
+                .format(new Date(m.localDay+'T12:00:00Z'))
+              :dateText(m.time)),
+            node('strong','',m.is_home?'Boissy-UJ — '+m.opponent:m.opponent+' — Boissy-UJ'),
+            node('p','team-profile-score',m.result||'Score non confirmé'));
+          if(m.status==='played'){
+            const outcome=clubOutcome({...m,match_status:'played'});
+            if(outcome)item.append(node('span','sport-outcome sport-outcome-'+outcome,
+              outcome==='V'?'Victoire':outcome==='D'?'Défaite':'Match nul'));
+          }
+          const a=node('a','team-profile-source','Vérifier le match sur SportCoriko ↗');
+          a.textContent='Vérifier sur SportCorico ↗';
+          a.href=m.source;a.target='_blank';a.rel='noopener noreferrer';
+          item.append(a);list.append(item);
+        }
+        section.append(list);root.append(section);
+      }
+    }
+    root.append(node('p','team-profile-disclaimer',
+      'Les résultats publiés par le club et les références de sources externes ne sont pas équivalents. Aucun classement officiel FFF ne peut être déduit du seul bilan de notre équipe.'));
   }catch{
     if(controller.signal.aborted||current!==generation||!root.isConnected)return;
     root.replaceChildren(node('p','team-profile-state','Données sportives temporairement indisponibles. Aucun résultat non vérifié ne sera présenté.'));
