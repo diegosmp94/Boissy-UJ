@@ -32,7 +32,7 @@ test('recovery audit is read-only, checks schema, RLS, privileged RPCs and effec
  assert.doesNotMatch(recovery,/\b(?:insert|delete|update|drop|truncate|alter|grant|revoke)\s+(?:into|from|on|table|function|public\.)/i);
 });
 test('restore requires a separate target and retains user data outside GitHub',()=>{
- assert.match(playbook,/ISOLATED_RESTORE_DATABASE_URL/);
+ assert.match(playbook,/RECOVERY_DATABASE_URL/);
  assert.match(playbook,/SOURCE_DATABASE_URL/);
  assert.match(playbook,/sha256sum/);
  assert.match(playbook,/--single-transaction/);
