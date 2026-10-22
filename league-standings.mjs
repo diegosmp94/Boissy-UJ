@@ -71,7 +71,7 @@ export function renderLeagueStanding(root,standing,team){
  const body=el('tbody');
  for(const row of standing.entries){
   const tr=el('tr','');
-  const isOwn=row.name.toLowerCase().replace(/[^a-z0-9]/g,'').includes('boissy');
+  const isOwn=/^boissyuj(?:[0-9]+)?$/.test(row.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,''));
   if(isOwn)tr.classList.add('league-own-team');
   for(const v of [row.position,row.name,row.played,row.wins,row.draws,row.losses,
    row.goals_for,row.goals_against,row.goalDifference,row.points]){
