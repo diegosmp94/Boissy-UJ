@@ -10,6 +10,7 @@ import {mountNews,unmountNews} from './media-center.mjs';
 import {mountSport,unmountSport} from './sport-center.mjs';
 import {teamDeepLink,parsePublicRoute} from './team-links.mjs';
 import {mountTeamStats,unmountTeamStats} from './team-stats.mjs';
+import {mountLeagueStandings,unmountLeagueStandings} from './league-standings.mjs';
 import {adminCenterMarkup,mountAdminCenter,unmountAdminCenter} from './admin-center.mjs';
 import {authMarkup,mountAuth,unmountAuth,getAuthClient} from './auth.mjs';
 import {hasAuthCallback} from './auth-flow.mjs';
@@ -95,7 +96,7 @@ function home(){return `
   </div><aside class="chapter-rail" aria-label="Navigation par chapitres">${chapters.map((c,i)=>`<button type="button" class="rail-dot" data-chapter="${c.id}" aria-label="Chapitre ${i+1} : ${c.name}" title="${c.name}"></button>`).join('')}</aside><div class="chapter-counter" aria-live="off">01 <span>/ 08</span></div>`;}
 
 function pageShell(overline,title,description,body){return `<div class="page-shell"><div class="page-ambient"></div><div class="page-intro">${tag(overline)}<h1>${title}</h1><p>${description}</p></div><div class="page-body">${body}</div><footer class="simple-footer"><span>© Boissy-UJ — Site officiel en préparation</span><a href="#/club">Notre club ↗</a><a href="#/">Retour à l’accueil ↗</a></footer></div>`;}
-function matches(){return pageShell('Le terrain avant tout','MATCH <em>CENTER.</em>','Calendriers et résultats publiés des cinq équipes, distinguées entre football à 11 et futsal.',`<div class="info-banner"><span class="info-icon">i</span><div><strong>Données officielles FFF en cours de vérification</strong><p>Les rencontres apparaissent uniquement après publication. Le club peut également renseigner manuellement ses rencontres. Aucun score n’est inventé.</p></div></div><div id="match-center-live" class="sport-root" aria-live="polite"><p class="sport-loading">Aucune rencontre publiée pour le moment — chargement du calendrier…</p></div><div class="subhead"><h2>Statistiques collectives</h2><span>RÉSULTATS PUBLIÉS UNIQUEMENT</span></div><div id="team-form-public" class="sport-team-form" aria-live="polite"><p class="sport-loading">Chargement des bilans…</p></div><div class="subhead"><h2>Nos compétitions</h2><span>SAISON À CONFIGURER</span></div><div class="detail-grid">${teams.map(t=>`<article class="detail-card"><span class="tiny-label">${t.discipline==='futsal'?'FUTSAL · ':'FOOTBALL · '}${t.tag}</span><h3>${t.name}</h3><p>${t.league}</p><small>${t.source}</small></article>`).join('')}</div>`);}
+function matches(){return pageShell('Le terrain avant tout','MATCH <em>CENTER.</em>','Calendriers et résultats publiés des cinq équipes, distinguées entre football à 11 et futsal.',`<div class="info-banner"><span class="info-icon">i</span><div><strong>Données officielles FFF en cours de vérification</strong><p>Les rencontres apparaissent uniquement après publication. Le club peut également renseigner manuellement ses rencontres. Aucun score n’est inventé.</p></div></div><div id="match-center-live" class="sport-root" aria-live="polite"><p class="sport-loading">Aucune rencontre publiée pour le moment — chargement du calendrier…</p></div><div class="subhead"><h2>Statistiques collectives</h2><span>RÉSULTATS PUBLIÉS UNIQUEMENT</span></div><div id="team-form-public" class="sport-team-form" aria-live="polite"><p class="sport-loading">Chargement des bilans…</p></div><div class="subhead"><h2>Classements par championnat</h2><span>MISE À JOUR APRÈS CHAQUE JOURNÉE PAR LE CLUB</span></div><div id="team-league-standing" class="league-standings-root" aria-live="polite"><p class="sport-loading">Chargement des classements…</p></div><div class="subhead"><h2>Nos compétitions</h2><span>SAISON À CONFIGURER</span></div><div class="detail-grid">${teams.map(t=>`<article class="detail-card"><span class="tiny-label">${t.discipline==='futsal'?'FUTSAL · ':'FOOTBALL · '}${t.tag}</span><h3>${t.name}</h3><p>${t.league}</p><small>${t.source}</small></article>`).join('')}</div>`);}
 
 function teamPage(){
   const teamDetail=(t,i,groupTotal)=>`<article class="detail-card team-detail"><span class="tiny-label">${String(i+1).padStart(2,'0')} / ${String(groupTotal).padStart(2,'0')} · ${t.tag}</span>
@@ -149,6 +150,7 @@ function singleTeamPage(team){
           <span class="team-profile-division">${team.division}</span>
         </div>
       </section>
+      <div id="team-league-standing" class="league-standings-root league-team-standing" aria-live="polite"><p class="sport-loading">Classement du championnat en cours de chargement…</p></div>
       <div id="team-profile-live" class="team-profile-live" aria-live="polite">
         <p class="team-profile-state">Chargement des rencontres publiées…</p>
       </div>
@@ -247,6 +249,9 @@ function render(){
   if(activeTeam){void mountTeamProfile(activeTeam.code);void mountTeamPublicExtras(activeTeam.code);}
   else {unmountTeamProfile();unmountTeamPublicExtras();}
   if(path==='/matchs') void mountTeamStats(); else unmountTeamStats();
+  if(path==='/matchs') void mountLeagueStandings(route.teamCode);
+  else if(activeTeam) void mountLeagueStandings(activeTeam.code);
+  else unmountLeagueStandings();
   if(path==='/actualites') void mountNews(route.teamCode); else unmountNews();
   if(path==='/evenements') void mountEvents(); else unmountEvents();
   if(path==='/agenda') void mountAgenda(); else unmountAgenda();
