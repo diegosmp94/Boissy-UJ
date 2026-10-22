@@ -11,7 +11,7 @@ const FALLBACK_TEAMS = Object.freeze([
   { id:'pending-b', code:'b', name:'Seniors B', division:'Départemental 4', discipline:'football' },
   { id:'pending-c', code:'c', name:'Seniors C', division:'Matchs amicaux', discipline:'football' },
   { id:'pending-veterans', code:'veterans', name:'Vétérans', division:'Départemental 3',discipline:'football' },
-  { id:'pending-futsal',code:'futsal',name:'Boissy-UJ Futsal',division:'Départemental 2',discipline:'futsal' }
+  { id:'pending-futsal',code:'futsal',name:'Senior',division:'Départemental 2',discipline:'futsal' }
 ]);
 
 let currentRequest;
