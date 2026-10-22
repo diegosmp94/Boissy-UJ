@@ -11,13 +11,13 @@ begin
  if exists (
   select 1 from public.club_teams
   where code='futsal' and discipline='futsal'
-    and name not in ('Boissy-UJ Futsal','Seniors Futsal')
+    and name not in ('Boissy-UJ Futsal','Seniors Futsal','Senior')
  ) then
   raise exception 'Unexpected existing futsal team name; review before rename';
  end if;
  update public.club_teams
-   set name='Seniors Futsal'
-   where code='futsal' and discipline='futsal' and name='Boissy-UJ Futsal';
+   set name='Senior'
+   where code='futsal' and discipline='futsal' and name in ('Boissy-UJ Futsal','Seniors Futsal');
 end;
 $$;
 commit;
