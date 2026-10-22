@@ -24,7 +24,7 @@ export function validateStandings(entries){
  return entries.map(row=>{
   const name=String(row.name??'').trim();
   const position=Number(row.position),computed=standingComputed(row);
-  if(name.length<2||name.length>100||/[\\u0000-\\u001f\\u007f]/.test(name)||
+  if(name.length<2||name.length>100||/[\u0000-\u001f\u007f]/.test(name)||
    names.has(name.toLocaleLowerCase('fr-FR'))||!Number.isSafeInteger(position)||
    position<1||position>entries.length||positions.has(position)||
    computed.played!==Number(row.played))throw Error('Classement invalide');
