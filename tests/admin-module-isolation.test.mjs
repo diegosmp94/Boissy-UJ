@@ -13,7 +13,7 @@ test('each admin route creates an isolated module DOM root',()=>{
 
 test('all private admin tools mount under a detachable view, never shared pane',()=>{
  for(const name of [
- 'mountAdminMembers','mountAdminRoleModeration','mountAuthenticatedTeamPeopleEditor',
+ 'mountAdminMembers','mountAdminRoleModeration','mountAuthenticatedTeamPeopleEditor','mountAdminPlayerTeams',
  'mountAdminSeasons','mountAdminMatches','mountAdminNews','mountAuthenticatedClubIdentityEditor'
  ]){
   assert.ok(source.includes(name+'(view,api,verified.userId)'),name+' not detached');
