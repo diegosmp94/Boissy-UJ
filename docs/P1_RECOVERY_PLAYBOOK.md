@@ -24,14 +24,14 @@ Effectuer la requête **sur la source au moment de la sauvegarde** puis **sur la
        supabase db dump --db-url "$SOURCE_DATABASE_URL" -f recovery-private/data.sql --use-copy --data-only
        sha256sum recovery-private/roles.sql recovery-private/schema.sql recovery-private/data.sql > recovery-private/sha256.txt
 
-5. Vérifier **manuellement** que la connexion ISOLATED_RESTORE_DATABASE_URL cible une autre instance. Ne jamais employer SOURCE_DATABASE_URL comme destination. Restaurer avec la méthode documentée (adapter extensions, rôles et version) :
+5. Vérifier **manuellement** que RECOVERY_DATABASE_URL cible un PostgreSQL **local, réellement isolé**, distinct de la source. Une redirection de port, un proxy ou un tunnel local peuvent autrement pointer sur la production : contrôler l'infrastructure et l'identité de l'instance en plus du nom d'hôte. Exécuter la barrière locale `node scripts/verify-recovery-target.mjs` avant toute opération. Ce contrôle n'ouvre pas de connexion et **ne suffit pas, à lui seul, à garantir la sécurité de la cible**. Ne jamais employer SOURCE_DATABASE_URL comme destination. Restaurer avec la méthode documentée (adapter extensions, rôles et version) :
 
        psql --single-transaction --variable ON_ERROR_STOP=1 \
          --file recovery-private/roles.sql \
          --file recovery-private/schema.sql \
          --command 'SET session_replication_role = replica' \
          --file recovery-private/data.sql \
-         --dbname "$ISOLATED_RESTORE_DATABASE_URL"
+         --dbname "$RECOVERY_DATABASE_URL"
 
 6. Sur la **cible exclusivement**, vérifier les empreintes SHA-256 de l'archive, exécuter le même script SQL de vérification, comparer les comptages et les fingerprints. Effectuer un essai métier avec des comptes autorisés, sans envoyer de vrais mails ou déclencher de paiements.
 7. Contrôler séparément les éléments potentiellement absents de l'export SQL : **Auth (configuration et redirects), Storage et objets, Edge Functions, secrets, domaines, fournisseurs externes et tâches planifiées**.
