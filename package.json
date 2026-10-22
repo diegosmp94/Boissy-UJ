@@ -12,6 +12,7 @@
     "release:check": "npm test && npm run build:preview && npm run audit:preview",
     "smoke:browser": "node scripts/browser-smoke.mjs",
     "audit:privacy": "node scripts/privacy-inventory.mjs",
-    "quality:release": "npm run release:check && npm run audit:privacy && npm run smoke:browser"
+    "quality:release": "npm run release:check && npm run audit:privacy && npm run smoke:browser",
+    "smoke:live": "node scripts/live-pages-smoke.mjs"
   }
 }
