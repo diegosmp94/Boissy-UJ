@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## P1 · Identité, navigation, confidentialité et préproduction sécurisée
+
+L'accueil conserve ses huit chapitres et l'univers bleu nuit/doré ; les menus affichent désormais correctement **Senior** sous **Futsal**, y compris sur mobile. Deux pages de transparence sont disponibles via le pied de page et Mon espace, sans inventer les données légales du club. Le focus clavier, le mode animations réduites et l'export client pour GitHub Pages ont été renforcés. `npm run release:check` vérifie l'intégrité du bundle, les imports et l'absence de fichiers internes. **La validation juridique, l'audit navigateur multi-appareils et la preuve de restauration restent nécessaires avant la pleine recette.** [État et critères de sortie P1](docs/P1_IDENTITE_RGPD_DEPLOIEMENT.md).
+
 ## Étape 35 · P2 — Modification sécurisée des profils membres
 
 Le Centre de gestion permet de corriger le nom d'affichage d'un autre compte membre, sous double confirmation et MFA AAL2 côté Supabase, avec historique privé et sans modifier le compte Auth, les rôles ou les affectations. Fonctionnalité inactive tant que la migration sécurisée n'est pas disponible. [Documentation P2](docs/ETAPE_35_P2_PROFILS_MEMBRES.md).
