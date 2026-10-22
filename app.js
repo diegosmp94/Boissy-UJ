@@ -86,7 +86,7 @@ function home(){return `
       ${arrow('equipes')}
     </section>
     <section class="chapter chapter-teams" id="equipes" aria-labelledby="teams-title"><div class="section-heading"><div><span class="chapter-no">04 / 08</span>${tag('Nos couleurs, nos équipes')}<h2 id="teams-title">CINQ ÉQUIPES.<br/><em>DEUX DISCIPLINES.</em></h2></div>${link('#/equipes','Toutes les équipes','btn-outline')}</div><p class="discipline-home-label">FOOTBALL À 11 · 4 ÉQUIPES</p><div class="teams-grid">${footballTeams.map(teamCard).join('')}</div>
-    <a class="futsal-home-link" href="${teamRoute(futsalTeams[0])}"><span class="tiny-label">FUTSAL · DÉPARTEMENTAL 2</span><strong>SENIORS FUTSAL</strong><span>Découvrir la cinquième équipe ↗</span></a>${arrow('medias')}</section>
+    <a class="futsal-home-link" href="${teamRoute(futsalTeams[0])}"><span class="tiny-label">FUTSAL · DÉPARTEMENTAL 2</span><strong>SENIOR</strong><span>Découvrir la cinquième équipe ↗</span></a>${arrow('medias')}</section>
     <section class="chapter chapter-media" id="medias" aria-labelledby="media-title"><div class="section-copy"><span class="chapter-no">05 / 08</span>${tag('Le club en images')}<h2 id="media-title">DES MOMENTS<br/><em>À PARTAGER.</em></h2><p>Actualités, albums photos et vidéos : les coulisses et les temps forts de Boissy-UJ se retrouveront ici.</p>${link('#/actualites','Explorer les actualités','btn-primary')}</div><div class="media-art" aria-label="Espace réservé aux futures photographies officielles"><div class="media-art-inner"><span class="media-play" aria-hidden="true">▶</span><strong>BOISSY<span>UJ</span></strong><small>VOS HISTOIRES. NOS COULEURS.</small></div></div>${arrow('communaute')}</section>
     <section class="chapter chapter-community" id="communaute" aria-labelledby="community-title"><div class="section-copy"><span class="chapter-no">06 / 08</span>${tag('L’expérience supporters')}<h2 id="community-title">VIVEZ LE CLUB<br/><em>AU PLUS PRÈS.</em></h2><p>Accédez à des contenus exclusifs, aux votes des Awards et à des événements privilégiés avec Boissy-UJ Premium.</p>${link('#/communaute','Découvrir Premium','btn-primary')}${link('#/awards','Les Awards','btn-ghost')}</div><div class="premium-teaser"><span class="premium-star" aria-hidden="true">✦</span><div class="tiny-label">BOISSY-UJ PREMIUM</div><strong>10 €<small> / mois</small></strong><span class="premium-separator"></span><p>Ou 100 € pour 12 mois, sans renouvellement automatique.</p><div class="premium-footer">CONTENUS · ÉVÉNEMENTS · AWARDS</div></div>${arrow('soutenir')}</section>
     <section class="chapter chapter-support" id="soutenir" aria-labelledby="support-title"><div class="section-copy"><span class="chapter-no">07 / 08</span>${tag('Construisons la suite')}<h2 id="support-title">SOUTENIR<br/><em>NOTRE AVENIR.</em></h2><p>À travers les dons et les campagnes de financement, chaque soutien contribue aux projets du club.</p>${link('#/soutenir','Découvrir nos projets','btn-outline')}</div><div class="support-orbit" aria-hidden="true"><div class="support-orbit-mid"><img src="${crest}" alt="" /></div></div>${arrow('rejoindre')}</section>
@@ -110,14 +110,14 @@ function teamPage(){
       <button type="button" data-discipline-target="football-section">Football à 11 · 4 équipes ↓</button>
       <button type="button" data-discipline-target="futsal-section">Futsal · 1 équipe ↓</button></nav>
     ${group('football-section','FOOTBALL À 11','Seniors A, Seniors B, Seniors C et Vétérans.',footballTeams)}
-    ${group('futsal-section','FUTSAL','Seniors Futsal · Départemental 2. Calendrier, effectifs et résultats après publication par le club.',futsalTeams)}`);
+    ${group('futsal-section','FUTSAL','Senior · Départemental 2. Calendrier, effectifs et résultats après publication par le club.',futsalTeams)}`);
 }
 function categoryTeamPage(discipline){
   const group=teamsByDiscipline(discipline,teams);
   const isFutsal=discipline==='futsal';
   return pageShell('Nos équipes · '+disciplineLabel(discipline),
     isFutsal?'LE <em>FUTSAL.</em>':'LE <em>FOOTBALL.</em>',
-    isFutsal?'Seniors Futsal joue en Départemental 2.':'Nos quatre équipes de football à 11 : Seniors A, B, C et Vétérans.',
+    isFutsal?'Senior joue en Départemental 2.':'Nos quatre équipes de football à 11 : Seniors A, B, C et Vétérans.',
     `<nav class="team-breadcrumbs" aria-label="Fil d’Ariane">
       <a href="#/equipes">Toutes les équipes</a><span aria-hidden="true">›</span>
       <span aria-current="page">${disciplineLabel(discipline)}</span></nav>
