@@ -1,0 +1,15 @@
+# Generated output and local tools
+node_modules/
+dist/
+smoke-artifacts/
+*.log
+
+# Secrets and private recovery exports: NEVER commit member data or database passwords
+.env
+.env.*
+!.env.example
+recovery-private/
+*.dump
+*.backup
+*.sql.gz
+*.sql.age
