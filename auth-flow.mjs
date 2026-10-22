@@ -46,7 +46,7 @@ export function validateAuthInput(mode,input={}){
   if(['login','register','newPassword'].includes(mode)
      &&(password.length<8||password.length>128))
     errors.push('Le mot de passe doit contenir entre 8 et 128 caractères.');
-  if(mode==='register'&&(displayName.length<2||displayName.length>100))
-    errors.push('Le nom d’affichage doit contenir entre 2 et 100 caractères.');
+  if(mode==='register'&&(displayName.length<2||displayName.length>80||/[\u0000-\u001f\u007f-\u009f]/u.test(displayName)))
+    errors.push('Le nom d’affichage doit contenir entre 2 et 80 caractères, sans caractère de contrôle.');
   return {valid:errors.length===0,errors,email,password,displayName};
 }
