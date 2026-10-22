@@ -104,6 +104,7 @@ async function startBrowser(){
   try{return await launchBrowserOnce();}
   catch(error){
    lastError=error;
+   if(String(error?.message||'').includes('not installed'))throw error;
    if(attempt===2)break;
    console.warn('Chromium startup unavailable (attempt 1/2); retrying with a clean profile.');
    await sleep(500);
