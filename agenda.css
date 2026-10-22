@@ -25,3 +25,15 @@
 .agenda-export:focus-visible{outline:3px solid #fff;outline-offset:3px}
 .agenda-export:disabled{opacity:.55;cursor:not-allowed}
 @media(prefers-reduced-motion:reduce){.agenda-export{transition:none}.agenda-export:hover:not(:disabled){transform:none}}
+
+/* Third-party fixtures: distinct provenance, never passed off as confirmed club results */
+.agenda-thirdparty{margin:32px 0;padding:22px;border:1px solid rgba(234,197,117,.43);border-radius:18px;background:linear-gradient(145deg,#0c2747,#08182e)}
+.agenda-thirdparty:empty{display:none}
+.agenda-thirdparty h2{font-size:clamp(19px,2.2vw,27px);color:#f1d38f;margin:0 0 10px}
+.agenda-external-note{color:#d1def0;line-height:1.7;margin:0 0 20px}
+.agenda-external-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,265px),1fr));gap:14px}
+.agenda-external-card{border:1px solid #bed9f844;border-radius:13px;background:#102f50;padding:20px;min-width:0}
+.agenda-external-card h3{color:#fff;font-size:17px;line-height:1.35;margin:10px 0;overflow-wrap:anywhere}
+.agenda-external-card p{color:#bfd2e9;font-size:14px;line-height:1.55;margin:0}
+.agenda-external-card .agenda-date{display:block;text-transform:capitalize}
+@media(max-width:650px){.agenda-thirdparty{padding:16px}.agenda-external-grid{grid-template-columns:1fr}}
