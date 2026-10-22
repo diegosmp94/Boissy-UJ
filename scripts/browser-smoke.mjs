@@ -66,12 +66,19 @@ async function startBrowser(){
  if(!page?.webSocketDebuggerUrl)throw new Error('Chrome page target unavailable');
  const ws=new WebSocket(page.webSocketDebuggerUrl);
  const pending=new Map();let seq=0;
+ // Rapport de navigation réseau sans URL complète, cookies, identifiants ni corps des requêtes.
+ const networkOrigins=new Set();
  await new Promise((resolve,reject)=>{
   ws.addEventListener('open',resolve,{once:true});
   ws.addEventListener('error',reject,{once:true});
  });
  ws.addEventListener('message',event=>{
   const message=JSON.parse(event.data);
+  if(message.method==='Network.requestWillBeSent'){
+   try{const origin=new URL(message.params.request.url).origin;
+    if(origin.startsWith('http:')||origin.startsWith('https:'))networkOrigins.add(origin);
+   }catch{}
+  }
   if(!message.id)return;
   const entry=pending.get(message.id);
   if(!entry)return;
@@ -86,7 +93,7 @@ async function startBrowser(){
  const shutdown=async()=>{
   ws.close();browser.kill('SIGKILL');await rm(dir,{recursive:true,force:true});
  };
- return {send,shutdown};
+ return {send,shutdown,networkOrigins};
 }
 async function evaluate(send,expression){
  const result=await send('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});
@@ -111,6 +118,7 @@ let chrome;
 const scenarios=[
  {name:'mobile-home',hash:'#/',width:320,height:760},
  {name:'mobile-privacy',hash:'#/confidentialite',width:390,height:844},
+ {name:'mobile-account',hash:'#/mon-espace',width:390,height:844},
  {name:'tablet-legal',hash:'#/mentions-legales',width:768,height:980},
  {name:'desktop-futsal',hash:'#/equipes/futsal/boissy-uj-futsal',width:1366,height:850}
 ];
@@ -119,6 +127,7 @@ try{
  chrome=await startBrowser();
  await chrome.send('Page.enable');
  await chrome.send('Runtime.enable');
+ await chrome.send('Network.enable');
  for(const scenario of scenarios){
   await chrome.send('Emulation.setDeviceMetricsOverride',{
    width:scenario.width,height:scenario.height,deviceScaleFactor:1,mobile:scenario.width<768
@@ -136,6 +145,14 @@ try{
    if(document.documentElement.scrollWidth>availableWidth+2)errors.push('Horizontal page overflow');
    const main=document.querySelector('#main');
    if(!main||!main.textContent.trim())errors.push('Missing main content');
+   if(document.documentElement.lang!=='fr')errors.push('Missing document language');
+   const skipLink=document.querySelector('a.skip-link[href="#main"]');
+   if(!skipLink)errors.push('Skip navigation link absent');
+   if(document.querySelectorAll('#main').length!==1)errors.push('Main landmark duplicated');
+   const emptyLabels=[...document.querySelectorAll('header a,header button,.global-legal-footer a')]
+     .filter(el=>el.getClientRects().length>0)
+     .filter(el=>!((el.getAttribute('aria-label')||el.textContent||'').trim()));
+   if(emptyLabels.length)errors.push('Unlabelled header or legal control');
    if(!document.querySelector('a[href="#/confidentialite"]')||
       !document.querySelector('a[href="#/mentions-legales"]'))errors.push('Legal links missing');
    if(expected==='#/'){
@@ -152,8 +169,18 @@ try{
      }
     }
    }
-   if(expected==='#/confidentialite'&&!main.textContent.includes('Responsable et finalités'))
-    errors.push('Privacy page incomplete');
+   if(expected==='#/confidentialite'){
+    if(!main.textContent.includes('Responsable et finalités'))errors.push('Privacy page incomplete');
+    // Test réel du lien d'évitement : un href #main ne doit jamais casser la route #/...
+    if(skipLink){skipLink.focus();skipLink.click();
+     if(location.hash!==expected)errors.push('Skip link replaced current SPA route');
+     if(document.activeElement!==main)errors.push('Skip link did not focus main');
+    }
+   }
+   if(expected==='#/mon-espace'){
+    if(!main.querySelector('[data-auth-root]'))errors.push('Account authentication mount absent');
+    if(!main.textContent.includes('Protection des données'))errors.push('Privacy notice absent from account');
+   }
    if(expected==='#/mentions-legales'&&!main.textContent.includes('Mentions légales provisoires'))
     errors.push('Legal page incomplete');
    if(expected.includes('/futsal/')&&(!main.textContent.includes('Senior')||
@@ -161,6 +188,20 @@ try{
    return {route:location.hash,title:document.title,width:document.documentElement.clientWidth,
     fullWidth:document.documentElement.scrollWidth,errors};
   })()`);
+  if(scenario.hash==='#/'){
+   await chrome.send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
+   const reducedMotion=await evaluate(chrome.send,`(()=>{
+    const rule=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const el=document.querySelector('.chapter');
+    const style=el?getComputedStyle(el):null;
+    return {active:rule,animation:style?.animationDuration,transition:style?.transitionDuration};
+   })()`);
+   if(!reducedMotion.active)result.errors.push('Reduced-motion media setting ignored');
+   const durations=String(reducedMotion.animation||'0s').split(',').concat(String(reducedMotion.transition||'0s').split(','));
+   if(durations.some(d=>parseFloat(d)>0.01))result.errors.push('Motion durations not reduced');
+   await chrome.send('Emulation.setEmulatedMedia',{features:[]});
+   result.reducedMotion=reducedMotion;
+  }
   reports.push({...scenario,...result});
   const shot=await chrome.send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
   await writeFile(join(artifactDir,scenario.name+'.png'),Buffer.from(shot.data,'base64'));
@@ -168,7 +209,12 @@ try{
   console.log('BROWSER PASS '+scenario.name+': '+result.route+' '+result.width+'px');
  }
  await writeFile(join(artifactDir,'browser-smoke.json'),JSON.stringify(reports,null,2));
- console.log('Four public routes verified on real Chromium layouts; screenshots saved.');
+ const origins=[...chrome.networkOrigins].filter(origin=>!origin.startsWith('http://127.0.0.1:')).sort();
+ await writeFile(join(artifactDir,'browser-network-origins.json'),JSON.stringify({
+  scope:'Anonymous local preview only; no user account tested; only origin names recorded',
+  externalOrigins:origins
+ },null,2));
+ console.log(scenarios.length+' public routes verified in Chromium; network origins inventoried without cookies or identities.');
 }finally{
  if(chrome)await chrome.shutdown();
  await new Promise(resolve=>app.close(resolve));

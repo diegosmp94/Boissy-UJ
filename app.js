@@ -326,5 +326,13 @@ document.addEventListener('keydown',e=>{
   closeDesktopTeams({returnFocus:Boolean(wasOpen&&focusedInside)});
 });
 main.addEventListener('click',e=>{const discipline=e.target.closest('[data-discipline-target]');if(discipline){document.getElementById(discipline.dataset.disciplineTarget)?.scrollIntoView({behavior:'smooth',block:'start'});return;}const next=e.target.closest('[data-next]');const dot=e.target.closest('[data-chapter]');const target=next?.dataset.next??dot?.dataset.chapter;if(target){const section=document.getElementById(target);section?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});if(section){section.tabIndex=-1;section.focus({preventScroll:true});}}});
+// Le routeur GitHub Pages utilise #/route : un lien #main déclencherait une
+// navigation vers une route invalide et ferait perdre la page courante.
+// Intercepter uniquement le lien d'évitement, sans changer le hash.
+document.querySelector('.skip-link')?.addEventListener('click',event=>{
+  event.preventDefault();
+  main.scrollIntoView({block:'start',behavior:'instant'});
+  main.focus({preventScroll:true});
+});
 window.addEventListener('hashchange',render);
 render();

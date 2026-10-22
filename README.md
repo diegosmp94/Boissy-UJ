@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Homologation P1 — Phase 2 (22 octobre 2026)
+
+Correction du lien d'évitement clavier pour le routeur `#/...` (la navigation reste sur la page consultée) ; nouveaux contrôles Chromium sur Mon espace public, libellés visibles, animations réduites et inventaire des domaines réseau, sans accès aux données personnelles. Un audit SQL de sécurité reproductible, en lecture seule, contrôle RLS et les privilèges des RPC. **L'homologation complète n'est pas atteinte :** comptes multi-identités, Safari/VoiceOver et Android réels, restauration sur base isolée, données légales et réglages Auth restent à valider. [Protocole de recette Phase 2](docs/P1_HOMOLOGATION_PHASE2.md).
+
 ## P1 — Contrôle HTTP manuel de GitHub Pages
 
 En complément de la recette Chromium locale, la commande `npm run smoke:live` vérifie en **lecture seule** les fichiers réellement servis par GitHub Pages. Le workflow GitHub Actions « Vérifier manuellement GitHub Pages Boissy-UJ » est déclenché à la demande, indépendamment des tests des PR, pour éviter les faux échecs liés au délai de publication. Les captures des scénarios navigateur et l'inventaire RGPD demeurent disponibles dans les artefacts de la CI. [Protocole et limites](docs/P1_BROWSER_RGPD_INVENTAIRE.md).
