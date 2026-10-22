@@ -6,7 +6,7 @@ import vm from 'node:vm';
 const read=file=>readFileSync(new URL('../'+file,import.meta.url),'utf8');
 const script=read('app.js');
 const begin=script.indexOf("const desktopTeamNav=$('#desktop-team-nav');");
-const end=script.indexOf('function closeMenu(){',begin);
+const end=script.indexOf('function closeMenu(',begin);
 const escapeStart=script.indexOf("document.addEventListener('keydown',e=>{",end);
 const escapeEnd=script.indexOf("main.addEventListener('click'",escapeStart);
 
