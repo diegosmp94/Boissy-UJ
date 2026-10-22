@@ -19,7 +19,7 @@ Les modifications sont réalisées sur une branche dédiée et font l'objet de c
 - Premium mensuel : 10 € / mois, sans engagement.
 - Premium annuel : 100 € / 12 mois, **sans renouvellement automatique**.
 - Stripe comme seule solution de paiements, sous réserve de configuration et conformité ; pas de LIVE à ce stade.
-- Quatre équipes : Seniors A D3, B D4, C amicaux, Vétérans D3.
+- Cinq équipes : Seniors A D3, B D4, C amicaux, Vétérans D3 et Boissy-UJ Futsal D2.
 - Accueil en huit chapitres plein écran, contrôlable par le visiteur ; navigation mobile hybride.
 - Les éducateurs publient directement les contenus et statistiques autorisés de leur équipe.
 - Ni commentaires ni messagerie ; uniquement réactions.
@@ -34,6 +34,10 @@ Les modifications sont réalisées sur une branche dédiée et font l'objet de c
 - L'ajout d'un rôle ne retire pas les autres ; toute affectation entraîneur à une équipe est validée séparément.
 - Développement restant : demande / approbation / rejet / révocation auditée, contrôle des affectations et tests de permissions multi-identités avant ouverture de Mon espace.
 - Exigences détaillées : [Cahier des charges V1.1](CAHIER_DES_CHARGES.md).
+
+## Suivi P1 — Espaces Joueur / Entraîneur (2026-10-22)
+
+La priorité P1 de l'audit est **développée côté application et fonctions Supabase** sur les étapes 31 (contextes et réponses), 32 (convocations d'équipe), 33 (affiliations joueurs) et 34 (affectations entraîneurs). Les gardes d'authentification, de périmètre d'équipe et de MFA sont testés automatiquement. **Reste la recette avec plusieurs comptes habilités** avant homologation complète. Voir [plan de recette P1](P1_ESPACES_SPORTIFS_RECETTE.md).
 
 ## Vérifications à mener plus tard
 
