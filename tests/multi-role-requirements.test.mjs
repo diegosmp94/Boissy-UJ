@@ -32,7 +32,7 @@ test('every added role is admin-approved without self-approval',()=>{
 test('one role removal retains others and coach team assignment stays separate',()=>{
   assert.match(spec,/La révocation d'une seule fonction laisse les autres intactes/);
   assert.match(spec,/révocation \x60coach\x60 désactive également ses affectations d'équipes/);
-  assert.match(spec,/validation d'un rôle entraîneur.*validation de.*ses affectations par équipe/);
+  assert.match(spec,/validation du \*\*rôle entraîneur\*\* est distincte des affectations/);
 });
 
 test('current database design allows multiple roles and refuses client grants',()=>{
@@ -44,11 +44,12 @@ test('current database design allows multiple roles and refuses client grants',(
   assert.match(mfaSchema,/auth\.jwt\(\) ->> 'aal'\) = 'aal2'/);
 });
 
-test('no documentation misleadingly claims approval flow is deployed',()=>{
-  assert.match(spec,/système de demandes et d'approbations des doubles\/triples rôles.*doit encore être développé/);
+test('canonical specification reports delivered approvals without claiming production homologation',()=>{
+  assert.match(spec,/demandes\/approbations\/révocations des rôles cumulables ont été implémentés/);
+  assert.match(spec,/les parcours multi-identités/);
   assert.match(authDoc,/circuit de demandes\/approbations \*\*non développé\*\*/);
   assert.match(decisions,/Cahier des charges V1\.1/);
-  assert.match(roadmap,/cahier des charges V1\.1/i);
+  assert.match(roadmap,/cahier des charges V1\.5/i);
   assert.match(panelDoc,/prévisualisation n'attribue jamais de rôle/);
   assert.match(read('README.md'),/docs\/CAHIER_DES_CHARGES\.md/);
 });
