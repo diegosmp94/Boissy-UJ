@@ -1,0 +1,20 @@
+name: Vérifier manuellement GitHub Pages Boissy-UJ
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-pages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+      - name: Installer Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Tester la disponibilité publique sans authentification
+        env:
+          BOISSY_PUBLIC_URL: https://diegosmp94.github.io/Boissy-UJ/
+        run: npm run smoke:live
