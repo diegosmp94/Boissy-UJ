@@ -61,3 +61,27 @@ test('P1 browser audit is mandatory in PR tests and reports are retained without
  assert.equal(scripts['audit:privacy'],'node scripts/privacy-inventory.mjs');
  assert.match(scripts['quality:release'],/release:check.*audit:privacy.*smoke:browser/);
 });
+
+test('P1 public Pages check is separate, read-only, HTTPS-only and safe on PRs',()=>{
+ const live=read('scripts/live-pages-smoke.mjs');
+ const action=read('.github/workflows/live-pages-smoke.yml');
+ assert.match(live,/https:\/\/diegosmp94\.github\.io\/Boissy-UJ\//);
+ assert.match(live,/base\.protocol!=='https:'/);
+ assert.match(live,/fetch\(url,\{method:'GET'/);
+ assert.match(live,/Abor(t)?Signal\.timeout\(timeout\)/);
+ assert.match(live,/Unexpected cross-site redirect/);
+ assert.match(live,/name="robots" content="noindex, nofollow"/);
+ assert.doesNotMatch(live,/auth\.sign|service_role|api\.rpc|\.insert\(|\.update\(|\.delete\(/);
+ assert.match(action,/workflow_dispatch:/);
+ assert.doesNotMatch(action,/pull_request:|schedule:/);
+ const pkg=JSON.parse(read('package.json'));
+ assert.equal(pkg.scripts['smoke:live'],'node scripts/live-pages-smoke.mjs');
+});
+test('P1 RGPD automation does not replace legal sign-off and real devices',()=>{
+ const docs=read('docs/P1_BROWSER_RGPD_INVENTAIRE.md');
+ assert.match(docs,/Sans|Aucun utilisateur connecté|aucun utilisateur connecté/i);
+ assert.match(docs,/iPhone\/Safari/);
+ assert.match(docs,/restauration Supabase/i);
+ assert.match(docs,/conformité RGPD/i);
+ assert.match(docs,/noindex/);
+});
