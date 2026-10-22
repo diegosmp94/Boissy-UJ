@@ -4,6 +4,7 @@ import {publicExternalFixtures,EXTERNAL_FIXTURE_REVIEWED_AT} from './external-ma
 import {clubOutcome} from './league-standings.mjs';
 import {victoryCongratulations,collectiveVictoryCongratulations} from './victory-congratulations.mjs';
 import {createVictoryNotice} from './victory-notice.mjs';
+import {buildCompetitionTabs,competitionKind,cupInformation} from './competition-tabs.mjs';
 
 const ENDPOINT = supabaseConfig.url + '/rest/v1/';
 const TEAM_CODES = ['a','b','c','veterans','futsal'];
@@ -157,6 +158,7 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
   filter.append(element('span','sport-count',matches.length+' rencontre(s) publiée(s)'));
   const data=element('div','sport-fixtures');
   const thirdParty=element('section','agenda-thirdparty sport-external-fixtures');
+  const context=element('div','sport-competition-context');
   const collective=collectiveVictoryCongratulations(matches,teams);
   if(collective)root.append(createVictoryNotice(collective,{collective:true}));
   const legend=element('div','sport-result-legend');
@@ -164,16 +166,35 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
   for(const [code,label] of [['V','Victoire'],['N','Match nul'],['D','Défaite']]){
     legend.append(element('span','sport-outcome sport-outcome-'+code,label));
   }
-  root.append(filter,legend,data,thirdParty);
-  let sourcedSeason='all';
+  root.append(filter);
+  let activeCompetition='league',sourcedSeason='all';
+  buildCompetitionTabs(root,{onChange:value=>{activeCompetition=value;redraw();}});
+  root.append(context,legend,data,thirdParty);
   function redraw(){
-    data.replaceChildren();
+    data.replaceChildren();context.replaceChildren();
     const selection=select.value;
     const filtered=filterPublishedFixtures(matches,{
       teamId:selection,seasonId:seasonSelect?.value||'all',
       discipline:disciplineSelect.value,teams
     });
-    const blocks=splitMatches(filtered);
+    const categorized=filtered.filter(m=>competitionKind(m)===activeCompetition);
+    const unclassified=filtered.filter(m=>competitionKind(m)==='unspecified');
+    const blocks=splitMatches(categorized);
+    const categoryHeading=element('p','team-competition-help',
+      activeCompetition==='cup'?'Coupe : uniquement les rencontres identifiées dans une compétition de coupe.':
+      'Championnat : uniquement les rencontres classées en championnat.');
+    context.append(categoryHeading);
+    const selectedTeam=teams.find(t=>t.id===select.value);
+    if(activeCompetition==='cup'&&selectedTeam){
+      const details=cupInformation(selectedTeam.code,'2026-2027');
+      const box=element('aside','team-cup-participation');
+      box.append(element('strong','',details.headline),element('p','',details.detail));
+      context.append(box);
+    }
+    if(unclassified.length){
+      context.append(element('p','team-competition-unclassified',
+        unclassified.length+' rencontre(s) publiée(s) non classée(s). Un administrateur doit indiquer Championnat ou Coupe pour les faire apparaître dans le bon onglet.'));
+    }
     thirdParty.replaceChildren();
     for (const [title,list,empty] of [
       ['Prochaines rencontres',blocks.upcoming,'Aucune rencontre à venir publiée pour cette équipe.'],
@@ -193,7 +214,8 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
         team:team?.code||'all',discipline:disciplineSelect.value,
         includePast:true,period:'all'
       });
-      const external=availableExternal.filter(m=>sourcedSeason==='all'||m.season===sourcedSeason);
+      const external=availableExternal.filter(m=>(sourcedSeason==='all'||m.season===sourcedSeason)
+        &&competitionKind(m)===activeCompetition);
       if(availableExternal.length){
         thirdParty.append(element('h2','','Historique des matchs · sources externes'));
         const seasonLabel=element('label','sport-source-season-label','Saison des résultats sourcés : ');
@@ -208,8 +230,9 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
         });
         seasonLabel.append(seasonControl);thirdParty.append(seasonLabel);
         thirdParty.append(element('p','agenda-external-note',
-          'Calendrier 2026–2027 relevé le '+EXTERNAL_FIXTURE_REVIEWED_AT+
-          ' · archives 2025–2026 SportCorico et TheFootData. Aucun score de ces sources n’est homologué par le club.'));
+          'Dates confirmées par le club · données sportives et scores de sources externes ('+
+          'SportCorico / TheFootData, relevé du '+EXTERNAL_FIXTURE_REVIEWED_AT+
+          '). Seuls les résultats publiés par le club peuvent être considérés comme validés.'));
         const grid=element('div','agenda-external-grid');
         for(const match of external){
           const card=element('article','agenda-external-card');
@@ -268,7 +291,7 @@ export async function mountSport(initialTeamCode=null) {
   try{
     const [teams,matches,seasons]=await Promise.all([
       getRows('club_teams',{select:'id,code,name,division,source_kind,discipline,sort_order',order:'sort_order.asc'},abort.signal),
-      getRows('matches',{select:'id,team_id,season_id,opponent_name,scheduled_at,venue,is_home,home_score,away_score,match_status,source_kind,published',
+      getRows('matches',{select:'id,team_id,season_id,opponent_name,scheduled_at,venue,is_home,home_score,away_score,match_status,source_kind,published,competition_kind,competition_label',
         published:'eq.true',order:'scheduled_at.asc',limit:'100'},abort.signal),
       getRows('club_seasons',{select:'id,label,state',order:'label.desc'},abort.signal)
     ]);
