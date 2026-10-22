@@ -61,7 +61,7 @@ test('no false collective celebration across multiple weeks or from old/future f
  assert.equal(collectiveVictoryCongratulations(wins,teams,{now:Date.parse('2026-10-15T18:00:00Z')}),null);
  assert.equal(collectiveVictoryCongratulations(wins.map(x=>({...x,published:false})),teams,{now}),null);
  assert.equal(mondayOfParisWeek('2026-10-18T23:30:00Z'),'2026-10-19');
- assert.equal(mondayOfParisWeek('2026-10-19T00:30:00+02:00'),'2026-10-12');
+ assert.equal(mondayOfParisWeek('2026-10-18T23:30:00+02:00'),'2026-10-12');
 });
 test('homepage reads public REST only and refuses external or missing data',async()=>{
  const seen=[];
