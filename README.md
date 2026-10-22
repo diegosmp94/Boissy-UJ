@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Félicitations après les victoires (22 octobre 2026)
+
+Un message de félicitations aux **joueurs et staffs** apparaît automatiquement pour toute victoire **terminée et publiée** des Seniors A, Seniors B, Vétérans ou Senior futsal (Seniors C exclus), dans le Match Center et la fiche de l'équipe. Un message collectif apparaît sur l'accueil si les quatre équipes gagnent lors d'une même semaine récente. Les résultats tiers non confirmés ne déclenchent jamais ces messages. [Fonctionnement et tests](docs/ETAPE_40_FELICITATIONS_VICTOIRES.md).
+
 ## Calendrier mensuel et résultats anciens (22 octobre 2026)
 
 L'Agenda possède désormais une **vue mensuelle dynamique** (mois passés et futurs), avec affichage des matchs joués et scores sourcés de la saison 2026-2027. Les rencontres publiées par le club restent distinguées des résultats externes qui ne sont **pas homologués officiellement**. Dans le Control Center, l'administrateur peut préparer une fiche à partir d'une source et la valider manuellement via le flux MFA existant. [Détails et sources](docs/ETAPE_38_CALENDRIER_DYNAMIQUE_ARCHIVES.md).
