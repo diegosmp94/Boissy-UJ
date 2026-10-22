@@ -49,3 +49,26 @@ test('agenda month grid and team cards can surface archived results without trea
  assert.doesNotMatch(read('historical-source-results.mjs')+read('sourced-standings.mjs'),
   /method:'POST'|\.insert\(|\.rpc\(|service_role/);
 });
+
+test('private and public data separation is enforced for 42 archived scores',()=>{
+ const migration=read('supabase/migrations/202610220011_external_match_archive_readonly.sql');
+ const found=migration.match(/\$archive_json\$(\[[\s\S]*?\])\$archive_json\$/);
+ assert.ok(found,'SQL must contain a traceable source snapshot');
+ const entries=JSON.parse(found[1]);
+ assert.equal(entries.length,42);
+ assert.deepEqual([...new Set(entries.map(x=>x.season))].sort(),['2025-2026','2026-2027']);
+ assert.ok(entries.every(x=>x.source_url.startsWith('https://')&&x.home_score>=0&&x.away_score>=0));
+ assert.match(migration,/enable row level security/);
+ assert.match(migration,/grant select on public\.external_sourced_match_archive to anon,authenticated/);
+ assert.match(migration,/club_validated boolean not null default false check \(club_validated=false\)/);
+ assert.doesNotMatch(migration,/insert into public\.matches/);
+});
+test('past rankings stay visible even after a verified current league table is published',()=>{
+ const rank=read('league-standings.mjs'),sourced=read('sourced-standings.mjs');
+ assert.match(rank,/appendSourcedSportContext\(section,team\.code,\{includeCurrent:false\}\)/);
+ assert.match(sourced,/if\(current&&includeCurrent\)/);
+ assert.match(sourced,/if\(archive\)/);
+ assert.match(read('team-pages.mjs'),/Saison des rencontres archivées de cette équipe/);
+ assert.match(read('sport-center.mjs'),/Filtrer les archives externes par saison/);
+ assert.match(read('league-standings.css'),/\.team-profile-match\[hidden\]\{display:none!important\}/);
+});
