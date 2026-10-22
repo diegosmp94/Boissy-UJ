@@ -91,13 +91,13 @@ Dans le **Control Center**, après connexion administrateur MFA AAL2 :
 - `app_private.is_admin()` exige à la fois le rôle `admin` **et un JWT MFA de niveau AAL2**.
 - Les fonctions serveur de publication vérifient déjà le rôle `coach` avec ses affectations, ou un administrateur MFA AAL2 selon l'opération.
 
-**Travail à développer (NON encore activé) :**
-- Table de demandes d'ajout de rôle, avec états contrôlés `pending`, `approved`, `rejected`, `cancelled` et traçabilité du validateur.
-- API / fonction serveur d'approbation et de révocation : transactions atomiques, validation du rôle administrateur et MFA AAL2, refus de l'auto-approbation et journalisation.
-- Séparer la **validation d'un rôle entraîneur** de la validation de **ses affectations par équipe** ; aucun accès transversal implicite.
-- Fonctions de récupération des rôles et demandes du seul titulaire ou d'un administrateur habilité.
-- Gestion des droits dans les interfaces après homologation de l'authentification et des parcours réels.
-- Procédure d'amorçage du premier administrateur et de récupération administrative, hors libre-service.
+**État fonctionnel actualisé au 22 octobre 2026 (code livré ; recette réelle des droits à finaliser) :**
+- La table `public.role_requests` et la gestion des états de demandes de rôle sont déployées dans Supabase ; une demande n'active jamais immédiatement un droit.
+- Les RPC d'approbation/refus/révocation sont implémentées avec contrôle serveur administrateur + MFA AAL2, anti-auto-validation et journalisation, sans confier l'autorisation au navigateur.
+- La validation du **rôle entraîneur** est distincte des affectations **entraîneur ↔ équipe** : attribution/retrait depuis le Centre de gestion, sans accès transversal implicite.
+- La consultation des rôles, demandes et espaces Joueur/Entraîneur est développée ; seules les identités autorisées peuvent accéder aux informations privées correspondantes.
+- Les interfaces de gestion des rôles, des équipes, des convocations et des affectations sont intégrées. **La recette indépendante avec plusieurs vrais comptes reste obligatoire** avant homologation.
+**Reste à confirmer :** procédure documentée d'amorçage/récupération administrative hors libre-service, essais multi-identités (dont triple rôle), preuves de restauration et homologation RGPD.
 
 La lecture du rôle dans le navigateur sert uniquement à l'affichage : **Supabase/PostgreSQL doit autoriser ou refuser chaque écriture**.
 
@@ -128,9 +128,9 @@ La lecture du rôle dans le navigateur sert uniquement à l'affichage : **Supaba
 
 ## 6. État d'avancement et limites de la préversion
 
-Le schéma de rôles cumulables et les protections contre l'auto-attribution existent déjà dans Supabase. **Le système de demandes et d'approbations des doubles/triples rôles est un critère fonctionnel nouvellement ajouté : il doit encore être développé et validé.**
+Le schéma et les demandes/approbations/révocations des rôles cumulables ont été implémentés, ainsi que les affectations joueurs et entraîneurs et les convocations privées (étapes 31 à 34). **Cela ne signifie pas homologation :** les parcours multi-identités, la restauration de sauvegarde et les décisions RGPD exigent encore des preuves de recette.
 
-L'authentification publique est désactivée sur GitHub Pages. Le Control Center reste un **aperçu sans opération réelle**. Aucune promotion, rôle ou affiliation d'utilisateur n'est créée par le présent cahier des charges.
+L'inscription/connexion de Mon espace et le Control Center sécurisé sont codés pour GitHub Pages + Supabase ; les écritures administratives sont limitées aux administrateurs avec MFA AAL2. Les modules sans backend validé (notamment paiements et réservation payante) restent fermés. Aucune promotion, rôle ou affiliation d'utilisateur n'est créée par cette mise à jour documentaire.
 
 ## 7. Gouvernance et validation
 

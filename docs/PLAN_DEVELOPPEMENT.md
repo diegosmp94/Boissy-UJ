@@ -32,8 +32,8 @@ Les modifications sont réalisées sur une branche dédiée et font l'objet de c
 - Un compte peut cumuler `player`, `coach`, `admin` (toutes les paires et le triple rôle).
 - Un nouvel ajout de rôle exige l'approbation d'un administrateur autre que le bénéficiaire, avec MFA AAL2 ; une demande en attente n'accorde aucun droit.
 - L'ajout d'un rôle ne retire pas les autres ; toute affectation entraîneur à une équipe est validée séparément.
-- Développement restant : demande / approbation / rejet / révocation auditée, contrôle des affectations et tests de permissions multi-identités avant ouverture de Mon espace.
-- Exigences détaillées : [Cahier des charges V1.1](CAHIER_DES_CHARGES.md).
+- Développé : demandes, approbations, refus et révocations auditées, affectations Joueur/Entraîneur par équipe, espaces connectés et contrôles serveur. **Reste :** recette de permissions multi-identités et procédures de récupération administrative avant homologation.
+- Exigences détaillées : [Cahier des charges V1.5](CAHIER_DES_CHARGES.md).
 
 ## Suivi P1 — Espaces Joueur / Entraîneur (2026-10-22)
 
