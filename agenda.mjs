@@ -174,7 +174,10 @@ export async function mountAgenda(){
           const card=make('article','agenda-external-card');
           const outcome=match.status==='played'?clubOutcome({...match,match_status:'played'}):null;
           if(outcome)card.classList.add('sport-result-'+outcome);
-          const date=make('time','agenda-date',formatDate(match.time));
+          const date=make('time','agenda-date',match.dateOnly
+            ?new Intl.DateTimeFormat('fr-FR',{dateStyle:'long',timeZone:'UTC'})
+              .format(new Date(match.localDay+'T12:00:00Z'))
+            :formatDate(match.time));
           date.dateTime=new Date(match.time).toISOString();
           const title=make('h3','',match.team_name+' — '+match.opponent);
           const detail=make('p','',match.is_home?'Domicile annoncé':'Extérieur annoncé');
