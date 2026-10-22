@@ -1,0 +1,41 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {publicExternalFixtures,EXTERNAL_FIXTURE_REVIEWED_AT} from '../external-match-previews.mjs';
+const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
+const now=Date.parse('2026-10-22T17:00:00+02:00');
+test('visitor can see actual dated external references while no matches are published in Supabase',()=>{
+ const items=publicExternalFixtures({now});
+ assert.ok(items.length>=8,'externally documented matches must be visible');
+ assert.ok(items.some(x=>x.team_code==='a'));
+ assert.ok(items.some(x=>x.team_code==='b'));
+ assert.ok(items.some(x=>x.team_code==='veterans'));
+ assert.ok(items.some(x=>x.team_code==='futsal'));
+ assert.ok(items.every(x=>x.validated_by_club===false));
+ assert.ok(items.every(x=>x.source_label==='SportCorico'&&x.source.startsWith('https://www.sportcorico.com/clubs/')));
+ assert.ok(items.every(x=>x.time>=now-86400000));
+ assert.equal(EXTERNAL_FIXTURE_REVIEWED_AT,'2026-10-22');
+});
+test('filters do not mix football, futsal, other teams, and out-of-range dates',()=>{
+ const items=publicExternalFixtures({now,discipline:'futsal'});
+ assert.ok(items.length>=2);
+ assert.ok(items.every(x=>x.team_code==='futsal'&&x.team_name==='Senior · Futsal'));
+ assert.ok(publicExternalFixtures({now,team:'a'}).every(x=>x.team_code==='a'));
+ assert.ok(publicExternalFixtures({now,query:'Nogent'}).every(x=>x.opponent.includes('Nogent')));
+ assert.equal(publicExternalFixtures({now,query:'doesnotexist'}).length,0);
+ assert.ok(publicExternalFixtures({now,period:'week'}).every(x=>x.time<=now+7*86400000));
+ assert.equal(publicExternalFixtures({now:Date.parse('2027-07-01T00:00:00Z')}).length,0);
+});
+test('site clearly distinguishes sourced previews from real club-published fixtures',()=>{
+ const agenda=read('agenda.mjs'),sport=read('sport-center.mjs'),styles=read('agenda.css'),source=read('external-match-previews.mjs');
+ assert.match(agenda,/rows\.matches\.some\(m=>m\.published===true\)/);
+ assert.match(agenda,/Calendrier externe — à confirmer par le club/);
+ assert.match(agenda,/Vérifier sur SportCorico/);
+ assert.match(agenda,/exportedEntries=selected/);
+ assert.doesNotMatch(agenda,/exportedEntries=\w*(?:suggestions|external)/);
+ assert.match(sport,/if\(!matches\.length\)/);
+ assert.match(sport,/Rencontres externes — à confirmer/);
+ assert.match(sport,/name:'Senior',division:'Départemental 2'/);
+ assert.match(styles,/agenda-thirdparty/);
+ assert.doesNotMatch(source,/\bfetch\(|\.rpc\(|\bservice_role\b|supabase\.co/);
+});
