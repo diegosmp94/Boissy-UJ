@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Étape 33 · Affectations joueurs administrateur
+
+Nouvelle rubrique administrateur pour rattacher les comptes possédant un rôle Joueur validé à des équipes, et pour retirer ces affiliations sous MFA AAL2 avec double confirmation et audit privé. Aucun compte ou rôle n'est créé. Ce rattachement permet au système de convocations entraîneur d'identifier uniquement les joueurs de son équipe. [Documentation](docs/ETAPE_33_AFFECTATIONS_JOUEURS.md).
+
 ## Étape 32 · Convocations privées côté entraîneur
 
 Un éducateur officiellement affecté peut consulter les rencontres actives de son équipe, ses joueurs habilités et leurs statuts de réponse, puis inviter ou annuler une convocation après double confirmation. Les lectures privées sont assurées par deux RPC Supabase additionnelles limitées à ses équipes ; tant que la migration n'est pas appliquée, les commandes restent verrouillées. [Documentation](docs/ETAPE_32_CONVOCATIONS_ENTRAINEURS.md).
