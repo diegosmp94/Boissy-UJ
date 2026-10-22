@@ -19,7 +19,7 @@ Les modifications sont réalisées sur une branche dédiée et font l'objet de c
 - Premium mensuel : 10 € / mois, sans engagement.
 - Premium annuel : 100 € / 12 mois, **sans renouvellement automatique**.
 - Stripe comme seule solution de paiements, sous réserve de configuration et conformité ; pas de LIVE à ce stade.
-- Cinq équipes : Seniors A D3, B D4, C amicaux, Vétérans D3 et Seniors Futsal D2.
+- Cinq équipes : Seniors A D3, B D4, C amicaux, Vétérans D3 et Senior D2.
 - Accueil en huit chapitres plein écran, contrôlable par le visiteur ; navigation mobile hybride.
 - Les éducateurs publient directement les contenus et statistiques autorisés de leur équipe.
 - Ni commentaires ni messagerie ; uniquement réactions.
