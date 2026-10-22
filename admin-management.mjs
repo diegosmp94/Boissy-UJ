@@ -2,6 +2,7 @@
  * No fabricated fixtures, articles, payments or fake local preview state.
  */
 import {adminSessionStatus} from './admin-security.mjs';
+import {mountAdminLeagueEditor} from './admin-league.mjs';
 import {previewAuthorizedFffFeed,FFF_CLUB_AFFILIATION,FFF_PUBLIC_PORTAL} from './fff-provider.mjs';
 import {CLUB_TEAMS} from './club-teams.mjs';
 import {publicExternalFixtures} from './external-match-previews.mjs';
@@ -221,6 +222,9 @@ export function mountAdminMatches(root,api,userId){
    display:r=>r.opponent_name+' · '+(r.published?'Publié':'Brouillon')+' · '+new Date(r.scheduled_at).toLocaleDateString('fr-FR')
   });
   mountFffPreview(root,api,userId);
+  const leaguePanel=el('section','admin-league-panel');
+  root.append(leaguePanel);
+  void mountAdminLeagueEditor(leaguePanel,api,userId);
   // A sourced result is NOT a club-confirmed match. Administrators must select
   // a new dossier, check its source and then explicitly save/publish via MFA RPC.
   const reviews=publicExternalFixtures({includePast:true,period:'all'});
