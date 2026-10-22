@@ -84,7 +84,9 @@ function matchCard(match,teamsById) {
     element('strong','',match.is_home?match.opponent_name:club)
   );
   const outcome=clubOutcome(match);
-  if(outcome){const result=element('span','sport-outcome sport-outcome-'+outcome,
+  if(outcome){
+    card.classList.add('sport-result-'+outcome);
+    const result=element('span','sport-outcome sport-outcome-'+outcome,
     outcome==='V'?'Victoire':outcome==='D'?'Défaite':'Match nul');
     meta.append(result);}
   const foot=element('div','sport-foot');
@@ -157,7 +159,12 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
   const thirdParty=element('section','agenda-thirdparty sport-external-fixtures');
   const collective=collectiveVictoryCongratulations(matches,teams);
   if(collective)root.append(createVictoryNotice(collective,{collective:true}));
-  root.append(filter,data,thirdParty);
+  const legend=element('div','sport-result-legend');
+  legend.setAttribute('aria-label','Légende des résultats des rencontres');
+  for(const [code,label] of [['V','Victoire'],['N','Match nul'],['D','Défaite']]){
+    legend.append(element('span','sport-outcome sport-outcome-'+code,label));
+  }
+  root.append(filter,legend,data,thirdParty);
   function redraw(){
     data.replaceChildren();
     const selection=select.value;
@@ -205,8 +212,11 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
             element('p','',result));
           if(match.status==='played'){
             const win=clubOutcome({...match,match_status:'played'});
-            if(win)card.append(element('span','sport-outcome sport-outcome-'+win,
-              win==='V'?'Victoire':win==='D'?'Défaite':'Match nul'));
+            if(win){
+              card.classList.add('sport-result-'+win);
+              card.append(element('span','sport-outcome sport-outcome-'+win,
+                win==='V'?'Victoire':win==='D'?'Défaite':'Match nul'));
+            }
           }
           const link=element('a','agenda-link','Vérifier la source ↗');
           link.href=match.source;link.target='_blank';link.rel='noopener noreferrer';
