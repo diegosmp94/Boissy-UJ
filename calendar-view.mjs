@@ -31,13 +31,14 @@ export function mountMonthCalendar(root,{now=Date.now()}={}){
  for(const b of [prev,currentButton,next])b.type='button';
  controls.append(prev,currentButton,next);header.append(heading,controls);
  const legend=make('p','month-calendar-legend',
-  'Doré : rencontre ou résultat provenant d’une source externe. Bleu : événement publié par le club. Cliquez sur une date pour voir les détails.');
+  'Vert = victoire · jaune/orange = nul · rouge = défaite. Doré = résultat ou rencontre d’une source externe ; bleu = publication du club. Cliquez sur une date pour voir les détails.');
  const board=make('div','month-calendar-board');
  const details=make('div','month-calendar-details');
  details.setAttribute('aria-live','polite');
  wrap.append(header,legend,board,details);root.append(wrap);
  const displayItem=item=>{
-  const card=make('article','month-calendar-event'+(item.external?' is-external':''));
+  const card=make('article','month-calendar-event'+(item.external?' is-external':'')+
+   (item.outcome?' is-result-'+item.outcome:''));
   const title=make('h4','',item.title);
   const state=item.external
    ?(item.status==='played'?'Résultat relevé · non homologué par le club':
@@ -46,6 +47,8 @@ export function mountMonthCalendar(root,{now=Date.now()}={}){
   const meta=make('p','month-calendar-meta',state+' · '+timeLabel(item)+(item.info?' · '+item.info:''));
   const desc=make('p','',item.subtitle||'');
   card.append(title,meta,desc);
+  if(item.outcome)card.append(make('span','sport-outcome sport-outcome-'+item.outcome,
+   item.outcome==='V'?'Victoire':item.outcome==='N'?'Match nul':'Défaite'));
   const team=CLUB_TEAMS.find(t=>t.code===item.teamCode);
   if(team){
    const profile=make('a','month-calendar-link month-calendar-profile-link',
@@ -79,6 +82,17 @@ export function mountMonthCalendar(root,{now=Date.now()}={}){
     const external=day.entries.filter(x=>x.external).length;
     if(confirmed)icons.append(make('span','month-calendar-mark is-club',confirmed));
     if(external)icons.append(make('span','month-calendar-mark is-source',external));
+    for(const [code,klass,label] of [
+      ['V','is-win','Victoire'],['N','is-draw','Match nul'],['D','is-loss','Défaite']
+    ]){
+      const count=day.entries.filter(item=>item.outcome===code).length;
+      if(count){
+        const mark=make('span','month-calendar-mark '+klass,code+(count>1?count:''));
+        mark.title=label+' : '+count;
+        mark.setAttribute('aria-label',label+' : '+count);
+        icons.append(mark);
+      }
+    }
     button.append(icons);
    }
    button.addEventListener('click',()=>{

@@ -72,6 +72,12 @@ export async function mountTeamProfile(code){
       root.append(node('p','team-profile-state','L’équipe est en cours de configuration. Aucun calendrier officiel disponible.'));return;
     }
     const groups=groupTeamResults(result.matches);
+    const legend=node('div','sport-result-legend');
+    legend.setAttribute('aria-label','Légende des résultats');
+    for(const [result,label] of [['V','Victoire'],['N','Match nul'],['D','Défaite']]){
+      legend.append(node('span','sport-outcome sport-outcome-'+result,label));
+    }
+    root.append(legend);
     for(const [heading,items,empty] of [
       ['Prochaines rencontres',groups.upcoming,'Aucune rencontre à venir publiée.'],
       ['Derniers résultats',groups.played,'Aucun résultat publié pour le moment.']
@@ -93,6 +99,7 @@ export async function mountTeamProfile(code){
         );
         const outcome=clubOutcome(match);
         if(outcome){
+          card.classList.add('sport-result-'+outcome);
           card.append(node('span','sport-outcome sport-outcome-'+outcome,
             outcome==='V'?'Victoire':outcome==='D'?'Défaite':'Match nul'));
         }
@@ -124,8 +131,11 @@ export async function mountTeamProfile(code){
             node('p','team-profile-score',m.result||'Score non confirmé'));
           if(m.status==='played'){
             const outcome=clubOutcome({...m,match_status:'played'});
-            if(outcome)item.append(node('span','sport-outcome sport-outcome-'+outcome,
-              outcome==='V'?'Victoire':outcome==='D'?'Défaite':'Match nul'));
+            if(outcome){
+              item.classList.add('sport-result-'+outcome);
+              item.append(node('span','sport-outcome sport-outcome-'+outcome,
+                outcome==='V'?'Victoire':outcome==='D'?'Défaite':'Match nul'));
+            }
           }
           const a=node('a','team-profile-source','Vérifier le match sur SportCoriko ↗');
           a.textContent='Vérifier sur SportCorico ↗';

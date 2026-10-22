@@ -14,9 +14,25 @@
 .league-own-team{background:rgba(235,194,107,.12)}
 .league-team-link{display:inline-flex;align-items:center;min-height:44px;color:#efca7b;font-size:13px;font-weight:800;text-decoration:underline}
 .sport-outcome{display:inline-flex;align-items:center;align-self:start;border-radius:100px;padding:5px 10px;border:1px solid #b4cbe260;color:#fff;font-size:11px;font-weight:900;letter-spacing:.02em}
-.sport-outcome-V{background:#124b38;border-color:#60c29a;color:#c7f8de}
-.sport-outcome-D{background:#50252d;border-color:#e89da8;color:#ffe2e6}
-.sport-outcome-N{background:#3b4052;border-color:#bfcee3;color:#eaf2ff}
+/* Consistent sports result palette: V green, N amber, D red. Labels remain visible for accessibility. */
+.sport-outcome-V{background:#124b38;border-color:#69dbaa;color:#d8ffeb}
+.sport-outcome-N{background:#69400e;border-color:#ffcb70;color:#fff0ca}
+.sport-outcome-D{background:#602831;border-color:#ffa4ad;color:#ffe6e8}
+.sport-match-card.sport-result-V,.team-profile-match.sport-result-V,.agenda-external-card.sport-result-V,.agenda-item.sport-result-V{border-color:#69dbaa!important;box-shadow:inset 4px 0 0 #69dbaa}
+.sport-match-card.sport-result-N,.team-profile-match.sport-result-N,.agenda-external-card.sport-result-N,.agenda-item.sport-result-N{border-color:#ffcb70!important;box-shadow:inset 4px 0 0 #ffcb70}
+.sport-match-card.sport-result-D,.team-profile-match.sport-result-D,.agenda-external-card.sport-result-D,.agenda-item.sport-result-D{border-color:#ffa4ad!important;box-shadow:inset 4px 0 0 #ffa4ad}
+.sport-result-V .sport-score,.sport-result-V .team-profile-score{color:#a4f6c9}
+.sport-result-N .sport-score,.sport-result-N .team-profile-score{color:#ffe3a3}
+.sport-result-D .sport-score,.sport-result-D .team-profile-score{color:#ffc0c4}
+.sport-result-legend{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:14px 0}
+.sport-result-legend .sport-outcome{font-size:12px}
+.month-calendar-event.is-result-V{border-color:#69dbaa!important;box-shadow:inset 3px 0 0 #69dbaa}
+.month-calendar-event.is-result-N{border-color:#ffcb70!important;box-shadow:inset 3px 0 0 #ffcb70}
+.month-calendar-event.is-result-D{border-color:#ffa4ad!important;box-shadow:inset 3px 0 0 #ffa4ad}
+.month-calendar-mark.is-win{background:#124b38;border:1px solid #69dbaa;color:#d8ffeb}
+.month-calendar-mark.is-draw{background:#69400e;border:1px solid #ffcb70;color:#fff0ca}
+.month-calendar-mark.is-loss{background:#602831;border:1px solid #ffa4ad;color:#ffe6e8}
+
 .month-calendar-profile-link{margin-right:14px}
 .team-profile-source{display:inline-flex;align-items:center;min-height:44px;color:#f0cc83;text-decoration:underline;font-weight:750}
 .admin-league-panel{margin-top:30px;padding:24px 0;border-top:1px solid #f0ce8e66}
