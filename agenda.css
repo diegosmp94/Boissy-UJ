@@ -18,3 +18,10 @@
 @media(max-width:850px){.agenda-item{grid-template-columns:1fr;gap:10px}.agenda-item-link{justify-self:start}}
 @media(max-width:650px){.agenda-filters{grid-template-columns:1fr;gap:13px}.agenda-item{padding:20px}.agenda-links{padding-bottom:20px}}
 @media(prefers-reduced-motion:reduce){.agenda-item,.agenda-link{scroll-behavior:auto}}
+
+/* Calendar export: keyboard accessible, disabled until verified public dates load. */
+.agenda-export{display:inline-flex;align-items:center;justify-content:center;max-width:100%;min-height:46px;margin:0 0 4px;padding:11px 20px;color:#0b2038;background:#eac575;border:1px solid #eac575;border-radius:11px;font:inherit;font-size:14px;font-weight:800;cursor:pointer;transition:transform .2s ease,background .2s ease}
+.agenda-export:hover:not(:disabled){background:#f5da9c;transform:translateY(-2px)}
+.agenda-export:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.agenda-export:disabled{opacity:.55;cursor:not-allowed}
+@media(prefers-reduced-motion:reduce){.agenda-export{transition:none}.agenda-export:hover:not(:disabled){transform:none}}

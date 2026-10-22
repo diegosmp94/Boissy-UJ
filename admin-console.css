@@ -111,3 +111,12 @@ textarea.admin-form-control{line-height:1.5;resize:vertical}
 @media(max-width:560px){.admin-member-edit{padding:12px}
  .admin-member-edit-actions{display:grid;grid-template-columns:1fr}
 }
+/* FFF: preview-only, no automatic sync before data-sharing authorization. */
+.admin-fff-preview{margin:28px 0;padding:18px 20px;border:1px solid rgba(225,192,119,.45);border-radius:14px;background:rgba(6,25,52,.38)}
+.admin-fff-preview>summary{font-weight:800;color:#efd18c;cursor:pointer;line-height:1.5;min-height:44px;align-content:center}
+.admin-fff-preview>summary:focus-visible,.admin-fff-link:focus-visible{outline:3px solid #f6da96;outline-offset:3px}
+.admin-fff-preview .admin-fff-info{margin:16px 0 10px;color:#c7d8ee;line-height:1.6}
+.admin-fff-preview .admin-fff-link{display:inline-flex;align-items:center;min-height:44px;color:#f0cc79;margin-bottom:10px;text-decoration:underline}
+.admin-fff-preview .admin-form-field{margin:12px 0}
+.admin-fff-preview .admin-form-control{width:100%;max-width:100%;box-sizing:border-box;min-height:125px}
+.admin-fff-preview .admin-fff-list{margin:8px 0 0;padding-left:24px;color:#dce8f8;line-height:1.7;overflow-wrap:anywhere}

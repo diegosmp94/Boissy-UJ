@@ -2,6 +2,7 @@
  * No fabricated fixtures, articles, payments or fake local preview state.
  */
 import {adminSessionStatus} from './admin-security.mjs';
+import {previewAuthorizedFffFeed,FFF_CLUB_AFFILIATION,FFF_PUBLIC_PORTAL} from './fff-provider.mjs';
 import {CLUB_TEAMS} from './club-teams.mjs';
 import {validateSeasonDraft,validateMatchDraft,validateNewsDraft,adminSaveErrorMessage} from './admin-editor-rules.mjs';
 import {eventDateInput,validateFreeEventDraft,eventRpcArgs} from './admin-event-rules.mjs';
@@ -130,6 +131,48 @@ export function mountAdminSeasons(root,api,userId){
   display:row=>row.label+' · '+row.state
  });
 }
+/** Preview-only: FFF has not provided a public club-feed API authorization.
+ * Never fetch old DOFA endpoints, store credentials or write these dates automatically.
+ */
+export function mountFffPreview(root,api,userId){
+ const panel=el('details','admin-fff-preview');
+ const heading=el('summary','','Connecteur FFF — préparation (accès officiel requis)');
+ const info=el('p','admin-fff-info','Club FFF n° '+FFF_CLUB_AFFILIATION+
+  ' · La connexion automatique est désactivée. Un flux ne peut être exploité qu’après autorisation et documentation de la FFF.');
+ const official=el('a','admin-fff-link','Consulter le portail officiel des compétitions FFF ↗');
+ official.href=FFF_PUBLIC_PORTAL;official.target='_blank';official.rel='noopener noreferrer';
+ const label=el('label','admin-form-field','Aperçu local d’un export JSON autorisé (aucune sauvegarde)');
+ const input=el('textarea','admin-form-control');input.rows=5;input.maxLength=150000;
+ input.placeholder='Coller un export au format partenaire documenté, après autorisation FFF';
+ label.append(input);
+ const run=el('button','admin-secondary-btn','Vérifier le flux sans importer');
+ run.type='button';
+ const status=el('p','admin-workflow-status','Aucun accès API FFF configuré. Aucun match importé.');
+ status.setAttribute('role','status');
+ const list=el('ul','admin-fff-list');
+ run.addEventListener('click',async()=>{
+  list.replaceChildren();
+  if(!root.isConnected)return;
+  run.disabled=true;
+  try{
+   if(!await guarded(api,userId)){
+    status.textContent='Session administrateur MFA AAL2 requise.';return;
+   }
+   const rows=previewAuthorizedFffFeed(JSON.parse(input.value));
+   status.textContent=rows.length+' match(s) reconnu(s) · aperçu uniquement, aucune écriture. Les références et droits doivent être confirmés.';
+   for(const match of rows.slice(0,30)){
+    const li=el('li','',match.team_code.toUpperCase()+' · '+new Date(match.scheduled_at).toLocaleDateString('fr-FR')+
+     ' · '+match.opponent_name+' · '+match.match_status);
+    list.append(li);
+   }
+   if(rows.length>30)list.append(el('li','','Aperçu limité aux 30 premières rencontres.'));
+  }catch{
+   status.textContent='Flux rejeté : structure, club, lien officiel ou données non conformes. Aucun match enregistré.';
+  }finally{run.disabled=false;}
+ });
+ panel.append(heading,info,official,label,run,status,list);
+ root.append(panel);
+}
 export function mountAdminMatches(root,api,userId){
  let teams=[],seasons=[];
  const team=select([]),season=select([['','Aucune saison']]),opponent=input();
@@ -176,6 +219,7 @@ export function mountAdminMatches(root,api,userId){
     p_source_reference:null,p_publish:d.publish}),
    display:r=>r.opponent_name+' · '+(r.published?'Publié':'Brouillon')+' · '+new Date(r.scheduled_at).toLocaleDateString('fr-FR')
   });
+  mountFffPreview(root,api,userId);
  }).catch(()=>{if(root.isConnected)status.textContent='Impossible de charger les équipes et saisons. Aucun match modifié.';});
 }
 export function mountAdminNews(root,api,userId){
