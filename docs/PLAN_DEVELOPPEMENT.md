@@ -39,6 +39,10 @@ Les modifications sont réalisées sur une branche dédiée et font l'objet de c
 
 La priorité P1 de l'audit est **développée côté application et fonctions Supabase** sur les étapes 31 (contextes et réponses), 32 (convocations d'équipe), 33 (affiliations joueurs) et 34 (affectations entraîneurs). Les gardes d'authentification, de périmètre d'équipe et de MFA sont testés automatiquement. **Reste la recette avec plusieurs comptes habilités** avant homologation complète. Voir [plan de recette P1](P1_ESPACES_SPORTIFS_RECETTE.md).
 
+## Suivi P2 — Gestion des membres
+
+L'étape 35 ajoute la correction du **nom d'affichage** d'un membre par un autre administrateur MFA AAL2, avec audit privé. Les modifications de l'identité de connexion, la création/suppression de comptes et la réinitialisation du mot de passe exigent toujours des workflows distincts ; elles ne sont pas actives. [Documentation](ETAPE_35_P2_PROFILS_MEMBRES.md).
+
 ## Vérifications à mener plus tard
 
 Statuts juridiques détaillés, conformité fiscale, reçus fiscaux, durée de priorité événements, compte Stripe, connexion éventuelle FFF, droit à l'image.
