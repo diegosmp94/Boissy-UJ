@@ -49,7 +49,7 @@ test('public agenda integrates accessible download without private writes',()=>{
  assert.match(js,/import \{buildPublicCalendar\} from '\.\/calendar-export\.mjs'/);
  assert.match(js,/Exporter les dates sélectionnées \(\.ics\)/);
  assert.match(js,/exportBtn\.disabled=true/);
- assert.match(js,/exportBtn\.disabled=selected\.length===0/);
+ assert.match(js,/exportBtn\.disabled=exportedEntries\.length===0/);
  assert.match(js,/URL\.createObjectURL\(blob\)/);
  assert.match(js,/URL\.revokeObjectURL\(url\)/);
  assert.match(css,/\.agenda-export:focus-visible/);
