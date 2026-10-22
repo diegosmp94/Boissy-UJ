@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Étape 36 · Vérifications réelles dans Chromium et inventaire RGPD
+
+La CI teste désormais les pages Accueil, Confidentialité, Mentions légales et Senior/Futsal dans Chrome headless, à 320, 390, 768 et 1366 pixels, et vérifie l'absence de débordement horizontal ainsi que l'accès au menu mobile et au clavier. Des captures PNG et un rapport sont fournis dans les artefacts GitHub Actions. Un inventaire des domaines externes et du stockage navigateur facilite l'audit technique RGPD. **La validation juridique et les essais physiques iPhone/Android restent à faire.** [Étape 36](docs/ETAPE_36_RECETTE_NAVIGATEUR_RGPD.md).
+
 ## P1 · Identité, navigation, confidentialité et préproduction sécurisée
 
 L'accueil conserve ses huit chapitres et l'univers bleu nuit/doré ; les menus affichent désormais correctement **Senior** sous **Futsal**, y compris sur mobile. Deux pages de transparence sont disponibles via le pied de page et Mon espace, sans inventer les données légales du club. Le focus clavier, le mode animations réduites et l'export client pour GitHub Pages ont été renforcés. `npm run release:check` vérifie l'intégrité du bundle, les imports et l'absence de fichiers internes. **La validation juridique, l'audit navigateur multi-appareils et la preuve de restauration restent nécessaires avant la pleine recette.** [État et critères de sortie P1](docs/P1_IDENTITE_RGPD_DEPLOIEMENT.md).
