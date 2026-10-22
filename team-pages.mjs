@@ -122,7 +122,7 @@ export async function mountTeamProfile(code){
           node('p','team-profile-match-date',dateText(match.scheduled_at)),
           node('strong','',match.is_home?'Boissy-UJ — '+opponent:opponent+' — Boissy-UJ'),
           node('p','team-profile-score',scoreText(match)),
-          node('small','',match.venue||'Lieu non communiqué')
+          node('small','',(match.competition_label||'Compétition non précisée')+' · '+(match.venue||'Lieu non communiqué'))
         );
         const outcome=clubOutcome(match);
         if(outcome){
