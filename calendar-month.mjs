@@ -1,4 +1,5 @@
 /** Pure calendar helpers. Month keys are Europe/Paris calendar days (no UTC drift). */
+import {clubOutcome} from './league-standings.mjs';
 const parisParts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Paris',year:'numeric',month:'2-digit',day:'2-digit'});
 export function parisDateKey(value){
  const d=new Date(value);
@@ -45,7 +46,8 @@ export function mergeCalendarPublicEntries(published,external,teams=[]){
    title:x.team_name+' — '+x.opponent,subtitle:x.status==='played'?'Résultat relevé sur SportCorico':
     x.status==='unknown'?'Match passé · score à confirmer':'Rencontre annoncée sur SportCorico',
    place:'',info:x.status==='played'?x.result:x.is_home?'Domicile annoncé':'Extérieur annoncé',
-   href:x.source,external:true,status:x.status,teamCode:x.team_code,opponent:x.opponent
+   href:x.source,external:true,status:x.status,teamCode:x.team_code,opponent:x.opponent,
+   outcome:x.status==='played'?clubOutcome({...x,match_status:'played'}):null
   }));
  return [...published,...sourceEntries].sort((a,b)=>a.time-b.time);
 }
