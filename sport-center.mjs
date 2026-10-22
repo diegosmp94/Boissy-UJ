@@ -1,5 +1,6 @@
 import { supabaseConfig } from './auth-config.mjs';
 import {CLUB_TEAMS,teamRoute} from './club-teams.mjs';
+import {publicExternalFixtures,EXTERNAL_FIXTURE_REVIEWED_AT} from './external-match-previews.mjs';
 
 const ENDPOINT = supabaseConfig.url + '/rest/v1/';
 const TEAM_CODES = ['a','b','c','veterans','futsal'];
@@ -10,7 +11,7 @@ const FALLBACK_TEAMS = Object.freeze([
   { id:'pending-b', code:'b', name:'Seniors B', division:'Départemental 4', discipline:'football' },
   { id:'pending-c', code:'c', name:'Seniors C', division:'Matchs amicaux', discipline:'football' },
   { id:'pending-veterans', code:'veterans', name:'Vétérans', division:'Départemental 3',discipline:'football' },
-  { id:'pending-futsal',code:'futsal',name:'Boissy-UJ Futsal',division:'Départemental 2',discipline:'futsal' }
+  { id:'pending-futsal',code:'futsal',name:'Senior',division:'Départemental 2',discipline:'futsal' }
 ]);
 
 let currentRequest;
@@ -144,7 +145,8 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
   }
   filter.append(element('span','sport-count',matches.length+' rencontre(s) publiée(s)'));
   const data=element('div','sport-fixtures');
-  root.append(filter,data);
+  const thirdParty=element('section','agenda-thirdparty sport-external-fixtures');
+  root.append(filter,data,thirdParty);
   function redraw(){
     data.replaceChildren();
     const selection=select.value;
@@ -153,6 +155,7 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
       discipline:disciplineSelect.value,teams
     });
     const blocks=splitMatches(filtered);
+    thirdParty.replaceChildren();
     for (const [title,list,empty] of [
       ['Prochaines rencontres',blocks.upcoming,'Aucune rencontre à venir publiée pour cette équipe.'],
       ['Derniers résultats',blocks.results,'Aucun résultat publié pour cette équipe.']
@@ -164,6 +167,30 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
       else mountEmpty(cards,empty);
       section.append(cards);
       data.append(section);
+    }
+    if(!matches.length){
+      const team=teams.find(t=>t.id===select.value);
+      const external=publicExternalFixtures({
+        team:team?.code||'all',discipline:disciplineSelect.value
+      });
+      if(external.length){
+        thirdParty.append(element('h2','','Rencontres externes — à confirmer'));
+        thirdParty.append(element('p','agenda-external-note',
+          'Calendrier consultatif provenant de SportCorico, relevé le '+
+          EXTERNAL_FIXTURE_REVIEWED_AT+'. Aucun de ces matchs n’est confirmé dans le calendrier du club.'));
+        const grid=element('div','agenda-external-grid');
+        for(const match of external){
+          const card=element('article','agenda-external-card');
+          const date=element('time','agenda-date',dateLabel(match.time));
+          date.dateTime=new Date(match.time).toISOString();
+          card.append(date,element('h3','',match.team_name+' — '+match.opponent),
+            element('p','',match.is_home?'Domicile indiqué':'Extérieur indiqué'));
+          const link=element('a','agenda-link','Vérifier la source ↗');
+          link.href=match.source;link.target='_blank';link.rel='noopener noreferrer';
+          card.append(link);grid.append(card);
+        }
+        thirdParty.append(grid);
+      }
     }
   }
   disciplineSelect.addEventListener('change',()=>{fillTeams();redraw()});

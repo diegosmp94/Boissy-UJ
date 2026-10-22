@@ -1,5 +1,6 @@
 import {supabaseConfig} from './auth-config.mjs';
 import {buildPublicCalendar} from './calendar-export.mjs';
+import {publicExternalFixtures,EXTERNAL_FIXTURE_REVIEWED_AT} from './external-match-previews.mjs';
 
 const ROOT = supabaseConfig.url + '/rest/v1/';
 const OPTIONS = Object.freeze([
@@ -112,7 +113,8 @@ export async function mountAgenda(){
   const federation=make('a','agenda-link','Consulter le portail FFF ↗');
   federation.href='https://epreuves.fff.fr/';
   federation.target='_blank';federation.rel='noopener noreferrer';links.append(federation);
-  root.replaceChildren(intro,form,exportBtn,status,list,links);
+  const external=make('section','agenda-thirdparty');
+  root.replaceChildren(intro,form,exportBtn,status,list,external,links);
   let exportedEntries=[];
   exportBtn.addEventListener('click',()=>{
     if(!exportedEntries.length||exportBtn.disabled)return;
@@ -140,8 +142,31 @@ export async function mountAgenda(){
       exportedEntries=selected;
       exportBtn.disabled=selected.length===0;
       list.replaceChildren();
+      external.replaceChildren();
+      // Never represent third-party references as club-published matches. A club
+      // fixture always takes precedence and is the only kind eligible for .ics.
+      const suggestions=rows.matches.some(m=>m.published===true)||type.value==='event'
+        ?[]:publicExternalFixtures({query:search.value,period:period.value});
+      if(suggestions.length){
+        external.append(make('h2','','Calendrier externe — à confirmer par le club'));
+        external.append(make('p','agenda-external-note',
+          'Dates trouvées sur un site tiers, relevées le '+EXTERNAL_FIXTURE_REVIEWED_AT+
+          '. Ni synchronisation FFF ni publication officielle du club. Horaires susceptibles de changer.'));
+        const grid=make('div','agenda-external-grid');
+        for(const match of suggestions){
+          const card=make('article','agenda-external-card');
+          const date=make('time','agenda-date',formatDate(match.time));
+          date.dateTime=new Date(match.time).toISOString();
+          const title=make('h3','',match.team_name+' — '+match.opponent);
+          const detail=make('p','',match.is_home?'Domicile annoncé':'Extérieur annoncé');
+          const link=make('a','agenda-link','Vérifier sur SportCorico ↗');
+          link.href=match.source;link.target='_blank';link.rel='noopener noreferrer';
+          card.append(date,title,detail,link);grid.append(card);
+        }
+        external.append(grid);
+      }
       if(selected.length===0){
-        list.append(make('p','agenda-empty','Aucune date validée et publiée par le club pour ces critères.'));
+        list.append(make('p','agenda-empty',suggestions.length?'Aucun match confirmé dans Supabase. Les dates externes à vérifier figurent ci-dessous.':'Aucune date validée et publiée par le club pour ces critères.'));
       }
       for(const item of selected){
         const article=make('article','agenda-item');
