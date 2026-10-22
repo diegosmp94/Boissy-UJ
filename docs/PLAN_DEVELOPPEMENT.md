@@ -47,6 +47,10 @@ L'étape 35 ajoute la correction du **nom d'affichage** d'un membre par un autre
 
 La CI teste désormais sur Chromium les pages et la navigation à plusieurs largeurs et conserve les captures, sans manipuler les comptes réels. Un inventaire automatisé des ressources externes et du stockage navigateur complète les contrôles P1. Ce progrès technique ne remplace pas les essais sur appareils physiques, les décisions juridiques de l'association ni les tests de sauvegarde/restauration. [Documentation](ETAPE_36_RECETTE_NAVIGATEUR_RGPD.md).
 
+## Complément P1 — recette navigateur et RGPD statique
+
+Contrôles ajoutés : rendu réel dans Chromium sur quatre formats, fermeture de menu Échap, absence de débordement, pages de confidentialité et mentions, Senior en futsal, rapport d'inventaire de stockage/domaine et captures CI. Un outil séparé de vérification HTTP de GitHub Pages existe mais doit être exécuté **après déploiement** : il ne certifie pas la conformité RGPD. [Détails de la recette et risques encore ouverts](P1_BROWSER_RGPD_INVENTAIRE.md).
+
 ## Priorité P1 — Identité, accueil, navigation et qualité (2026-10-22)
 
 L'interface publique dispose de liens légaux accessibles, d'une présentation technique des traitements, d'un parcours clavier amélioré, de cibles mobiles adaptées et d'un export préproduction plus fiable avec audit automatique GitHub Actions. **Restent avant homologation :** coordonnées et mentions validées de l'association, bases légales/durées RGPD, tests iPhone/Android et lecteurs d'écran, mesures de performance et preuve de restauration Supabase. L'indexation reste volontairement désactivée pendant cette phase. [Checklist détaillée](P1_IDENTITE_RGPD_DEPLOIEMENT.md).
