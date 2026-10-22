@@ -1,0 +1,40 @@
+/* Standings by championship. Club-published snapshots only. */
+.league-standings-root{display:grid;gap:25px;margin:22px 0 40px}
+.league-team-panel{min-width:0}
+.league-standing{border:1px solid rgba(192,217,243,.35);border-radius:18px;padding:clamp(15px,3vw,25px);background:linear-gradient(150deg,#12365d,#081e38);color:#f6f9ff}
+.league-standing h2{font-size:clamp(20px,3vw,29px);margin:0 0 11px;color:#fff}
+.league-source,.league-empty{font-size:13px;line-height:1.6;color:#c9dbed;margin:8px 0 18px}
+.league-scroll{overflow-x:auto;max-width:100%;border-radius:11px;border:1px solid #9fb9d13d}
+.league-table{width:100%;min-width:580px;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.league-table th{background:#133a65;text-align:left;font-weight:800;font-size:12px;color:#f6d68d;white-space:nowrap}
+.league-table td,.league-table th{padding:12px 9px;border-bottom:1px solid rgba(192,217,243,.15)}
+.league-table td{font-size:13px;color:#f0f6ff}
+.league-table td:nth-child(2){min-width:130px;font-weight:800}
+.league-table td:last-child{font-weight:900;color:#f9d88c}
+.league-own-team{background:rgba(235,194,107,.12)}
+.league-team-link{display:inline-flex;align-items:center;min-height:44px;color:#efca7b;font-size:13px;font-weight:800;text-decoration:underline}
+.sport-outcome{display:inline-flex;align-items:center;align-self:start;border-radius:100px;padding:5px 10px;border:1px solid #b4cbe260;color:#fff;font-size:11px;font-weight:900;letter-spacing:.02em}
+.sport-outcome-V{background:#124b38;border-color:#60c29a;color:#c7f8de}
+.sport-outcome-D{background:#50252d;border-color:#e89da8;color:#ffe2e6}
+.sport-outcome-N{background:#3b4052;border-color:#bfcee3;color:#eaf2ff}
+.month-calendar-profile-link{margin-right:14px}
+.team-profile-source{display:inline-flex;align-items:center;min-height:44px;color:#f0cc83;text-decoration:underline;font-weight:750}
+.admin-league-panel{margin-top:30px;padding:24px 0;border-top:1px solid #f0ce8e66}
+.admin-league-panel h2{margin:0 0 18px}
+.league-editor-form{display:grid;gap:18px;max-width:100%}
+.league-editor-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.league-editor-controls .admin-form-field{min-width:0}
+.league-editor-toolbar{display:flex;gap:9px;flex-wrap:wrap}
+.league-editor-rows{display:grid;gap:14px}
+.league-editor-row{display:grid;gap:12px;border:1px solid #c5d8ee4d;background:#0a2544;padding:15px;border-radius:13px;min-width:0}
+.league-editor-row-heading{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.league-editor-row-heading strong{margin-right:auto;font-size:14px;overflow-wrap:anywhere}
+.league-editor-row-heading button{min-height:44px}
+.league-editor-stat-fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.league-editor-stat-fields input{width:100%;min-width:0}
+.league-editor-points{margin:0;color:#f3d18b;font-weight:800;font-size:13px}
+.league-editor-form>button[type=submit]{min-height:48px}
+.league-team-link:focus-visible,.team-profile-source:focus-visible{outline:3px solid #f6d48c;outline-offset:3px}
+@media(max-width:780px){.league-editor-stat-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.league-editor-controls{grid-template-columns:1fr}}
+@media(max-width:420px){.league-editor-row-heading{gap:5px}.league-editor-row-heading button{padding:8px}.league-table td,.league-table th{padding:9px 7px}}
+@media(prefers-reduced-motion:reduce){.league-standing *{transition:none!important}}
