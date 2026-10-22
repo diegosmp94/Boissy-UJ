@@ -96,6 +96,7 @@ function matchCard(match,teamsById) {
     ? 'Référence FFF fournie par le club · à vérifier'
     : 'Données saisies par le club');
   foot.append(teamLabel,source);
+  if(match.competition_label)foot.append(element('span','sport-competition-label',match.competition_label));
   if (match.venue) foot.append(element('span','',match.venue));
   const team=CLUB_TEAMS.find(t=>t.code===linked?.code);
   if(team){const profile=element('a','sport-team-profile-link','Voir la fiche '+team.name+' ↗');profile.href=teamRoute(team);card.append(profile);}
