@@ -1,4 +1,5 @@
 import {monthGrid,shiftCalendarMonth,calendarMonthTitle,parisDateKey} from './calendar-month.mjs';
+import {CLUB_TEAMS,teamRoute} from './club-teams.mjs';
 const make=(tag,cls='',value=null)=>{
  const node=document.createElement(tag);
  if(cls)node.className=cls;
@@ -45,6 +46,13 @@ export function mountMonthCalendar(root,{now=Date.now()}={}){
   const meta=make('p','month-calendar-meta',state+' · '+timeLabel(item)+(item.info?' · '+item.info:''));
   const desc=make('p','',item.subtitle||'');
   card.append(title,meta,desc);
+  const team=CLUB_TEAMS.find(t=>t.code===item.teamCode);
+  if(team){
+   const profile=make('a','month-calendar-link month-calendar-profile-link',
+    'Fiche '+team.name+' ↗');
+   profile.href=teamRoute(team);
+   card.append(profile);
+  }
   if(item.href){
    const link=make('a','month-calendar-link',item.external?'Vérifier la source ↗':'Voir la rubrique ↗');
    link.href=item.href;
