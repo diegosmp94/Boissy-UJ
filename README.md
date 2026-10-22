@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Étape 34 · P1 — Affectations entraîneurs et gestion complète des rôles sportifs
+
+Le Centre de gestion inclut désormais l'affectation MFA AAL2 des entraîneurs validés à une ou plusieurs équipes, avec retrait d'affectation et audit privé sans modification du rôle. Avec les espaces Joueur/Entraîneur, les convocations et la gestion des affiliations joueurs, le développement P1 est couvert ; il reste la recette multi-comptes. [Plan P1](docs/P1_ESPACES_SPORTIFS_RECETTE.md).
+
 ## Étape 33 · Affectations joueurs administrateur
 
 Nouvelle rubrique administrateur pour rattacher les comptes possédant un rôle Joueur validé à des équipes, et pour retirer ces affiliations sous MFA AAL2 avec double confirmation et audit privé. Aucun compte ou rôle n'est créé. Ce rattachement permet au système de convocations entraîneur d'identifier uniquement les joueurs de son équipe. [Documentation](docs/ETAPE_33_AFFECTATIONS_JOUEURS.md).
