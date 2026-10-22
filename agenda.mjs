@@ -3,6 +3,7 @@ import {buildPublicCalendar} from './calendar-export.mjs';
 import {publicExternalFixtures,EXTERNAL_FIXTURE_REVIEWED_AT} from './external-match-previews.mjs';
 import {mergeCalendarPublicEntries,parisDateKey} from './calendar-month.mjs';
 import {mountMonthCalendar} from './calendar-view.mjs';
+import {clubOutcome} from './league-standings.mjs';
 
 const ROOT = supabaseConfig.url + '/rest/v1/';
 const OPTIONS = Object.freeze([
@@ -31,7 +32,8 @@ export function combinePublishedAgenda(matches=[],events=[],teams=[],{
         ?'Résultat : '+m.home_score+' – '+m.away_score
         :m.is_home===true?'À domicile':'À l’extérieur',
       href:'#/matchs',teamId:m.team_id,teamCode:clubTeams.get(m.team_id)?.code,
-      opponent:m.opponent_name,status:m.match_status,localDay:parisDateKey(time)});
+      opponent:m.opponent_name,status:m.match_status,localDay:parisDateKey(time),
+      outcome:clubOutcome(m)});
   }
   for(const e of events){
     const time=dateMs(e.starts_at),end=dateMs(e.ends_at);
@@ -170,13 +172,18 @@ export async function mountAgenda(){
         const grid=make('div','agenda-external-grid');
         for(const match of suggestions){
           const card=make('article','agenda-external-card');
+          const outcome=match.status==='played'?clubOutcome({...match,match_status:'played'}):null;
+          if(outcome)card.classList.add('sport-result-'+outcome);
           const date=make('time','agenda-date',formatDate(match.time));
           date.dateTime=new Date(match.time).toISOString();
           const title=make('h3','',match.team_name+' — '+match.opponent);
           const detail=make('p','',match.is_home?'Domicile annoncé':'Extérieur annoncé');
           const link=make('a','agenda-link','Vérifier sur SportCorico ↗');
           link.href=match.source;link.target='_blank';link.rel='noopener noreferrer';
-          card.append(date,title,detail,link);grid.append(card);
+          card.append(date,title,detail,link);
+          if(outcome)card.append(make('span','sport-outcome sport-outcome-'+outcome,
+            outcome==='V'?'Victoire':outcome==='N'?'Match nul':'Défaite'));
+          grid.append(card);
         }
         external.append(grid);
       }
@@ -185,6 +192,7 @@ export async function mountAgenda(){
       }
       for(const item of selected){
         const article=make('article','agenda-item');
+        if(item.outcome)article.classList.add('sport-result-'+item.outcome);
         const date=make('time','agenda-date',formatDate(item.time));
         date.dateTime=new Date(item.time).toISOString();
         const detail=make('div','agenda-detail');
@@ -192,6 +200,8 @@ export async function mountAgenda(){
           make('h2','',item.title),make('p','',item.subtitle),
           make('p','agenda-place',item.place+' · '+item.info));
         const a=make('a','agenda-item-link','Détails ↗');a.href=item.href;
+        if(item.outcome)detail.append(make('span','sport-outcome sport-outcome-'+item.outcome,
+          item.outcome==='V'?'Victoire':item.outcome==='N'?'Match nul':'Défaite'));
         article.append(date,detail,a);list.append(article);
       }
       if(rows.unavailable.length){
