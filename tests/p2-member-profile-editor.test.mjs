@@ -24,7 +24,7 @@ test('P2 can edit other members, never its own admin identity',()=>{
 test('P2 administrative SQL requires AAL2 and forbids self-modification',()=>{
  assert.match(sql,/function public\.admin_update_member_display_name\(/);
  assert.match(sql,/app_private\.is_admin\(\)/);
- assert.match(sql,/v_actor :=\(select auth\.uid\(\)\)/);
+ assert.match(sql,/v_actor uuid:=\(select auth\.uid\(\)\)/);
  assert.match(sql,/p_member_id=v_actor/);
  assert.match(sql,/char_length\(v_name\)<2 or char_length\(v_name\)>80/);
  assert.match(sql,/pg_catalog\.btrim\(p_display_name\)/);
