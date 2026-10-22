@@ -93,6 +93,7 @@ function authCard(root, mode = "login") {
   if (mode === "register"){
     const name=field("Nom d'affichage", "display_name", "text", "nickname");
     name.querySelector('input').minLength=2;
+    name.querySelector('input').maxLength=80;
     form.append(name);
   }
   if (mode !== "newPassword") form.append(field("Adresse e-mail", "email", "email", "email"));
