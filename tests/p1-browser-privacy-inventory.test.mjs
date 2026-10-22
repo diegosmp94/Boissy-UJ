@@ -27,7 +27,7 @@ test('P1 browser smoke actually uses Chromium DevTools and captures screen image
  assert.match(browser,/screenshot|\.png/);
 });
 test('P1 browser smoke asserts mobile navigation, Escape focus and no horizontal overflow',()=>{
- assert.match(browser,/document\.documentElement\.scrollWidth>width\+2/);
+ assert.match(browser,/document\.documentElement\.scrollWidth>availableWidth\+2/);
  assert.match(browser,/document\.querySelector\('#mobile-menu'\)/);
  assert.match(browser,/new KeyboardEvent\('keydown',\{key:'Escape'/);
  assert.match(browser,/document\.activeElement!==toggle/);
