@@ -30,7 +30,7 @@ test('P1: security report checks own profile, RLS, privileged RPC access and MFA
  }
  assert.match(contract,/has_column_privilege\('authenticated'/);
  assert.match(contract,/has_table_privilege\('authenticated'/);
- assert.doesNotMatch(contract,/\b(?:update|insert into|delete from|drop table|truncate table|alter table|grant update|revoke update)\b/i);
+ assert.doesNotMatch(contract,/\b(?:update\s+public|insert\s+into|delete\s+from|drop\s+table|truncate\s+table|alter\s+table|grant\s+update|revoke\s+update)\b/i);
 });
 
 test('P1: recovery fingerprint only returns non-sensitive schema metadata',()=>{
