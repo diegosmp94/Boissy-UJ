@@ -4,7 +4,7 @@ Date : 22 octobre 2026.
 
 ## Changements vérifiés
 
-Les migrations 202610220007 et 202610220008 sont appliquées sur Supabase. Le rôle authenticated peut mettre à jour uniquement display_name dans public.profiles. Lors d'un INSERT, il peut renseigner uniquement id et display_name. Les autres champs de profil et les dates ne sont pas modifiables directement par ce rôle.
+Les migrations 202610220007, 202610220008 et 202610220009 sont appliquées sur Supabase. La dernière valide côté PostgreSQL les noms d'affichage (2 à 80 caractères après retrait des espaces de bord, sans caractères de contrôle). La création de compte applique désormais les mêmes limites côté navigateur ; la base reste l'autorité. Le rôle authenticated peut mettre à jour uniquement display_name dans public.profiles. Lors d'un INSERT, il peut renseigner uniquement id et display_name. Les autres champs de profil et les dates ne sont pas modifiables directement par ce rôle.
 
 La vérification SQL a également confirmé : 18 tables publiques avec RLS, aucune RPC privilégiée exécutable par anon, aucun droit d'écriture direct des comptes membres sur les tables de rôles et de demandes d'élévation.
 
