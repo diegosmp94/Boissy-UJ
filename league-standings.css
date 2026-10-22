@@ -18,9 +18,9 @@
 .sport-outcome-V{background:#124b38;border-color:#69dbaa;color:#d8ffeb}
 .sport-outcome-N{background:#69400e;border-color:#ffcb70;color:#fff0ca}
 .sport-outcome-D{background:#602831;border-color:#ffa4ad;color:#ffe6e8}
-.sport-match-card.sport-result-V,.team-profile-match.sport-result-V,.agenda-external-card.sport-result-V{border-color:#69dbaa!important;box-shadow:inset 4px 0 0 #69dbaa}
-.sport-match-card.sport-result-N,.team-profile-match.sport-result-N,.agenda-external-card.sport-result-N{border-color:#ffcb70!important;box-shadow:inset 4px 0 0 #ffcb70}
-.sport-match-card.sport-result-D,.team-profile-match.sport-result-D,.agenda-external-card.sport-result-D{border-color:#ffa4ad!important;box-shadow:inset 4px 0 0 #ffa4ad}
+.sport-match-card.sport-result-V,.team-profile-match.sport-result-V,.agenda-external-card.sport-result-V,.agenda-item.sport-result-V{border-color:#69dbaa!important;box-shadow:inset 4px 0 0 #69dbaa}
+.sport-match-card.sport-result-N,.team-profile-match.sport-result-N,.agenda-external-card.sport-result-N,.agenda-item.sport-result-N{border-color:#ffcb70!important;box-shadow:inset 4px 0 0 #ffcb70}
+.sport-match-card.sport-result-D,.team-profile-match.sport-result-D,.agenda-external-card.sport-result-D,.agenda-item.sport-result-D{border-color:#ffa4ad!important;box-shadow:inset 4px 0 0 #ffa4ad}
 .sport-result-V .sport-score,.sport-result-V .team-profile-score{color:#a4f6c9}
 .sport-result-N .sport-score,.sport-result-N .team-profile-score{color:#ffe3a3}
 .sport-result-D .sport-score,.sport-result-D .team-profile-score{color:#ffc0c4}
