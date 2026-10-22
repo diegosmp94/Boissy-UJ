@@ -33,3 +33,15 @@ jobs:
           test ! -e dist/docs
           test ! -e dist/tests
           test ! -e dist/.github
+      - name: Inventorier le stockage navigateur et les domaines tiers
+        run: npm run audit:privacy
+      - name: Tester dans Chromium les routes publiques et écrans mobiles
+        run: npm run smoke:browser
+      - name: Conserver les captures et rapports de recette
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: boissy-uj-navigateur-p1
+          path: smoke-artifacts/
+          if-no-files-found: ignore
+          retention-days: 7
