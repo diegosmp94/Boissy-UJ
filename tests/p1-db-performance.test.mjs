@@ -19,13 +19,13 @@ test('P1 database quality: all 9 Supabase foreign key advisor findings have cove
  assert.equal((migration.match(/create index if not exists/gi)||[]).length, indexes.length);
  for(const [table,columns] of indexes){
    const escaped=table.replaceAll('.','\\.');
-   const pattern=new RegExp('create index if not exists [a-z_]+\\\\s+on '+escaped+' \\\\('+columns+'\\\\)','i');
+   const pattern=new RegExp('create index if not exists [a-z_]+\\s+on '+escaped+' \\('+columns+'\\)','i');
    assert.match(migration,pattern,table+' missing index on '+columns);
  }
 });
 
 test('P1 index migration is additive and does not alter data, policies, roles or users', () => {
- const executable=migration.replace(/--[^\\n]*/g,'');
- assert.doesNotMatch(executable,/\\b(drop|truncate|delete|update|insert|alter|revoke|grant)\\b/i);
- assert.doesNotMatch(executable,/auth\\.users|public\\.user_roles|service_role/i);
+ const executable=migration.replace(/--[^\n]*/g,'');
+ assert.doesNotMatch(executable,/\b(drop|truncate|delete|update|insert|alter|revoke|grant)\b/i);
+ assert.doesNotMatch(executable,/auth\.users|public\.user_roles|service_role/i);
 });
