@@ -51,6 +51,10 @@ La CI teste désormais sur Chromium les pages et la navigation à plusieurs larg
 
 L'interface publique dispose de liens légaux accessibles, d'une présentation technique des traitements, d'un parcours clavier amélioré, de cibles mobiles adaptées et d'un export préproduction plus fiable avec audit automatique GitHub Actions. **Restent avant homologation :** coordonnées et mentions validées de l'association, bases légales/durées RGPD, tests iPhone/Android et lecteurs d'écran, mesures de performance et preuve de restauration Supabase. L'indexation reste volontairement désactivée pendant cette phase. [Checklist détaillée](P1_IDENTITE_RGPD_DEPLOIEMENT.md).
 
+## Complément P1 — contrôle Pages en lecture seule
+
+Le protocole [P1 navigateur et RGPD](P1_BROWSER_RGPD_INVENTAIRE.md) distingue désormais l'export local testé dans Chromium du site Pages en ligne. Après publication de `main`, lancer manuellement le workflow « Vérifier manuellement GitHub Pages Boissy-UJ » pour vérifier la disponibilité HTTP des fichiers publics sans accéder aux données des comptes.
+
 ## Vérifications à mener plus tard
 
 Statuts juridiques détaillés, conformité fiscale, reçus fiscaux, durée de priorité événements, compte Stripe, connexion éventuelle FFF, droit à l'image.

@@ -26,6 +26,10 @@ Les traceurs soumis à consentement ne doivent pas être activés avant le choix
 
 Aucune adresse e-mail, durée ni coordonnées non vérifiées n'ont été inscrites dans l'application. Aucun faux bouton de demande RGPD n'a été publié.
 
+## Complément — contrôle du site publié et inventaire
+
+L'[inventaire RGPD technique et la recette navigateur](P1_BROWSER_RGPD_INVENTAIRE.md) sont automatisés dans la CI. Un test HTTP **manuel** lit la vraie version GitHub Pages publiée sans modifier les données de membres. Ce contrôle ne prouve ni la conformité RGPD ni le fonctionnement sur iPhone Safari physique.
+
 ## Déploiement et validation
 
 Le déploiement est techniquement contrôlé par `npm run release:check`. Les fichiers clients nécessaires se retrouvent dans `dist/`, pas les fichiers internes. **La configuration actuelle conserve `noindex, nofollow` et un robots.txt bloquant** : ce choix évite l'indexation d'un site dont les mentions légales ne sont pas validées. La suppression du blocage SEO doit être une décision distincte après la publication des vraies mentions légales.
