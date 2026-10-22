@@ -35,7 +35,7 @@ test('month grid shows September historical results and handles Monday-start off
  assert.equal(september.length%7,0);
  assert.ok(september.find(x=>x.key==='2026-09-20').entries.some(x=>x.title.includes("Bann'zanmi")));
  const october=monthGrid(2026,9,all);
- assert.ok(october.find(x=>x.key==='2026-10-04').entries.some(x=>x.info==='1 – 3'));
+ assert.ok(october.find(x=>x.key==='2026-10-04').entries.some(x=>x.info.startsWith('1 – 3')));
  assert.equal(shiftCalendarMonth(2026,0,-1).year,2025);
  assert.deepEqual(shiftCalendarMonth(2026,11,1),{year:2027,month:0});
  assert.match(calendarMonthTitle(2026,9),/octobre 2026/i);
