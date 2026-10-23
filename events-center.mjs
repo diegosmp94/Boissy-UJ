@@ -1,4 +1,5 @@
 import { supabaseConfig } from './auth-config.mjs';
+import {boundedPublicRequest} from './public-catalog-timeout.mjs';
 
 const ENDPOINT = supabaseConfig.url + '/rest/v1/club_events';
 let abortRequest = null;
@@ -146,13 +147,14 @@ export async function mountEvents(){
   if(!root)return;
   const ctrl=new AbortController();
   abortRequest=ctrl;
+  const deadline=boundedPublicRequest(ctrl.signal);
   root.replaceChildren(el('p','events-loading','Chargement des événements publiés…'));
   try{
     const params=new URLSearchParams({
       select:'id,slug,title,description,category,starts_at,ends_at,location_label,booking_kind,price_cents,premium_price_cents,booking_status,priority_kind',
       published:'eq.true',access_kind:'eq.public',order:'starts_at.asc',limit:'75'
     });
-    const response=await fetch(ENDPOINT+'?'+params,{signal:ctrl.signal,method:'GET',
+    const response=await fetch(ENDPOINT+'?'+params,{signal:deadline.signal,method:'GET',
       cache:'no-store',headers:{apikey:supabaseConfig.publishableKey,Accept:'application/json'}});
     if(!response.ok)throw new Error('Catalog not available');
     const result=await response.json();
@@ -162,5 +164,5 @@ export async function mountEvents(){
   }catch{
     if(ctrl.signal.aborted||gen!==activeGeneration||!root.isConnected)return;
     populate(root,[],false);
-  }
+  }finally{deadline.dispose();}
 }
