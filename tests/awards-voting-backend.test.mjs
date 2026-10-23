@@ -124,7 +124,7 @@ test('offline simulated API exercises all staging voting and withdrawal cases',a
  assert.equal(labels.length,10);
  assert.ok(labels.some(x=>x.includes('duplicate ballot rejected')));
  assert.ok(labels.some(x=>x.includes('withdrawn')));
- assert.equal(api.calls.filter(x=>x.path.endsWith('member_cast_award_vote')).length,4);
+ assert.equal(api.calls.filter(x=>x.path.endsWith('member_cast_award_vote')).length,5);
  assert.ok(api.calls.some(x=>x.path==='auth/v1/logout'));
 });
 test('unsafe server granting a free vote is detected and staged ballots are cleaned',async()=>{
