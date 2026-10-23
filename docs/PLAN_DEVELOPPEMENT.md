@@ -1,17 +1,29 @@
 # Feuille de route — Boissy-UJ
 
-Les modifications sont réalisées sur une branche dédiée et font l'objet de contrôles avant une éventuelle fusion vers main.
+Point d'étape : **23 octobre 2026**. Les changements du site sont développés sur une branche dédiée, contrôlés, puis fusionnés dans `main` après validation CI. Les étapes 45–46 couvrent le prochain match d'accueil et la mise à jour des rencontres passées ; le suivi de la provenance des dates a été renforcé depuis.
 
-| Étape | Objet | Critère de sortie |
-|---|---|---|
-| 1 | Audit dépôt, Supabase et fichiers | Ressources identifiées, limitations documentées |
-| 2 | Socle visuel du site public | Accueil 8 chapitres, navigation responsive, premiers tests |
-| 3 | Comptes et autorisations Supabase | Auth, rôles et RLS testées |
-| 4 | Sport et Match Center | Équipes et saison, saisie manuelle fiable ; FFF uniquement autorisée |
-| 5 | Actualités et communauté | Publication des éducateurs, médias et abonnements visibles |
-| 6 | Stripe TEST et billetterie | Vérification webhooks et aucun encaissement réel |
-| 7 | Control Center complet | Éditeur, audit, rappels, reporting et sécurité |
-| 8 | Recette à 85 % pondérés et livraison | Aucun blocage critique, validation explicite avant main |
+| Étape | Objet | État au 23/10/2026 | Prochaine preuve / action |
+|---|---|---|---|
+| 1 | Audit dépôt, Supabase et fichiers | Réalisé ; schéma, migrations et limites consignés | Revalider l'état hébergé avant chaque activation sensible |
+| 2 | Socle visuel du site public | Développé ; accueil en huit chapitres, navigation responsive et contrôles CI | Recette iPhone/Android, clavier et lecteur d'écran sur appareils réels |
+| 3 | Comptes et autorisations Supabase | Auth standard et protections de rôles/RLS développées | Parcours e-mail, récupération et MFA avec comptes de test autorisés |
+| 4 | Sport et Match Center | Équipes, archives sourcées, calendrier et fonctions administratives développés ; FFF reste manuelle | Recette croisée des permissions et validation du club des résultats/dates |
+| 5 | Actualités et communauté | Catalogue public et flux de publication sécurisés ; fonctions de médias et consentement encore partielles | Valider droits à l'image, données des mineurs et parcourir les modules avec comptes habilités |
+| 6 | Stripe TEST et billetterie | Non homologué ; aucune vente ou réservation payante ouverte | Revue juridique et compte Stripe de test autorisé, puis tests signés des webhooks |
+| 7 | Control Center complet | Panel AAL2 et plusieurs outils réels développés ; finance et éditeur global restent incomplets | Vérifier les migrations/RPC puis réaliser la recette multi-comptes |
+| 8 | Recette à 85 % pondérés et livraison | Non déclarée : les critères non testés ne reçoivent aucun point | Compléter les preuves, revue juridique, restauration isolée et décision formelle du club |
+
+## Prochaines actions concrètes
+
+Le travail autonome sur le code et le site public est avancé. La prochaine tranche de la roadmap est une **recette probante**, pas l'activation spéculative de services sensibles :
+
+1. Effectuer les parcours de connexion, MFA, demandes de rôles, convocations et cloisonnement d'équipe avec des comptes de test autorisés.
+2. Vérifier sur iPhone Safari et Android Chrome l'accueil, les pages sportives, les formulaires et la navigation clavier/assistive.
+3. Compléter les coordonnées officielles, bases légales, durées de conservation, droits et règles relatives aux mineurs avec le responsable du club.
+4. Exécuter une sauvegarde/restauration en environnement local isolé et conserver une preuve sans données personnelles dans GitHub.
+5. Reprendre la matrice pondérée seulement avec ces résultats ; aucune homologation globale ou note de 85 % n'est déduite des tests unitaires seuls.
+
+Les données de match externes restent des références, pas des résultats publiés par le club. Le mode FFF automatique, les paiements LIVE et l'indexation SEO restent fermés jusqu'aux accords et validations prévus.
 
 ## Décisions confirmées
 

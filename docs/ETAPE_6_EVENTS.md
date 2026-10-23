@@ -3,7 +3,7 @@
 > **Mise à jour du 21 octobre 2026 : les migrations Supabase correspondantes sont maintenant APPLIQUÉES.** Les mentions ci-dessous indiquant « non appliquée » ou « en attente d’autorisation » sont l’historique des étapes précédentes, et non l’état actuel. Voir [État Supabase vérifié](ETAT_SUPABASE_20261021.md). Les écritures réelles et l’authentification publique restent désactivées jusqu’aux essais fonctionnels.
 
 
-**Statut : interface réalisée, migration SQL écrite mais NON appliquée.** Le dépôt GitHub Pages reste une préversion statique.
+**Statut actuel :** catalogue public en lecture seule et modèle Supabase installés selon l'[état vérifié de la base](ETAT_SUPABASE_20261021.md). L'éditeur d'événements gratuits administrateur est décrit à l'[étape 29](ETAPE_29_ADMIN_EVENEMENTS.md) ; son affichage dépend de la présence des RPC requises et d'une session AAL2 vérifiée. Le site Pages ne fournit toujours aucune billetterie ni paiement.
 
 ## Fonctionnalités livrées dans le code
 - Page Événements : filtrage par période (à venir, passés, tous) et catégorie, recherche sans tenir compte des accents.
@@ -14,7 +14,7 @@
 - Les données externes sont injectées via `textContent` (pas `innerHTML`) et la requête est annulée lors du changement de page.
 - Le schéma de base limite l'API anonyme aux **événements publics publiés** ; un compte authentifié n'accède pas automatiquement aux événements Premium.
 
-## Préparation du modèle (migration en attente)
+## Modèle de données installé
 `supabase/migrations/202610210005_events_catalog_v1.sql` :
 - événements publics ou exclusifs Premium ;
 - gratuits ou payants, avec éventuel prix Premium inférieur ou égal au prix normal ;
@@ -23,7 +23,7 @@
 - date et heure de début ET fin requises avant publication ;
 - règles RLS : lecture publique uniquement des événements publiés et explicitement publics ; aucune écriture directe depuis le navigateur.
 
-La migration n'est pas appliquée à Supabase. Toute application attend une nouvelle autorisation de l'utilisateur.
+Le statut des fonctions d'administration doit être vérifié dans la documentation de l'étape 29 et sur l'instance avant utilisation. La création de réservation, les paiements et les billets restent hors service.
 
 ## Prochaine tranche : billetterie sécurisée (NON réalisée)
 1. Vérification serveur de la session, de la majorité/autorisations responsables légaux le cas échéant, des droits Premium et du tarif affiché.
