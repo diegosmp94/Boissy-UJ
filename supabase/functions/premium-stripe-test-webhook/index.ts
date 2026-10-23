@@ -12,11 +12,14 @@ function configuration(){
  const signingSecret=Deno.env.get('STRIPE_TEST_WEBHOOK_SECRET')||'';
  const projectUrl=Deno.env.get('SUPABASE_URL')||'';
  const serviceKey=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||'';
+ const approved=Deno.env.get('BOISSY_TEST_WEBHOOK_ACK');
  const monthlyPriceId=Deno.env.get('STRIPE_TEST_PRICE_MONTHLY')||'';
  const annualPriceId=Deno.env.get('STRIPE_TEST_PRICE_ANNUAL')||'';
  // The test endpoint is deliberately unable to process anything under LIVE
  // credentials or without isolated TEST webhook credentials.
- if(!/^rk_test_[a-zA-Z0-9_]{12,}$/.test(apiKey)||
+ if(approved!=='YES_PROCESS_ONLY_STRIPE_TEST_ON_ISOLATED_STAGING'||
+   projectUrl.includes('dahzewvbybujqhogumte.supabase.co')||
+   !/^rk_test_[a-zA-Z0-9_]{12,}$/.test(apiKey)||
    !/^whsec_[a-zA-Z0-9_]{12,}$/.test(signingSecret)||
    !projectUrl.startsWith('https://')||
    !serviceKey||!monthlyPriceId||!annualPriceId){
