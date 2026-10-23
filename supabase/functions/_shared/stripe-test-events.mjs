@@ -5,7 +5,8 @@
 export const STRIPE_TEST_EVENTS=Object.freeze([
  'checkout.session.completed',
  'checkout.session.async_payment_succeeded',
- 'invoice.paid','invoice.payment_failed','customer.subscription.deleted'
+ 'invoice.paid','invoice.payment_failed','customer.subscription.deleted',
+ 'charge.refunded','charge.dispute.created'
 ]);
 const isId=(prefix,v)=>typeof v==='string'&&new RegExp('^'+prefix+'_[a-zA-Z0-9_]{6,180}$').test(v);
 const stripeId=(v)=>typeof v==='string'?v:v?.id||null;
@@ -51,8 +52,24 @@ export function projectStripeTestEvent(event,options={}){
   p_event_created_at:stamp(event.created),
   p_checkout_id:null,p_subscription_id:null,p_customer_id:null,
   p_price_id:null,p_source_id:null,p_period_start:null,
-  p_period_end:null,p_paid:false
+  p_period_end:null,p_paid:false,p_payment_intent_id:null
  };
+ if(event.type==='charge.refunded'||event.type==='charge.dispute.created'){
+  const charge=options.verifiedCharge;
+  const chargeId=event.type==='charge.refunded'?obj.id:stripeId(obj.charge);
+  if(!isId('ch',chargeId)||charge?.id!==chargeId||charge.livemode!==false||
+     charge.currency!=='eur'||charge.paid!==true||
+     !isId('cus',stripeId(charge.customer))||
+     !isId('pi',stripeId(charge.payment_intent)))
+   throw new Error('Verified TEST charge provenance is required');
+  if(event.type==='charge.refunded'&&
+     !(charge.refunded===true||Number(charge.amount_refunded)>0))
+   throw new Error('No confirmed refund on Stripe charge');
+  if(event.type==='charge.dispute.created'&&charge.disputed!==true)
+   throw new Error('No confirmed dispute on Stripe charge');
+  return {...base,p_customer_id:stripeId(charge.customer),
+   p_source_id:chargeId,p_payment_intent_id:stripeId(charge.payment_intent)};
+ }
  if(event.type.startsWith('checkout.session.')){
   if(!isId('cs_test',obj.id)||obj.livemode!==false||obj.currency!=='eur'||
      !isId('cus',stripeId(obj.customer)))throw new Error('Invalid TEST checkout');
@@ -70,11 +87,16 @@ export function projectStripeTestEvent(event,options={}){
   if(kind==='monthly'&&!isId('sub',sub))
    throw new Error('Monthly checkout must identify Stripe Subscription');
   if(kind==='annual'&&sub!==null)throw new Error('Annual checkout must not recur');
+  if(kind==='annual'&&obj.payment_status==='paid'&&
+      !isId('pi',stripeId(obj.payment_intent)))
+   throw new Error('Paid annual Checkout must include a verified PaymentIntent');
   return {
    ...base,p_checkout_id:obj.id,p_customer_id:stripeId(obj.customer),
    p_subscription_id:sub,p_price_id:wanted,
    p_source_id:kind==='annual'?obj.id:null,
    p_paid:obj.payment_status==='paid'&&kind==='annual',
+   p_payment_intent_id:kind==='annual'&&obj.payment_status==='paid'
+    ?stripeId(obj.payment_intent):null,
    p_period_start:kind==='annual'?stamp(obj.created):null
   };
  }
@@ -99,6 +121,8 @@ export function projectStripeTestEvent(event,options={}){
  if(event.type==='invoice.paid'&&!paid)
   throw new Error('Only paid positive invoices can grant access');
  const period=getPeriod(item);
+ if(paid&&!isId('pi',options.invoicePaymentIntentId))
+  throw new Error('Paid invoice must resolve to exactly one Stripe PaymentIntent');
  if(event.type==='invoice.paid'&&(!period||!Number.isSafeInteger(period.start)||
    !Number.isSafeInteger(period.end)||period.end<=period.start))
   throw new Error('Paid monthly invoice must have a verified service period');
@@ -106,6 +130,7 @@ export function projectStripeTestEvent(event,options={}){
   ...base,p_subscription_id:sub,p_customer_id:stripeId(obj.customer),
   p_price_id:monthlyPriceId,p_source_id:obj.id,p_paid:paid,
   p_period_start:paid?stamp(period.start):null,
-  p_period_end:paid?stamp(period.end):null
+  p_period_end:paid?stamp(period.end):null,
+  p_payment_intent_id:paid?options.invoicePaymentIntentId:null
  };
 }
