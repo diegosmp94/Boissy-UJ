@@ -21,6 +21,10 @@ Le Media Center dispose désormais du code de réaction « J’aime / Retirer »
 
 L'interface de galeries et le lecteur vidéo natif sont maintenant connectés au Media Center. Le Control Center propose un éditeur de références de fichiers déjà approuvés, exclusivement aux administrateurs MFA AAL2, après existence de la RPC. La migration de médias est **préparée mais non appliquée** : aucune image de mineur, vidéo ni contenu fictif n'est importé. [Détail et conditions d'activation](ETAPE_48_GALERIES_VIDEOS.md).
 
+## Étape 49 — Validation des fichiers médias avant publication (code préparé)
+
+Le backend média préparé est renforcé : **un média visible doit exister réellement** dans le bucket approuvé et être conforme au type MIME et à la limite de taille. Le Control Center propose une prévalidation MFA AAL2 ; le serveur refuse indépendamment toute publication d'un objet absent ou incorrect. La suppression de visibilité n'efface pas le stockage public : les demandes de retrait nécessitent une purge effective. La migration de média reste non appliquée et la recette des droits à l'image reste bloquante. [Protocole](ETAPE_49_CONTROLE_FICHIERS_MEDIAS.md).
+
 ## Prochaines actions concrètes
 
 Le travail autonome sur le code et le site public est avancé. La prochaine tranche de la roadmap est une **recette probante**, pas l'activation spéculative de services sensibles :
