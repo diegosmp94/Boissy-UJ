@@ -1,0 +1,90 @@
+/* Boissy-UJ front end — experiences supporters, events and club support.
+ * The layout works without subscriptions, wallets, payments or fake project data.
+ */
+.fan-journey-head,.fan-next-link{
+ display:flex;justify-content:space-between;align-items:center;gap:clamp(18px,4vw,48px);
+ border:1px solid rgba(128,178,240,.28);border-radius:22px;
+ padding:clamp(22px,4vw,48px);margin-bottom:clamp(25px,4vw,46px);
+ background:radial-gradient(circle at 85% 10%,rgba(51,129,220,.24),transparent 54%),linear-gradient(135deg,#123961,#0a1e3c);
+ box-shadow:0 18px 48px rgba(2,12,31,.12);
+}
+.fan-journey-head>div,.fan-next-link>div{max-width:700px;min-width:0}
+.fan-journey-head h2,.fan-next-link h2,.fan-benefits h2{
+ font:800 clamp(1.7rem,3.4vw,2.8rem)/1.13 Outfit,system-ui,sans-serif;
+ letter-spacing:-.04em;margin:11px 0 15px;
+}
+.fan-journey-head p,.fan-next-link p{max-width:670px;color:#cadbf0}
+.fan-journey-head .btn,.fan-next-link .btn{flex-shrink:0;max-width:100%;text-align:center}
+.premium-plan-selector{min-width:0}
+.premium-stage{max-width:1100px;margin:0 auto 50px}
+.premium-stage h2{font:800 clamp(1.5rem,3vw,2.4rem)/1.15 Outfit,system-ui,sans-serif;letter-spacing:-.035em;margin:10px 0 8px}
+.premium-stage-lead{color:#becfe6;max-width:700px;margin:0 0 18px}
+.premium-period-toggle{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px;
+ padding:5px;border:1px solid rgba(169,196,235,.4);border-radius:13px;background:#102b4e;margin:0 0 22px}
+.premium-period-choice{min-height:45px;min-width:130px;padding:10px 19px;border:0;border-radius:9px;background:transparent;color:#d8e7fa;font-weight:750}
+.premium-period-choice[aria-pressed="true"]{background:#f1c879;color:#111d32;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.premium-period-choice:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.premium-comparison{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(14px,2.8vw,24px)}
+.premium-compare-card{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:9px;
+ padding:clamp(20px,3vw,36px);border-radius:20px;
+ border:1px solid rgba(155,192,228,.34);background:linear-gradient(145deg,#112f53,#0a213f)}
+.premium-compare-featured{border:1px solid rgba(241,200,121,.75);
+ background:radial-gradient(circle at top right,rgba(234,181,92,.17),transparent 58%),linear-gradient(145deg,#174471,#0b2545)}
+.premium-compare-card .tiny-label{letter-spacing:.15em;font-size:.73rem;color:#e7c588}
+.premium-compare-card h3{font:800 clamp(1.6rem,3vw,2rem)/1.17 Outfit,system-ui,sans-serif;margin:0}
+.premium-compare-card>p{color:#c5d8ed;margin:0}
+.premium-price-row{display:flex;align-items:baseline;flex-wrap:wrap;gap:10px;margin:4px 0}
+.premium-price-row strong{font:900 clamp(2.2rem,5.2vw,3.9rem)/1 Outfit,system-ui,sans-serif;color:#fff}
+.premium-price-row span{color:#bcd0e8}
+.premium-billing{font-size:.95rem}
+.premium-terms{font-weight:700;color:#f4d691!important}
+.premium-benefit-list{list-style:none;display:grid;gap:11px;padding:0;margin:15px 0 19px;width:100%;flex:1}
+.premium-benefit-list li{display:flex;gap:12px;align-items:flex-start;line-height:1.55;font-size:.93rem;color:#d9e7f7}
+.premium-benefit-mark{display:inline-flex;justify-content:center;align-items:center;width:26px;height:26px;flex:0 0 26px;border-radius:50%;
+ background:rgba(85,166,222,.16);color:#b4dcff;font-weight:800}
+.premium-unavailable{border:1px solid #e5bf6a66;border-radius:11px;padding:13px 15px;background:#1a3150;color:#f8db9b!important;font-weight:750}
+.premium-billing-note{font-size:.85rem;color:#c4d1e6!important}
+.premium-future-note{border-left:3px solid #f1c879;padding-left:15px;color:#bacce5;font-size:.9rem;line-height:1.7;margin-top:18px}
+.fan-benefits{margin:46px 0}
+.fan-benefits .tiny-label,.fan-faq .tiny-label{letter-spacing:.16em;color:#f0c673}
+.fan-journey-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:24px 0}
+.fan-journey-grid article{min-width:0;padding:clamp(18px,2.5vw,29px);border:1px solid rgba(148,194,233,.24);border-radius:16px;background:#0e2949;display:flex;flex-direction:column;align-items:flex-start}
+.fan-journey-number{font:900 1.4rem Outfit,system-ui,sans-serif;color:#f3ca7d;letter-spacing:.04em}
+.fan-journey-grid h3{font-size:1.2rem;margin:14px 0 6px}
+.fan-journey-grid p{font-size:.92rem;line-height:1.7;color:#c8d9ee;margin:0 0 20px;flex:1}
+.fan-journey-grid a,.fan-inline-link{display:inline-flex;align-items:center;min-height:44px;color:#f3d18b;font-weight:750;text-decoration:underline;text-underline-offset:4px}
+.fan-faq{max-width:1100px;margin:40px auto;padding-bottom:25px}
+.fan-faq h2{font-size:clamp(1.5rem,2.8vw,2.25rem);margin:12px 0 20px}
+.fan-faq details{border:1px solid #8caed44e;border-radius:11px;margin:0 0 10px;padding:0 18px;background:#0c2545}
+.fan-faq summary{cursor:pointer;min-height:57px;display:flex;align-items:center;justify-content:space-between;gap:14px;font-weight:750;line-height:1.5;padding:12px 0}
+.fan-faq summary::after{content:'+';font-size:1.4rem;color:#f5cc83}
+.fan-faq details[open] summary::after{content:'−'}
+.fan-faq summary:focus-visible{outline:3px solid #f5cc83;outline-offset:3px}
+.fan-faq details p{margin:0 0 18px;max-width:880px;color:#c6d7ea;line-height:1.7}
+.events-highlight,.support-highlight{margin-bottom:26px}
+.event-guide{margin:40px 0 12px}
+.event-guide h2{font-size:clamp(1.45rem,3vw,2.25rem);margin:9px 0}
+.event-guide p{color:#c3d5ea;max-width:730px}
+.event-faq{margin-top:45px}
+.support-commitments{margin-top:54px}
+.support-commitments .fan-journey-grid p{margin-bottom:0}
+@media(max-width:800px){
+ .fan-journey-head,.fan-next-link{flex-direction:column;align-items:stretch}
+ .fan-journey-head .btn,.fan-next-link .btn{align-self:flex-start}
+ .fan-journey-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:620px){
+ .fan-journey-head,.fan-next-link{border-radius:15px;padding:21px 18px;margin-bottom:24px}
+ .premium-comparison,.fan-journey-grid{grid-template-columns:minmax(0,1fr)}
+ .premium-stage{margin-bottom:34px}
+ .premium-compare-card{border-radius:15px}
+ .premium-period-toggle{display:flex;max-width:100%}
+ .premium-period-choice{flex:1;min-width:0}
+ .fan-journey-grid{gap:12px}
+ .fan-benefits{margin:33px 0}
+ .fan-faq details{padding:0 14px}
+ .fan-faq summary{font-size:.94rem}
+}
+@media(prefers-reduced-motion:reduce){
+ .premium-period-choice,.fan-journey-grid article,.fan-journey-head{transition:none!important;animation:none!important}
+}
