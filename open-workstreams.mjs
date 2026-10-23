@@ -28,7 +28,7 @@ export const ACTIVE_WORKSTREAMS=Object.freeze([
   next:'Tester migration et fichiers approuvés en staging avant toute publication réelle.',
   dependency:'Droits à l’image, politique de conservation et tests Storage',kind:'technical',checks:['media','media-preflight']},
  {id:'p2-control',priority:'P2',title:'Éditeur global et administration avancée',
-  next:'Développer gestion des versions, publication/dépublication et audit applicatif unifié, sans exposer les données privées.',
+  next:'Recetter en staging l’historique et la restauration en brouillon des actualités développés ; compléter ensuite audit éditorial global et versionnage des autres modules.'
   dependency:'Recette P1 des rôles et de la journalisation',kind:'human'},
  {id:'p2-payments',priority:'P2',title:'Finances, dons, Premium et Stripe TEST',
   next:'Tester sur staging le Checkout et webhook Stripe TEST codés, puis traiter remboursements, litiges et obligations fiscales avant activation.',
