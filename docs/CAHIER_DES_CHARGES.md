@@ -107,6 +107,10 @@ La lecture du rôle dans le navigateur sert uniquement à l'affichage : **Supaba
 
 Tout média rendu visible doit déjà exister dans le bucket du club autorisé, avec un type MIME et une taille compatibles, contrôlés par le serveur après validation d'un administrateur MFA AAL2. Le simple chemin saisi dans l'interface n'est pas suffisant. L'enregistrement est bloqué côté PostgreSQL lorsque le contrôle échoue. Le retrait d'une publication doit déclencher également la suppression du fichier du Storage public lorsque les droits sont révoqués ; retirer un média de la galerie ne suffit pas. La migration et les tests réels restent préalables à la mise en service.
 
+### Recette P1 — Diagnostics de mise en service, étape 50
+
+Le Control Center doit montrer aux seuls administrateurs MFA AAL2 les résultats réels d'une batterie **en lecture seule** : modules d'administration fonctionnels, préparation des réactions et médias et échecs techniques. Chaque contrôle fournit « Accessible » ou « Non confirmé », sans exposer d'identité, publication privée ou token. Les contrôles indisponibles ne valent pas preuve d'absence du schéma ; les contrôles disponibles ne valent pas preuve d'absence de fuite multi-comptes. Les critères non vérifiés de la recette pondérée restent à zéro tant qu'aucune preuve indépendante n'est fournie.
+
 ## 4. Sécurité, confidentialité et conformité
 
 - Aucun rôle supplémentaire obtenu sans approbation administrateur explicitement enregistrée.

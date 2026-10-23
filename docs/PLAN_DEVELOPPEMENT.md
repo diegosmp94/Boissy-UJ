@@ -25,6 +25,10 @@ L'interface de galeries et le lecteur vidéo natif sont maintenant connectés au
 
 Le backend média préparé est renforcé : **un média visible doit exister réellement** dans le bucket approuvé et être conforme au type MIME et à la limite de taille. Le Control Center propose une prévalidation MFA AAL2 ; le serveur refuse indépendamment toute publication d'un objet absent ou incorrect. La suppression de visibilité n'efface pas le stockage public : les demandes de retrait nécessitent une purge effective. La migration de média reste non appliquée et la recette des droits à l'image reste bloquante. [Protocole](ETAPE_49_CONTROLE_FICHIERS_MEDIAS.md).
 
+## Étape 50 — Diagnostic de mise en service (lecture seule)
+
+Le Control Center intègre un module **État de mise en service**, réservé à l'administrateur après MFA AAL2, avec neuf contrôles de disponibilité des modules réellement installés et un suivi des validations humaines encore bloquantes. Aucune table ni donnée privée n'est modifiée. En complément, l'audit SQL de production du 23/10 confirme la présence des 5 équipes, RLS activée sur les tables publiques et l'absence d'accès anonyme direct aux fonctions privilégiées `SECURITY DEFINER` examinées ; les réactions et médias n'existent pas encore en production. Ces contrôles ne valent **ni homologation multi-comptes ni score pondéré**. [Preuves, limites et recette](ETAPE_50_DIAGNOSTIC_MISE_EN_SERVICE.md).
+
 ## Prochaines actions concrètes
 
 Le travail autonome sur le code et le site public est avancé. La prochaine tranche de la roadmap est une **recette probante**, pas l'activation spéculative de services sensibles :

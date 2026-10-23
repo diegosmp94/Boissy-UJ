@@ -8,6 +8,7 @@ import {mountAuthenticatedClubIdentityEditor} from './club-editor.mjs';
 import {mountAuthenticatedTeamPeopleEditor} from './team-person-editor.mjs';
 import {mountAdminMembers} from './admin-users.mjs';
 import {mountAdminNewsMedia} from './admin-news-media.mjs';
+import {mountAdminReadiness} from './admin-readiness.mjs';
 import {mountAdminPlayerTeams} from './admin-player-teams.mjs';
 import {mountAdminCoachTeams} from './admin-coach-teams.mjs';
 import {mountAdminSeasons,mountAdminMatches,mountAdminNews,mountAdminFreeEvents} from './admin-management.mjs';
@@ -15,6 +16,7 @@ import {filterAdminModules,groupAdminModules,availableAdminModules} from './admi
 
 export const ADMIN_MODULES=Object.freeze([
  {id:'overview',name:'Vue générale',group:'Pilotage',caption:'Données réelles, aucun chiffre fictif'},
+ {id:'readiness',name:'État de mise en service',group:'Pilotage',caption:'Lectures techniques et validations manquantes'},
  {id:'users',name:'Membres et rôles',group:'Pilotage',caption:'Consultation et retraits validés'},
  {id:'approvals',name:'Validation des rôles',group:'Pilotage',caption:'Demandes et approbations MFA'},
  {id:'teams',name:'Effectifs publics',group:'Sport',caption:'Brouillons et publication contrôlée'},
@@ -195,6 +197,7 @@ export async function mountAdminCenter(getClient){
    view.replaceChildren();
    switch(id){
     case 'overview':await overview(view);break;
+    case 'readiness':void mountAdminReadiness(view,api,verified.userId);break;
     case 'users':void mountAdminMembers(view,api,verified.userId);break;
     case 'approvals':void mountAdminRoleModeration(view,api,verified.userId);break;
     case 'teams':void mountAuthenticatedTeamPeopleEditor(view,api,verified.userId);break;
