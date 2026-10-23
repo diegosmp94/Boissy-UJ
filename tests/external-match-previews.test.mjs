@@ -14,7 +14,7 @@ test('visitor can see actual dated external references while no matches are publ
  assert.ok(items.every(x=>x.validated_by_club===false));
  assert.ok(items.every(x=>x.source_label==='SportCorico'&&x.source.startsWith('https://www.sportcorico.com/clubs/')));
  assert.ok(items.every(x=>x.time>=now-86400000));
- assert.equal(EXTERNAL_FIXTURE_REVIEWED_AT,'2026-10-22');
+ assert.equal(EXTERNAL_FIXTURE_REVIEWED_AT,'2026-10-23');
 });
 test('filters do not mix football, futsal, other teams, and out-of-range dates',()=>{
  const items=publicExternalFixtures({now,discipline:'futsal'});

@@ -22,7 +22,8 @@ test('calendar displays source-attributed real past scored games and upcoming fi
 });
 test('incorrect other-club fixtures are removed, Seniors B is sourced to its actual opponent',()=>{
  const matches=publicExternalFixtures({now,period:'all',includePast:true});
- assert.ok(!matches.some(x=>x.opponent==='SFC Canavérois 1'&&x.team_code==='b'));
+ assert.ok(!matches.some(x=>x.opponent==='SFC Canavérois 1'&&x.team_code==='b'&&x.localDay==='2026-11-01'));
+ assert.ok(matches.some(x=>x.opponent==='SFC Canavérois 1'&&x.team_code==='b'&&x.localDay==='2026-11-15'));
  const b=matches.find(x=>x.team_code==='b'&&x.season==='2026-2027');
  assert.equal(b.opponent,'Val de Fontenay AS 2');
  assert.match(b.source,/val-de-fontenay-as/);
@@ -47,7 +48,7 @@ test('published club matches override the same team, date and opponent from exte
  const confirmed=[{kind:'match',id:'club-match-1',teamId:'uuid-a',time:reference.time,
   localDay:reference.localDay,opponent:'Nogent-sur-Marne FC 3',title:'Match confirmé',status:'scheduled'}];
  const data=mergeCalendarPublicEntries(confirmed,external,[{id:'uuid-a',code:'a'}]);
- assert.equal(data.filter(x=>x.kind==='match'&&x.opponent==='Nogent-sur-Marne FC 3').length,1);
+ assert.equal(data.filter(x=>x.kind==='match'&&x.opponent==='Nogent-sur-Marne FC 3'&&x.localDay===reference.localDay).length,1);
  assert.equal(data.filter(x=>x.id==='club-match-1').length,1);
 });
 test('club-published past results appear in agenda with score and proper status, draft excluded',()=>{

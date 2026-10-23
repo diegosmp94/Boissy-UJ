@@ -1,9 +1,10 @@
 import {HISTORICAL_SOURCE_RESULTS} from './historical-source-results.mjs';
+import {REMAINING_OFFICIAL_SEASON_FIXTURES} from './remaining-official-season-fixtures.mjs';
 /** Public SportCorico fixtures and results; manually checked on 2026-10-22.
  * These facts are attributed third-party observations, NOT club approval or
  * an official FFF API. Never write them to Supabase automatically.
  */
-export const EXTERNAL_FIXTURE_REVIEWED_AT='2026-10-22';
+export const EXTERNAL_FIXTURE_REVIEWED_AT='2026-10-23';
 export const EXTERNAL_FIXTURE_PROVIDER='SportCorico';
 const sourceA='https://www.sportcorico.com/clubs/boissy-uj/boissy-uj';
 const sourceV='https://www.sportcorico.com/clubs/boissy-uj/boissy-uj-6?season=2026-2027';
@@ -11,6 +12,7 @@ const sourceF='https://www.sportcorico.com/clubs/boissy-uj/boissy-uj-1';
 const sourceB='https://www.sportcorico.com/clubs/val-de-fontenay-as/val-de-fontenay-as-39';
 /** Historical score entries have date-only precision. Never invent a kickoff time. */
 const data=[
+ ...REMAINING_OFFICIAL_SEASON_FIXTURES,
  {team_code:'a',opponent:"Bann'zanmi 2",date:'2026-09-20',is_home:true,source:sourceA,home_score:6,away_score:1,status:'played'},
  {team_code:'a',opponent:'Moldavie FC 1',date:'2026-10-04',is_home:false,source:sourceA,home_score:1,away_score:3,status:'played'},
  {team_code:'a',opponent:'Villejuif US 1',date:'2026-10-11',is_home:false,source:sourceA,home_score:6,away_score:0,status:'played'},
@@ -66,7 +68,7 @@ export function publicExternalFixtures({now=Date.now(),query='',team='all',disci
    team_name:labels[item.team_code],
    source_label:item.source.includes('thefootdata.com')?'TheFootData':EXTERNAL_FIXTURE_PROVIDER,
    validated_by_club:false,
-   date_confirmed_by_club:item.season==='2026-2027',
+   date_confirmed_by_club:item.date_confirmed_by_club??(item.season==='2026-2027'),
    result:item.status==='played'?item.home_score+' – '+item.away_score:null
  })).sort((a,b)=>a.time-b.time);
 }

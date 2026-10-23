@@ -99,7 +99,7 @@ export async function mountTeamProfile(code){
     const competitionNote=node('p','team-competition-help',
       code==='c'
         ?'Seniors C : rencontres amicales, sans championnat officiel. Aucun match de coupe annoncé en 2026–2027.'
-        :'Championnat et coupe sont séparés par équipe. Les résultats externes ne sont pas homologués ; les dates 2026–2027 ont été confirmées par le club.');
+        :'Championnat et coupe sont séparés par équipe. Les résultats externes ne sont pas homologués ; les nouvelles dates ajoutées jusqu’à mai 2027 restent à revalider par le club.');
     root.append(competitionNote);
     const cupDetails=cupInformation(code,'2026-2027');
     const cupNotice=node('aside','team-cup-participation');
@@ -155,11 +155,20 @@ export async function mountTeamProfile(code){
         }
         select.value=activeSeason;
         filter.append(select);section.append(filter);
+        if(code==='b')section.append(node('p','team-profile-disclaimer',
+          'Seniors B : calendrier de championnat partiel. Certaines journées manquent encore dans les sources consultées ; aucun adversaire ni horaire manquant n’a été inventé.'));
         const list=node('div','team-profile-matches');
         select.addEventListener('change',()=>{
           activeSeason=select.value;renderCategory();
         });
-        for(const m of sourced.slice().sort((a,b)=>b.time-a.time)){
+        // Supporters see the next fixture first; past games follow, most recent first.
+        const instant=Date.now();
+        const ordered=sourced.slice().sort((a,b)=>{
+          const aFuture=a.time>=instant-86400000,bFuture=b.time>=instant-86400000;
+          if(aFuture!==bFuture)return aFuture?-1:1;
+          return aFuture?a.time-b.time:b.time-a.time;
+        });
+        for(const m of ordered){
           const item=node('article','team-profile-match');
           item.append(node('span','team-profile-match-kind',
             m.season+' · '+(m.status==='played'?'Résultat sourcé':
