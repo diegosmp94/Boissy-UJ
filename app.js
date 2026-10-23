@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 10670)
-Total output lines: 347
-
 import {mountEvents,unmountEvents} from './events-center.mjs';
 import {CLUB_TEAMS,DISCIPLINES,teamsByDiscipline,teamRoute,categoryRoute,disciplineLabel} from './club-teams.mjs';
 import {mountTeamProfile,unmountTeamProfile} from './team-pages.mjs';
@@ -101,7 +98,104 @@ function home(){return `
   </div><aside class="chapter-rail" aria-label="Navigation par chapitres">${chapters.map((c,i)=>`<button type="button" class="rail-dot" data-chapter="${c.id}" aria-label="Chapitre ${i+1} : ${c.name}" title="${c.name}"></button>`).join('')}</aside><div class="chapter-counter" aria-live="off">01 <span>/ 08</span></div>`;}
 
 function pageShell(overline,title,description,body){return `<div class="page-shell"><div class="page-ambient"></div><div class="page-intro">${tag(overline)}<h1>${title}</h1><p>${description}</p></div><div class="page-body">${body}</div><footer class="simple-footer"><span>© Boissy-UJ — Site officiel en préparation</span><a href="#/club">Notre club ↗</a><a href="#/">Retour à l’accueil ↗</a></footer></div>`;}
-function matches(){return pageShell('Le terrain avant tout','MATCH <em>CENTER.</em>','Calendriers et résultats publiés des cinq équipes, distinguées entre football à 11 et futsal.',`<div class="info-banner"><span class="info-icon">i</span><div><strong>Données officielles FFF en cours de vérification</strong><p>Les rencontres apparaissent uniquement après publication. Le club peut également renseigner manuellement ses rencontres. Aucun score n’est inventé.</p></div></div><div id="match-center-live" class="sport-root" aria-live="polite"><p class="sport-loading">Aucune rencontre publiée pour le moment — chargement du calendrier…</p></div><div class="subhead"><h2>Statistiques collectives</h2><span>RÉSULTATS PUBLIÉS UNIQUEMENT</span></div><div id="team-form-public" class="sport-team-form" aria-live="polite"><p class="sport-loading">Chargement des bilans…</p></div><div class="subhead"><h2>Classements par championnat</h2><span>MISE À JOUR APRÈS CHAQUE JOURNÉE PAR…4670 tokens truncated… publiés ↗</a></section>
+function matches(){return pageShell('Le terrain avant tout','MATCH <em>CENTER.</em>','Calendriers et résultats publiés des cinq équipes, distinguées entre football à 11 et futsal.',`<div class="info-banner"><span class="info-icon">i</span><div><strong>Données officielles FFF en cours de vérification</strong><p>Les rencontres apparaissent uniquement après publication. Le club peut également renseigner manuellement ses rencontres. Aucun score n’est inventé.</p></div></div><div id="match-center-live" class="sport-root" aria-live="polite"><p class="sport-loading">Aucune rencontre publiée pour le moment — chargement du calendrier…</p></div><div class="subhead"><h2>Statistiques collectives</h2><span>RÉSULTATS PUBLIÉS UNIQUEMENT</span></div><div id="team-form-public" class="sport-team-form" aria-live="polite"><p class="sport-loading">Chargement des bilans…</p></div><div class="subhead"><h2>Classements par championnat</h2><span>MISE À JOUR APRÈS CHAQUE JOURNÉE PAR LE CLUB</span></div><div id="team-league-standing" class="league-standings-root" aria-live="polite"><p class="sport-loading">Chargement des classements…</p></div><div class="subhead"><h2>Nos compétitions</h2><span>SAISON À CONFIGURER</span></div><div class="detail-grid">${teams.map(t=>`<article class="detail-card"><span class="tiny-label">${t.discipline==='futsal'?'FUTSAL · ':'FOOTBALL · '}${t.tag}</span><h3>${t.name}</h3><p>${t.league}</p><small>${t.source}</small></article>`).join('')}</div>`);}
+
+function teamPage(){
+  const teamDetail=(t,i,groupTotal)=>`<article class="detail-card team-detail"><span class="tiny-label">${String(i+1).padStart(2,'0')} / ${String(groupTotal).padStart(2,'0')} · ${t.tag}</span>
+    <img src="${crest}" width="78" height="78" alt="" loading="lazy"/><h3>${t.name}</h3><p>${t.league}</p><small>${t.desc}</small>
+    <div class="empty-caption">Effectif et calendrier à renseigner</div><a class="team-detail-link" href="${teamRoute(t)}">Voir la fiche équipe ↗</a></article>`;
+  const group=(id,label,description,groupTeams)=>`<section class="discipline-section" id="${id}" aria-labelledby="${id}-title">
+    <div class="discipline-heading"><span class="tiny-label">BOISSY-UJ · ${groupTeams.length} ÉQUIPE${groupTeams.length>1?'S':''}</span>
+    <h2 id="${id}-title">${label}</h2><p>${description}</p><a class="team-category-link" href="${categoryRoute(groupTeams[0].discipline)}">Explorer la catégorie ↗</a></div>
+    <div class="detail-grid discipline-grid">${groupTeams.map((t,i)=>teamDetail(t,i,groupTeams.length)).join('')}</div></section>`;
+  return pageShell('Deux disciplines · Cinq collectifs','NOS <em>ÉQUIPES.</em>',
+    'Football à 11 et futsal : découvrez les cinq équipes de Boissy-UJ, leurs niveaux et leurs informations publiées.',
+    `<nav class="discipline-jump" aria-label="Choisir la discipline">
+      <button type="button" data-discipline-target="football-section">Football à 11 · 4 équipes ↓</button>
+      <button type="button" data-discipline-target="futsal-section">Futsal · 1 équipe ↓</button></nav>
+    ${group('football-section','FOOTBALL À 11','Seniors A, Seniors B, Seniors C et Vétérans.',footballTeams)}
+    ${group('futsal-section','FUTSAL','Senior · Départemental 2. Calendrier, effectifs et résultats après publication par le club.',futsalTeams)}`);
+}
+function categoryTeamPage(discipline){
+  const group=teamsByDiscipline(discipline,teams);
+  const isFutsal=discipline==='futsal';
+  return pageShell('Nos équipes · '+disciplineLabel(discipline),
+    isFutsal?'LE <em>FUTSAL.</em>':'LE <em>FOOTBALL.</em>',
+    isFutsal?'Senior joue en Départemental 2.':'Nos quatre équipes de football à 11 : Seniors A, B, C et Vétérans.',
+    `<nav class="team-breadcrumbs" aria-label="Fil d’Ariane">
+      <a href="#/equipes">Toutes les équipes</a><span aria-hidden="true">›</span>
+      <span aria-current="page">${disciplineLabel(discipline)}</span></nav>
+    <div class="team-hierarchy-header"><span class="tiny-label">${group.length} ÉQUIPE${group.length===1?'':'S'}</span>
+      <p>Chaque collectif possède sa propre fiche, ses rencontres publiées et ses informations de compétition.</p></div>
+    <div class="detail-grid discipline-grid">${group.map((team,i)=>`
+      <article class="detail-card team-detail">
+        <span class="tiny-label">${String(i+1).padStart(2,'0')} / ${String(group.length).padStart(2,'0')} · ${team.tag}</span>
+        <img src="${crest}" width="78" height="78" alt="" loading="lazy">
+        <h2>${team.name}</h2><p>${team.league}</p><small>${team.desc}</small>
+        <a class="team-detail-link" href="${teamRoute(team)}">Voir la fiche équipe ↗</a>
+      </article>`).join('')}</div>
+    <div class="team-hierarchy-footer"><a href="${categoryRoute(isFutsal?'football':'futsal')}">Découvrir aussi le ${isFutsal?'football à 11':'futsal'} ↗</a></div>`);
+}
+function singleTeamPage(team){
+  const group=teamsByDiscipline(team.discipline,teams);
+  return pageShell('Équipes · '+disciplineLabel(team.discipline),
+    team.name.toLocaleUpperCase('fr-FR').replace('BOISSY-UJ ','')+'.',
+    team.name+' : '+team.division+'. Informations sportives officiellement publiées par le club.',
+    `<nav class="team-breadcrumbs" aria-label="Fil d’Ariane">
+       <a href="#/equipes">Équipes</a><span aria-hidden="true">›</span>
+       <a href="${categoryRoute(team.discipline)}">${disciplineLabel(team.discipline)}</a><span aria-hidden="true">›</span>
+       <span aria-current="page">${team.name}</span></nav>
+      <section class="team-profile-intro" aria-label="Présentation de l’équipe">
+        <img src="${crest}" width="138" height="138" alt="Écusson Boissy-UJ" loading="lazy">
+        <div><span class="tiny-label">${disciplineLabel(team.discipline)} · ${team.tag}</span>
+          <h2>${team.name}</h2><p>${team.desc}</p>
+          <span class="team-profile-division">${team.division}</span>
+        </div>
+      </section>
+      <div id="team-league-standing" class="league-standings-root league-team-standing" aria-live="polite"><p class="sport-loading">Classement du championnat en cours de chargement…</p></div>
+      <div id="team-profile-live" class="team-profile-live" aria-live="polite">
+        <p class="team-profile-state">Chargement des rencontres publiées…</p>
+      </div>
+      <div id="team-profile-extras" class="team-profile-extras" aria-live="polite" aria-label="Effectif, encadrement, bilan et actualités de l'équipe">
+        <p class="team-extras-empty">Chargement des informations publiques de l’équipe…</p>
+      </div>
+      <nav class="team-profile-actions" aria-label="Navigation sportive">
+        <a href="${categoryRoute(team.discipline)}">← Toutes les équipes ${disciplineLabel(team.discipline)}</a>
+        <a href="${teamDeepLink('matchs',team.code)}">Matchs de cette équipe ↗</a>
+        <a href="${teamDeepLink('actualites',team.code)}">Actualités de cette équipe ↗</a>
+      </nav>
+      <section class="team-sibling-section" aria-label="Autres équipes de la discipline">
+        <h2>Autres équipes</h2><div class="team-siblings">
+        ${group.filter(t=>t.code!==team.code).map(t=>`<a href="${teamRoute(t)}">${t.name} <span>↗</span></a>`).join('')||'<p>Une équipe pour cette discipline.</p>'}
+        </div>
+      </section>`);
+}
+function news(){return pageShell('Vie du club','ACTUALITÉS <em>& MÉDIAS.</em>','Découvrez uniquement les informations publiées par Boissy-UJ : la vie du club, nos équipes et les événements.',`<div class="info-banner"><span class="info-icon">i</span><div><strong>Publications contrôlées</strong><p>Les brouillons, contenus privés et médias non autorisés ne sont pas affichés. Le club publiera progressivement ses actualités.</p></div></div><div id="news-feed-public" class="news-root" aria-live="polite"><p class="news-loading">Chargement des actualités…</p></div><div class="detail-grid two"><div class="detail-card"><span class="tiny-label">MÉDIAS</span><h3>Galeries photos</h3><p>Les photos ne seront accessibles qu'après vérification des autorisations de diffusion.</p></div><div class="detail-card"><span class="tiny-label">VIDÉOS</span><h3>Vidéos du club</h3><p>Les rencontres et les coulisses seront diffusées uniquement lorsqu'un contenu aura été publié.</p></div></div>`);}
+
+function community(){return pageShell('Une communauté, des avantages','LA PASSION <em>ENSEMBLE.</em>','Un compte gratuit pour suivre le club. Deux formules premium pour aller plus loin.',`<div class="pricing-grid"><article class="pricing-card"><span class="tiny-label">SUPPORTER</span><h2>Gratuit</h2><p>Actualités publiques, suivi des équipes et réactions aux publications.</p><a class="btn btn-outline" href="#/mon-espace">Se connecter ou créer un compte</a></article><article class="pricing-card featured"><span class="tiny-label">PREMIUM MENSUEL</span><div class="price">10 €<small> / mois</small></div><p>Sans engagement. Renouvellement mensuel résiliable en ligne.</p><div class="chip">Paiements non activés</div></article><article class="pricing-card"><span class="tiny-label">PREMIUM ANNUEL</span><div class="price">100 €<small> / 12 mois</small></div><p>Renouvellement manuel uniquement. Aucun prélèvement annuel automatique.</p><div class="chip">Paiements non activés</div></article></div><div class="info-banner"><span class="info-icon">i</span><div><strong>Avantages en préparation</strong><p>Contenus exclusifs, événements privilégiés, réductions configurables, avantages partenaires et votes aux Awards des Seniors A, B et C.</p></div></div><section class="community-awards-teaser"><span class="tiny-label">AWARDS BOISSY-UJ</span><h2>LES TALENTS DU <em>CLUB.</em></h2><p>Découvrez les catégories et nominations officielles des Seniors A, B et C lorsqu'elles seront publiées. Les votes Premium ne sont pas encore activés.</p><a class="btn btn-outline" href="#/awards">Découvrir les Awards <span aria-hidden="true">↗</span></a></section>`);}
+function awards(){return pageShell('Célébrer les performances','LES <em>AWARDS.</em>','Les distinctions Boissy-UJ des Seniors A, B et C. Seules les catégories, nominations et récompenses officiellement publiées par le club sont visibles.',`<div class="awards-intro-grid"><article class="detail-card"><span class="tiny-label">01 · LES NOMINATIONS</span><h2>Nos talents</h2><p>Chaque nom est publié uniquement après vérification de l’autorisation de diffusion.</p></article><article class="detail-card"><span class="tiny-label">02 · LE VOTE</span><h2>À venir</h2><p>Le vote Premium et les dates d’ouverture seront annoncés après validation du service.</p></article><article class="detail-card"><span class="tiny-label">03 · LES RÉSULTATS</span><h2>Vérifiés</h2><p>Les résultats apparaîtront seulement après clôture et publication officielle par le club.</p></article></div><div class="info-banner"><span class="info-icon">i</span><div><strong>Aucun vote actif</strong><p>Cette rubrique est informative. Aucun achat, vote ou classement fictif n’est disponible dans cette préversion.</p></div></div><div id="awards-public-catalog" class="awards-catalog" aria-live="polite"><p class="awards-loading">Chargement du programme des Awards…</p></div>`);}
+function events(){return pageShell('La vie associative','NOS <em>ÉVÉNEMENTS.</em>','Les rendez-vous de Boissy-UJ : informations publiées par le club, événements ouverts et avantages Premium lorsqu’ils sont annoncés.',`<div class="events-explainer"><article class="detail-card"><span class="tiny-label">OUVERT À TOUS</span><h2>Vie du club</h2><p>Rencontres associatives et événements publics, gratuits ou payants selon les informations publiées.</p></article><article class="detail-card"><span class="tiny-label">PRIORITÉ PREMIUM</span><h2>Accès anticipé</h2><p>Certains rendez-vous pourront proposer une période d’accès prioritaire, sans durée fixée à ce jour.</p></article><article class="detail-card"><span class="tiny-label">EXCLUSIVITÉ PREMIUM</span><h2>Moments réservés</h2><p>Les événements exclusivement Premium ne seront visibles que dans un espace protégé une fois celui-ci validé.</p></article></div><div class="info-banner"><span class="info-icon">i</span><div><strong>Billetterie non activée</strong><p>La rubrique permet de consulter le programme publié, mais pas encore d’acheter, de réserver ou de payer un billet.</p></div></div><div id="events-public-catalog" class="events-public-catalog" aria-live="polite"><p class="events-loading">Chargement du programme…</p></div>`);}
+
+function support(){return pageShell('Ensemble, plus loin','SOUTENIR <em>BOISSY-UJ.</em>','Dons ponctuels, soutien mensuel et campagnes par projet : une future façon de contribuer au développement du club.',`<div class="detail-grid two"><article class="detail-card support-card"><span class="tiny-label">01 / SOUTIEN</span><h2>Fonds général</h2><p>Aider le club à financer ses activités associatives et sportives.</p><div class="chip">Ouverture des dons à venir</div></article><article class="detail-card support-card"><span class="tiny-label">02 / PROJETS</span><h2>Campagnes dédiées</h2><p>Participer à un projet identifié et consulter sa progression.</p><div class="chip">Campagnes à publier</div></article></div><div class="info-banner"><span class="info-icon">i</span><div><strong>Aucun paiement actif</strong><p>La collecte via Stripe sera accessible uniquement après validation de l’association, des conditions légales et des parcours de paiement.</p></div></div>`);}
+function identity(){return pageShell('L’identité Boissy-UJ','NOTRE <em>CLUB.</em>','Une identité, quatre collectifs et des informations vérifiées. L’histoire officielle, les dirigeants et les projets seront affichés uniquement après publication par le club.',`<div class="info-banner"><span class="info-icon">i</span><div><strong>Présentation en cours d’enrichissement</strong><p>Aucune date de fondation, aucun dirigeant et aucun projet non confirmé n’est présenté comme un fait.</p></div></div><div id="identity-public-root" class="identity-public-root" aria-live="polite"><p>Chargement de la présentation…</p></div>`);}
+function join(){return pageShell('Faire partie du club','NOUS <em>REJOINDRE.</em>','Joueur, éducateur, bénévole ou partenaire : découvre comment contribuer à Boissy-UJ et consulte les annonces réellement publiées par le club.',`<div class="info-banner"><span class="info-icon">i</span><div><strong>Préversion informative, sans inscription</strong><p>Aucun formulaire de recrutement ou d’envoi de données personnelles n’est activé. Les opportunités et coordonnées apparaissent seulement si elles ont été publiées par le club.</p></div></div><div id="join-public-hub" class="join-public-hub" aria-live="polite"><p class="join-loading">Chargement du parcours…</p></div><div class="join-practical-cta"><span class="tiny-label">RENSEIGNEMENTS</span><h2>Avant de venir au club</h2><p>Consulte les informations pratiques et les éventuels horaires, lieux et consignes officiellement publiés.</p><a class="btn btn-outline" href="#/infos-pratiques">Infos pratiques <span aria-hidden="true">↗</span></a></div>`);}
+
+function practical(){return pageShell('Toutes les informations utiles','INFOS <em>PRATIQUES.</em>','Entraînements, rencontres, lieux, adhésions et vie associative : consulte uniquement les informations confirmées et publiées par Boissy-UJ.',`<div class="info-banner"><span class="info-icon">i</span><div><strong>Des informations fiables, pas d’estimations</strong><p>Les horaires, adresses et contacts non renseignés ne sont pas supposés. Vérifie les publications du club avant tout déplacement.</p></div></div><div id="practical-public-hub" class="join-public-hub" aria-live="polite"><p class="join-loading">Chargement des informations pratiques…</p></div>`);}
+
+function agenda(){return pageShell("La vie du club, en un regard","AGENDA <em>DU CLUB.</em>","Matchs et événements publiés par Boissy-UJ, réunis dans un calendrier lisible et consultable sur mobile.",'<div id="agenda-public-root" class="agenda-public-root" aria-live="off"><p class="agenda-status">Chargement de l’agenda officiel…</p></div>');}
+/** Public privacy information. Legal fields remain explicitly pending verification by the club. */
+function privacy(){
+ return pageShell('Vie privée et transparence','CONFIDENTIALITÉ <em>& DONNÉES.</em>',
+  'Comment les informations nécessaires aux comptes, aux équipes et aux convocations sont utilisées.',
+  `<div class="trust-page" aria-label="Information sur les données personnelles">
+    <aside class="trust-alert" role="note"><strong>Information en cours de validation</strong><p>Les durées de conservation, les coordonnées du responsable de traitement et les éventuels transferts hors UE doivent être confirmés officiellement avant homologation RGPD.</p></aside>
+    <section><h2>Responsable et finalités</h2><p>Le site est exploité pour la vie du club Boissy-UJ. Les coordonnées de l'association responsable du traitement seront renseignées après validation de ses représentants. Les données de compte servent à l'authentification, à l'administration des rôles, aux affiliations d'équipe et, pour les personnes autorisées, aux convocations sportives.</p></section>
+    <section><h2>Informations concernées</h2><p>Selon ton utilisation : adresse e-mail de connexion, nom d'affichage, identifiant technique, rôles accordés, équipes attribuées, convocations et réponses, et journaux de sécurité ou d'administration. Les coordonnées et informations privées des joueurs ne sont pas publiées par défaut.</p></section>
+    <section><h2>Destinataires et prestataires</h2><p>L'accès aux données privées dépend du rôle et des autorisations vérifiés côté serveur. Le site utilise GitHub Pages pour son hébergement statique, Supabase pour la connexion et les données, ainsi que Google Fonts et jsDelivr pour des ressources techniques. Le statut juridique des transferts éventuels et les garanties applicables doivent être documentés par l'association.</p></section>
+    <section><h2>Conservation et sécurité</h2><p>Les périodes de conservation par traitement sont à documenter et valider par le club. Les données privées sont protégées par des restrictions d'accès en base, les opérations administratives par une double authentification et des journaux d'audit. Ces contrôles ne dispensent pas d'un audit de sécurité complet.</p></section>
+    <section><h2>Témoins et stockage du navigateur</h2><p>Le site retient dans le stockage de session le passage de l'introduction et certaines étapes techniques de récupération de compte. La session d'authentification peut être conservée localement par Supabase afin de rester connecté. Aucun outil de suivi publicitaire n'est intégré au code actuel. Si des traceurs non essentiels sont ajoutés, un choix de consentement devra être mis en place avant leur activation.</p></section>
+    <section><h2>Exercer tes droits</h2><p>Selon les conditions du RGPD, tu peux demander l'accès, la rectification, l'effacement ou la limitation de certaines données, ou t'opposer à certains traitements. Le contact dédié du responsable sera affiché dès confirmation par le club ; aucune adresse non vérifiée n'est publiée ici. Pour les questions urgentes, contacte directement l'association par un canal officiel que tu connais déjà.</p>
+    <a class="trust-link" href="#/infos-pratiques">Consulter les contacts officiellement publiés ↗</a></section>
     <p class="trust-review-date">Page de transparence technique · Révision du 22 octobre 2026 · Validation juridique à compléter.</p>
    </div>`);
 }
