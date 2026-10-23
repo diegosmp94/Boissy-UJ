@@ -24,7 +24,7 @@ Sources principales collectées et vérifiées le 23/10/2026 :
 
 ## Qualité des données
 
-- Les 43 rencontres nouvelles portent `status:'scheduled'` et `date_confirmed_by_club:false`. Les dates antérieures que le club a confirmées ne perdent pas ce statut.
+- Les 43 rencontres nouvelles portent `status:'scheduled'` et `date_confirmed_by_club:false`. Les dates antérieures confirmées par le club portent explicitement `date_confirmed_by_club:true`. Une donnée qui omet cette confirmation reste non confirmée, quelle que soit sa saison.
 - **Aucun score futur** n'est inventé ; la donnée paradoxale « 2–12 » publiée pour le 20/02/2027 par le fournisseur n'est **pas** considérée comme un résultat ou un horaire. L'affiche est reprise **sans heure ni score**.
 - Les week-ends « exempt » et les affiches avec un « F » de forfait dans la source ne sont **pas ajoutés comme rencontres ordinaires**. Seules les parties dont adversaire et date sont précis sont retenues.
 - **Calendrier Seniors B partiel** : plusieurs journées n'ont pas été recoupées ; une mention visible sur la fiche empêche de prétendre que toutes les rencontres sont connues.

@@ -31,6 +31,9 @@ test('2026–27 cup results do not appear in league and vice versa',()=>{
  assert.equal(fixtures.find(x=>x.opponent==='Petits Anges ES 1').competition,'Coupe nationale futsal');
  assert.ok(fixtures.some(x=>x.date_confirmed_by_club===true));
  assert.ok(fixtures.some(x=>x.date_confirmed_by_club===false));
+ assert.ok(fixtures.every(x=>typeof x.date_confirmed_by_club==='boolean'));
+ assert.ok(fixtures.filter(x=>x.reviewed_at==='2026-10-23').every(x=>x.date_confirmed_by_club===true));
+ assert.ok(fixtures.filter(x=>x.date_confirmed_by_club===false).every(x=>x.status==='scheduled'));
  assert.ok(fixtures.every(x=>x.validated_by_club===false));
 });
 test('historical 2025–26 cup for B stays in prior season but is not silently assigned to 2026–27',()=>{
