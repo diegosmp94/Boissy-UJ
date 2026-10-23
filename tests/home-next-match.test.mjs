@@ -89,8 +89,9 @@ test('read-only Supabase loader fetches current published scheduled matches and 
  ]];
  const rows=await loadPublishedUpcoming({now:Date.parse('2027-01-20T12:00:00Z'),
   fetcher:async(url,opts)=>{
+   const index=requests.length;
    requests.push({url,opts});
-   return {ok:true,json:async()=>values[requests.length-1]};
+   return {ok:true,json:async()=>values[index]};
   }});
  assert.equal(rows.teams[0].code,'a');
  assert.equal(rows.matches[0].opponent_name,'FC Hoverla 1');
