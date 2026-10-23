@@ -35,6 +35,10 @@ Chaque pôle est divisé en exigences vérifiables, assorties de critères d'acc
 
 Un tableau de bord P1 read-only et un script SQL non destructif fournissent des indicateurs de disponibilité des modules et de configuration Supabase. **Aucun point de la grille sur 100 n'est automatiquement attribué** sur la seule base d'un RPC répondant ou d'un test unitaire ; les validations réelles AAL2/multi-comptes, RGPD, restauration, appareils physiques et paiement TEST restent distinctes.
 
+## Preuve outillée P1 — Étape 51
+
+Les comptes de test de staging doivent être distincts (sept identités réelles) et les tests de séparation des convocations A/B doivent disposer de deux UUID exclusifs. Les lectures RLS inter-comptes sur quatre tables sensibles sont vérifiées par script. **Aucun point de recette supplémentaire n'est accordé tant que le script n'a pas été exécuté sur un projet de staging autorisé et que les preuves ont été approuvées.** Ce code de recette n'est pas une homologation des droits en production.
+
 ## État du lot 1
 
 Lot « Fondations publiques » : structure statique HTML/CSS/JS sans dépendances, huit chapitres de l'accueil, navigation hybride, pages sportives et communautaires en état initial, logo officiel. Ce lot **ne vaut pas** livraison des espaces authentifiés, du Sports Manager, de Stripe ou du Control Center. Les validations de la matrice s'effectueront au fil des lots et ne doivent pas être inférées de l'existence d'un simple écran de prévisualisation.

@@ -47,5 +47,11 @@ Les tests Node couvrent notamment l'absence d'élévation de rôle côté client
 
 Aucune donnée factice ou rôle supplémentaire n'est introduit par ce sprint. La validation des règles SQL et des workflows automatisés ne suffit **pas** pour déclarer la recette multi-utilisateurs achevée : celle-ci doit se faire avec de vrais comptes de test consentants.
 
+## Étape 51 — Recette RLS multi-comptes durcie
+
+Le script `scripts/real-permissions-smoke.mjs` contrôle à présent les quatre tables sensibles `profiles`, `user_roles`, `role_requests` et `staff_team_assignments` par des requêtes isolées entre comptes, et exige des personnes distinctes, même si deux identifiants différents avaient été fournis pour la même personne. Il refuse tout lancement avec les fixtures de convocations manquantes, afin d'empêcher un rapport artificiellement « vert » sans vérification joueur A/B.
+
+**L'exécution avec sept comptes et deux convocations réelles sur un Supabase de staging isolé est toujours nécessaire.** Ni création de comptes, ni mutation métier, ni test intrusif en production n'a eu lieu. Voir [Étape 51](ETAPE_51_RECETTE_RLS_MULTICOMPTES.md).
+
 ## Hors P1
 Gestion avancée des médias, Premium, dons, billetterie et paramétrage global du site relèvent des priorités suivantes et ne sont pas activés par cette livraison.
