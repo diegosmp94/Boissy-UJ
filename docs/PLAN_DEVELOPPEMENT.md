@@ -29,6 +29,10 @@ Point d'étape : **23 octobre 2026**. Les changements du site sont développés 
 
 Les pages **Communauté/Premium, Événements/Billetterie et Soutenir** ont une présentation responsive plus complète, un comparateur mensuel/annuel interactif sans prélèvement, un parcours d'information et des FAQ accessibles. Le lien **Awards** est directement visible sur le menu mobile. Les tests de navigation publique Chromium passent de 10 à 16 scénarios, incluant le basculement de période. **Reste hors de cette clôture UI** : tests sur appareils physiques, interactions Stripe/QR/votes avec back-end homologué, contenus sous droits et décisions RGPD. Le front est avancé, mais une homologation à 100 % serait prématurée. [Détails de l'étape 53](ETAPE_53_FINITIONS_FRONTEND.md).
 
+## Étape 58 — Préproduction isolée et récupération (partie A réalisée)
+
+Audit du projet Supabase Free, sans staging accessible ; nouveau préflight ciblé vers un second projet, refus de la production et des clés privilégiées, contrôle public/Auth/admin anonymement refusé. Inventaire SQL hors ligne des cinq migrations préparées, trié et empreintes SHA-256. **La création du staging, la recette de sept comptes et une restauration réelle restent ouvertes**, car elles exigent une instance distincte et une décision habilitée. [Détails de l'étape 58](ETAPE_58_STAGING_ET_RESTAURATION.md).
+
 ## Étape 57 — Recette de préproduction des permissions de l'historique (code préparé)
 
 Script sans modification de données pour valider un staging distinct, deux identités Supabase réelles avec rôles vérifiés, refus anonyme/Supporter/admin AAL1, défi TOTP administrateur AAL2 et historique assaini. Les tests simulés sont intégrés à la CI. Ce **n'est pas une homologation réelle** tant qu'un projet de staging isolé n'est pas disponible. [Étape 57](ETAPE_57_RECETTE_NEWS_STAGING.md).
