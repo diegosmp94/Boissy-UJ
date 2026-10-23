@@ -94,7 +94,7 @@ async function main(argv){
  if(argv.length!==2)throw new Error(
   'Usage: node scripts/compare-recovery-inventories.mjs <source.json> <restored.json> (two distinct files)'
  );
- const files=argv.map(resolve);
+ const files=argv.map(file=>resolve(file));
  if(files[0]===files[1])throw new Error('Source and restored inventory paths must differ.');
  // Do not accept extra data: the validator rejects unknown keys, e.g. secrets or personal rows.
  const [a,b]=await Promise.all(files.map(async file=>{
