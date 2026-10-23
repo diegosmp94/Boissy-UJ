@@ -3,6 +3,7 @@
  * A green probe proves read access for THIS admin, never cross-account isolation.
  */
 import {adminSessionStatus} from './admin-security.mjs';
+import {remainingWorkstreams,workstreamCounts} from './open-workstreams.mjs';
 
 export const READINESS_CHECKS=Object.freeze([
  {id:'teams',title:'Catalogue des cinq équipes',group:'Sport',detail:'Les équipes sont consultables dans Supabase.'},
@@ -96,11 +97,12 @@ export async function mountAdminReadiness(root,api,userId){
  run.type='button';
  const results=el('div','admin-readiness-results');
  const gates=el('section','admin-readiness-gates');
- gates.append(el('h3','','Validations encore indispensables'));
- const ul=el('ul','admin-readiness-manual');
- for(const label of MANUAL_RELEASE_GATES)ul.append(el('li','',label));
- gates.append(ul);
- root.append(explanation,run,results,gates);
+ gates.append(el('h3','','Chantiers restants — les tâches terminées sont retirées'));
+ const pendingSummary=el('p','admin-workflow-status');
+ pendingSummary.setAttribute('role','status');
+ const pendingList=el('div','admin-active-chantiers');
+ gates.append(pendingSummary,pendingList);
+ root.append(explanation,run,gates,results);
  let loading=false,revision=0;
  const refresh=async()=>{
   if(loading||!root.isConnected)return;
@@ -122,6 +124,31 @@ export async function mountAdminReadiness(root,api,userId){
    status.textContent=stats.passed+' / '+stats.total+
     ' lectures techniques accessibles ; '+stats.unverified+
     ' non confirmée(s). Aucune recette finale n’est déduite de ce total.';
+   // Keep already functioning modules OUT of the active worklist.
+   // Passing a probe closes a technical integration only, never a manual signoff.
+   const toDo=remainingWorkstreams(checks);
+   const todoCounts=workstreamCounts(toDo);
+   pendingSummary.textContent=todoCounts.total+' chantier(s) encore ouvert(s) : '+
+    todoCounts.p1+' P1, '+todoCounts.p2+' P2, '+todoCounts.p3+
+    ' P3. Ce décompte ne constitue pas un score d’homologation.';
+   pendingList.replaceChildren();
+   for(const priority of ['P1','P2','P3']){
+    const items=toDo.filter(work=>work.priority===priority);
+    if(!items.length)continue;
+    const section=el('section','admin-workstream-section');
+    section.append(el('h4','',priority+' — '+items.length+' restant(s)'));
+    const entries=el('ul','admin-workstream-list');
+    for(const work of items){
+     const item=el('li','admin-workstream-item');
+     item.append(el('strong','',work.title),
+      el('p','','Suite : '+work.next),
+      el('small','','Prérequis : '+work.dependency));
+     entries.append(item);
+    }
+    section.append(entries);pendingList.append(section);
+   }
+   const details=el('details','admin-readiness-technical');
+   details.append(el('summary','','Examiner les contrôles techniques (y compris ceux déjà accessibles)'));
    const ul=el('ul','admin-readiness-list');
    for(const check of checks){
     const item=el('li','admin-readiness-item');
@@ -132,7 +159,8 @@ export async function mountAdminReadiness(root,api,userId){
     item.append(header,el('p','',check.detail));
     ul.append(item);
    }
-   results.append(ul);
+   details.append(ul);
+   results.append(details);
   }catch{
    if(root.isConnected&&id===revision){
     results.replaceChildren();
