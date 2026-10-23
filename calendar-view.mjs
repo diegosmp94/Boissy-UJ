@@ -56,11 +56,11 @@ export function mountMonthCalendar(root,{now=Date.now()}={}){
    profile.href=teamRoute(team);
    card.append(profile);
   }
-  if(item.href){
-   const link=make('a','month-calendar-link',item.external?'Vérifier la source ↗':'Voir la rubrique ↗');
-   link.href=item.href;
-   if(item.external){link.target='_blank';link.rel='noopener noreferrer';}
-   card.append(link);
+  // Supporters remain on Boissy UJ. Only internal sections are navigable;
+  // third-party provenance is already shown as text in the result details.
+  if(!item.external&&typeof item.href==='string'&&item.href.startsWith('#/')){
+   const link=make('a','month-calendar-link','Voir la rubrique ↗');
+   link.href=item.href;card.append(link);
   }
   return card;
  };
