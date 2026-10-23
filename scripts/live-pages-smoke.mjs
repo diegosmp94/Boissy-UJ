@@ -15,8 +15,19 @@ const assets=[
  {name:'Accueil',file:'',expected:['id="main"','href="#/confidentialite"','name="robots" content="noindex, nofollow"']},
  {name:'Application',file:'app.js',expected:["'/confidentialite':privacy","'/mentions-legales':legal"]},
  {name:'Feuille de style',file:'styles.css',expected:['.topbar','.bottom-nav']},
- {name:'Référentiel des équipes',file:'club-teams.mjs',expected:["name:'Senior'","discipline:'futsal'"]}
+ {name:'Référentiel des équipes',file:'club-teams.mjs',expected:["name:'Senior'","discipline:'futsal'"]},
+ {name:'Authentification',file:'auth.mjs',expected:['signInWithPassword','signUp']},
+ {name:'Calendrier et résultats',file:'sport-center.mjs',expected:['publicExternalFixtures','club_teams']},
+ {name:'Actualités',file:'media-center.mjs',expected:['news_posts','mountNews']},
+ {name:'Prochain match',file:'home-next-match.mjs',expected:['nextUpcomingMatch','mountHomeNextMatch']},
+ {name:'Style Premium',file:'premium-front.css',expected:['premium-comparison']}
 ];
+const expectedCommit=String(process.env.BOISSY_EXPECTED_COMMIT||'');
+if(expectedCommit&&!/^[0-9a-f]{40}$/.test(expectedCommit))
+ throw new Error('Expected deployed commit must be a complete Git SHA.');
+if(expectedCommit)assets.push({
+ name:'Version de publication',file:'release.json',expected:['"source":"main"','"commit":"'+expectedCommit+'"']
+});
 let failed=0;
 for(const asset of assets){
  const url=new URL(asset.file,base);
