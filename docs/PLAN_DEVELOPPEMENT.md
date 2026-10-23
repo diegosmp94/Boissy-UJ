@@ -25,6 +25,10 @@ Point d'étape : **23 octobre 2026**. Les changements du site sont développés 
 
 [Détail, prérequis, chantiers encore ouverts](CHANTIERS_OUVERTS.md). Le Control Center affiche également seulement les chantiers non terminés, classés P1/P2/P3 ; le diagnostic technique historique reste consultable séparément.
 
+## Étape 53 — Finition des parcours front-end publics (code intégré)
+
+Les pages **Communauté/Premium, Événements/Billetterie et Soutenir** ont une présentation responsive plus complète, un comparateur mensuel/annuel interactif sans prélèvement, un parcours d'information et des FAQ accessibles. Le lien **Awards** est directement visible sur le menu mobile. Les tests de navigation publique Chromium passent de 10 à 16 scénarios, incluant le basculement de période. **Reste hors de cette clôture UI** : tests sur appareils physiques, interactions Stripe/QR/votes avec back-end homologué, contenus sous droits et décisions RGPD. Le front est avancé, mais une homologation à 100 % serait prématurée. [Détails de l'étape 53](ETAPE_53_FINITIONS_FRONTEND.md).
+
 ## Étape 47 — Réactions aux actualités (code préparé)
 
 Le Media Center dispose désormais du code de réaction « J’aime / Retirer » et d'une migration RLS indépendante. **La collecte des réactions reste conditionnée à l'application contrôlée de la migration, à la revue RGPD et à une recette croisée de deux comptes.** En l'absence de table disponible, le Media Center reste consultable. [Détails et sécurité](ETAPE_47_REACTIONS_ACTUALITES.md).
