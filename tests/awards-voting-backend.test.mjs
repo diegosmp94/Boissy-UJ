@@ -121,7 +121,7 @@ function fakeApi({allowSupporter=false,allowDuplicate=false}={}){
 test('offline simulated API exercises all staging voting and withdrawal cases',async()=>{
  const api=fakeApi(),labels=[];
  await runVotingRecipe(api,config(),label=>labels.push(label));
- assert.equal(labels.length,9);
+ assert.equal(labels.length,10);
  assert.ok(labels.some(x=>x.includes('duplicate ballot rejected')));
  assert.ok(labels.some(x=>x.includes('withdrawn')));
  assert.equal(api.calls.filter(x=>x.path.endsWith('member_cast_award_vote')).length,4);
