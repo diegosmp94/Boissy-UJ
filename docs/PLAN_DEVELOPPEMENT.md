@@ -29,6 +29,10 @@ Point d'étape : **23 octobre 2026**. Les changements du site sont développés 
 
 Les pages **Communauté/Premium, Événements/Billetterie et Soutenir** ont une présentation responsive plus complète, un comparateur mensuel/annuel interactif sans prélèvement, un parcours d'information et des FAQ accessibles. Le lien **Awards** est directement visible sur le menu mobile. Les tests de navigation publique Chromium passent de 10 à 16 scénarios, incluant le basculement de période. **Reste hors de cette clôture UI** : tests sur appareils physiques, interactions Stripe/QR/votes avec back-end homologué, contenus sous droits et décisions RGPD. Le front est avancé, mais une homologation à 100 % serait prématurée. [Détails de l'étape 53](ETAPE_53_FINITIONS_FRONTEND.md).
 
+## Étape 56 — Historique et restauration en brouillon des articles (code préparé)
+
+Les snapshots d'audit d'articles existants sont consultables via une RPC AAL2, et une autre RPC restaure une version antérieure exclusivement en brouillon, en exigeant une nouvelle validation des droits et l'absence de modification concurrente. Module du Control Center masqué tant que la migration manque ; aucun changement appliqué à Supabase production. [Détail étape 56](ETAPE_56_HISTORIQUE_ACTUALITES.md).
+
 ## Étape 55 — Stripe TEST signé, rapprochement des factures (code préparé)
 
 Checkout TEST en préproduction avec Auth Supabase vérifiée, formules serveur 10 €/mois et 100 € / 12 mois non renouvelables, signature officielle Stripe des webhooks, liaison privée Checkout/membre, SQL idempotent et extinction des droits. Le code **n'est pas déployé** sur Supabase, et aucune transaction n'a été ouverte. Le prochain travail est la recette réelle en staging puis les compléments de remboursement/fiscalité avant toute homologation. [Détails étape 55](ETAPE_55_STRIPE_TEST_WEBHOOK.md).
