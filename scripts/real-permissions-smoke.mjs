@@ -71,11 +71,20 @@ export function validateTarget(env){
        !Array.isArray(persona.roles)||persona.roles.some(role=>!['supporter','player','coach','admin'].includes(role)))
       throw new Error('Test persona configuration is incomplete: '+name+'.');
   }
+  // Distinct test identities are essential: a shared account cannot prove RLS isolation.
+  const emails=REQUIRED_PERSONAS.map(name=>personas[name].email.trim().toLocaleLowerCase('en-US'));
+  if(new Set(emails).size!==REQUIRED_PERSONAS.length)
+    throw new Error('Each staging persona must use a different verified test account.');
   for(const name of ['admin','tripleRole'])if(!personas[name].totpSecret)
     throw new Error('A verified TOTP secret is required for test persona '+name+'.');
   for(const code of [fixtures.teamA,fixtures.teamB])if(typeof code!=='string'||!/^[a-z0-9_-]{1,40}$/i.test(code))
     throw new Error('Fixture configuration requires existing teamA and teamB codes.');
   if(fixtures.teamA===fixtures.teamB)throw new Error('Team A and Team B must be different existing teams.');
+  // A full recipe must prove actual row separation; silent SKIP is not sufficient.
+  const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const a=fixtures.playerAExclusiveMatchId,b=fixtures.playerBExclusiveMatchId;
+  if(!uuid.test(a)||!uuid.test(b)||a===b)
+    throw new Error('Two distinct existing exclusive player callup match UUIDs are required.');
   return {url:url.origin,ref,key,personas,fixtures};
 }
 
@@ -114,7 +123,43 @@ function requireDenied(result,label){
 }
 
 function record(state,label){state.passed++;console.log('PASS '+label);}
-function skip(state,label,reason){state.skipped++;console.log('SKIP '+label+' — '+reason);}
+export function assertDistinctSessions(sessions){
+  const ids=REQUIRED_PERSONAS.map(name=>sessions[name]?.userId);
+  if(ids.some(id=>typeof id!=='string'||!id))
+    throw new Error('Not all test personas have a verified user id.');
+  if(new Set(ids).size!==REQUIRED_PERSONAS.length)
+    throw new Error('Staging personas resolved to the same Auth user; RLS isolation is invalid.');
+}
+
+/** Test row-level separation directly through PostgREST with a real AAL1 bearer token.
+ * Use a foreign user ID and request only identifying columns. No row contents
+ * or account identifiers are printed or persisted in the recipe.
+ */
+export const CROSS_ACCOUNT_SCOPES=Object.freeze([
+  {table:'profiles',column:'id'},
+  {table:'user_roles',column:'user_id'},
+  {table:'role_requests',column:'user_id'},
+  {table:'staff_team_assignments',column:'coach_user_id'}
+]);
+export async function verifyCrossAccountPrivacy(api,state,session,foreignUserId,label){
+  if(!session?.token||!session.userId||!foreignUserId||
+    session.userId===foreignUserId)
+    throw new Error('A cross-account RLS check requires two distinct signed-in users.');
+  if(session.claims?.aal!=='aal1')
+    throw new Error('Cross-account privacy checks must run at the initial AAL1 level.');
+  for(const scope of CROSS_ACCOUNT_SCOPES){
+    const params=new URLSearchParams({
+      select:scope.column,[scope.column]:'eq.'+foreignUserId,limit:'1'
+    });
+    const result=await api.request('rest/v1/'+scope.table+'?'+params.toString(),{
+      token:session.token
+    });
+    const rows=requireSuccess(result,label+' protected '+scope.table+' lookup');
+    if(!Array.isArray(rows)||rows.length!==0)
+      throw new Error(label+' could read another member in '+scope.table+'.');
+    record(state,label+' cannot read another account in '+scope.table+'.');
+  }
+}
 
 async function signIn(api,state,persona,label){
   const result=await api.request('auth/v1/token?grant_type=password',{
@@ -187,6 +232,16 @@ export async function runPermissionRecipe(env=process.env){
     const teamIds=await getTeamIds(api,config.fixtures);
     record(state,'test project and both pre-existing test teams verified.');
     for(const name of REQUIRED_PERSONAS)sessions[name]=await signIn(api,state,config.personas[name],name);
+    assertDistinctSessions(sessions);
+    record(state,'seven distinct verified Auth identities confirmed.');
+
+    // Check account isolation at AAL1 for the actual sensitive public tables.
+    // Admin AAL1 and triple-role AAL1 must not inherit the MFA admin exception.
+    for(const label of ['supporter','playerA','playerB','coachA','coachB','admin','tripleRole']){
+      await verifyCrossAccountPrivacy(
+        api,state,sessions[label],sessions[label==='playerB'?'playerA':'playerB'].userId,label
+      );
+    }
 
     requireDenied(await rpc(api,null,'staff_list_squad_fixtures',{p_team_id:teamIds[config.fixtures.teamA]}),'Anonymous coach fixture RPC');
     record(state,'anonymous session is denied private coach RPC.');
@@ -205,12 +260,11 @@ export async function runPermissionRecipe(env=process.env){
     if(!Array.isArray(playerA)||!Array.isArray(playerB))throw new Error('Player callup RPC did not return lists.');
     record(state,'both player accounts can read their own callup view.');
     const onlyA=config.fixtures.playerAExclusiveMatchId,onlyB=config.fixtures.playerBExclusiveMatchId;
-    if(onlyA&&onlyB){
-      const idsA=new Set(playerA.map(item=>item.match_id)),idsB=new Set(playerB.map(item=>item.match_id));
-      if(!idsA.has(onlyA)||idsA.has(onlyB)||!idsB.has(onlyB)||idsB.has(onlyA))
-        throw new Error('Player A/B callups are not isolated to their configured exclusive test matches.');
-      record(state,'player A and B callups are isolated by account.');
-    }else skip(state,'player A/B row-level callup separation','provide two existing, distinct exclusive match-callup IDs in BOISSY_TEST_FIXTURES_JSON.');
+    const idsA=new Set(playerA.map(item=>item.match_id));
+    const idsB=new Set(playerB.map(item=>item.match_id));
+    if(!idsA.has(onlyA)||idsA.has(onlyB)||!idsB.has(onlyB)||idsB.has(onlyA))
+      throw new Error('Player A/B callups are not isolated to their configured exclusive test matches.');
+    record(state,'player A and B callups are isolated by account.');
 
     await testCoachScope(api,state,sessions.coachA,teamIds[config.fixtures.teamA],teamIds[config.fixtures.teamB],'Coach A');
     await testCoachScope(api,state,sessions.coachB,teamIds[config.fixtures.teamB],teamIds[config.fixtures.teamA],'Coach B');
@@ -221,6 +275,15 @@ export async function runPermissionRecipe(env=process.env){
     const adminMatches=requireSuccess(await rpc(api,sessions.admin,'admin_list_management_matches'),'Admin AAL2 match-management read');
     if(!Array.isArray(adminMatches))throw new Error('Admin AAL2 match-management result is not a list.');
     record(state,'admin AAL2 can read the protected management list.');
+    // Positive control: the same table denied to AAL1 must be readable by AAL2 admin.
+    const otherRoles=requireSuccess(await api.request(
+      'rest/v1/user_roles?'+new URLSearchParams({
+        select:'role',user_id:'eq.'+sessions.playerA.userId
+      }).toString(),{token:sessions.admin.token}
+    ),'Admin AAL2 can read a different staging member role');
+    if(!Array.isArray(otherRoles)||otherRoles.length<1)
+      throw new Error('Admin AAL2 did not get the expected cross-account role read.');
+    record(state,'admin AAL2 can read authorized member roles, unlike AAL1.');
 
     if(!['supporter','player','coach','admin'].every(role=>sessions.tripleRole.persona.roles.includes(role)))
       throw new Error('Triple-role persona must be configured with supporter, player, coach and admin roles.');
