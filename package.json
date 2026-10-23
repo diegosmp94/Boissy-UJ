@@ -15,6 +15,7 @@
     "quality:release": "npm run release:check && npm run audit:privacy && npm run smoke:browser",
     "smoke:live": "node scripts/live-pages-smoke.mjs",
     "smoke:real-permissions": "node scripts/real-permissions-smoke.mjs",
+    "smoke:awards-voting": "node scripts/real-awards-voting-smoke.mjs",
     "verify:recovery": "node scripts/compare-recovery-inventories.mjs"
   }
 }
