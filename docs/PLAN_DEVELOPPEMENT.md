@@ -13,6 +13,10 @@ Point d'étape : **23 octobre 2026**. Les changements du site sont développés 
 | 7 | Control Center complet | Panel AAL2 et plusieurs outils réels développés ; finance et éditeur global restent incomplets | Vérifier les migrations/RPC puis réaliser la recette multi-comptes |
 | 8 | Recette à 85 % pondérés et livraison | Non déclarée : les critères non testés ne reçoivent aucun point | Compléter les preuves, revue juridique, restauration isolée et décision formelle du club |
 
+## Étape 47 — Réactions aux actualités (code préparé)
+
+Le Media Center dispose désormais du code de réaction « J’aime / Retirer » et d'une migration RLS indépendante. **La collecte des réactions reste conditionnée à l'application contrôlée de la migration, à la revue RGPD et à une recette croisée de deux comptes.** En l'absence de table disponible, le Media Center reste consultable. [Détails et sécurité](ETAPE_47_REACTIONS_ACTUALITES.md).
+
 ## Prochaines actions concrètes
 
 Le travail autonome sur le code et le site public est avancé. La prochaine tranche de la roadmap est une **recette probante**, pas l'activation spéculative de services sensibles :
