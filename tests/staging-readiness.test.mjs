@@ -5,7 +5,7 @@ import {
  validateStagingPreflight,runStagingReadiness,requireAuthenticatedOnlyRpc,
  makeStageReadOnlyClient,STAGING_ACK,PRODUCTION_PROJECT_REF
 } from '../scripts/staging-readiness.mjs';
-const ref='example12345example12345';
+const ref='abcde12345abcde12345';
 const env={
  BOISSY_STAGE_ENVIRONMENT:'staging',
  BOISSY_STAGE_ACK:STAGING_ACK,
