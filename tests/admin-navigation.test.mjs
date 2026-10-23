@@ -35,7 +35,7 @@ test('free events never appear in navigation if backend probe fails',()=>{
  assert.equal(enabled.length,disabled.length+1);
  assert.match(center,/const eventProbe=await api\.rpc\('admin_list_free_events'\)/);
  assert.match(center,/const eventsReady=!eventProbe\.error&&Array\.isArray\(eventProbe\.data\)/);
- assert.match(center,/const availableModules=availableAdminModules\(ADMIN_MODULES,\{eventsReady,coachTeamsReady\}\)/);
+ assert.match(center,/const availableModules=availableAdminModules\(ADMIN_MODULES,\{eventsReady,coachTeamsReady,mediaReady\}\)/);
 });
 
 test('coach teams tools are fail-closed until their protected read RPC is deployed',()=>{
