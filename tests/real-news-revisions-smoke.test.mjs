@@ -70,7 +70,7 @@ const token=(id,aal)=>'fixture.'+
  Buffer.from(JSON.stringify({sub:id,aal,role:'authenticated'})).toString('base64url')+
  '.signature';
 function fakeApi({exposeSupporter=false,exposeAal1=false,includeSensitiveFields=false,
-  allowInvalidRestore=false,missingFixture=false}={}){
+  allowInvalidRestore=false,missingFixture=false,mislabelSupporter=false}={}){
  const adminId='admin-user',supporterId='supporter-user';
  const sessions={
   [token(adminId,'aal1')]:{id:adminId,aal:'aal1'},
@@ -90,6 +90,11 @@ function fakeApi({exposeSupporter=false,exposeAal1=false,includeSensitiveFields=
   }
   if(path==='auth/v1/user'){
    return success({id:s?.id,email_confirmed_at:'2026-10-23T16:00:00.000Z'});
+  }
+  if(path.startsWith('rest/v1/user_roles?')){
+   if(!s)return denied();
+   return success([{role:s.id===adminId?'admin':
+    mislabelSupporter?'admin':'supporter'}]);
   }
   if(path==='auth/v1/factors')return success({totp:[{id:'totp-staging',status:'verified'}]});
   if(path.endsWith('/challenge'))return success({id:'challenge-staging'});
@@ -124,6 +129,7 @@ test('offline simulation exercises real login, distinct accounts, denial, TOTP a
  assert.equal(messages.length,6);
  assert.ok(messages.some(x=>x.includes('MFA')));
  assert.ok(messages.some(x=>x.includes('sanitized')));
+ assert.equal(api.calls.filter(x=>x.path.startsWith('rest/v1/user_roles?')).length,2);
  const restoreCalls=api.calls.filter(x=>x.path.includes('admin_restore_news_revision'));
  assert.equal(restoreCalls.length,2);
  assert.ok(restoreCalls.every(x=>x.articleId===null));
@@ -141,6 +147,12 @@ test('offline simulation detects privacy leakage and administrative AAL1 bypass'
  await assert.rejects(
   ()=>runNewsRevisionAccessRecipe(fakeApi({includeSensitiveFields:true}),target()),
   /unexpected private fields/
+ );
+});
+test('an admin account mislabeled Supporter cannot pass the staging isolation recipe',async()=>{
+ await assert.rejects(
+  ()=>runNewsRevisionAccessRecipe(fakeApi({mislabelSupporter:true}),target()),
+  /unexpected assigned role/
  );
 });
 test('offline simulation rejects unknown fixture and unexpected restoration success',async()=>{
