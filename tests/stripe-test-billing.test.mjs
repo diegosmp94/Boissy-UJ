@@ -134,7 +134,9 @@ test('private billing SQL denies direct access, repeat events and delayed old pa
   'p_period_end<=v_now',
   'e.valid_until>=p_period_end',
   'on conflict(user_id) do update',
-  "where e.user_id=v_link.user_id and e.revoked_at is null"
+  "where e.user_id=v_link.user_id and e.revoked_at is null",
+  "and e.source_reference=v_link.last_grant_source",
+  "last_grant_source=p_source_id"
  ])assert.ok(migration.includes(phrase),phrase);
  assert.doesNotMatch(migration,/grant execute .* to authenticated/i);
  assert.doesNotMatch(migration,/grant (select|insert|update|delete) on app_private/i);
