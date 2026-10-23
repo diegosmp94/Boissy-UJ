@@ -117,7 +117,7 @@ begin
  end if;
  if v_link.last_event_at is not null
    and p_event_created_at<v_link.last_event_at
-   and p_event_type<>'customer.subscription.deleted' then
+   and p_event_type not in ('customer.subscription.deleted','invoice.paid') then
    -- Out-of-order old invoices must NEVER recreate an expired entitlement.
    insert into app_private.premium_test_webhook_receipts(event_id,event_type)
    values(p_event_id,p_event_type);
@@ -182,6 +182,14 @@ begin
      or p_period_end<=p_period_start or p_period_end<=v_now
      or p_period_start>v_now+interval '5 minutes' then
      raise exception 'Invalid paid invoice' using errcode='42501';
+   end if;
+   -- An older paid invoice must never shorten a newer paid entitlement.
+   if exists(select 1 from app_private.award_vote_entitlements e
+       where e.user_id=v_link.user_id and e.revoked_at is null
+         and e.valid_until>=p_period_end) then
+     insert into app_private.premium_test_webhook_receipts(event_id,event_type)
+       values(p_event_id,p_event_type);
+     return false;
    end if;
    insert into app_private.award_vote_entitlements
       (user_id,source_kind,source_reference,valid_from,valid_until)
