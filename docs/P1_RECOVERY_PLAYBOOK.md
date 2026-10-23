@@ -39,7 +39,13 @@ Effectuer la requête **sur la source au moment de la sauvegarde** puis **sur la
 
 Référence officielle : [Supabase — restaurer une base plateforme vers une instance self-hosted](https://supabase.com/docs/guides/self-hosting/restore-from-platform). Les commandes devront être revalidées contre la version de la CLI au moment réel de l'opération.
 
-## Critères d'acceptation
+## Comparateur hors ligne développé — étape 52
+
+Après une restauration **réellement exécutée** par le responsable habilité, consigner le résultat de `scripts/db-recovery-verification.sql` dans deux fichiers JSON distincts et privés : un avant la sauvegarde, l'autre sur l'instance isolée restaurée. Lancer `npm run verify:recovery -- source.json restauration.json`.
+
+Le script compare 17 champs agrégés (nombre de tables, empreintes schéma/RLS, règles de permission, nombres de comptes/équipes), refuse les champs manquants/supplémentaires et les configurations dangereuses, et renvoie **0** si les instantanés sont compatibles, **2** en cas d'écart et **1** si les fichiers/arguments sont invalides. Il ne se connecte pas à PostgreSQL, ne lit aucune donnée membre et ne peut attester seul que le restore a été exécuté. Conserver les SHA-256 d'archives, le PV du test métier et la preuve de séparation des environnements. **Aucune restauration n'a été lancée par ce changement.**
+
+
 
 | Domaine | Preuve requise |
 | --- | --- |

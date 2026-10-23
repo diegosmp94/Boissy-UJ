@@ -2,16 +2,28 @@
 
 Point d'étape : **23 octobre 2026**. Les changements du site sont développés sur une branche dédiée, contrôlés, puis fusionnés dans `main` après validation CI. Les étapes 45–46 couvrent le prochain match d'accueil et la mise à jour des rencontres passées ; le suivi de la provenance des dates a été renforcé depuis.
 
-| Étape | Objet | État au 23/10/2026 | Prochaine preuve / action |
-|---|---|---|---|
-| 1 | Audit dépôt, Supabase et fichiers | Réalisé ; schéma, migrations et limites consignés | Revalider l'état hébergé avant chaque activation sensible |
-| 2 | Socle visuel du site public | Développé ; accueil en huit chapitres, navigation responsive et contrôles CI | Recette iPhone/Android, clavier et lecteur d'écran sur appareils réels |
-| 3 | Comptes et autorisations Supabase | Auth standard et protections de rôles/RLS développées | Parcours e-mail, récupération et MFA avec comptes de test autorisés |
-| 4 | Sport et Match Center | Équipes, archives sourcées, calendrier et fonctions administratives développés ; FFF reste manuelle | Recette croisée des permissions et validation du club des résultats/dates |
-| 5 | Actualités et communauté | Catalogue public et flux de publication sécurisés ; fonctions de médias et consentement encore partielles | Valider droits à l'image, données des mineurs et parcourir les modules avec comptes habilités |
-| 6 | Stripe TEST et billetterie | Non homologué ; aucune vente ou réservation payante ouverte | Revue juridique et compte Stripe de test autorisé, puis tests signés des webhooks |
-| 7 | Control Center complet | Panel AAL2 et plusieurs outils réels développés ; finance et éditeur global restent incomplets | Vérifier les migrations/RPC puis réaliser la recette multi-comptes |
-| 8 | Recette à 85 % pondérés et livraison | Non déclarée : les critères non testés ne reçoivent aucun point | Compléter les preuves, revue juridique, restauration isolée et décision formelle du club |
+## Chantiers actifs uniquement
+
+**Les fonctionnalités déjà développées et vérifiées ont été retirées du tableau des chantiers.** Leurs étapes historiques ci-dessous restent conservées pour assurer la traçabilité. La réussite des tests CI ne clôt pas une homologation juridique ou une recette utilisateur réelle.
+
+| Priorité | Chantier restant | Prochaine action / blocage |
+|---|---|---|
+| P1 | Recette multi-comptes (7 rôles et AAL1/AAL2) | Préparer un staging distinct avec comptes/convocations autorisés ; exécuter les tests réels |
+| P1 | Sauvegarde et restauration isolée | Effectuer restauration, inventaires et contrôle d'intégrité ; comparer avec le nouvel outil hors ligne |
+| P1 | iPhone Safari / Android / accessibilité | Vérifier VoiceOver, TalkBack, clavier et formulaires sur matériels physiques |
+| P1 | RGPD et droits à l'image, dont les mineurs | Valider les documents et procédures avec le responsable de l'association |
+| P1 | Matchs et résultats du club | Approuver les données sourcées et les publier sans scores inventés |
+| P1 | Premières actualités du club | Validation éditoriale et droits avant publication |
+| P2 | Réactions aux articles | Recette à deux comptes, RGPD et déploiement contrôlé de la migration |
+| P2 | Photos et vidéos | Vérifier droits, fichiers et RLS en staging ; déployer uniquement après validation |
+| P2 | Éditeur global et administration avancée | Développer versionnage, workflow de publication et journal unifié |
+| P2 | Finances, Premium, dons et Stripe TEST | Recette des webhooks, accords juridiques et paiement TEST uniquement |
+| P2 | Événements payants et billetterie QR | Contrôles d'accès, jauges, annulations et paiements TEST |
+| P2 | Awards et communauté Premium | Développer éligibilité et unicité des votes serveur |
+| P3 | Synchronisation FFF | Obtenir les autorisations officielles |
+| P3 | Ouverture SEO | Homologation finale et accord du club |
+
+[Détail, prérequis, chantiers encore ouverts](CHANTIERS_OUVERTS.md). Le Control Center affiche également seulement les chantiers non terminés, classés P1/P2/P3 ; le diagnostic technique historique reste consultable séparément.
 
 ## Étape 47 — Réactions aux actualités (code préparé)
 
