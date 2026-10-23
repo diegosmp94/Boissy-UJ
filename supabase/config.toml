@@ -1,3 +1,8 @@
+project_id = "boissy-uj-local"
+
+[db]
+major_version = 17
+
 # Configuration de code uniquement. NE PAS déployer en production.
 # La clé Stripe TEST, la signature et le service role restent des secrets Supabase.
 [functions.premium-stripe-test-webhook]
