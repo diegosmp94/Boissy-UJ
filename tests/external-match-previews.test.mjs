@@ -30,7 +30,8 @@ test('site clearly distinguishes sourced previews from real club-published fixtu
  const agenda=read('agenda.mjs'),sport=read('sport-center.mjs'),styles=read('agenda.css'),source=read('external-match-previews.mjs');
  assert.match(agenda,/rows\.matches\.some\(m=>m\.published===true\)/);
  assert.match(agenda,/Calendrier externe — à confirmer par le club/);
- assert.match(agenda,/Vérifier sur SportCorico/);
+ assert.match(agenda,/Score relevé/);
+ assert.doesNotMatch(agenda,/Vérifier sur SportCorico/);
  assert.match(agenda,/exportedEntries=selected/);
  assert.doesNotMatch(agenda,/exportedEntries=\w*(?:suggestions|external)/);
  assert.match(sport,/publicExternalFixtures\(/);
