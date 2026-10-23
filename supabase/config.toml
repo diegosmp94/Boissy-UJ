@@ -1,0 +1,7 @@
+# Configuration de code uniquement. NE PAS déployer en production.
+# La clé Stripe TEST, la signature et le service role restent des secrets Supabase.
+[functions.premium-stripe-test-webhook]
+verify_jwt = false # Signatures Stripe vérifiées dans le handler sur le corps brut
+
+[functions.premium-stripe-test-checkout]
+verify_jwt = true # Auth JWT + confirmation Auth côté handler
