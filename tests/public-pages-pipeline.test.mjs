@@ -31,7 +31,7 @@ test('Pages publication is automated on main only, after all public release test
  assert.match(yml,/BOISSY_RELEASE_SHA:/);
  assert.match(yml,/node scripts\/write-public-release\.mjs/);
  assert.match(yml,/actions\/configure-pages@v5/);
- assert.match(yml,/actions\/upload-pages-artifact@v3/);
+ assert.match(yml,/actions\/upload-pages-artifact@v4/);
  assert.match(yml,/path: dist/);
  assert.match(yml,/needs: build/);
  assert.match(yml,/pages: write/);
