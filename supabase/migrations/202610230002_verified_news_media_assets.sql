@@ -32,9 +32,8 @@ create table if not exists public.news_media_assets(
   or (kind='video' and storage_path ~* '\.(mp4|webm)$')
  )
 );
--- One approved storage object is associated with only one editorial record.
-create unique index if not exists news_media_unique_storage_path_idx
- on public.news_media_assets(storage_path);
+-- Associate each approved public object with only one article at a time.
+create unique index if not exists news_media_unique_storage_path_idx on public.news_media_assets(storage_path);
 create index if not exists news_media_published_idx
   on public.news_media_assets(post_id,sort_order,id) where visible and rights_reviewed;
 alter table public.news_media_assets enable row level security;
@@ -76,501 +75,36 @@ begin
 end;
 $fn$;
 
--- Private, non-API helper: match a real object in the club-approved bucket.
--- Metadata is not proof of rights or malware safety; human review remains mandatory.
+-- Private server-only helper: presence, MIME and size of an approved object.
+-- These metadata checks do not replace a legal or malware content review.
 create or replace function app_private.media_file_ready(p_path text,p_kind text)
 returns boolean
 language sql stable security definer set search_path=''
 as $fn$
- select exists(
-  select 1
-  from storage.objects o
+ select exists (
+  select 1 from storage.objects o
   join storage.buckets b on b.id=o.bucket_id
   where o.bucket_id='boissy-uj-approved' and b.public=true
     and o.name=p_path
-    and o.metadata->>'size' ~ '^[0-9]{1,9}
- p_id uuid,p_post_id uuid,p_kind text,p_path text,p_alt text,
- p_caption text,p_sort_order integer,p_visible boolean,p_rights_reviewed boolean
-) returns uuid
-language plpgsql security definer set search_path=''
-as $fn$
-declare
- v_actor uuid := (select auth.uid());
- v_old public.news_media_assets%rowtype;
- v_new public.news_media_assets%rowtype;
- v_id uuid;
-begin
- if v_actor is null or not coalesce((select app_private.is_admin()),false) then
-   raise exception 'Administrator MFA AAL2 required' using errcode='42501';
- end if;
- if p_post_id is null or p_kind not in ('photo','video') or p_kind is null
-    or p_path is null or length(p_path) not between 8 and 180
-    or p_path !~ '^[A-Za-z0-9_-]+(/[A-Za-z0-9_-]+)*\/[A-Za-z0-9_-]+\.(jpg|jpeg|png|webp|avif|mp4|webm)$'
-    or position('..' in p_path)>0
-    or p_alt is null or length(btrim(p_alt)) not between 4 and 200
-    or p_caption is null or length(p_caption)>400
-    or p_sort_order is null or p_sort_order not between 0 and 11
-    or p_visible is null or p_rights_reviewed is null
-    or (p_visible and not p_rights_reviewed)
-    or (p_kind='photo' and p_path !~* '\.(jpg|jpeg|png|webp|avif)$')
-    or (p_kind='video' and p_path !~* '\.(mp4|webm)$')
- then raise exception 'Invalid media metadata' using errcode='22023'; end if;
- -- An approved public Storage object must exist before it can become visible.
- -- This is deliberately checked server-side, not only by the browser's preflight.
- if p_visible and not (select app_private.media_file_ready(p_path,p_kind)) then
-  raise exception 'Approved media object is missing or has unsafe metadata'
-   using errcode='22023';
- end if;
- -- Lock parent to serialize insert limits and prevent races against publish changes.
- perform 1 from public.news_posts
-  where id=p_post_id and visibility='public'
-  for update;
- if not found then raise exception 'Public article unavailable' using errcode='42501'; end if;
- if p_id is null then
-  if (select count(*) from public.news_media_assets where post_id=p_post_id)>=12
-  then raise exception 'Maximum 12 assets per article' using errcode='22023'; end if;
-  v_id:=gen_random_uuid();
-  insert into public.news_media_assets
-   (id,post_id,kind,storage_path,alt_text,caption,sort_order,visible,rights_reviewed)
-  values(v_id,p_post_id,p_kind,p_path,btrim(p_alt),p_caption,p_sort_order,p_visible,p_rights_reviewed)
-  returning * into v_new;
- else
-  select * into v_old from public.news_media_assets where id=p_id for update;
-  if not found or v_old.post_id<>p_post_id then
-    raise exception 'Media asset unavailable for this article' using errcode='42501';
-  end if;
-  update public.news_media_assets set kind=p_kind,storage_path=p_path,
-   alt_text=btrim(p_alt),caption=p_caption,sort_order=p_sort_order,
-   visible=p_visible,rights_reviewed=p_rights_reviewed,
-   updated_at=clock_timestamp() where id=p_id returning * into v_new;
-  v_id:=p_id;
- end if;
- insert into app_private.news_media_change_audit(asset_id,actor_user_id,before_snapshot,after_snapshot)
- values(v_id,v_actor,case when p_id is null then null else to_jsonb(v_old) end,to_jsonb(v_new));
- return v_id;
-end;
-$fn$;
-revoke all on function public.admin_list_news_media() from public,anon,authenticated;
-revoke all on function public.admin_save_news_media(uuid,uuid,text,text,text,text,integer,boolean,boolean)
-  from public,anon,authenticated;
-grant execute on function public.admin_list_news_media() to authenticated;
-grant execute on function public.admin_save_news_media(uuid,uuid,text,text,text,text,integer,boolean,boolean)
- to authenticated;
-comment on function public.admin_check_news_media_file(text,text) is
- 'Authenticated admin + AAL2 only. Read-only approved media Storage existence and metadata check.';
-comment on table public.news_media_assets is
-  'Media Center Boissy UJ: verified photo/video metadata; public only after article publication and rights check.';
-commit;
-
-    and (o.metadata->>'size')::bigint between 1 and 50000000
+    and (case when o.metadata->>'size' ~ '^[0-9]{1,9}$'
+          then (o.metadata->>'size')::bigint else 0 end) between 1 and 50000000
     and (
       (p_kind='photo' and (
-        (p_path ~* '\.jpe?g
- p_id uuid,p_post_id uuid,p_kind text,p_path text,p_alt text,
- p_caption text,p_sort_order integer,p_visible boolean,p_rights_reviewed boolean
-) returns uuid
-language plpgsql security definer set search_path=''
-as $fn$
-declare
- v_actor uuid := (select auth.uid());
- v_old public.news_media_assets%rowtype;
- v_new public.news_media_assets%rowtype;
- v_id uuid;
-begin
- if v_actor is null or not coalesce((select app_private.is_admin()),false) then
-   raise exception 'Administrator MFA AAL2 required' using errcode='42501';
- end if;
- if p_post_id is null or p_kind not in ('photo','video') or p_kind is null
-    or p_path is null or length(p_path) not between 8 and 180
-    or p_path !~ '^[A-Za-z0-9_-]+(/[A-Za-z0-9_-]+)*\/[A-Za-z0-9_-]+\.(jpg|jpeg|png|webp|avif|mp4|webm)$'
-    or position('..' in p_path)>0
-    or p_alt is null or length(btrim(p_alt)) not between 4 and 200
-    or p_caption is null or length(p_caption)>400
-    or p_sort_order is null or p_sort_order not between 0 and 11
-    or p_visible is null or p_rights_reviewed is null
-    or (p_visible and not p_rights_reviewed)
-    or (p_kind='photo' and p_path !~* '\.(jpg|jpeg|png|webp|avif)$')
-    or (p_kind='video' and p_path !~* '\.(mp4|webm)$')
- then raise exception 'Invalid media metadata' using errcode='22023'; end if;
- -- Lock parent to serialize insert limits and prevent races against publish changes.
- perform 1 from public.news_posts
-  where id=p_post_id and visibility='public'
-  for update;
- if not found then raise exception 'Public article unavailable' using errcode='42501'; end if;
- if p_id is null then
-  if (select count(*) from public.news_media_assets where post_id=p_post_id)>=12
-  then raise exception 'Maximum 12 assets per article' using errcode='22023'; end if;
-  v_id:=gen_random_uuid();
-  insert into public.news_media_assets
-   (id,post_id,kind,storage_path,alt_text,caption,sort_order,visible,rights_reviewed)
-  values(v_id,p_post_id,p_kind,p_path,btrim(p_alt),p_caption,p_sort_order,p_visible,p_rights_reviewed)
-  returning * into v_new;
- else
-  select * into v_old from public.news_media_assets where id=p_id for update;
-  if not found or v_old.post_id<>p_post_id then
-    raise exception 'Media asset unavailable for this article' using errcode='42501';
-  end if;
-  update public.news_media_assets set kind=p_kind,storage_path=p_path,
-   alt_text=btrim(p_alt),caption=p_caption,sort_order=p_sort_order,
-   visible=p_visible,rights_reviewed=p_rights_reviewed,
-   updated_at=clock_timestamp() where id=p_id returning * into v_new;
-  v_id:=p_id;
- end if;
- insert into app_private.news_media_change_audit(asset_id,actor_user_id,before_snapshot,after_snapshot)
- values(v_id,v_actor,case when p_id is null then null else to_jsonb(v_old) end,to_jsonb(v_new));
- return v_id;
-end;
-$fn$;
-revoke all on function public.admin_list_news_media() from public,anon,authenticated;
-revoke all on function public.admin_save_news_media(uuid,uuid,text,text,text,text,integer,boolean,boolean)
-  from public,anon,authenticated;
-grant execute on function public.admin_list_news_media() to authenticated;
-grant execute on function public.admin_save_news_media(uuid,uuid,text,text,text,text,integer,boolean,boolean)
- to authenticated;
-comment on table public.news_media_assets is
-  'Media Center Boissy UJ: verified photo/video metadata; public only after article publication and rights check.';
-commit;
- and o.metadata->>'mimetype'='image/jpeg')
-        or (p_path ~* '\.png
- p_id uuid,p_post_id uuid,p_kind text,p_path text,p_alt text,
- p_caption text,p_sort_order integer,p_visible boolean,p_rights_reviewed boolean
-) returns uuid
-language plpgsql security definer set search_path=''
-as $fn$
-declare
- v_actor uuid := (select auth.uid());
- v_old public.news_media_assets%rowtype;
- v_new public.news_media_assets%rowtype;
- v_id uuid;
-begin
- if v_actor is null or not coalesce((select app_private.is_admin()),false) then
-   raise exception 'Administrator MFA AAL2 required' using errcode='42501';
- end if;
- if p_post_id is null or p_kind not in ('photo','video') or p_kind is null
-    or p_path is null or length(p_path) not between 8 and 180
-    or p_path !~ '^[A-Za-z0-9_-]+(/[A-Za-z0-9_-]+)*\/[A-Za-z0-9_-]+\.(jpg|jpeg|png|webp|avif|mp4|webm)$'
-    or position('..' in p_path)>0
-    or p_alt is null or length(btrim(p_alt)) not between 4 and 200
-    or p_caption is null or length(p_caption)>400
-    or p_sort_order is null or p_sort_order not between 0 and 11
-    or p_visible is null or p_rights_reviewed is null
-    or (p_visible and not p_rights_reviewed)
-    or (p_kind='photo' and p_path !~* '\.(jpg|jpeg|png|webp|avif)$')
-    or (p_kind='video' and p_path !~* '\.(mp4|webm)$')
- then raise exception 'Invalid media metadata' using errcode='22023'; end if;
- -- Lock parent to serialize insert limits and prevent races against publish changes.
- perform 1 from public.news_posts
-  where id=p_post_id and visibility='public'
-  for update;
- if not found then raise exception 'Public article unavailable' using errcode='42501'; end if;
- if p_id is null then
-  if (select count(*) from public.news_media_assets where post_id=p_post_id)>=12
-  then raise exception 'Maximum 12 assets per article' using errcode='22023'; end if;
-  v_id:=gen_random_uuid();
-  insert into public.news_media_assets
-   (id,post_id,kind,storage_path,alt_text,caption,sort_order,visible,rights_reviewed)
-  values(v_id,p_post_id,p_kind,p_path,btrim(p_alt),p_caption,p_sort_order,p_visible,p_rights_reviewed)
-  returning * into v_new;
- else
-  select * into v_old from public.news_media_assets where id=p_id for update;
-  if not found or v_old.post_id<>p_post_id then
-    raise exception 'Media asset unavailable for this article' using errcode='42501';
-  end if;
-  update public.news_media_assets set kind=p_kind,storage_path=p_path,
-   alt_text=btrim(p_alt),caption=p_caption,sort_order=p_sort_order,
-   visible=p_visible,rights_reviewed=p_rights_reviewed,
-   updated_at=clock_timestamp() where id=p_id returning * into v_new;
-  v_id:=p_id;
- end if;
- insert into app_private.news_media_change_audit(asset_id,actor_user_id,before_snapshot,after_snapshot)
- values(v_id,v_actor,case when p_id is null then null else to_jsonb(v_old) end,to_jsonb(v_new));
- return v_id;
-end;
-$fn$;
-revoke all on function public.admin_list_news_media() from public,anon,authenticated;
-revoke all on function public.admin_save_news_media(uuid,uuid,text,text,text,text,integer,boolean,boolean)
-  from public,anon,authenticated;
-grant execute on function public.admin_list_news_media() to authenticated;
-grant execute on function public.admin_save_news_media(uuid,uuid,text,text,text,text,integer,boolean,boolean)
- to authenticated;
-comment on table public.news_media_assets is
-  'Media Center Boissy UJ: verified photo/video metadata; public only after article publication and rights check.';
-commit;
- and o.metadata->>'mimetype'='image/png')
-        or (p_path ~* '\.webp
- p_id uuid,p_post_id uuid,p_kind text,p_path text,p_alt text,
- p_caption text,p_sort_order integer,p_visible boolean,p_rights_reviewed boolean
-) returns uuid
-language plpgsql security definer set search_path=''
-as $fn$
-declare
- v_actor uuid := (select auth.uid());
- v_old public.news_media_assets%rowtype;
- v_new public.news_media_assets%rowtype;
- v_id uuid;
-begin
- if v_actor is null or not coalesce((select app_private.is_admin()),false) then
-   raise exception 'Administrator MFA AAL2 required' using errcode='42501';
- end if;
- if p_post_id is null or p_kind not in ('photo','video') or p_kind is null
-    or p_path is null or length(p_path) not between 8 and 180
-    or p_path !~ '^[A-Za-z0-9_-]+(/[A-Za-z0-9_-]+)*\/[A-Za-z0-9_-]+\.(jpg|jpeg|png|webp|avif|mp4|webm)$'
-    or position('..' in p_path)>0
-    or p_alt is null or length(btrim(p_alt)) not between 4 and 200
-    or p_caption is null or length(p_caption)>400
-    or p_sort_order is null or p_sort_order not between 0 and 11
-    or p_visible is null or p_rights_reviewed is null
-    or (p_visible and not p_rights_reviewed)
-    or (p_kind='photo' and p_path !~* '\.(jpg|jpeg|png|webp|avif)$')
-    or (p_kind='video' and p_path !~* '\.(mp4|webm)$')
- then raise exception 'Invalid media metadata' using errcode='22023'; end if;
- -- Lock parent to serialize insert limits and prevent races against publish changes.
- perform 1 from public.news_posts
-  where id=p_post_id and visibility='public'
-  for update;
- if not found then raise exception 'Public article unavailable' using errcode='42501'; end if;
- if p_id is null then
-  if (select count(*) from public.news_media_assets where post_id=p_post_id)>=12
-  then raise exception 'Maximum 12 assets per article' using errcode='22023'; end if;
-  v_id:=gen_random_uuid();
-  insert into public.news_media_assets
-   (id,post_id,kind,storage_path,alt_text,caption,sort_order,visible,rights_reviewed)
-  values(v_id,p_post_id,p_kind,p_path,btrim(p_alt),p_caption,p_sort_order,p_visible,p_rights_reviewed)
-  returning * into v_new;
- else
-  select * into v_old from public.news_media_assets where id=p_id for update;
-  if not found or v_old.post_id<>p_post_id then
-    raise exception 'Media asset unavailable for this article' using errcode='42501';
-  end if;
-  update public.news_media_assets set kind=p_kind,storage_path=p_path,
-   alt_text=btrim(p_alt),caption=p_caption,sort_order=p_sort_order,
-   visible=p_visible,rights_reviewed=p_rights_reviewed,
-   updated_at=clock_timestamp() where id=p_id returning * into v_new;
-  v_id:=p_id;
- end if;
- insert into app_private.news_media_change_audit(asset_id,actor_user_id,before_snapshot,after_snapshot)
- values(v_id,v_actor,case when p_id is null then null else to_jsonb(v_old) end,to_jsonb(v_new));
- return v_id;
-end;
-$fn$;
-revoke all on function public.admin_list_news_media() from public,anon,authenticated;
-revoke all on function public.admin_save_news_media(uuid,uuid,text,text,text,text,integer,boolean,boolean)
-  from public,anon,authenticated;
-grant execute on function public.admin_list_news_media() to authenticated;
-grant execute on function public.admin_save_news_media(uuid,uuid,text,text,text,text,integer,boolean,boolean)
- to authenticated;
-comment on table public.news_media_assets is
-  'Media Center Boissy UJ: verified photo/video metadata; public only after article publication and rights check.';
-commit;
- and o.metadata->>'mimetype'='image/webp')
-        or (p_path ~* '\.avif
- p_id uuid,p_post_id uuid,p_kind text,p_path text,p_alt text,
- p_caption text,p_sort_order integer,p_visible boolean,p_rights_reviewed boolean
-) returns uuid
-language plpgsql security definer set search_path=''
-as $fn$
-declare
- v_actor uuid := (select auth.uid());
- v_old public.news_media_assets%rowtype;
- v_new public.news_media_assets%rowtype;
- v_id uuid;
-begin
- if v_actor is null or not coalesce((select app_private.is_admin()),false) then
-   raise exception 'Administrator MFA AAL2 required' using errcode='42501';
- end if;
- if p_post_id is null or p_kind not in ('photo','video') or p_kind is null
-    or p_path is null or length(p_path) not between 8 and 180
-    or p_path !~ '^[A-Za-z0-9_-]+(/[A-Za-z0-9_-]+)*\/[A-Za-z0-9_-]+\.(jpg|jpeg|png|webp|avif|mp4|webm)$'
-    or position('..' in p_path)>0
-    or p_alt is null or length(btrim(p_alt)) not between 4 and 200
-    or p_caption is null or length(p_caption)>400
-    or p_sort_order is null or p_sort_order not between 0 and 11
-    or p_visible is null or p_rights_reviewed is null
-    or (p_visible and not p_rights_reviewed)
-    or (p_kind='photo' and p_path !~* '\.(jpg|jpeg|png|webp|avif)$')
-    or (p_kind='video' and p_path !~* '\.(mp4|webm)$')
- then raise exception 'Invalid media metadata' using errcode='22023'; end if;
- -- Lock parent to serialize insert limits and prevent races against publish changes.
- perform 1 from public.news_posts
-  where id=p_post_id and visibility='public'
-  for update;
- if not found then raise exception 'Public article unavailable' using errcode='42501'; end if;
- if p_id is null then
-  if (select count(*) from public.news_media_assets where post_id=p_post_id)>=12
-  then raise exception 'Maximum 12 assets per article' using errcode='22023'; end if;
-  v_id:=gen_random_uuid();
-  insert into public.news_media_assets
-   (id,post_id,kind,storage_path,alt_text,caption,sort_order,visible,rights_reviewed)
-  values(v_id,p_post_id,p_kind,p_path,btrim(p_alt),p_caption,p_sort_order,p_visible,p_rights_reviewed)
-  returning * into v_new;
- else
-  select * into v_old from public.news_media_assets where id=p_id for update;
-  if not found or v_old.post_id<>p_post_id then
-    raise exception 'Media asset unavailable for this article' using errcode='42501';
-  end if;
-  update public.news_media_assets set kind=p_kind,storage_path=p_path,
-   alt_text=btrim(p_alt),caption=p_caption,sort_order=p_sort_order,
-   visible=p_visible,rights_reviewed=p_rights_reviewed,
-   updated_at=clock_timestamp() where id=p_id returning * into v_new;
-  v_id:=p_id;
- end if;
- insert into app_private.news_media_change_audit(asset_id,actor_user_id,before_snapshot,after_snapshot)
- values(v_id,v_actor,case when p_id is null then null else to_jsonb(v_old) end,to_jsonb(v_new));
- return v_id;
-end;
-$fn$;
-revoke all on function public.admin_list_news_media() from public,anon,authenticated;
-revoke all on function public.admin_save_news_media(uuid,uuid,text,text,text,text,integer,boolean,boolean)
-  from public,anon,authenticated;
-grant execute on function public.admin_list_news_media() to authenticated;
-grant execute on function public.admin_save_news_media(uuid,uuid,text,text,text,text,integer,boolean,boolean)
- to authenticated;
-comment on table public.news_media_assets is
-  'Media Center Boissy UJ: verified photo/video metadata; public only after article publication and rights check.';
-commit;
- and o.metadata->>'mimetype'='image/avif')
+       (p_path ~* '\.jpe?g$' and o.metadata->>'mimetype'='image/jpeg')
+       or (p_path ~* '\.png$' and o.metadata->>'mimetype'='image/png')
+       or (p_path ~* '\.webp$' and o.metadata->>'mimetype'='image/webp')
+       or (p_path ~* '\.avif$' and o.metadata->>'mimetype'='image/avif')
       ))
       or (p_kind='video' and (
-        (p_path ~* '\.mp4
- p_id uuid,p_post_id uuid,p_kind text,p_path text,p_alt text,
- p_caption text,p_sort_order integer,p_visible boolean,p_rights_reviewed boolean
-) returns uuid
-language plpgsql security definer set search_path=''
-as $fn$
-declare
- v_actor uuid := (select auth.uid());
- v_old public.news_media_assets%rowtype;
- v_new public.news_media_assets%rowtype;
- v_id uuid;
-begin
- if v_actor is null or not coalesce((select app_private.is_admin()),false) then
-   raise exception 'Administrator MFA AAL2 required' using errcode='42501';
- end if;
- if p_post_id is null or p_kind not in ('photo','video') or p_kind is null
-    or p_path is null or length(p_path) not between 8 and 180
-    or p_path !~ '^[A-Za-z0-9_-]+(/[A-Za-z0-9_-]+)*\/[A-Za-z0-9_-]+\.(jpg|jpeg|png|webp|avif|mp4|webm)$'
-    or position('..' in p_path)>0
-    or p_alt is null or length(btrim(p_alt)) not between 4 and 200
-    or p_caption is null or length(p_caption)>400
-    or p_sort_order is null or p_sort_order not between 0 and 11
-    or p_visible is null or p_rights_reviewed is null
-    or (p_visible and not p_rights_reviewed)
-    or (p_kind='photo' and p_path !~* '\.(jpg|jpeg|png|webp|avif)$')
-    or (p_kind='video' and p_path !~* '\.(mp4|webm)$')
- then raise exception 'Invalid media metadata' using errcode='22023'; end if;
- -- Lock parent to serialize insert limits and prevent races against publish changes.
- perform 1 from public.news_posts
-  where id=p_post_id and visibility='public'
-  for update;
- if not found then raise exception 'Public article unavailable' using errcode='42501'; end if;
- if p_id is null then
-  if (select count(*) from public.news_media_assets where post_id=p_post_id)>=12
-  then raise exception 'Maximum 12 assets per article' using errcode='22023'; end if;
-  v_id:=gen_random_uuid();
-  insert into public.news_media_assets
-   (id,post_id,kind,storage_path,alt_text,caption,sort_order,visible,rights_reviewed)
-  values(v_id,p_post_id,p_kind,p_path,btrim(p_alt),p_caption,p_sort_order,p_visible,p_rights_reviewed)
-  returning * into v_new;
- else
-  select * into v_old from public.news_media_assets where id=p_id for update;
-  if not found or v_old.post_id<>p_post_id then
-    raise exception 'Media asset unavailable for this article' using errcode='42501';
-  end if;
-  update public.news_media_assets set kind=p_kind,storage_path=p_path,
-   alt_text=btrim(p_alt),caption=p_caption,sort_order=p_sort_order,
-   visible=p_visible,rights_reviewed=p_rights_reviewed,
-   updated_at=clock_timestamp() where id=p_id returning * into v_new;
-  v_id:=p_id;
- end if;
- insert into app_private.news_media_change_audit(asset_id,actor_user_id,before_snapshot,after_snapshot)
- values(v_id,v_actor,case when p_id is null then null else to_jsonb(v_old) end,to_jsonb(v_new));
- return v_id;
-end;
-$fn$;
-revoke all on function public.admin_list_news_media() from public,anon,authenticated;
-revoke all on function public.admin_save_news_media(uuid,uuid,text,text,text,text,integer,boolean,boolean)
-  from public,anon,authenticated;
-grant execute on function public.admin_list_news_media() to authenticated;
-grant execute on function public.admin_save_news_media(uuid,uuid,text,text,text,text,integer,boolean,boolean)
- to authenticated;
-comment on table public.news_media_assets is
-  'Media Center Boissy UJ: verified photo/video metadata; public only after article publication and rights check.';
-commit;
- and o.metadata->>'mimetype'='video/mp4')
-        or (p_path ~* '\.webm
- p_id uuid,p_post_id uuid,p_kind text,p_path text,p_alt text,
- p_caption text,p_sort_order integer,p_visible boolean,p_rights_reviewed boolean
-) returns uuid
-language plpgsql security definer set search_path=''
-as $fn$
-declare
- v_actor uuid := (select auth.uid());
- v_old public.news_media_assets%rowtype;
- v_new public.news_media_assets%rowtype;
- v_id uuid;
-begin
- if v_actor is null or not coalesce((select app_private.is_admin()),false) then
-   raise exception 'Administrator MFA AAL2 required' using errcode='42501';
- end if;
- if p_post_id is null or p_kind not in ('photo','video') or p_kind is null
-    or p_path is null or length(p_path) not between 8 and 180
-    or p_path !~ '^[A-Za-z0-9_-]+(/[A-Za-z0-9_-]+)*\/[A-Za-z0-9_-]+\.(jpg|jpeg|png|webp|avif|mp4|webm)$'
-    or position('..' in p_path)>0
-    or p_alt is null or length(btrim(p_alt)) not between 4 and 200
-    or p_caption is null or length(p_caption)>400
-    or p_sort_order is null or p_sort_order not between 0 and 11
-    or p_visible is null or p_rights_reviewed is null
-    or (p_visible and not p_rights_reviewed)
-    or (p_kind='photo' and p_path !~* '\.(jpg|jpeg|png|webp|avif)$')
-    or (p_kind='video' and p_path !~* '\.(mp4|webm)$')
- then raise exception 'Invalid media metadata' using errcode='22023'; end if;
- -- Lock parent to serialize insert limits and prevent races against publish changes.
- perform 1 from public.news_posts
-  where id=p_post_id and visibility='public'
-  for update;
- if not found then raise exception 'Public article unavailable' using errcode='42501'; end if;
- if p_id is null then
-  if (select count(*) from public.news_media_assets where post_id=p_post_id)>=12
-  then raise exception 'Maximum 12 assets per article' using errcode='22023'; end if;
-  v_id:=gen_random_uuid();
-  insert into public.news_media_assets
-   (id,post_id,kind,storage_path,alt_text,caption,sort_order,visible,rights_reviewed)
-  values(v_id,p_post_id,p_kind,p_path,btrim(p_alt),p_caption,p_sort_order,p_visible,p_rights_reviewed)
-  returning * into v_new;
- else
-  select * into v_old from public.news_media_assets where id=p_id for update;
-  if not found or v_old.post_id<>p_post_id then
-    raise exception 'Media asset unavailable for this article' using errcode='42501';
-  end if;
-  update public.news_media_assets set kind=p_kind,storage_path=p_path,
-   alt_text=btrim(p_alt),caption=p_caption,sort_order=p_sort_order,
-   visible=p_visible,rights_reviewed=p_rights_reviewed,
-   updated_at=clock_timestamp() where id=p_id returning * into v_new;
-  v_id:=p_id;
- end if;
- insert into app_private.news_media_change_audit(asset_id,actor_user_id,before_snapshot,after_snapshot)
- values(v_id,v_actor,case when p_id is null then null else to_jsonb(v_old) end,to_jsonb(v_new));
- return v_id;
-end;
-$fn$;
-revoke all on function public.admin_list_news_media() from public,anon,authenticated;
-revoke all on function public.admin_save_news_media(uuid,uuid,text,text,text,text,integer,boolean,boolean)
-  from public,anon,authenticated;
-grant execute on function public.admin_list_news_media() to authenticated;
-grant execute on function public.admin_save_news_media(uuid,uuid,text,text,text,text,integer,boolean,boolean)
- to authenticated;
-comment on table public.news_media_assets is
-  'Media Center Boissy UJ: verified photo/video metadata; public only after article publication and rights check.';
-commit;
- and o.metadata->>'mimetype'='video/webm')
+       (p_path ~* '\.mp4$' and o.metadata->>'mimetype'='video/mp4')
+       or (p_path ~* '\.webm$' and o.metadata->>'mimetype'='video/webm')
       ))
     )
  );
 $fn$;
 revoke all on function app_private.media_file_ready(text,text) from public,anon,authenticated;
 
--- Admin-only verification: useful for the Control Center before saving.
--- A false value means absent object, bad MIME, unsupported size, or wrong bucket.
+-- AAL2-only read-only preflight. Missing, wrong-format and oversize files return false.
 create or replace function public.admin_check_news_media_file(p_kind text,p_path text)
 returns boolean
 language plpgsql stable security definer set search_path=''
@@ -613,6 +147,11 @@ begin
     or (p_kind='photo' and p_path !~* '\.(jpg|jpeg|png|webp|avif)$')
     or (p_kind='video' and p_path !~* '\.(mp4|webm)$')
  then raise exception 'Invalid media metadata' using errcode='22023'; end if;
+ -- Fail closed at the database, even if a client bypasses the preflight button.
+ if p_visible and not (select app_private.media_file_ready(p_path,p_kind)) then
+   raise exception 'Approved Storage file absent or unsafe'
+     using errcode='22023';
+ end if;
  -- Lock parent to serialize insert limits and prevent races against publish changes.
  perform 1 from public.news_posts
   where id=p_post_id and visibility='public'
@@ -648,6 +187,8 @@ revoke all on function public.admin_save_news_media(uuid,uuid,text,text,text,tex
 grant execute on function public.admin_list_news_media() to authenticated;
 grant execute on function public.admin_save_news_media(uuid,uuid,text,text,text,text,integer,boolean,boolean)
  to authenticated;
+comment on function public.admin_check_news_media_file(text,text) is
+ 'Admin + MFA AAL2 only: check approved Storage object and metadata without exposing private files.';
 comment on table public.news_media_assets is
   'Media Center Boissy UJ: verified photo/video metadata; public only after article publication and rights check.';
 commit;
