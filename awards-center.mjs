@@ -1,4 +1,5 @@
 import {supabaseConfig} from './auth-config.mjs';
+import {boundedPublicRequest} from './public-catalog-timeout.mjs';
 
 const TEAM_LABELS=Object.freeze({
   a:'Seniors A',b:'Seniors B',c:'Seniors C'
@@ -160,14 +161,15 @@ export async function mountAwards(){
   if(!root)return;
   const ctrl=new AbortController();
   controller=ctrl;
+  const deadline=boundedPublicRequest(ctrl.signal);
   root.replaceChildren(make('p','awards-loading','Chargement des catégories publiées…'));
   try{
-    const data=await fetchPublishedAwards(ctrl.signal);
+    const data=await fetchPublishedAwards(deadline.signal);
     if(ctrl.signal.aborted||current!==generation||!root.isConnected)return;
     build(root,data);
   }catch{
     if(ctrl.signal.aborted||current!==generation||!root.isConnected)return;
     root.replaceChildren(make('div','award-no-content',
       'Le catalogue Awards est momentanément indisponible. Aucune nomination ou résultat non vérifié ne sera affiché.'));
-  }
+  }finally{deadline.dispose();}
 }

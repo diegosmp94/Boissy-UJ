@@ -1,4 +1,5 @@
 import { supabaseConfig } from './auth-config.mjs';
+import {boundedPublicRequest} from './public-catalog-timeout.mjs';
 import {CLUB_TEAMS,teamRoute} from './club-teams.mjs';
 import {publicExternalFixtures,EXTERNAL_FIXTURE_REVIEWED_AT} from './external-match-previews.mjs';
 import {clubOutcome} from './league-standings.mjs';
@@ -290,13 +291,14 @@ export async function mountSport(initialTeamCode=null) {
   if(!root) return;
   const abort=new AbortController();
   currentRequest=abort;
+  const deadline=boundedPublicRequest(abort.signal);
   root.replaceChildren(element('p','sport-loading','Chargement des informations du club…'));
   try{
     const [teams,matches,seasons]=await Promise.all([
-      getRows('club_teams',{select:'id,code,name,division,source_kind,discipline,sort_order',order:'sort_order.asc'},abort.signal),
+      getRows('club_teams',{select:'id,code,name,division,source_kind,discipline,sort_order',order:'sort_order.asc'},deadline.signal),
       getRows('matches',{select:'id,team_id,season_id,opponent_name,scheduled_at,venue,is_home,home_score,away_score,match_status,source_kind,published,competition_kind,competition_label',
-        published:'eq.true',order:'scheduled_at.asc',limit:'100'},abort.signal),
-      getRows('club_seasons',{select:'id,label,state',order:'label.desc'},abort.signal)
+        published:'eq.true',order:'scheduled_at.asc',limit:'100'},deadline.signal),
+      getRows('club_seasons',{select:'id,label,state',order:'label.desc'},deadline.signal)
     ]);
     if (abort.signal.aborted || generation!==renderGeneration || !root.isConnected) return;
     const uniqueCodes=new Set(teams.map(t=>t.code));
@@ -311,5 +313,5 @@ export async function mountSport(initialTeamCode=null) {
       'La source du calendrier n’est pas encore disponible. Présentation des équipes uniquement ; aucun match ni résultat ne peut être confirmé pour le moment.');
     notice.setAttribute('role','status');
     root.prepend(notice);
-  }
+  }finally{deadline.dispose();}
 }

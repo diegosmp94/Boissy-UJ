@@ -1,0 +1,78 @@
+name: Publier le site public Boissy-UJ
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pages-public-boissy-uj
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - name: Récupérer main
+        uses: actions/checkout@v4
+      - name: Installer Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Tests et vérifications publiques
+        run: |
+          node --check app.js
+          npm run release:check
+          npm run audit:privacy
+          npm run smoke:browser
+      - name: Marquer la version exacte du site
+        env:
+          BOISSY_RELEASE_SHA: ${{ github.sha }}
+        run: node scripts/write-public-release.mjs
+      - name: Configurer GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Déposer exclusivement les fichiers publics validés
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publier sur GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+  verify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Récupérer les tests de publication
+        uses: actions/checkout@v4
+      - name: Installer Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Vérifier le site public et la bonne version
+        env:
+          BOISSY_PUBLIC_URL: https://diegosmp94.github.io/Boissy-UJ/
+          BOISSY_EXPECTED_COMMIT: ${{ github.sha }}
+        run: |
+          for attempt in 1 2 3 4 5 6 7 8 9 10 11 12; do
+            if npm run smoke:live; then exit 0; fi
+            sleep 10
+          done
+          echo 'La publication GitHub Pages ne correspond pas encore au commit déployé.' >&2
+          exit 1
