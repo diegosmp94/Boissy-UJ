@@ -159,13 +159,22 @@ export async function mountAgenda(){
       external.replaceChildren();
       // Never represent third-party references as club-published matches. A club
       // fixture always takes precedence and is the only kind eligible for .ics.
-      const suggestions=rows.matches.some(m=>m.published===true)||type.value==='event'
-        ?[]:publicExternalFixtures({query:search.value,period:period.value});
+      // Do not hide all sourced results when another team has one published match.
+      // Published Boissy UJ fixtures take precedence only for the same team/day/opponent.
+      const normalizeOpponent=name=>normalizeAgendaSearch(name).replace(/[^a-z0-9]/g,'');
+      const codeById=new Map(rows.teams.map(team=>[team.id,team.code]));
+      const publishedKeys=new Set(rows.matches.filter(m=>m.published===true).map(m=>
+        (codeById.get(m.team_id)||'')+'|'+parisDateKey(m.scheduled_at)+'|'+
+        normalizeOpponent(m.opponent_name)));
+      const suggestions=type.value==='event'?[]:publicExternalFixtures({
+        query:search.value,period:period.value
+      }).filter(m=>!publishedKeys.has(m.team_code+'|'+m.localDay+'|'+normalizeOpponent(m.opponent)));
       if(suggestions.length){
         external.append(make('h2','','Calendrier externe — à confirmer par le club'));
         external.append(make('p','agenda-external-note',
-          'Dates trouvées sur un site tiers, relevées le '+EXTERNAL_FIXTURE_REVIEWED_AT+
-          '. Ni synchronisation FFF ni publication officielle du club. Horaires susceptibles de changer.'));
+          'Dates des rencontres 2026–2027 communiquées par le club · relevés sportifs '+
+          'SportCorico / TheFootData du '+EXTERNAL_FIXTURE_REVIEWED_AT+
+          '. Scores affichés ici, sans homologation du club lorsqu’elle n’est pas encore connue.'));
         const grid=make('div','agenda-external-grid');
         for(const match of suggestions){
           const card=make('article','agenda-external-card');
