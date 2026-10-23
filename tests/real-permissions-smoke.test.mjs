@@ -92,7 +92,7 @@ test('cross-account RLS probes use only minimal fields and fail closed on leaked
  for(const {path,opts} of calls){
   const url=new URL(path,'https://example.invalid/');
   assert.deepEqual([...url.searchParams.keys()].sort(),
-   [CROSS_ACCOUNT_SCOPES.find(x=>x.table===url.pathname.split('/')[2]).column,'limit','select'].sort());
+   [CROSS_ACCOUNT_SCOPES.find(x=>x.table===url.pathname.split('/').at(-1)).column,'limit','select'].sort());
   assert.equal(opts.token,'staging-token');
   assert.equal(url.searchParams.get('limit'),'1');
  }
