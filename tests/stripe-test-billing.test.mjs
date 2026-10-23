@@ -125,13 +125,14 @@ test('private billing SQL denies direct access, repeat events and delayed old pa
   'pg_catalog.pg_advisory_xact_lock',
   'if exists(select 1 from app_private.premium_test_webhook_receipts',
   "and p_event_type<>'customer.subscription.deleted'",
-  "and p_event_type<>'customer.subscription.deleted' then",
+  "and p_event_type not in ('customer.subscription.deleted','invoice.paid') then",
   'if v_link.closed_at is not null',
   "v_link.plan_kind='monthly'",
   "v_link.plan_kind='annual'",
   "p_paid and p_period_start is not null",
   "v_expire:=p_period_start+interval '12 months'",
   'p_period_end<=v_now',
+  'e.valid_until>=p_period_end',
   'on conflict(user_id) do update',
   "where e.user_id=v_link.user_id and e.revoked_at is null"
  ])assert.ok(migration.includes(phrase),phrase);
@@ -142,7 +143,8 @@ test('private billing SQL denies direct access, repeat events and delayed old pa
 test('Edge webhook enforces Stripe raw signature, TEST-only key and service RPC',()=>{
  for(const phrase of [
   'new Stripe(config.apiKey', 'STRIPE_TEST_RESTRICTED_KEY',
-  'STRIPE_TEST_WEBHOOK_SECRET','stripe.webhooks.constructEventAsync',
+  'STRIPE_TEST_WEBHOOK_SECRET','BOISSY_TEST_WEBHOOK_ACK',
+  'stripe.webhooks.constructEventAsync',
   'raw,signature,config.signingSecret',
   'Stripe.createSubtleCryptoProvider()',
   "event.livemode!==false",
@@ -171,9 +173,10 @@ test('Checkout TEST endpoint requires verified user, pinned prices, exact origin
   'billing_register_test_checkout',
   "if(!response.ok)throw",
   'stripe.checkout.sessions.expire',
-  "mode==='subscription'?'subscription':'payment'"
+  "body.period==='monthly'?'subscription':'payment'"
  ])assert.ok(checkout.includes(phrase),phrase);
- assert.match(checkout,/authorization.*Bearer/);
+ assert.match(checkout,/req.headers.get\('authorization'\)/);
+ assert.match(checkout,/match\(\/\^Bearer/);
  assert.match(config,/\[functions\.premium-stripe-test-checkout\]\s*verify_jwt = true/);
  assert.doesNotMatch(checkout,/metadata.*user_id|client_reference_id|sk_live_|stripe\.redirectToCheckout/i);
  assert.doesNotMatch(checkout,/automatic_tax\s*:/);
