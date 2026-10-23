@@ -29,6 +29,10 @@ Point d'étape : **23 octobre 2026**. Les changements du site sont développés 
 
 Les pages **Communauté/Premium, Événements/Billetterie et Soutenir** ont une présentation responsive plus complète, un comparateur mensuel/annuel interactif sans prélèvement, un parcours d'information et des FAQ accessibles. Le lien **Awards** est directement visible sur le menu mobile. Les tests de navigation publique Chromium passent de 10 à 16 scénarios, incluant le basculement de période. **Reste hors de cette clôture UI** : tests sur appareils physiques, interactions Stripe/QR/votes avec back-end homologué, contenus sous droits et décisions RGPD. Le front est avancé, mais une homologation à 100 % serait prématurée. [Détails de l'étape 53](ETAPE_53_FINITIONS_FRONTEND.md).
 
+## Étape 58 B — Staging hébergé bloqué, alternative locale préparée
+
+La création gratuite du projet Boissy-UJ Staging a été refusée par Supabase à cause du quota global des deux projets Free actifs sur le compte. Aucun projet supplémentaire ni frais créés. Préflight local Docker/Supabase CLI et configuration PostgreSQL 17 préparés ; restent les tests réels de migrations, des sept comptes et de restauration. [Détails](ETAPE_58B_STAGING_LOCAL.md).
+
 ## Étape 58 — Préproduction isolée et récupération (partie A réalisée)
 
 Audit du projet Supabase Free, sans staging accessible ; nouveau préflight ciblé vers un second projet, refus de la production et des clés privilégiées, contrôle public/Auth/admin anonymement refusé. Inventaire SQL hors ligne des cinq migrations préparées, trié et empreintes SHA-256. **La création du staging, la recette de sept comptes et une restauration réelle restent ouvertes**, car elles exigent une instance distincte et une décision habilitée. [Détails de l'étape 58](ETAPE_58_STAGING_ET_RESTAURATION.md).

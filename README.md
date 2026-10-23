@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Étape 58 B — Alternative locale après refus du quota Free (23 octobre 2026)
+
+Supabase a annoncé **0 par mois** pour un second projet dans l'organisation Boissy-UJ mais l'a refusé : limite de **deux projets Free actifs toutes organisations confondues**. Aucun projet créé et aucun paiement engagé. Le dépôt dispose désormais d'un identifiant de pile Supabase locale, de PostgreSQL 17 et de la commande **npm run local:preflight** pour vérifier les prérequis Docker/CLI et refuser une copie liée au cloud. [Guide de staging local](docs/ETAPE_58B_STAGING_LOCAL.md). **La pile n'a pas été démarrée ; aucun test de base réel validé.**
+
 ## Étape 58 — Préproduction et restauration, préparation sécurisée
 
 Les nouvelles commandes **`npm run staging:preflight`** (requêtes anonymes et lecture seule sur un **projet staging distinct**) et **`npm run staging:migration-plan`** (inventaire et empreintes SHA-256 hors ligne des cinq migrations P2) sécurisent la préparation des essais. Le staging n'a pas encore été créé et les restaurations réelles restent à faire sous contrôle du club. [Détails étape 58](docs/ETAPE_58_STAGING_ET_RESTAURATION.md).
