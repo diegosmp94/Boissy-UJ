@@ -1,6 +1,6 @@
 import {HISTORICAL_SOURCE_RESULTS} from './historical-source-results.mjs';
 import {REMAINING_OFFICIAL_SEASON_FIXTURES} from './remaining-official-season-fixtures.mjs';
-/** Public SportCorico fixtures and results; manually checked on 2026-10-22.
+/** Public SportCorico fixtures and results; past 2026–2027 matches checked on 2026-10-23.
  * These facts are attributed third-party observations, NOT club approval or
  * an official FFF API. Never write them to Supabase automatically.
  */
@@ -10,17 +10,19 @@ const sourceA='https://www.sportcorico.com/clubs/boissy-uj/boissy-uj';
 const sourceV='https://www.sportcorico.com/clubs/boissy-uj/boissy-uj-6?season=2026-2027';
 const sourceF='https://www.sportcorico.com/clubs/boissy-uj/boissy-uj-1';
 const sourceB='https://www.sportcorico.com/clubs/val-de-fontenay-as/val-de-fontenay-as-39';
-/** Historical score entries have date-only precision. Never invent a kickoff time. */
+/** Kickoff times are retained only when documented on the match detail page. */
 const data=[
  ...REMAINING_OFFICIAL_SEASON_FIXTURES,
- {team_code:'a',opponent:"Bann'zanmi 2",date:'2026-09-20',is_home:true,source:sourceA,home_score:6,away_score:1,status:'played'},
- {team_code:'a',opponent:'Moldavie FC 1',date:'2026-10-04',is_home:false,source:sourceA,home_score:1,away_score:3,status:'played'},
- {team_code:'a',opponent:'Villejuif US 1',date:'2026-10-11',is_home:false,source:sourceA,home_score:6,away_score:0,status:'played'},
- {team_code:'a',opponent:'Villiers-sur-Marne ES 2',date:'2026-10-18',is_home:false,source:sourceA,home_score:1,away_score:0,status:'played'},
- {team_code:'futsal',opponent:'Petits Anges ES 1',date:'2026-10-03',is_home:true,source:sourceF,home_score:3,away_score:7,status:'played'},
- {team_code:'futsal',opponent:'Maisons-Alfort FC 1',date:'2026-10-17T11:30:00+02:00',is_home:true,source:sourceF,status:'unknown'},
- {team_code:'veterans',opponent:"Éléphant Côte d'Ivoire 11",date:'2026-10-04T09:30:00+02:00',is_home:false,source:sourceV,status:'unknown'},
- {team_code:'veterans',opponent:'Bois Abbé Outre-Mer 12',date:'2026-10-18T10:00:00+02:00',is_home:true,source:sourceV,status:'unknown'},
+ {"team_code":"a","opponent":"Bann'zanmi 2","date":"2026-09-20T15:00:00+02:00","is_home":true,"source":"https://www.sportcorico.com/match/boissy-uj-seniors-1-bannzanmi-seniors-2-cehaz","home_score":6,"away_score":1,"status":"played","reviewed_at":"2026-10-23","venue":"Stade Maurice Préault 1"},
+ {"team_code":"a","opponent":"Moldavie FC 1","date":"2026-10-04T15:00:00+02:00","is_home":false,"source":"https://www.sportcorico.com/match/moldavie-fc-seniors-1-boissy-uj-seniors-1-g3wpv","home_score":1,"away_score":3,"status":"played","reviewed_at":"2026-10-23","venue":"Parc des sports du Tremblay n°09"},
+ {"team_code":"a","opponent":"Villejuif US 1","date":"2026-10-11T15:00:00+02:00","is_home":false,"source":"https://www.sportcorico.com/match/villejuif-us-seniors-1-boissy-uj-seniors-1-tegol","home_score":6,"away_score":0,"status":"played","reviewed_at":"2026-10-23","venue":"Stade Louis Dolly"},
+ {"team_code":"a","opponent":"Villiers-sur-Marne ES 2","date":"2026-10-18T15:30:00+02:00","is_home":false,"source":"https://www.sportcorico.com/match/villiers-s-m-es-seniors-2-boissy-uj-seniors-1-bgt3s","home_score":1,"away_score":0,"status":"played","reviewed_at":"2026-10-23","venue":"Stade Octave Lapize 2"},
+ {"team_code":"b","opponent":"Saint-Maur Lusitanos 2","date":"2026-10-04T15:00:00+02:00","is_home":true,"source":"https://www.sportcorico.com/match/boissy-uj-seniors-2-st-maur-lusitanos-seniors-2-ui3r3","home_score":0,"away_score":9,"status":"played","reviewed_at":"2026-10-23","venue":"Stade Maurice Préault 1"},
+ {"team_code":"b","opponent":"Mandres-Périgny 2","date":"2026-10-18T15:00:00+02:00","is_home":true,"source":"https://www.sportcorico.com/match/boissy-uj-seniors-2-mandres-perigny-seniors-2-hzlan","home_score":2,"away_score":2,"status":"played","reviewed_at":"2026-10-23","venue":"Stade Maurice Préault 1"},
+ {"team_code":"futsal","opponent":"Petits Anges ES 1","date":"2026-10-03T11:30:00+02:00","is_home":true,"source":"https://www.sportcorico.com/match/boissy-uj-seniors-futsal-1-petits-anges-es-seniors-futsal-1-mry0g","home_score":3,"away_score":7,"status":"played","reviewed_at":"2026-10-23","venue":"Gymnase Maurice Préault"},
+ {"team_code":"futsal","opponent":"Maisons-Alfort FC 1","date":"2026-10-17T11:30:00+02:00","is_home":true,"source":"https://www.sportcorico.com/match/boissy-uj-seniors-futsal-1-maisons-alfort-fc-seniors-futsal-1-huhan","home_score":3,"away_score":11,"status":"played","reviewed_at":"2026-10-23"},
+ {"team_code":"veterans","opponent":"Éléphant Côte d'Ivoire 11","date":"2026-10-04T09:30:00+02:00","is_home":false,"source":"https://www.sportcorico.com/match/elephant-cot-divoir-seniors-11-boissy-uj-seniors-11-o0ho3","home_score":10,"away_score":2,"status":"played","reviewed_at":"2026-10-23","venue":"Parc des sports du Tremblay n°02"},
+ {"team_code":"veterans","opponent":"Bois Abbé Outre-Mer 12","date":"2026-10-18T10:00:00+02:00","is_home":true,"source":"https://www.sportcorico.com/match/boissy-uj-seniors-11-bois-abbe-outre-mer-seniors-12-tattg","home_score":12,"away_score":1,"status":"played","reviewed_at":"2026-10-23","venue":"Stade Maurice Préault 1"},
  {team_code:'futsal',opponent:'FC Chennevières 1',date:'2026-10-24T18:00:00+02:00',is_home:false,source:sourceF,status:'scheduled'},
  {team_code:'futsal',opponent:'Créteil Palais Futsal 2',date:'2026-10-31T11:30:00+01:00',is_home:true,source:sourceF,status:'scheduled'},
  {team_code:'b',opponent:'Val de Fontenay AS 2',date:'2026-11-01T15:00:00+01:00',is_home:false,source:sourceB,status:'scheduled'},
@@ -66,9 +68,9 @@ export function publicExternalFixtures({now=Date.now(),query='',team='all',disci
    localDay:item.date.slice(0,10),
    dateOnly:item.date.length===10,
    team_name:labels[item.team_code],
-   source_label:item.source.includes('thefootdata.com')?'TheFootData':EXTERNAL_FIXTURE_PROVIDER,
+   source_label:item.source_label||(item.source.includes('thefootdata.com')?'TheFootData':EXTERNAL_FIXTURE_PROVIDER),
    validated_by_club:false,
    date_confirmed_by_club:item.date_confirmed_by_club??(item.season==='2026-2027'),
-   result:item.status==='played'?item.home_score+' – '+item.away_score:null
+   result:item.result_label||(item.status==='played'?item.home_score+' – '+item.away_score:null)
  })).sort((a,b)=>a.time-b.time);
 }

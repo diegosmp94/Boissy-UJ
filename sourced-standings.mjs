@@ -23,11 +23,17 @@ export function knownClubSeasonForm(code,{season='2026-2027'}={}){
  const competition=competitions[season]?.[code];
  if(!competition)return null;
  const eligible=publicExternalFixtures({team:code,season,includePast:true,period:'all'})
-  .filter(x=>x.status==='played'&&x.competition===competition&&
-   Number.isInteger(x.home_score)&&Number.isInteger(x.away_score));
+  .filter(x=>x.competition===competition&&((x.status==='played'&&
+   Number.isInteger(x.home_score)&&Number.isInteger(x.away_score))||
+   (x.status==='administrative'&&['V','D'].includes(x.administrative_outcome))));
  if(!eligible.length)return null;
  const stats={played:0,wins:0,draws:0,losses:0,goals_for:0,goals_against:0,points:0};
  for(const x of eligible){
+  if(x.status==='administrative'){
+   stats.played++;
+   if(x.administrative_outcome==='V')stats.wins++;else stats.losses++;
+   continue;
+  }
   const scored=x.is_home?x.home_score:x.away_score;
   const conceded=x.is_home?x.away_score:x.home_score;
   stats.played++;stats.goals_for+=scored;stats.goals_against+=conceded;

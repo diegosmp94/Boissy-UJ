@@ -171,7 +171,7 @@ export async function mountTeamProfile(code){
         for(const m of ordered){
           const item=node('article','team-profile-match');
           item.append(node('span','team-profile-match-kind',
-            m.season+' · '+(m.status==='played'?'Résultat sourcé':
+            m.season+' · '+(['played','administrative'].includes(m.status)?'Résultat sourcé':
               m.status==='unknown'?'Score non communiqué':'Rencontre annoncée')),
             node('p','team-profile-match-date',m.dateOnly
               ?new Intl.DateTimeFormat('fr-FR',{dateStyle:'long',timeZone:'UTC'})
@@ -180,8 +180,9 @@ export async function mountTeamProfile(code){
             node('strong','',m.is_home?'Boissy-UJ — '+m.opponent:m.opponent+' — Boissy-UJ'),
             node('p','team-profile-score',m.result||'Score non confirmé'),
             node('small','',m.competition||'Compétition non précisée'));
-          if(m.status==='played'){
-            const outcome=clubOutcome({...m,match_status:'played'});
+          if(m.venue)item.append(node('p','team-profile-match-venue',m.venue));
+          if(['played','administrative'].includes(m.status)){
+            const outcome=clubOutcome({...m,match_status:m.status});
             if(outcome){
               item.classList.add('sport-result-'+outcome);
               item.append(node('span','sport-outcome sport-outcome-'+outcome,
