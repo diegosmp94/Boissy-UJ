@@ -179,9 +179,8 @@ export async function mountTeamProfile(code){
                 outcome==='V'?'Victoire':outcome==='D'?'Défaite':'Match nul'));
             }
           }
-          const a=node('a','team-profile-source','Vérifier sur '+m.source_label+' ↗');
-          a.href=m.source;a.target='_blank';a.rel='noopener noreferrer';
-          item.append(a);
+          item.append(node('small','team-source-attribution',
+            'Source du relevé : '+m.source_label+' · '+(m.validated_by_club?'Confirmé par le club':'Score non homologué par le club')));
           cards.push({node:item,season:m.season,kind:competitionKind(m),section});
           list.append(item);
         }
