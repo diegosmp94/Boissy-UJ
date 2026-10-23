@@ -155,11 +155,20 @@ export async function mountTeamProfile(code){
         }
         select.value=activeSeason;
         filter.append(select);section.append(filter);
+        if(code==='b')section.append(node('p','team-profile-disclaimer',
+          'Seniors B : calendrier de championnat partiel. Certaines journées manquent encore dans les sources consultées ; aucun adversaire ni horaire manquant n’a été inventé.'));
         const list=node('div','team-profile-matches');
         select.addEventListener('change',()=>{
           activeSeason=select.value;renderCategory();
         });
-        for(const m of sourced.slice().sort((a,b)=>b.time-a.time)){
+        // Supporters see the next fixture first; past games follow, most recent first.
+        const instant=Date.now();
+        const ordered=sourced.slice().sort((a,b)=>{
+          const aFuture=a.time>=instant-86400000,bFuture=b.time>=instant-86400000;
+          if(aFuture!==bFuture)return aFuture?-1:1;
+          return aFuture?a.time-b.time:b.time-a.time;
+        });
+        for(const m of ordered){
           const item=node('article','team-profile-match');
           item.append(node('span','team-profile-match-kind',
             m.season+' · '+(m.status==='played'?'Résultat sourcé':
