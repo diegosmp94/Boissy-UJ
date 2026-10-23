@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Stripe TEST Checkout et webhook signés — étape 55 (23 octobre 2026)
+
+Backend **préparé uniquement pour staging** : création d'une session Checkout TEST depuis un compte vérifié, traitement de webhooks Stripe signés et rapprochement idempotent des paiements avec les droits Premium stockés en privé. Deux Edge Functions et une migration SQL ont été ajoutées, sans aucune modification de la production ni achat activé. [Guide, sécurité et prochaines validations](docs/ETAPE_55_STRIPE_TEST_WEBHOOK.md).
+
 ## Back-end Awards Premium — étape 54 (23 octobre 2026)
 
 Migration préparée pour un vote par compte et catégorie avec vérification serveur d'un droit Premium issu d'une facturation authentifiée, nomination publique avec consentement, dates du scrutin et retrait du vote. Audit SQL en lecture seule et recette écrivable **uniquement en staging** disponibles (`npm run smoke:awards-voting`). **La fonction n'est pas activée en production** : aucun webhook signé homologué, aucun staging disponible et aucun vote réel. [Protocole étape 54](docs/ETAPE_54_VOTES_AWARDS_PREMIUM.md).

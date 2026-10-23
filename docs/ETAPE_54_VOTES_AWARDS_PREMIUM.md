@@ -54,7 +54,7 @@ L'audit **SQL read-only** `scripts/db-awards-voting-audit.sql` examine les table
 ## Blocages restants
 
 - **Pas de projet Supabase de staging connecté** actuellement ; le test réseau réel et la migration restent donc non exécutés.
-- Le webhook Stripe TEST vérifié côté serveur et le mécanisme fiable d'attribution/révocation des droits Premium doivent être développés avant tout vote ouvert.
+- Le **code de Checkout et webhook Stripe TEST** a été préparé à l'étape 55, mais il doit encore être déployé et validé sur staging isolé avant de servir de preuve fiable d'attribution/révocation. Les remboursements et litiges restent à traiter avant homologation.
 - Le club doit approuver le règlement Awards, les conditions d'éligibilité et la publication des nominés, notamment mineurs et droit à l'image.
 - L'interface de vote ne peut être activée que lorsque la migration, la facture vérifiée et la recette multi-comptes sont validées. Les pages Awards actuelles restent purement informatives.
 - Tests CI statiques + simulation HTTP ne prouvent pas que la migration PostgreSQL a réellement été exécutée ; une recette Supabase isolée est indispensable avant homologation.
