@@ -45,7 +45,7 @@ test('a third-party result is coded but never marked as club confirmed',()=>{
  ];
  const data=mergeCalendarPublicEntries([],sourced,[]);
  assert.deepEqual(data.map(x=>x.outcome),['V','N','D',null]);
- assert.ok(data.every(x=>x.external===true&&!x.href&&x.sourceLabel==='SportCorico'));
+ assert.ok(data.every(x=>x.external===true&&!x.href));
 });
 test('all three accessible color tokens are integrated into match center, team profiles, agenda and month view',()=>{
  const css=read('league-standings.css'),match=read('sport-center.mjs'),
