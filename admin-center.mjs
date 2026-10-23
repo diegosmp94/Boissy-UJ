@@ -8,6 +8,7 @@ import {mountAuthenticatedClubIdentityEditor} from './club-editor.mjs';
 import {mountAuthenticatedTeamPeopleEditor} from './team-person-editor.mjs';
 import {mountAdminMembers} from './admin-users.mjs';
 import {mountAdminNewsMedia} from './admin-news-media.mjs';
+import {mountAdminNewsRevisions} from './admin-news-revisions.mjs';
 import {mountAdminReadiness} from './admin-readiness.mjs';
 import {mountAdminPlayerTeams} from './admin-player-teams.mjs';
 import {mountAdminCoachTeams} from './admin-coach-teams.mjs';
@@ -26,6 +27,7 @@ export const ADMIN_MODULES=Object.freeze([
  {id:'matches',name:'Matchs et résultats',group:'Sport',caption:'Rencontres officielles du club'},
  {id:'events',name:'Événements gratuits',group:'Sport',caption:'Agenda sans billetterie ni paiements'}, 
  {id:'news',name:'Actualités',group:'Contenu',caption:'Articles et droits de publication'},
+ {id:'news-revisions',name:'Historique des actualités',group:'Contenu',caption:'Versions précédentes et restauration en brouillon'}, 
  {id:'news-media',name:'Galeries et vidéos',group:'Contenu',caption:'Photos et vidéos approuvées par le club'},
  {id:'identity',name:'Identité du club',group:'Contenu',caption:'Contenus et histoire du club'}
 ]);
@@ -99,6 +101,9 @@ export async function mountAdminCenter(getClient){
   const mediaProbe=await api.rpc('admin_list_news_media');
   const mediaReady=!mediaProbe.error&&Array.isArray(mediaProbe.data);
   if(serial!==currentGeneration||!root.isConnected)return;
+  const revisionsProbe=await api.rpc('admin_news_revisions_ready');
+  const newsRevisionsReady=!revisionsProbe.error&&revisionsProbe.data===true;
+  if(serial!==currentGeneration||!root.isConnected)return;
   root.replaceChildren();
   const head=el('header','real-admin-heading');
   head.append(el('span','tiny-label','BOISSY-UJ · ADMINISTRATION SÉCURISÉE'),
@@ -111,7 +116,7 @@ export async function mountAdminCenter(getClient){
   const pane=el('section','real-admin-pane');
   pane.setAttribute('aria-label','Outil de gestion');
   layout.append(sidebar,pane);root.append(layout);
-  const availableModules=availableAdminModules(ADMIN_MODULES,{eventsReady,coachTeamsReady,mediaReady});
+  const availableModules=availableAdminModules(ADMIN_MODULES,{eventsReady,coachTeamsReady,mediaReady,newsRevisionsReady});
   const navTools=el('div','admin-nav-tools');
   const navLabel=el('label','admin-nav-label','Trouver un module');
   const moduleSearch=el('input','admin-nav-search');
@@ -207,6 +212,7 @@ export async function mountAdminCenter(getClient){
     case 'matches':mountAdminMatches(view,api,verified.userId);break;
     case 'events':mountAdminFreeEvents(view,api,verified.userId);break;
     case 'news':mountAdminNews(view,api,verified.userId);break;
+    case 'news-revisions':void mountAdminNewsRevisions(view,api,verified.userId);break;
     case 'news-media':void mountAdminNewsMedia(view,api,verified.userId);break;
     case 'identity':void mountAuthenticatedClubIdentityEditor(view,api,verified.userId);break;
    }
