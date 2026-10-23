@@ -35,4 +35,4 @@ Migration : `supabase/migrations/202610210018_club_identity_admin_cms.sql`.
 - Test avec véritables comptes administrateur MFA AAL2 toujours à mener, aucune activation des comptes dans la préversion.
 
 ## Limites
-L’authentification publique **reste désactivée** dans `auth-config.mjs`. Aucun utilisateur n’a été créé, aucun abonnement, paiement ou vote n'a été activé. Le module en production restera invisible jusqu’à la recette des comptes et de la MFA. Cette étape ne fait pas atteindre, à elle seule, les 85 % de recette globale.
+L'authentification standard est activée depuis l'étape 25. Les actions d'administration restent réservées à un compte vérifié, au rôle `admin` et à MFA AAL2. Le relevé de base du 21 octobre indiquait zéro utilisateur ; les comptes réels, paiements et votes restent distincts et doivent être vérifiés avant homologation. Cette étape ne permet pas, à elle seule, de déclarer la recette globale terminée.

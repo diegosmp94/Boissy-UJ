@@ -1,9 +1,9 @@
 # Étape 5 — Media Center public Boissy-UJ
 
-> **Mise à jour du 21 octobre 2026 : les migrations Supabase correspondantes sont maintenant APPLIQUÉES.** Les mentions ci-dessous indiquant « non appliquée » ou « en attente d’autorisation » sont l’historique des étapes précédentes, et non l’état actuel. Voir [État Supabase vérifié](ETAT_SUPABASE_20261021.md). Les écritures réelles et l’authentification publique restent désactivées jusqu’aux essais fonctionnels.
+> **État actualisé :** les migrations des catalogues d'actualités et de médias sont appliquées selon l'[état Supabase vérifié](ETAT_SUPABASE_20261021.md). L'authentification standard est disponible ; les publications restent soumises aux droits, consentements et contrôles administrateur décrits dans les étapes récentes. Les mentions de préparation qui suivent décrivent le périmètre initial de cette étape.
 
 
-**Livraison : interface et schéma prêts dans GitHub. Aucune migration éditoriale appliquée.**
+**Livraison :** interface publique en lecture seule et schéma appliqué. Les contenus restent vides tant qu'ils ne sont pas publiés et autorisés par le club.
 
 ## Fonctionnalités du lot
 - Rubrique Actualités reliée à la lecture d'articles publiés, avec filtres Articles/Galeries/Vidéos et recherche.
@@ -15,7 +15,7 @@
 - Aucune gestion de commentaire ou messagerie.
 
 ## Limites
-La migration `supabase/migrations/202610210004_news_public_v1.sql` dépend de l'existence de `club_teams` et **n'est pas appliquée**. L'autorisation de mutation Supabase n'a pas été accordée lors du lot précédent ; nous n'effectuons pas de nouvelle tentative de mutation.
+**Note historique :** la migration `supabase/migrations/202610210004_news_public_v1.sql` a depuis été appliquée ; voir le rapport Supabase daté du 21 octobre. L'édition et la publication utilisent désormais les RPC protégées documentées à l'étape 27.
 
 Pas encore d'éditeur d'articles sécurisé, de stockage de médias, de gestion des consentements, ni de contrôle côté serveur pour les contenus premium. Le choix des visuels et des consentements des mineurs doit être finalisé avant publication.
 

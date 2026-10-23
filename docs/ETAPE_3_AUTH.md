@@ -1,8 +1,8 @@
 # Étape 3 — comptes et rôles Boissy-UJ
 
-> **Exigence produit V1.1 (21/10/2026) :** rôles `player`, `coach`, `admin` cumulables par deux ou trois, chaque nouveau rôle conditionné à une **validation d'administrateur distinct avec MFA AAL2**. Schéma actuel compatible, mais circuit de demandes/approbations **non développé**. Voir [cahier des charges](CAHIER_DES_CHARGES.md). Les migrations appliquées et l'état réel du projet sont suivis dans [État Supabase](ETAT_SUPABASE_20261021.md).
+> **État actualisé :** l'authentification des comptes standards est activée dans `auth-config.mjs`. Les demandes, approbations et révocations de rôles cumulés sont décrites à l'[étape 12](ETAPE_12_ROLES_CUMULATIFS.md) ; elles exigent une validation distincte avec MFA AAL2. Les protections structurelles sont testées, mais les parcours avec plusieurs comptes réels restent à homologuer. Voir aussi le [cahier des charges](CAHIER_DES_CHARGES.md) et la [roadmap actuelle](PLAN_DEVELOPPEMENT.md).
 
-**Avancement : fondation DB + interface intégrées sur la branche. Pas encore prêt pour production.**
+**Avancement :** fondation Supabase et parcours d'inscription / connexion standard disponibles dans `main`. Le flux privé et la conformité de production ne sont pas homologués tant que les recettes réelles décrites ci-dessous ne sont pas faites.
 
 ## Réalisé et vérifié
 - Migration `boissy_uj_auth_foundation_20261021` appliquée à Supabase : `public.profiles` et `public.user_roles`.
@@ -16,12 +16,12 @@
 - Base encore vide : **aucun utilisateur, aucun rôle attribué manuellement, aucun paiement**.
 
 ## Limitations restantes importantes
-1. L'intégration browser utilise temporairement l'ESM CDN de Supabase JS ; avant publication, fixer la version, contrôler le chargement et définir la politique CSP.
+1. Supabase JS est chargé depuis le CDN ESM à une version v2 fixée (`2.118.0`). La disponibilité CDN et la politique CSP restent à examiner dans la recette de déploiement.
 2. Tester les parcours avec deux **comptes d'essai autorisés** : confirmation e-mail, connexion, session persistante, récupération, déconnexion, réactivation et erreurs.
 3. Configurer les **URL de redirection autorisées**, l'URL officielle et la délivrabilité e-mail dans Supabase.
 4. Tester les RLS de façon dynamique avec deux identités et les accès non autorisés : profil d'autrui inaccessible, rôles impossibles à modifier.
-5. Concevoir l'attribution sécurisée des rôles supplémentaires, l'amorçage administrateur et la révocation auditée.
-6. Prévoir l'inscription / vérification des facteurs MFA pour administrateurs, et bloquer l'interface Control Center tant que AAL2 n'est pas atteint.
+5. Vérifier avec plusieurs identités les demandes et décisions de rôles cumulés, l'interdiction d'auto-approbation et la révocation auditée.
+6. Recetter l'inscription / vérification des facteurs MFA pour administrateurs, et confirmer que le Control Center reste bloqué tant que AAL2 n'est pas atteint.
 7. Achever l'information RGPD et les règles de protection des mineurs avant toute ouverture publique.
 8. Vérifier les comportements sur Safari iPhone, Android et desktop ; pas encore de recette navigateur exhaustive.
 
@@ -30,4 +30,4 @@ L'étape 3 sera terminée uniquement après les tests en conditions réelles ci-
 
 ## Séparation des sujets
 Le statut **Premium** n'est pas un rôle modifiable par l'utilisateur. Il dépendra ultérieurement des événements serveur Stripe vérifiés.
-Aucun paiement LIVE n'est activé. `main` est inchangée.
+Aucun paiement LIVE n'est activé. La disponibilité du flux standard de connexion ne signifie pas que les rôles privilégiés ou la conformité de production sont homologués.

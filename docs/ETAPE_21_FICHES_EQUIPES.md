@@ -25,7 +25,7 @@ Le club doit confirmer ses droits sur toutes les données publiées. Pour les pe
 - Chaque édition et dépublication alimente `app_private.team_public_people_audit` inaccessible aux clients publics.
 - Les utilisateurs peuvent être joueurs et éducateurs simultanément au niveau associatif, mais une fiche publiée représente un affichage sportif, pas une attribution de rôle.
 
-Dans `#/mon-espace`, le module éditeur est conçu pour un vrai administrateur AAL2, lorsque l'authentification sera homologuée. `#/control-center` propose seulement un aperçu **local** sans sauvegarde. Auth demeure désactivée à ce stade : les premières publications ne peuvent être effectuées depuis le site public.
+Dans `#/mon-espace`, l'éditeur réel est réservé à un administrateur AAL2 ; la connexion standard est disponible et les RPC vérifient les permissions côté serveur. L'état des outils d'administration est décrit à l'[étape 27](ETAPE_27_ADMINISTRATION_REELLE.md). Les premières publications restent soumises à la recette et aux droits de diffusion du club.
 
 ## Liaison équipes
 Les articles existants possèdent déjà `news_posts.team_id`. Aucun changement de leur schéma n'est nécessaire. Les rencontres restent gérées dans l'étape 20 ; les bilans proviennent exclusivement de la vue sportive filtrée par UUID.

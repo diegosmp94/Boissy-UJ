@@ -22,7 +22,7 @@ Migration `supabase/migrations/202610210009_sport_seasons_match_manager.sql`.
 - Fonction `SECURITY DEFINER` explicitement exposée aux comptes `authenticated` et contrôlée en interne. Le linter peut avertir de cette exception; elle requiert des tests dynamiques avant tout accès réel.
 
 ## Limites / portes restantes
-- `auth-config.mjs` reste `enabled: false` : aucune inscription ni connexion publique activée, et aucune opération administrative possible depuis le navigateur.
+- L'authentification standard est activée (`auth-config.mjs`), mais les parcours administratifs exigent toujours rôle autorisé et MFA AAL2 ; leur recette multi-comptes réelle reste à faire. Voir [étape 25 — fiabilité des sessions](ETAPE_25_SESSIONS_AUTH.md).
 - L'atelier de préparation ne déclenche aucune RPC. Les vrais écrans de sauvegarde seront activés uniquement après la recette des comptes, rôles, MFA, affectations et audits avec des identités d'essai.
 - Ne pas représenter une référence FFF saisie par le club comme une donnée officielle synchronisée automatiquement.
 - Pas de données individuelles de joueurs, convocations nominatives, licences, portraits ou paiements dans ce lot.

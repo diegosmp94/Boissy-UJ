@@ -47,7 +47,9 @@ test('current database design allows multiple roles and refuses client grants',(
 test('canonical specification reports delivered approvals without claiming production homologation',()=>{
   assert.match(spec,/demandes\/approbations\/révocations des rôles cumulables ont été implémentés/);
   assert.match(spec,/les parcours multi-identités/);
-  assert.match(authDoc,/circuit de demandes\/approbations \*\*non développé\*\*/);
+  assert.match(authDoc,/authentification des comptes standards est activée/);
+  assert.doesNotMatch(authDoc,/circuit de demandes\/approbations \*\*non développé\*\*/);
+  assert.match(read('docs/ETAPE_12_ROLES_CUMULATIFS.md'),/réelles.*MFA AAL2/s);
   assert.match(decisions,/Cahier des charges V1\.1/);
   assert.match(roadmap,/cahier des charges V1\.5/i);
   assert.match(panelDoc,/prévisualisation n'attribue jamais de rôle/);
