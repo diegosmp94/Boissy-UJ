@@ -8,6 +8,8 @@ Le module `home-next-match.mjs` combine les deux mêmes catalogues que le Match 
 1. Les rencontres `matches` publiées dans Supabase par Boissy UJ, au statut `scheduled` (priorité en cas de doublon, équipe + jour + adversaire).
 2. Les rencontres 2026–2027 sourcées dans `external-match-previews.mjs`, y compris les échéances ajoutées jusqu’à **mai 2027** pour Seniors A, Seniors B, Vétérans et Senior futsal.
 
+Correctif du 23 octobre : la lecture publique récupère également les statuts annulé, reporté et terminé. Pour une même équipe, date parisienne et adversaire, toute décision publiée par le club masque la copie sourcée ; seule une rencontre encore programmée peut être sélectionnée. Les brouillons ne masquent pas le calendrier public. Un report vers une autre date ne peut pas être rapproché automatiquement sans identifiant source commun : l'ancienne date doit être conservée comme reportée ou retirée du catalogue sourcé.
+
 Aucun match annulé, terminé, au score inconnu ou au coup d’envoi déjà passé ne reste comme « prochain ». Les matchs amicaux des Seniors C ne sont pas inventés : ils pourraient s’afficher seulement si publiés par le club.
 
 ## Cadence

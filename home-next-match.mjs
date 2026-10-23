@@ -47,7 +47,14 @@ export function nextMatchRefreshDelay(fixtures,now=Date.now()){
 }
 export function mergeNextMatchCalendar(published=[],sourced=[],teams=[]){
  const codeById=new Map(teams.map(t=>[t.id,t.code]));
- const official=published.flatMap(row=>{
+ // Published club decisions also override the source when a fixture is no longer
+ // scheduled. Otherwise cancellation/reporting resurrects its sourced copy.
+ const clubRows=published.filter(row=>row.published===true&&
+  codeById.has(row.team_id)&&Number.isFinite(Date.parse(row.scheduled_at))&&
+  typeof row.opponent_name==='string'&&row.opponent_name.trim()!=='');
+ const keys=new Set(clubRows.map(row=>codeById.get(row.team_id)+'|'+
+  parisDateKey(Date.parse(row.scheduled_at))+'|'+normalize(row.opponent_name)));
+ const official=clubRows.flatMap(row=>{
   const code=codeById.get(row.team_id),time=Date.parse(row.scheduled_at);
   if(!code||row.published!==true||row.match_status!=='scheduled'||
     !Number.isFinite(time)||!row.opponent_name)return [];
@@ -59,8 +66,6 @@ export function mergeNextMatchCalendar(published=[],sourced=[],teams=[]){
    published:true,clubConfirmed:true,sourceLabel:'Boissy UJ'
   }];
  });
- const keys=new Set(official.map(x=>
-  x.teamCode+'|'+x.localDay+'|'+normalize(x.opponent)));
  const external=sourced.filter(row=>row.status==='scheduled'&&
   !keys.has(row.team_code+'|'+row.localDay+'|'+normalize(row.opponent)))
   .map(row=>({
@@ -78,7 +83,7 @@ export async function loadPublishedUpcoming({fetcher=fetch,signal,now=Date.now()
  const entries=[
   ['club_teams',{select:'id,code,name',order:'sort_order.asc',limit:'10'}],
   ['matches',{select:'id,team_id,opponent_name,scheduled_at,venue,is_home,match_status,published,competition_label',
-   published:'eq.true',match_status:'eq.scheduled',scheduled_at:'gte.'+since,
+   published:'eq.true',scheduled_at:'gte.'+since,
    order:'scheduled_at.asc',limit:'350'}]
  ];
  const [teams,matches]=await Promise.all(entries.map(async([table,params])=>{

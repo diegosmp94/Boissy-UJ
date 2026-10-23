@@ -81,7 +81,27 @@ test('source calendar de-duplicates same team/day/opponent when club has publish
  assert.equal(notApproved.length,1);
  assert.equal(notApproved[0].published,false);
 });
-test('read-only Supabase loader fetches current published scheduled matches and club teams hourly',async()=>{
+test('published cancellations, postponements and results suppress the sourced next match',()=>{
+ const source=publicExternalFixtures({period:'all',includePast:true,season:'2026-2027'})
+  .find(x=>x.team_code==='futsal'&&x.opponent==='FC Chennevières 1');
+ const club={id:'decision',team_id:'futsal-id',scheduled_at:source.date,
+  opponent_name:source.opponent,is_home:source.is_home,published:true};
+ const teams=[{id:'futsal-id',code:'futsal'}];
+ for(const match_status of ['cancelled','postponed','played']){
+  const fixtures=mergeNextMatchCalendar([{...club,match_status}],[source],teams);
+  assert.deepEqual(fixtures,[],match_status+' must not restore source');
+  assert.equal(nextUpcomingMatch(fixtures,0),null);
+ }
+ // Another team/date/opponent is a separate fixture and must remain visible.
+ for(const change of [{team_id:'a-id'},{scheduled_at:'2026-10-25T15:00:00+01:00'},
+   {opponent_name:'Autre club'},{published:false}]){
+  const fixtures=mergeNextMatchCalendar([{...club,match_status:'cancelled',...change}],
+   [source],[...teams,{id:'a-id',code:'a'}]);
+  assert.equal(fixtures.length,1);
+  assert.equal(fixtures[0].opponent,source.opponent);
+ }
+});
+test('read-only Supabase loader includes published status changes for source overrides',async()=>{
  const requests=[];
  const values=[[{id:'id-a',code:'a',name:'Seniors A'}],[
   {id:'one',team_id:'id-a',opponent_name:'FC Hoverla 1',
@@ -99,7 +119,7 @@ test('read-only Supabase loader fetches current published scheduled matches and 
  assert.ok(requests.every(x=>x.opts.method==='GET'&&x.opts.cache==='no-store'));
  assert.ok(requests.every(x=>x.opts.headers.apikey));
  assert.match(requests[1].url,/published=eq.true/);
- assert.match(requests[1].url,/match_status=eq.scheduled/);
+ assert.equal(new URL(requests[1].url).searchParams.has('match_status'),false);
  assert.match(requests[1].url,/limit=350/);
  assert.ok(requests.every(x=>!x.url.includes('service_role')));
 });
