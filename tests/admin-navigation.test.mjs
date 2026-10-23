@@ -9,7 +9,7 @@ const center=read('admin-center.mjs'),css=read('admin-console.css');
 test('search finds actual modules by title, group and description without accents',()=>{
  assert.equal(normalizeAdminSearch('  ÉQUIPES  '),'equipes');
  assert.equal(normalizeAdminSearch(undefined),'');
- assert.deepEqual(filterAdminModules(ADMIN_MODULES,'actualités').map(x=>x.id),['news']);
+ assert.deepEqual(filterAdminModules(ADMIN_MODULES,'actualités').map(x=>x.id),['news','news-revisions']);
  assert.deepEqual(filterAdminModules(ADMIN_MODULES,'MATCHS').map(x=>x.id),['matches']);
  assert.ok(filterAdminModules(ADMIN_MODULES,'pilotage').some(x=>x.id==='users'));
  assert.deepEqual(filterAdminModules(ADMIN_MODULES,'inexistant'),[]);
@@ -35,7 +35,7 @@ test('free events never appear in navigation if backend probe fails',()=>{
  assert.equal(enabled.length,disabled.length+1);
  assert.match(center,/const eventProbe=await api\.rpc\('admin_list_free_events'\)/);
  assert.match(center,/const eventsReady=!eventProbe\.error&&Array\.isArray\(eventProbe\.data\)/);
- assert.match(center,/const availableModules=availableAdminModules\(ADMIN_MODULES,\{eventsReady,coachTeamsReady,mediaReady\}\)/);
+ assert.match(center,/const availableModules=availableAdminModules\(ADMIN_MODULES,\{eventsReady,coachTeamsReady,mediaReady,newsRevisionsReady\}\)/);
 });
 
 test('media administration is fail-closed until its AAL2 read RPC is installed',()=>{
@@ -86,4 +86,15 @@ test('navigation remains usable on desktop and narrow phones',()=>{
  assert.match(css,/@media\(max-width:650px\)/);
  assert.match(css,/overscroll-behavior:contain/);
  assert.match(css,/\.admin-nav-list/);
+});
+
+test('version history is invisible until backend is installed and MFA capability passes',()=>{
+ const missing=availableAdminModules(ADMIN_MODULES,{newsRevisionsReady:false});
+ const present=availableAdminModules(ADMIN_MODULES,{newsRevisionsReady:true});
+ assert.equal(missing.some(m=>m.id==='news-revisions'),false);
+ assert.equal(present.some(m=>m.id==='news-revisions'),true);
+ assert.equal(present.length,missing.length+1);
+ assert.match(center,/const revisionsProbe=await api.rpc\('admin_news_revisions_ready'\)/);
+ assert.match(center,/newsRevisionsReady=!revisionsProbe.error&&revisionsProbe.data===true/);
+ assert.match(center,/case 'news-revisions':void mountAdminNewsRevisions\(view,api,verified.userId\)/);
 });
