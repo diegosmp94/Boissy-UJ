@@ -8,6 +8,7 @@ import {mountAuthenticatedClubIdentityEditor} from './club-editor.mjs';
 import {mountAuthenticatedTeamPeopleEditor} from './team-person-editor.mjs';
 import {mountAdminMembers} from './admin-users.mjs';
 import {mountAdminNewsMedia} from './admin-news-media.mjs';
+import {mountAdminEditorialStatus} from './admin-editorial-status.mjs';
 import {mountAdminNewsRevisions} from './admin-news-revisions.mjs';
 import {mountAdminReadiness} from './admin-readiness.mjs';
 import {mountAdminPlayerTeams} from './admin-player-teams.mjs';
@@ -26,6 +27,7 @@ export const ADMIN_MODULES=Object.freeze([
  {id:'seasons',name:'Saisons',group:'Sport',caption:'Gestion des saisons sportives'},
  {id:'matches',name:'Matchs et résultats',group:'Sport',caption:'Rencontres officielles du club'},
  {id:'events',name:'Événements gratuits',group:'Sport',caption:'Agenda sans billetterie ni paiements'}, 
+ {id:'editorial',name:'Suivi des publications',group:'Contenu',caption:'Contrôles réels des articles et médias'},
  {id:'news',name:'Actualités',group:'Contenu',caption:'Articles et droits de publication'},
  {id:'news-revisions',name:'Historique des actualités',group:'Contenu',caption:'Versions précédentes et restauration en brouillon'}, 
  {id:'news-media',name:'Galeries et vidéos',group:'Contenu',caption:'Photos et vidéos approuvées par le club'},
@@ -211,6 +213,9 @@ export async function mountAdminCenter(getClient){
     case 'seasons':mountAdminSeasons(view,api,verified.userId);break;
     case 'matches':mountAdminMatches(view,api,verified.userId);break;
     case 'events':mountAdminFreeEvents(view,api,verified.userId);break;
+    case 'editorial':void mountAdminEditorialStatus(view,api,verified.userId,next=>{
+     if(availableModules.some(module=>module.id===next))void selectSection(next);
+    });break;
     case 'news':mountAdminNews(view,api,verified.userId);break;
     case 'news-revisions':void mountAdminNewsRevisions(view,api,verified.userId);break;
     case 'news-media':void mountAdminNewsMedia(view,api,verified.userId);break;
