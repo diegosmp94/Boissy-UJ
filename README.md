@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Étape 58 — Préproduction et restauration, préparation sécurisée
+
+Les nouvelles commandes **`npm run staging:preflight`** (requêtes anonymes et lecture seule sur un **projet staging distinct**) et **`npm run staging:migration-plan`** (inventaire et empreintes SHA-256 hors ligne des cinq migrations P2) sécurisent la préparation des essais. Le staging n'a pas encore été créé et les restaurations réelles restent à faire sous contrôle du club. [Détails étape 58](docs/ETAPE_58_STAGING_ET_RESTAURATION.md).
+
 ## Recette de préproduction de l'historique — étape 57 (23 octobre 2026)
 
 Un nouveau protocole `npm run smoke:news-revisions` vérifie sur un Supabase **isolé** les rôles réels Supporter/admin, le refus d'accès AAL1, le challenge MFA AAL2 et le cloisonnement des versions, sans modifier aucun article. Tests CI du protocole et garde anti-production inclus. Aucun test réseau staging exécuté faute de second projet. [Guide et limites](docs/ETAPE_57_RECETTE_NEWS_STAGING.md).
