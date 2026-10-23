@@ -47,7 +47,8 @@ export function mergeCalendarPublicEntries(published,external,teams=[]){
     x.status==='unknown'?'Match passé · score à confirmer':'Rencontre annoncée sur '+x.source_label,
    place:'',info:(x.status==='played'?x.result:x.is_home?'Domicile annoncé':'Extérieur annoncé')+
     ' · '+x.season+' · '+x.competition,
-   href:x.source,external:true,status:x.status,teamCode:x.team_code,opponent:x.opponent,
+   // Provenance kept as readable metadata, never a visitor-facing external link.
+   sourceLabel:x.source_label,external:true,status:x.status,teamCode:x.team_code,opponent:x.opponent,
    outcome:x.status==='played'?clubOutcome({...x,match_status:'played'}):null
   }));
  return [...published,...sourceEntries].sort((a,b)=>a.time-b.time);
