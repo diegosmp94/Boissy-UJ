@@ -31,6 +31,10 @@ Chaque pôle est divisé en exigences vérifiables, assorties de critères d'acc
 - Aucune automatisation FFF sans source ni autorisation confirmées ; maintien du mode manuel.
 - Aucune anomalie bloquante sur les parcours critiques, tests de sauvegarde/restauration satisfaisants.
 
+## Preuves techniques complémentaires (étape 50)
+
+Un tableau de bord P1 read-only et un script SQL non destructif fournissent des indicateurs de disponibilité des modules et de configuration Supabase. **Aucun point de la grille sur 100 n'est automatiquement attribué** sur la seule base d'un RPC répondant ou d'un test unitaire ; les validations réelles AAL2/multi-comptes, RGPD, restauration, appareils physiques et paiement TEST restent distinctes.
+
 ## État du lot 1
 
 Lot « Fondations publiques » : structure statique HTML/CSS/JS sans dépendances, huit chapitres de l'accueil, navigation hybride, pages sportives et communautaires en état initial, logo officiel. Ce lot **ne vaut pas** livraison des espaces authentifiés, du Sports Manager, de Stripe ou du Control Center. Les validations de la matrice s'effectueront au fil des lots et ne doivent pas être inférées de l'existence d'un simple écran de prévisualisation.
