@@ -1,4 +1,5 @@
 import {supabaseConfig} from './auth-config.mjs';
+import {boundedPublicRequest} from './public-catalog-timeout.mjs';
 import {CLUB_TEAMS,teamRoute} from './club-teams.mjs';
 import {loadNewsReactions} from './news-reactions.mjs';
 import {loadPublishedMedia,renderApprovedMedia,mediaKindsFor} from './news-media-gallery.mjs';
@@ -142,6 +143,7 @@ export async function mountNews(initialTeamCode=null){
   if(!root)return;
   const ctrl=new AbortController();
   currentAbort=ctrl;
+  const deadline=boundedPublicRequest(ctrl.signal);
   root.replaceChildren(el('p','news-loading','Chargement des publications…'));
   try {
     const params=new URLSearchParams({
@@ -155,7 +157,7 @@ export async function mountNews(initialTeamCode=null){
     });
     const [response,teamResponse]=await Promise.all([
       fetch(BASE+'?'+params.toString(),{
-        method:'GET',signal:ctrl.signal,cache:'no-store',
+        method:'GET',signal:deadline.signal,cache:'no-store',
         headers:{apikey:supabaseConfig.publishableKey,Accept:'application/json'}
       }),
       fetch(TEAM_BASE+'?'+new URLSearchParams({
@@ -180,5 +182,5 @@ export async function mountNews(initialTeamCode=null){
   }catch(err){
     if(ctrl.signal.aborted||id!==generation||!root.isConnected)return;
     showFeed(root,[],false,[],initialTeamCode);
-  }
+  }finally{deadline.dispose();}
 }
