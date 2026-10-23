@@ -24,7 +24,7 @@ Les priorités P1 bloquent la validation complète ; P2 sont les services non ho
 | Administration avancée | Publication/versionnage/audits consolidés avec permissions serveur |
 | Premium, dons, finances et Stripe TEST | Finaliser les flux et webhooks TEST sans transaction réelle ; validation juridique nécessaire |
 | Billetterie et QR | Validation des jauges, annulations, autorisations et scénario de test |
-| Awards et communauté | Règles d'éligibilité, contrôle serveur des votes uniques et validation du club |
+| Awards et communauté | Migration de vote unique et retrait développée ; exécuter tests staging, intégrer webhook vérifié, approuver règlement et activer les écrans |
 
 ## P3 — Après les dépendances
 
