@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Historique des actualités — étape 56 (23 octobre 2026)
+
+Un module administrateur avec MFA AAL2 permet de consulter les anciennes versions d'un article et de les restaurer uniquement en brouillon, avec conservation de l'audit et retrait de la validation des droits. Le module se masque si les nouvelles RPC ne sont pas installées. **La migration n'a pas été appliquée à la production.** [Protocole étape 56](docs/ETAPE_56_HISTORIQUE_ACTUALITES.md).
+
 ## Stripe TEST Checkout et webhook signés — étape 55 (23 octobre 2026)
 
 Backend **préparé uniquement pour staging** : création d'une session Checkout TEST depuis un compte vérifié, traitement de webhooks Stripe signés et rapprochement idempotent des paiements avec les droits Premium stockés en privé. Deux Edge Functions et une migration SQL ont été ajoutées, sans aucune modification de la production ni achat activé. [Guide, sécurité et prochaines validations](docs/ETAPE_55_STRIPE_TEST_WEBHOOK.md).
