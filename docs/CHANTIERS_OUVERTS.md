@@ -39,7 +39,7 @@ Le **Control Center → État de mise en service** montre désormais les **chant
 
 ## État de l'environnement connecté
 
-Le contrôle actuel ne montre **qu'un projet Supabase de production connecté** ; aucun projet de staging indépendant n'est disponible. Il serait incorrect de déclarer achevées les recettes à plusieurs identités ou une restauration isolée. Ne pas créer de nouveaux utilisateurs/équipes fictifs ou projet facturable sans préparation adaptée.
+La création de Boissy-UJ Staging à **0 €/mois** a été refusée par Supabase, car le compte atteint sa limite de **deux projets Free actifs toutes organisations confondues**. Dans l'organisation Boissy-UJ, seul le projet de production est accessible, et aucune branche n'est créée. L'étape 58 B prépare à la place un environnement **Docker local** avec vérification avant démarrage, mais aucun test réel n'a été validé. Il serait incorrect de déclarer achevées les recettes à plusieurs identités ou une restauration isolée. Ne pas créer de nouveaux utilisateurs/équipes fictifs ou projet facturable sans préparation adaptée.
 
 ## Outil de comparaison des restaurations
 
