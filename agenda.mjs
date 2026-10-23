@@ -172,7 +172,7 @@ export async function mountAgenda(){
       if(suggestions.length){
         external.append(make('h2','','Calendrier externe — à confirmer par le club'));
         external.append(make('p','agenda-external-note',
-          'Dates des rencontres 2026–2027 communiquées par le club · relevés sportifs '+
+          'Calendrier 2026–2027 complété jusqu’à mai 2027 avec des relevés sportifs '+
           'SportCorico / TheFootData du '+EXTERNAL_FIXTURE_REVIEWED_AT+
           '. Scores affichés ici, sans homologation du club lorsqu’elle n’est pas encore connue.'));
         const grid=make('div','agenda-external-grid');
