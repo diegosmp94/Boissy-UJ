@@ -243,15 +243,16 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
             ?new Intl.DateTimeFormat('fr-FR',{dateStyle:'long',timeZone:'UTC'}).format(new Date(match.localDay+'T12:00:00Z'))
             :dateLabel(match.time));
           date.dateTime=match.localDay;
-          const result=match.status==='played'
+          const result=['played','administrative'].includes(match.status)
             ?'Score relevé : '+match.result+' · non homologué par le club'
             :match.status==='unknown'?'Match passé · résultat non communiqué'
             :match.is_home?'Domicile indiqué':'Extérieur indiqué';
           card.append(date,element('h3','',match.team_name+' — '+match.opponent),
             element('p','',result),
             element('p','sport-date',match.season+' · '+(match.competition||'Compétition non précisée')));
-          if(match.status==='played'){
-            const win=clubOutcome({...match,match_status:'played'});
+          if(match.venue)card.append(element('p','sport-date',match.venue));
+          if(['played','administrative'].includes(match.status)){
+            const win=clubOutcome({...match,match_status:match.status});
             if(win){
               card.classList.add('sport-result-'+win);
               card.append(element('span','sport-outcome sport-outcome-'+win,

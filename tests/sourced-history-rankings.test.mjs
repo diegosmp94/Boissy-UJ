@@ -6,7 +6,7 @@ import {HISTORICAL_SOURCE_RESULTS} from '../historical-source-results.mjs';
 import {ARCHIVED_LEAGUE_POSITIONS,knownClubSeasonForm} from '../sourced-standings.mjs';
 import {mergeCalendarPublicEntries,monthGrid} from '../calendar-month.mjs';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
-test('historic score archive is attributed, date-only, distinct by club, year and competition',()=>{
+test('historic score archive is attributed, distinct by club, year and competition',()=>{
  assert.equal(HISTORICAL_SOURCE_RESULTS.length,37);
  assert.equal(HISTORICAL_SOURCE_RESULTS.filter(x=>x.team_code==='a').length,3);
  assert.equal(HISTORICAL_SOURCE_RESULTS.filter(x=>x.team_code==='b').length,15);
@@ -23,7 +23,11 @@ test('2026–27 current form includes league games ONLY, no cup result or imagin
  assert.deepEqual([form.played,form.wins,form.draws,form.losses,form.points,form.goals_for,form.goals_against],
   [3,2,0,1,6,9,3]);
  assert.equal(form.competition,'Seniors D3 · Poule B');
- for(const team of ['b','c','veterans','futsal'])assert.equal(knownClubSeasonForm(team),null);
+ assert.equal(knownClubSeasonForm('c'),null);
+ for(const [team,expected] of [['b',[2,0,1,1,1,2,11]],['veterans',[2,1,0,1,3,14,11]],['futsal',[1,0,0,1,0,3,11]]]){
+  const f=knownClubSeasonForm(team);
+  assert.deepEqual([f.played,f.wins,f.draws,f.losses,f.points,f.goals_for,f.goals_against],expected);
+ }
  assert.equal(Object.hasOwn(ARCHIVED_LEAGUE_POSITIONS,'futsal'),false);
  assert.equal(Object.hasOwn(ARCHIVED_LEAGUE_POSITIONS,'veterans'),false);
 });

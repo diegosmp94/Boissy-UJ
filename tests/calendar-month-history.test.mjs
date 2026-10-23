@@ -18,13 +18,13 @@ test('calendar displays source-attributed real past scored games and upcoming fi
  assert.equal(history.find(x=>x.opponent==='Petits Anges ES 1').result,'3 – 7');
  assert.ok(matches.some(x=>x.status==='scheduled'&&x.team_code==='futsal'));
  assert.ok(matches.every(x=>x.validated_by_club===false));
- assert.ok(matches.every(x=>x.source.startsWith('https://www.sportcorico.com/')||x.source.startsWith('https://thefootdata.com/')));
+ assert.ok(matches.every(x=>x.source.startsWith('https://www.sportcorico.com/')||x.source.startsWith('https://thefootdata.com/')||x.source.startsWith('https://districtvaldemarne.fff.fr/')));
 });
 test('incorrect other-club fixtures are removed, Seniors B is sourced to its actual opponent',()=>{
  const matches=publicExternalFixtures({now,period:'all',includePast:true});
  assert.ok(!matches.some(x=>x.opponent==='SFC Canavérois 1'&&x.team_code==='b'&&x.localDay==='2026-11-01'));
  assert.ok(matches.some(x=>x.opponent==='SFC Canavérois 1'&&x.team_code==='b'&&x.localDay==='2026-11-15'));
- const b=matches.find(x=>x.team_code==='b'&&x.season==='2026-2027');
+ const b=matches.find(x=>x.team_code==='b'&&x.season==='2026-2027'&&x.localDay==='2026-11-01');
  assert.equal(b.opponent,'Val de Fontenay AS 2');
  assert.match(b.source,/val-de-fontenay-as/);
  assert.ok(matches.some(x=>x.team_code==='futsal'&&x.team_name==='Senior · Futsal'));

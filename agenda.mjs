@@ -178,7 +178,7 @@ export async function mountAgenda(){
         const grid=make('div','agenda-external-grid');
         for(const match of suggestions){
           const card=make('article','agenda-external-card');
-          const outcome=match.status==='played'?clubOutcome({...match,match_status:'played'}):null;
+          const outcome=['played','administrative'].includes(match.status)?clubOutcome({...match,match_status:match.status}):null;
           if(outcome)card.classList.add('sport-result-'+outcome);
           const date=make('time','agenda-date',match.dateOnly
             ?new Intl.DateTimeFormat('fr-FR',{dateStyle:'long',timeZone:'UTC'})
@@ -190,9 +190,10 @@ export async function mountAgenda(){
           const attribution=make('small','agenda-source-attribution',
             'Source : '+match.source_label+' · score non homologué par le club');
           const score=make('p','agenda-referenced-score',
-            match.status==='played'?'Score relevé : '+match.result:
+            ['played','administrative'].includes(match.status)?'Score relevé : '+match.result:
               match.status==='unknown'?'Résultat non renseigné':'Rencontre programmée');
           card.append(date,title,detail,score,attribution);
+          if(match.venue)card.append(make('p','agenda-place',match.venue));
           if(outcome)card.append(make('span','sport-outcome sport-outcome-'+outcome,
             outcome==='V'?'Victoire':outcome==='N'?'Match nul':'Défaite'));
           grid.append(card);

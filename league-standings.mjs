@@ -3,6 +3,8 @@ import {supabaseConfig} from './auth-config.mjs';
 import {CLUB_TEAMS,teamRoute} from './club-teams.mjs';
 
 export function clubOutcome(match){
+ if(match?.match_status==='administrative'&&['V','D'].includes(match.administrative_outcome))
+  return match.administrative_outcome;
  if(match?.match_status!=='played'||!Number.isInteger(match.home_score)||
   !Number.isInteger(match.away_score))return null;
  const scored=match.is_home===true?match.home_score:match.away_score;

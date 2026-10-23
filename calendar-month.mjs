@@ -43,13 +43,13 @@ export function mergeCalendarPublicEntries(published,external,teams=[]){
   .map((x,index)=>({
    id:'external-'+x.team_code+'-'+x.localDay+'-'+index,kind:'match',
    time:x.time,localDay:x.localDay,dateOnly:x.dateOnly,
-   title:x.team_name+' — '+x.opponent,subtitle:x.status==='played'?'Résultat relevé sur '+x.source_label:
+   title:x.team_name+' — '+x.opponent,subtitle:['played','administrative'].includes(x.status)?'Résultat relevé sur '+x.source_label:
     x.status==='unknown'?'Match passé · score à confirmer':'Rencontre annoncée sur '+x.source_label,
-   place:'',info:(x.status==='played'?x.result:x.is_home?'Domicile annoncé':'Extérieur annoncé')+
+   place:x.venue||'',info:(['played','administrative'].includes(x.status)?x.result:x.is_home?'Domicile annoncé':'Extérieur annoncé')+
     ' · '+x.season+' · '+x.competition,
    // Provenance kept as readable metadata, never a visitor-facing external link.
    sourceLabel:x.source_label,external:true,status:x.status,teamCode:x.team_code,opponent:x.opponent,
-   outcome:x.status==='played'?clubOutcome({...x,match_status:'played'}):null
+   outcome:['played','administrative'].includes(x.status)?clubOutcome({...x,match_status:x.status}):null
   }));
  return [...published,...sourceEntries].sort((a,b)=>a.time-b.time);
 }
