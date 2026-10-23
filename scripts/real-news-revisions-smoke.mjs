@@ -196,11 +196,12 @@ export async function runNewsRevisionAccessRecipe(api,config,report=()=>{}){
   forbidden(await call(supporter.token,'admin_restore_news_revision',{
    p_post_id:null,p_revision_id:1,p_expected_updated_at:null
   }),'Supporter restore permission');
-  forbidden(await call(admin.token,'admin_restore_news_revision',{
+  const invalidAdmin=await call(admin.token,'admin_restore_news_revision',{
    p_post_id:null,p_revision_id:1,p_expected_updated_at:null
-  }).then(r=>r.ok?{...r,ok:false,status:500,payload:null}:r),
-   'Unreachable-placeholder'); // replaced below with the actual safe check
-  report('Supporter restoration is denied; no write attempted against a real article');
+  });
+  if(invalidAdmin.ok||invalidAdmin.payload?.code!=='22023')
+   throw new Error('An invalid admin restoration request did not fail safely.');
+  report('Invalid restore parameters are refused before any article can be updated');
  }finally{
   for(const name of ['admin','supporter'])if(sessions[name]?.token){
    try{await api.request('auth/v1/logout',{
