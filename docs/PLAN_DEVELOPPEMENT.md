@@ -29,6 +29,10 @@ Point d'étape : **23 octobre 2026**. Les changements du site sont développés 
 
 Les pages **Communauté/Premium, Événements/Billetterie et Soutenir** ont une présentation responsive plus complète, un comparateur mensuel/annuel interactif sans prélèvement, un parcours d'information et des FAQ accessibles. Le lien **Awards** est directement visible sur le menu mobile. Les tests de navigation publique Chromium passent de 10 à 16 scénarios, incluant le basculement de période. **Reste hors de cette clôture UI** : tests sur appareils physiques, interactions Stripe/QR/votes avec back-end homologué, contenus sous droits et décisions RGPD. Le front est avancé, mais une homologation à 100 % serait prématurée. [Détails de l'étape 53](ETAPE_53_FINITIONS_FRONTEND.md).
 
+## Étape 59 — Administration éditoriale, réactions et médias (UI intégrée)
+
+Création d'un module MFA AAL2 de suivi des publications, des brouillons et de la disponibilité des réactions/médias ; lecture des publications indépendante des chargements optionnels et agrandissement des photos autorisées en fenêtre accessible sur le site. **La production ne contient toujours pas les tables réactions et médias** : leurs migrations et recettes RLS/Storage restent nécessaires ; aucun contenu fictif ajouté. [Étape 59](ETAPE_59_ADMIN_MEDIA_REACTIONS.md).
+
 ## Priorité site public — Déploiement fiable et pages non bloquantes
 
 Nouvelle chaîne de publication GitHub Pages depuis la branche principale : tests Node, contrôle des fichiers distribuables, navigation Chromium, publication et vérification HTTP du commit réellement en ligne. Délai réseau de 12 secondes sur les quatre catalogues publics, conservant les messages d'indisponibilité et aucun score fictif. **Ce travail n'atteste ni l'activation de GitHub Pages ni la disponibilité de vrais contenus** : Pages doit être configuré côté dépôt et la réussite du déploiement vérifiée, et les données éditoriales approuvées restent à saisir. [Détails](LOT_PRIORITAIRE_SITE_PUBLIC_OPERATIONNEL.md).

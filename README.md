@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Étape 59 — Suivi éditorial et galerie dans le site (23 octobre 2026)
+
+Le centre de gestion MFA AAL2 propose **Suivi des publications** (comptage des brouillons/articles publics, disponibilité des réactions et des médias sans exposer d'identités), et les actualités chargent les photos et les réactions de façon **indépendante**, sans bloquer la lecture des textes. Les photos approuvées peuvent s'agrandir sur le site avec une fenêtre accessible au clavier. [Détails étape 59](docs/ETAPE_59_ADMIN_MEDIA_REACTIONS.md). **Les migrations Supabase réactions/médias ne sont pas encore installées en production : leur activation réelle reste à homologuer.**
+
 ## Priorité — Site public opérationnel et publication automatique (23 octobre 2026)
 
 Le workflow `pages-public.yml` prépare et publie depuis `main` **uniquement** le bundle public audité après la CI, puis vérifie sur GitHub Pages la disponibilité des ressources et le SHA du commit déployé. Les pages Matchs, Actualités, Événements et Awards quittent désormais leur chargement si leur API ne répond pas dans les 12 secondes, tout en restant sans contenus ni scores inventés. Si Pages n'est pas configuré pour GitHub Actions, un réglage initial dans Settings → Pages → Source est requis. [Guide de livraison](docs/LOT_PRIORITAIRE_SITE_PUBLIC_OPERATIONNEL.md). Le site conserve noindex jusqu'à validation légale et n'active aucun paiement.

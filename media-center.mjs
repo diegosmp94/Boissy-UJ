@@ -2,6 +2,7 @@ import {supabaseConfig} from './auth-config.mjs';
 import {boundedPublicRequest} from './public-catalog-timeout.mjs';
 import {CLUB_TEAMS,teamRoute} from './club-teams.mjs';
 import {loadNewsReactions} from './news-reactions.mjs';
+import {hydrateNewsIndependently} from './news-progressive-hydration.mjs';
 import {loadPublishedMedia,renderApprovedMedia,mediaKindsFor} from './news-media-gallery.mjs';
 
 const BASE = supabaseConfig.url + '/rest/v1/news_posts';
@@ -173,12 +174,16 @@ export async function mountNews(initialTeamCode=null){
     if(!Array.isArray(data)||!Array.isArray(teams))throw new Error('Format éditorial invalide');
     if(ctrl.signal.aborted||id!==generation||!root.isConnected)return;
     const feed=showFeed(root,data,true,teams,initialTeamCode);
-    const [media,reactions]=await Promise.all([
-      loadPublishedMedia(data,ctrl.signal),loadNewsReactions(data)
-    ]);
-    if(ctrl.signal.aborted||id!==generation||!root.isConnected)return;
-    feed.setMedia(media);
-    feed.setReactions(reactions);
+    // Public articles must remain readable even if Supabase media, Auth or
+    // the external ESM auth loader stalls. Both extras settle independently.
+    const alive=()=>!ctrl.signal.aborted&&id===generation&&root.isConnected;
+    void hydrateNewsIndependently({
+      loadMedia:()=>loadPublishedMedia(data,ctrl.signal),
+      loadReactions:()=>loadNewsReactions(data),
+      applyMedia:grouped=>feed.setMedia(grouped),
+      applyReactions:reactions=>feed.setReactions(reactions),
+      isActive:alive
+    });
   }catch(err){
     if(ctrl.signal.aborted||id!==generation||!root.isConnected)return;
     showFeed(root,[],false,[],initialTeamCode);
