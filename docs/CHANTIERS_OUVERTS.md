@@ -22,7 +22,7 @@ Les priorités P1 bloquent la validation complète ; P2 sont les services non ho
 | Réactions aux actualités | Tests RLS à deux comptes, revue RGPD, migration préparée mais non appliquée |
 | Galeries et vidéos | Recette sur staging et validation droits, puis migration et import approuvé ; jamais de média privé dans un bucket public |
 | Administration avancée | Publication/versionnage/audits consolidés avec permissions serveur |
-| Premium, dons, finances et Stripe TEST | Finaliser les flux et webhooks TEST sans transaction réelle ; validation juridique nécessaire |
+| Premium, dons, finances et Stripe TEST | Checkout et webhook TEST codés ; déployer et tester en staging isolé, traiter les remboursements et homologuer la fiscalité avant activation |
 | Billetterie et QR | Validation des jauges, annulations, autorisations et scénario de test |
 | Awards et communauté | Migration de vote unique et retrait développée ; exécuter tests staging, intégrer webhook vérifié, approuver règlement et activer les écrans |
 
