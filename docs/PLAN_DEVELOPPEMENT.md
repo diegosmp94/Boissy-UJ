@@ -29,6 +29,10 @@ Le backend média préparé est renforcé : **un média visible doit exister ré
 
 Le Control Center intègre un module **État de mise en service**, réservé à l'administrateur après MFA AAL2, avec neuf contrôles de disponibilité des modules réellement installés et un suivi des validations humaines encore bloquantes. Aucune table ni donnée privée n'est modifiée. En complément, l'audit SQL de production du 23/10 confirme la présence des 5 équipes, RLS activée sur les tables publiques et l'absence d'accès anonyme direct aux fonctions privilégiées `SECURITY DEFINER` examinées ; les réactions et médias n'existent pas encore en production. Ces contrôles ne valent **ni homologation multi-comptes ni score pondéré**. [Preuves, limites et recette](ETAPE_50_DIAGNOSTIC_MISE_EN_SERVICE.md).
 
+## Étape 51 — Recette staging de l'isolation entre comptes (outillage prêt)
+
+Le script de recette réel nécessite désormais **sept comptes Auth distincts**, deux convocations exclusives et un projet Supabase de staging séparé ; une identité dupliquée ou une preuve manquante fait échouer la procédure. Des lectures PostgREST directes contrôlent qu'aucun compte AAL1 ne voit le profil, les rôles, les demandes de rôle ou les affectations d'un autre membre. L'administrateur ne peut consulter les rôles d'autrui qu'après MFA AAL2. **Le code de test est développé ; la recette réelle reste non exécutée faute de comptes de staging autorisés.** [Protocole complet](ETAPE_51_RECETTE_RLS_MULTICOMPTES.md).
+
 ## Prochaines actions concrètes
 
 Le travail autonome sur le code et le site public est avancé. La prochaine tranche de la roadmap est une **recette probante**, pas l'activation spéculative de services sensibles :
