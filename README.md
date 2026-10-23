@@ -2,7 +2,11 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
-## Félicitations après les victoires (22 octobre 2026)
+## Chantiers restants uniquement — étape 52 (23 octobre 2026)
+
+Le tableau de suivi actif ne répète plus les fonctionnalités déjà développées. Les blocages réels sont classés en P1/P2/P3, avec prérequis et prochaines actions ; les preuves des étapes précédentes restent archivées. Le Control Center affiche les chantiers encore ouverts et replie les diagnostics techniques déjà passés. Un nouvel outil compare **hors ligne** les métadonnées d'une sauvegarde et d'une restauration isolée, sans prétendre les avoir exécutées. [Chantiers ouverts](docs/CHANTIERS_OUVERTS.md) · [Guide de reprise](docs/P1_RECOVERY_PLAYBOOK.md).
+
+
 
 Un message de félicitations aux **joueurs et staffs** apparaît automatiquement pour toute victoire **terminée et publiée** des Seniors A, Seniors B, Vétérans ou Senior futsal (Seniors C exclus), dans le Match Center et la fiche de l'équipe. Un message collectif apparaît sur l'accueil si les quatre équipes gagnent lors d'une même semaine récente. Les résultats tiers non confirmés ne déclenchent jamais ces messages. [Fonctionnement et tests](docs/ETAPE_40_FELICITATIONS_VICTOIRES.md).
 
