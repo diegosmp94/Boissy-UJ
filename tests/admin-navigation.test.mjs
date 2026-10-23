@@ -38,6 +38,15 @@ test('free events never appear in navigation if backend probe fails',()=>{
  assert.match(center,/const availableModules=availableAdminModules\(ADMIN_MODULES,\{eventsReady,coachTeamsReady,mediaReady\}\)/);
 });
 
+test('media administration is fail-closed until its AAL2 read RPC is installed',()=>{
+ const ready=availableAdminModules(ADMIN_MODULES,{mediaReady:true});
+ const missing=availableAdminModules(ADMIN_MODULES,{mediaReady:false});
+ assert.equal(ready.some(m=>m.id==='news-media'),true);
+ assert.equal(missing.some(m=>m.id==='news-media'),false);
+ assert.equal(ready.length,missing.length+1);
+ assert.match(center,/const mediaProbe=await api.rpc\('admin_list_news_media'\)/);
+});
+
 test('coach teams tools are fail-closed until their protected read RPC is deployed',()=>{
  const noMigrations=availableAdminModules(ADMIN_MODULES);
  assert.equal(noMigrations.some(m=>m.id==='coach-teams'),false);
