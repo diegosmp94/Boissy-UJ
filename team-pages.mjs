@@ -99,7 +99,7 @@ export async function mountTeamProfile(code){
     const competitionNote=node('p','team-competition-help',
       code==='c'
         ?'Seniors C : rencontres amicales, sans championnat officiel. Aucun match de coupe annoncé en 2026–2027.'
-        :'Championnat et coupe sont séparés par équipe. Les résultats externes ne sont pas homologués ; les dates 2026–2027 ont été confirmées par le club.');
+        :'Championnat et coupe sont séparés par équipe. Les résultats externes ne sont pas homologués ; les nouvelles dates ajoutées jusqu’à mai 2027 restent à revalider par le club.');
     root.append(competitionNote);
     const cupDetails=cupInformation(code,'2026-2027');
     const cupNotice=node('aside','team-cup-participation');
