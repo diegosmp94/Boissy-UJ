@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Finitions du front-end public — étape 53 (23 octobre 2026)
+
+Les pages Communauté/Premium, Événements et Soutenir disposent d'une présentation responsive enrichie, d'une comparaison mensuelle/annuelle interactive accessible, de FAQ et d'informations de disponibilité claires. Les boutons de paiement, réservation et vote restent absents tant que les services serveurs et les décisions de l'association ne sont pas validés. Le menu mobile propose maintenant un accès direct aux Awards. [Détail des finitions et des limites](docs/ETAPE_53_FINITIONS_FRONTEND.md).
+
 ## Chantiers restants uniquement — étape 52 (23 octobre 2026)
 
 Le tableau de suivi actif ne répète plus les fonctionnalités déjà développées. Les blocages réels sont classés en P1/P2/P3, avec prérequis et prochaines actions ; les preuves des étapes précédentes restent archivées. Le Control Center affiche les chantiers encore ouverts et replie les diagnostics techniques déjà passés. Un nouvel outil compare **hors ligne** les métadonnées d'une sauvegarde et d'une restauration isolée, sans prétendre les avoir exécutées. [Chantiers ouverts](docs/CHANTIERS_OUVERTS.md) · [Guide de reprise](docs/P1_RECOVERY_PLAYBOOK.md).
