@@ -23,7 +23,8 @@ export function validateStagingPreflight(env){
  catch{throw new Error('Staging URL is invalid.');}
  if(url.protocol!=='https:'||url.hostname!==ref+'.supabase.co'||
     !['','/'].includes(url.pathname)||url.search||url.hash||
-    url.username||url.password||url.port)
+    url.username||url.password||url.port||
+    /:443(?:\/|$)/.test(String(env.BOISSY_STAGE_URL)))
   throw new Error('Staging URL must be exactly the specified HTTPS Supabase project root.');
  const key=String(env.BOISSY_STAGE_PUBLISHABLE_KEY||'');
  if(!key||key.startsWith('sb_secret_')||key.startsWith('sk_')||
