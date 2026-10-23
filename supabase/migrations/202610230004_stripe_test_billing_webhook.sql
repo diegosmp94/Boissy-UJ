@@ -13,6 +13,7 @@ create table if not exists app_private.premium_test_checkout_links (
  customer_id text check (customer_id ~ '^cus_[a-zA-Z0-9_]{6,100}$'),
  subscription_id text unique check (subscription_id ~ '^sub_[a-zA-Z0-9_]{6,100}$'),
  closed_at timestamptz,
+ last_grant_source text,
  last_event_at timestamptz,
  created_at timestamptz not null default now(),
  constraint premium_plan_subscription check(
@@ -172,7 +173,10 @@ begin
              verified_at=now(),revoked_at=null;
      end if;
      update app_private.premium_test_checkout_links
-       set customer_id=p_customer_id where checkout_id=v_link.checkout_id;
+       set customer_id=p_customer_id,
+       last_grant_source=case when p_paid and p_source_id=v_link.checkout_id
+         then p_source_id else last_grant_source end
+       where checkout_id=v_link.checkout_id;
    end if;
  elsif p_event_type='invoice.paid' then
    if v_link.plan_kind<>'monthly'
@@ -200,6 +204,8 @@ begin
          valid_from=excluded.valid_from,
          valid_until=excluded.valid_until,
          verified_at=now(),revoked_at=null;
+   update app_private.premium_test_checkout_links
+     set last_grant_source=p_source_id where checkout_id=v_link.checkout_id;
  elsif p_event_type='customer.subscription.deleted' then
    if v_link.plan_kind<>'monthly'
       or p_subscription_id is distinct from v_link.subscription_id then
@@ -207,8 +213,12 @@ begin
    end if;
    update app_private.premium_test_checkout_links set closed_at=v_now
      where checkout_id=v_link.checkout_id;
+   -- Cancel only the entitlement issued by THIS subscription, never a newer
+   -- annual purchase or another independently verified plan.
    update app_private.award_vote_entitlements e set revoked_at=v_now
-     where e.user_id=v_link.user_id and e.revoked_at is null;
+     where e.user_id=v_link.user_id and e.revoked_at is null
+       and e.source_reference=v_link.last_grant_source
+       and v_link.last_grant_source is not null;
  elsif p_event_type='invoice.payment_failed' then
    -- Do NOT cancel already-paid access before paid period ends.
    null;
