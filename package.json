@@ -19,6 +19,7 @@
     "smoke:news-revisions": "node scripts/real-news-revisions-smoke.mjs",
     "staging:preflight": "node scripts/staging-readiness.mjs",
     "staging:migration-plan": "node scripts/staging-migration-plan.mjs",
+    "local:preflight": "node scripts/local-supabase-readiness.mjs",
     "verify:recovery": "node scripts/compare-recovery-inventories.mjs"
   }
 }
