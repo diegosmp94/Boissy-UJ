@@ -26,6 +26,10 @@ Vérifier provenance, droit à l'image, autorisation des représentants légaux 
 
 La migration n'est pas appliquée à la production lors de la création de cette étape. Les tests GitHub valident le code mais ne remplacent pas une recette multi-comptes ou RGPD.
 
+## Correctif de validation avant publication
+
+Voir [Étape 49](ETAPE_49_CONTROLE_FICHIERS_MEDIAS.md). Le fichier et ses métadonnées sont désormais vérifiés **côté serveur** dans la migration préparée, avant toute publication ; le Control Center propose un bouton de contrôle, réservé aux administrateurs AAL2. Une disparition d'un média doit être traitée aussi au niveau du bucket Storage public. Ce correctif ne signifie pas une application de la migration en production.
+
 ## À poursuivre
 
 Upload privé avec circuit de modération, purge des fichiers du stockage en cas de retrait, statistiques publiques agrégées, fonctionnalités Premium (non activées) et homologation sur Safari/Android réels.

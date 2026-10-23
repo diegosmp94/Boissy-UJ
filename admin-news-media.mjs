@@ -57,6 +57,11 @@ export async function mountAdminNewsMedia(root,api,userId){
  const order=control();order.type='number';order.min='0';order.max='11';order.step='1';
  const rights=control();rights.type='checkbox';
  const visible=control();visible.type='checkbox';
+ const verifyFile=el('button','admin-secondary-btn','Vérifier le fichier approuvé');
+ verifyFile.type='button';
+ const fileStatus=el('p','admin-workflow-status','Fichier non vérifié.');
+ fileStatus.setAttribute('role','status');
+ fileStatus.setAttribute('aria-live','polite');
  const save=el('button','admin-primary-btn','Enregistrer le média');save.type='submit';
  const form=el('form','admin-operation-form');
  form.append(
@@ -64,16 +69,50 @@ export async function mountAdminNewsMedia(root,api,userId){
   labeled('Créer ou modifier un média',item),
   labeled('Type de média',kind),
   labeled('Chemin dans le bucket boissy-uj-approved (sans URL)',path),
+  verifyFile,fileStatus,
   labeled('Texte alternatif / description de la vidéo',alt),
   labeled('Légende (facultative)',caption),
   labeled('Ordre dans la galerie (0 à 11)',order),
   labeled('Droits à l’image vérifiés et autorisations applicables obtenues',rights),
   labeled('Afficher après publication de l’article',visible),
-  el('p','admin-fff-info','Ajoute uniquement un fichier déjà approuvé et téléversé dans le bucket Supabase par un responsable habilité. Aucun fichier n’est envoyé depuis ce formulaire. Double confirmation et MFA AAL2.'),
+  el('p','admin-fff-info','Ajoute uniquement un fichier déjà approuvé et téléversé dans le bucket Supabase par un responsable habilité. Vérifie sa présence avant publication. Le retrait de visibilité ne supprime PAS un fichier du bucket public : retire-le aussi dans Supabase Storage en cas de demande d’effacement. Aucun fichier n’est envoyé depuis ce formulaire. Double confirmation et MFA AAL2.'),
   save
  );
  root.append(form);
- let pending=null,busy=false;
+ let pending=null,busy=false,verifiedFileKey=null;
+ const fileKey=()=>kind.value+'|'+path.value.trim();
+ const resetFileCheck=()=>{
+  verifiedFileKey=null;
+  fileStatus.textContent='Fichier non vérifié.';
+ };
+ verifyFile.addEventListener('click',async()=>{
+  if(busy||verifyFile.disabled||!root.isConnected)return;
+  verifyFile.disabled=true;
+  const key=fileKey();
+  fileStatus.textContent='Vérification auprès de Supabase…';
+  verifiedFileKey=null;
+  try{
+   if(!safeMediaPath(path.value.trim(),kind.value)){
+    fileStatus.textContent='Chemin invalide : utilise une photo ou vidéo du bucket approuvé.';return;
+   }
+   const auth=await adminSessionStatus(api,userId);
+   if(auth.status!=='admin'){
+    fileStatus.textContent='Administrateur MFA AAL2 requis.';return;
+   }
+   const result=await api.rpc('admin_check_news_media_file',{
+    p_kind:kind.value,p_path:path.value.trim()
+   });
+   if(!root.isConnected||key!==fileKey())return;
+   if(result.error||result.data!==true){
+    fileStatus.textContent='Fichier absent ou non conforme (type, taille, bucket ou migration). Publication impossible.';
+    return;
+   }
+   verifiedFileKey=key;
+   fileStatus.textContent='Fichier présent : type et taille vérifiés. Les autorisations d’image restent à contrôler.';
+  }catch{
+   if(root.isConnected)fileStatus.textContent='Vérification indisponible, aucune autorisation accordée.';
+  }finally{if(verifyFile.isConnected)verifyFile.disabled=false;}
+ });
  const resetConfirm=()=>{pending=null;save.textContent='Enregistrer le média';};
  const loadAsset=()=>{
   resetConfirm();
@@ -85,6 +124,7 @@ export async function mountAdminNewsMedia(root,api,userId){
   order.value=String(current?.sort_order??0);
   rights.checked=false;
   visible.checked=current?.visible===true;
+  resetFileCheck();
  };
  const drawItems=()=>{
   item.replaceChildren(opt('new','+ Nouveau média'));
@@ -99,6 +139,10 @@ export async function mountAdminNewsMedia(root,api,userId){
  for(const node of [kind,path,alt,caption,order,rights,visible]){
   node.addEventListener('input',resetConfirm);node.addEventListener('change',resetConfirm);
  }
+ for(const node of [kind,path]){
+  node.addEventListener('input',resetFileCheck);
+  node.addEventListener('change',resetFileCheck);
+ }
  form.addEventListener('submit',async event=>{
   event.preventDefault();if(busy||!root.isConnected)return;
   const draft={
@@ -108,6 +152,10 @@ export async function mountAdminNewsMedia(root,api,userId){
   };
   const invalid=validateNewsMediaDraft(draft,posts);
   if(invalid){status.textContent=invalid;resetConfirm();return;}
+  if(draft.visible&&verifiedFileKey!==fileKey()){
+   status.textContent='Vérifie d’abord ce fichier dans le bucket approuvé avant de demander sa publication.';
+   resetConfirm();return;
+  }
   const selected=assets.find(a=>a.id===item.value);
   const params={p_id:selected?.id||null,p_post_id:draft.postId,p_kind:draft.kind,
    p_path:draft.path,p_alt:draft.alt,p_caption:draft.caption,
