@@ -118,9 +118,6 @@ export async function mountAgenda(){
   for(const [href,label] of [['#/matchs','Match Center'],['#/evenements','Événements'],['#/infos-pratiques','Infos pratiques']]){
     const a=make('a','agenda-link',label+' ↗');a.href=href;links.append(a);
   }
-  const federation=make('a','agenda-link','Consulter le portail FFF ↗');
-  federation.href='https://epreuves.fff.fr/';
-  federation.target='_blank';federation.rel='noopener noreferrer';links.append(federation);
   const external=make('section','agenda-thirdparty');
   const monthRoot=make('div','agenda-month-root');
   root.replaceChildren(intro,form,monthRoot,exportBtn,status,list,external,links);
@@ -181,9 +178,12 @@ export async function mountAgenda(){
           date.dateTime=new Date(match.time).toISOString();
           const title=make('h3','',match.team_name+' — '+match.opponent);
           const detail=make('p','',match.is_home?'Domicile annoncé':'Extérieur annoncé');
-          const link=make('a','agenda-link','Vérifier sur SportCorico ↗');
-          link.href=match.source;link.target='_blank';link.rel='noopener noreferrer';
-          card.append(date,title,detail,link);
+          const attribution=make('small','agenda-source-attribution',
+            'Source : '+match.source_label+' · score non homologué par le club');
+          const score=make('p','agenda-referenced-score',
+            match.status==='played'?'Score relevé : '+match.result:
+              match.status==='unknown'?'Résultat non renseigné':'Rencontre programmée');
+          card.append(date,title,detail,score,attribution);
           if(outcome)card.append(make('span','sport-outcome sport-outcome-'+outcome,
             outcome==='V'?'Victoire':outcome==='N'?'Match nul':'Défaite'));
           grid.append(card);
@@ -191,7 +191,7 @@ export async function mountAgenda(){
         external.append(grid);
       }
       if(selected.length===0){
-        list.append(make('p','agenda-empty',suggestions.length?'Aucun match confirmé dans Supabase. Les dates externes à vérifier figurent ci-dessous.':'Aucune date validée et publiée par le club pour ces critères.'));
+        list.append(make('p','agenda-empty',suggestions.length?'Les rencontres référencées sont consultables ci-dessous, directement sur le site du club. Les scores non homologués sont signalés.':'Aucune date publiée par le club pour ces critères.'));
       }
       for(const item of selected){
         const article=make('article','agenda-item');
