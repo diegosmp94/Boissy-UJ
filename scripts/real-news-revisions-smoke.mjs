@@ -136,7 +136,23 @@ export async function runNewsRevisionAccessRecipe(api,config,report=()=>{}){
   }
   if(sessions.admin.userId===sessions.supporter.userId)
    throw new Error('Test identities resolve to the same user.');
-  report('Two separate verified staging accounts');
+  // A mislabeled administrator account must never stand in for Supporter.
+  // The MFA branch alone would otherwise give a misleading RLS signoff.
+  for(const name of ['admin','supporter']){
+   const session=sessions[name];
+   const filter=new URLSearchParams({
+    select:'role',user_id:'eq.'+session.userId
+   });
+   const roles=ok(await api.request('rest/v1/user_roles?'+filter.toString(),{
+    token:session.token
+   }),name+' own verified role');
+   if(!Array.isArray(roles))throw new Error('Test role list is invalid.');
+   const actual=new Set(roles.map(r=>r.role));
+   if(name==='admin'?!actual.has('admin'):
+      actual.size!==1||!actual.has('supporter'))
+    throw new Error('Test account has unexpected assigned role.');
+  }
+  report('Two separate accounts with validated Admin and Supporter roles');
   const fixture={p_post_id:config.fixtures.articleId};
   const admin=sessions.admin,supporter=sessions.supporter;
   forbidden(await call(null,'admin_list_news_revisions',fixture),
