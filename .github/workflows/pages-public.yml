@@ -34,7 +34,7 @@ jobs:
       - name: Configurer GitHub Pages
         uses: actions/configure-pages@v5
       - name: Déposer exclusivement les fichiers publics validés
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: dist
   deploy:
