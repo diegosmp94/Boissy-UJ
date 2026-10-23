@@ -17,7 +17,7 @@ Point d'étape : **23 octobre 2026**. Les changements du site sont développés 
 | P2 | Réactions aux articles | Recette à deux comptes, RGPD et déploiement contrôlé de la migration |
 | P2 | Photos et vidéos | Vérifier droits, fichiers et RLS en staging ; déployer uniquement après validation |
 | P2 | Éditeur global et administration avancée | Développer versionnage, workflow de publication et journal unifié |
-| P2 | Finances, Premium, dons et Stripe TEST | Recette des webhooks, accords juridiques et paiement TEST uniquement |
+| P2 | Finances, Premium, dons et Stripe TEST | Tester en staging les fonctions Checkout et webhook préparées ; traiter remboursements et conformité avant activation |
 | P2 | Événements payants et billetterie QR | Contrôles d'accès, jauges, annulations et paiements TEST |
 | P2 | Awards et communauté Premium | Recetter et activer migration privée préparée après webhook Stripe TEST signé, règles et staging |
 | P3 | Synchronisation FFF | Obtenir les autorisations officielles |
@@ -28,6 +28,10 @@ Point d'étape : **23 octobre 2026**. Les changements du site sont développés 
 ## Étape 53 — Finition des parcours front-end publics (code intégré)
 
 Les pages **Communauté/Premium, Événements/Billetterie et Soutenir** ont une présentation responsive plus complète, un comparateur mensuel/annuel interactif sans prélèvement, un parcours d'information et des FAQ accessibles. Le lien **Awards** est directement visible sur le menu mobile. Les tests de navigation publique Chromium passent de 10 à 16 scénarios, incluant le basculement de période. **Reste hors de cette clôture UI** : tests sur appareils physiques, interactions Stripe/QR/votes avec back-end homologué, contenus sous droits et décisions RGPD. Le front est avancé, mais une homologation à 100 % serait prématurée. [Détails de l'étape 53](ETAPE_53_FINITIONS_FRONTEND.md).
+
+## Étape 55 — Stripe TEST signé, rapprochement des factures (code préparé)
+
+Checkout TEST en préproduction avec Auth Supabase vérifiée, formules serveur 10 €/mois et 100 € / 12 mois non renouvelables, signature officielle Stripe des webhooks, liaison privée Checkout/membre, SQL idempotent et extinction des droits. Le code **n'est pas déployé** sur Supabase, et aucune transaction n'a été ouverte. Le prochain travail est la recette réelle en staging puis les compléments de remboursement/fiscalité avant toute homologation. [Détails étape 55](ETAPE_55_STRIPE_TEST_WEBHOOK.md).
 
 ## Étape 54 — Vote Awards Premium contrôlé (backend préparé)
 
