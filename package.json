@@ -13,6 +13,7 @@
     "smoke:browser": "node scripts/browser-smoke.mjs",
     "audit:privacy": "node scripts/privacy-inventory.mjs",
     "quality:release": "npm run release:check && npm run audit:privacy && npm run smoke:browser",
-    "smoke:live": "node scripts/live-pages-smoke.mjs"
+    "smoke:live": "node scripts/live-pages-smoke.mjs",
+    "smoke:real-permissions": "node scripts/real-permissions-smoke.mjs"
   }
 }
