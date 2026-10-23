@@ -16,6 +16,7 @@
     "smoke:live": "node scripts/live-pages-smoke.mjs",
     "smoke:real-permissions": "node scripts/real-permissions-smoke.mjs",
     "smoke:awards-voting": "node scripts/real-awards-voting-smoke.mjs",
+    "smoke:news-revisions": "node scripts/real-news-revisions-smoke.mjs",
     "verify:recovery": "node scripts/compare-recovery-inventories.mjs"
   }
 }
