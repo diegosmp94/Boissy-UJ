@@ -71,7 +71,7 @@ function check(reply,expected,label){
 }
 export async function runVotingRecipe(api,config,record=()=>{}){
  const users={};
- let submitted=false;
+ let submitted=false,fixturesVerified=false;
  const rpc=(token,name,body)=>api.request('rest/v1/rpc/'+name,{
   method:'POST',token,body
  });
@@ -101,6 +101,7 @@ export async function runVotingRecipe(api,config,record=()=>{}){
   if(success(await status(a),'premium initial vote')!==null||
      success(await status(b),'supporter initial vote')!==null)
    throw new Error('Test fixtures must begin without active ballots.');
+  fixturesVerified=true;
   record('empty ballots for both test accounts');
   check(await rpc(null,'member_cast_award_vote',{
    p_award_id:f.awardId,p_nominee_id:f.nomineeId
@@ -141,8 +142,11 @@ export async function runVotingRecipe(api,config,record=()=>{}){
    throw new Error('Ballot still exists after withdrawal.');
   record('own ballot withdrawn and private data removed');
  }finally{
-  if(submitted&&users.premium?.token){
-   try{await rpc(users.premium.token,'member_withdraw_award_vote',{
+  // Cleanup test data even when a broken backend accepted a forbidden cast.
+  // Only safe after we verified that both test accounts began with no ballot.
+  if(fixturesVerified)for(const name of ['premium','supporter']){
+   if(!users[name]?.token)continue;
+   try{await rpc(users[name].token,'member_withdraw_award_vote',{
     p_award_id:config.fixtures.awardId
    });}catch{}
   }
