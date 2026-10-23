@@ -1,6 +1,6 @@
 # Étape 14 — Awards Boissy-UJ (catalogue public)
 
-## Ce lot développe le site sans réouvrir l'authentification, le MFA ou les paiements
+## Catalogue public des Awards, sans vote Premium ni paiements
 
 ### Expérience publique
 - Nouvelle route `#/awards` avec design bleu nuit, bleu royal et doré.
@@ -26,7 +26,7 @@ Migration : `supabase/migrations/202610210014_public_awards_catalog.sql`
 - Les données d'identification des joueurs (y compris mineurs) ne peuvent être diffusées sans base juridique appropriée, autorisation de diffusion vérifiée et procédure d'effacement. Si nécessaire, utiliser des libellés non nominatifs.
 - Ne pas annoncer de prix, dates, catégories ou résultats FFF qui n'auraient pas été approuvés par le club.
 - Le module doit être testé sur iPhone, Android et bureau lors de la recette globale ; la CI vérifie la logique, la confidentialité, les routes et la structure responsive.
-- L'authentification publique reste désactivée, aucun vote Premium ni Stripe LIVE n'est activé.
+- L'authentification standard des supporters est activée ; aucun vote Premium ni paiement Stripe LIVE n'est activé.
 
 ## Déploiement Supabase vérifié — 21 octobre 2026
 

@@ -16,9 +16,9 @@ Migration : `supabase/migrations/202610210013_cumulative_roles_approvals.sql`.
 
 ## Site
 
-- Control Center, « Utilisateurs & rôles » : nouvelle **prévisualisation locale** décrivant le parcours, ses étapes, les rôles déjà détenus et un deuxième/troisième rôle possible. Aucun compte, demande ou rôle réel n'est chargé dans cette prévisualisation publique.
-- « Mon espace », **une fois l'authentification homologuée et activée** : formulaire préparé pour déposer un rôle/une équipe via la RPC sécurisée et consulter seulement les demandes du titulaire. Il demeure inactif tant que `auth-config.mjs` contient `enabled: false`.
-- L'interface d'approbation administrative réelle et la configuration MFA doivent rester non exposées tant qu'une véritable vérification de la session et des permissions n'a pas été reçue par les tests de sécurité.
+- « Mon espace » : un compte authentifié peut déposer une demande de rôle ou d'équipe via la RPC sécurisée et consulter uniquement ses demandes. L'authentification standard est activée (`auth-config.mjs`).
+- Control Center : les demandes peuvent être lues et décidées par un administrateur authentifié avec MFA AAL2 ; toute décision revalide les permissions côté serveur.
+- La prévisualisation descriptive, lorsqu'elle est affichée, n'attribue jamais de rôle et ne remplace pas le workflow réel.
 
 ## Tests avant ouverture réelle
 
@@ -32,4 +32,4 @@ Migration : `supabase/migrations/202610210013_cumulative_roles_approvals.sql`.
 
 **État du déploiement Supabase : migration `boissy_uj_cumulative_role_approvals_20261021` appliquée.** Les tables `role_requests` et `role_change_audit` sont vides, RLS activée et aucun compte/rôle créé. Contrôles SQL sans données persistantes : `anon` ne peut ni lire ni écrire les demandes et n'a pas accès aux trois RPC ; le rôle `authenticated` sans utilisateur connecté ne peut pas créer, approuver ou révoquer (SQLSTATE `28000`) ; une seule politique SELECT et aucune politique d'écriture client sur les demandes. Fonction d'administration liée à l'exigence AAL2 vérifiée.
 
-**Restent indispensables :** les tests E2E avec sessions réelles multi-rôles, administrateur distinct, MFA AAL2, et contrôle de simultanéité. L'approbation effective ne doit pas être ouverte dans le Control Center public avant ces essais.
+**Restent indispensables :** les tests E2E avec sessions réelles multi-rôles, administrateur distinct, MFA AAL2, et contrôle de simultanéité. L'existence des écrans et des RPC ne vaut pas homologation de ces parcours.

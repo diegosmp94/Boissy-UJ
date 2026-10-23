@@ -16,6 +16,14 @@ test('login and signup are enabled without bypassing secured admin access or pay
  assert.match(read('team-person-editor.mjs'),/supabaseConfig.adminEnabled/);
  assert.doesNotMatch(auth,/(?:service_role|sb_secret_|sk_live_)/);
 });
+
+test('free supporter plan opens the real account page while paid plans stay disabled',()=>{
+ const app=readFileSync(new URL('../app.js',import.meta.url),'utf8');
+ assert.match(app,/href="#\/mon-espace">Se connecter ou créer un compte<\/a>/);
+ assert.doesNotMatch(app,/Compte bientôt disponible/);
+ assert.match(app,/Paiements non activés/);
+ assert.equal(supabaseConfig.enabled,true);
+});
 test('login validates email and password before talking to Supabase',()=>{
  assert.equal(validateAuthInput('login',valid).valid,true);
  assert.equal(validateAuthInput('login',{...valid,password:'short'}).valid,false);

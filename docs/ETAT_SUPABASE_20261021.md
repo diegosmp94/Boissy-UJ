@@ -64,7 +64,7 @@ Ce document décrit **l'état effectivement vérifié dans Supabase**, et rempla
 ## Encore nécessaire avant de considérer les fonctionnalités opérationnelles
 
 1. Vérifier le comportement REST depuis l'hébergement GitHub Pages et contrôler l'absence d'erreurs CORS / politiques / CDN, sur Safari et ordinateur.
-2. Régler Supabase Auth (URL officielle et redirections, confirmation email, récupération, sessions) ; `auth-config.mjs` sur le site public contient volontairement `enabled: false`.
+2. Au moment de ce relevé du 21/10, `auth-config.mjs` était encore désactivé. L'authentification standard a été activée ensuite (étape 25) ; les URL de redirection, la confirmation e-mail, la récupération et la délivrabilité restent à tester avec un compte autorisé. Consulter la [roadmap à jour](PLAN_DEVELOPPEMENT.md).
 3. Tester la sécurité RLS/RPC avec plusieurs identités d'essai autorisées (supporter, coach équipe A, coach équipe B, admin sans MFA, admin AAL2), sans exposer de données personnelles réelles.
 4. Construire l'éditeur qui sauvegarde réellement les données, l'attribution sécurisée des rôles, l'export des audits et le parcours de révocation.
 5. Finaliser les informations juridiques, RGPD et consentements mineurs.

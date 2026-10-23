@@ -20,7 +20,7 @@ Le bouton « Préparer la dépublication » ne soumet **aucune écriture** : il 
 ## État opérationnel vérifié
 Le 21 octobre 2026, la table `team_public_people` contient **0 fiche** et le journal d'audit dédié 0 entrée. Ces valeurs n'étant pas des exemples, elles peuvent évoluer après un futur lancement de la gestion réelle.
 
-La configuration `auth-config.mjs` demeure `enabled:false`. L'écran d'édition sécurisé ne peut donc **pas encore être utilisé sur le site public** ; il sera ouvert seulement après recette de l'authentification, des e-mails, du MFA, des autorisations et des scénarios d'administration.
+La configuration `auth-config.mjs` active l'authentification standard. L'écran d'édition sécurisé exige toujours rôle administrateur et MFA AAL2 ; sa disponibilité opérationnelle et les scénarios d'administration doivent être recettés avec des comptes autorisés.
 
 ## Vérifications
 Les tests automatisés couvrent l'isolation entre équipes, la distinction brouillon / publié, la recherche accent-insensible, les cas d'équipe inconnue, le maintien de l'éditeur hors de la préversion publique, la double confirmation et le contrôle de version. Les workflows GitHub doivent être verts avant la fusion en `main`.

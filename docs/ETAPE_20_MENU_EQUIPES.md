@@ -20,7 +20,7 @@ Chaque sous-page affiche l'écusson, l'équipe, sa discipline et son niveau four
 
 Les résultats ne sont pas inventés. Les données non publiées, les autres équipes et les convocations privées ne sont pas consultées. Les données distantes sont toujours injectées avec `textContent`, jamais `innerHTML`, et les requêtes sont annulées au changement de page.
 
-Le site ne nécessite aucune migration supplémentaire : les cinq équipes et les droits RLS ont été mis en place à l'étape 19. L'authentification publique et les paiements restent désactivés.
+Le site ne nécessite aucune migration supplémentaire pour les cinq équipes déjà mises en place à l'étape 19. L'authentification standard est disponible ; les paiements Premium restent désactivés.
 
 ## Vérifications
 - 2 pages catégorie + 5 pages équipe, avec route fixe et référencement interne.

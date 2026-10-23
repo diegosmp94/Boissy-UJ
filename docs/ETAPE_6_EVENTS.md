@@ -1,6 +1,6 @@
 # Étape 6 — Catalogue public des événements Boissy-UJ
 
-> **Mise à jour du 21 octobre 2026 : les migrations Supabase correspondantes sont maintenant APPLIQUÉES.** Les mentions ci-dessous indiquant « non appliquée » ou « en attente d’autorisation » sont l’historique des étapes précédentes, et non l’état actuel. Voir [État Supabase vérifié](ETAT_SUPABASE_20261021.md). Les écritures réelles et l’authentification publique restent désactivées jusqu’aux essais fonctionnels.
+> **Mise à jour du 21 octobre 2026 :** les migrations Supabase correspondantes sont appliquées selon l'[état vérifié](ETAT_SUPABASE_20261021.md). L'authentification standard est disponible ; les mutations d'administration restent protégées et nécessitent une recette réelle.
 
 
 **Statut actuel :** catalogue public en lecture seule et modèle Supabase installés selon l'[état vérifié de la base](ETAT_SUPABASE_20261021.md). L'éditeur d'événements gratuits administrateur est décrit à l'[étape 29](ETAPE_29_ADMIN_EVENEMENTS.md) ; son affichage dépend de la présence des RPC requises et d'une session AAL2 vérifiée. Le site Pages ne fournit toujours aucune billetterie ni paiement.

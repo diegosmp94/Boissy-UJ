@@ -5,7 +5,7 @@
 - Aucune saison ou résultat fictif, aucun classement FFF inventé.
 - Lorsque l'équipe n'a pas de rencontre terminée publiée, le site affiche « Aucun résultat terminé publié » plutôt qu'une prétendue performance.
 - Dans le Control Center, sous Match Center, un **aperçu des convocations** présente les trois étapes : invitation sécurisée par l'éducateur, lecture de sa propre convocation par le joueur, réponse Présent/Absent/Incertain.
-- Ce panneau public est une **simulation sans joueur, nom, identifiant ou enregistrement**. Le portail de connexion reste désactivé jusqu'à la recette de sécurité.
+- Cette vue de présentation ne charge aucune donnée privée. L'authentification standard est disponible ; les convocations réelles sont dans l'espace joueur / entraîneur protégé, et restent à recetter avec des comptes autorisés.
 
 **État confirmé :** les migrations `boissy_uj_private_callups_team_form_20261021` et `boissy_uj_callups_final_match_guard_20261021` ont été appliquées à Supabase. Les tests anonymes de lecture des bilans, de verrouillage du schéma privé et de refus des RPC sans session ont réussi. Toutes les tables de joueurs et convocations restent vides.
 
