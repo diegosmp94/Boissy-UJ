@@ -258,9 +258,8 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
                 win==='V'?'Victoire':win==='D'?'Défaite':'Match nul'));
             }
           }
-          const link=element('a','agenda-link','Vérifier sur '+match.source_label+' ↗');
-          link.href=match.source;link.target='_blank';link.rel='noopener noreferrer';
-          card.append(link);
+          card.append(element('small','sport-source-attribution',
+            'Source du relevé : '+match.source_label+' · résultat non homologué par le club'));
           const teamProfile=CLUB_TEAMS.find(t=>t.code===match.team_code);
           if(teamProfile){
             const page=element('a','agenda-link','Fiche '+teamProfile.name+' ↗');

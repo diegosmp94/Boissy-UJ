@@ -90,3 +90,11 @@
 .admin-competition-form .admin-fff-info,.admin-competition-form button{grid-column:1/-1}
 @media(max-width:560px){.competition-tab{font-size:14px;padding:10px}.admin-competition-form{grid-template-columns:1fr}.admin-competition-form .admin-form-field:first-child,.admin-competition-form .admin-fff-info,.admin-competition-form button{grid-column:auto}}
 @media(prefers-reduced-motion:reduce){.competition-tab{transition:none!important}}
+
+/* Result provenance stays visible on Boissy UJ without external navigation. */
+.team-source-attribution,.sport-source-attribution,.agenda-source-attribution,
+.sourced-standings-attribution{display:block;font-size:12px;line-height:1.5;
+ color:#b9cee6;margin:8px 0;overflow-wrap:anywhere}
+.agenda-referenced-score{font-size:15px;font-weight:800;color:#f5f7fa;margin:8px 0 0}
+.team-source-attribution,.sport-source-attribution,.agenda-source-attribution,
+.sourced-standings-attribution{cursor:default;text-decoration:none}
