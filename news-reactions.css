@@ -1,0 +1,9 @@
+/* Media Center : interaction volontaire accessible au clavier. */
+.news-reaction{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid var(--stroke)}
+.news-reaction-button{min-height:44px;padding:10px 16px;border-radius:999px;border:1px solid var(--gold);background:transparent;color:var(--gold);font-weight:700;font-size:13px}
+.news-reaction-button:hover,.news-reaction-button[aria-pressed="true"]{background:var(--gold);color:var(--night)}
+.news-reaction-button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.news-reaction-button:disabled{opacity:.6;cursor:wait}
+.news-reaction-status{font-size:12px;color:var(--muted)}
+.news-reaction-guest{font-size:13px;color:var(--muted);margin:12px 0 0}
+.news-reaction-guest a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}
