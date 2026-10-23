@@ -1,5 +1,6 @@
 import {supabaseConfig} from './auth-config.mjs';
 import {CLUB_TEAMS,teamRoute} from './club-teams.mjs';
+import {loadNewsReactions} from './news-reactions.mjs';
 
 const BASE = supabaseConfig.url + '/rest/v1/news_posts';
 const TEAM_BASE = supabaseConfig.url + '/rest/v1/club_teams';
@@ -32,7 +33,7 @@ function publishDate(value){
   return new Intl.DateTimeFormat('fr-FR',{dateStyle:'long',timeZone:'Europe/Paris'}).format(new Date(value));
 }
 
-function card(post,teamById=new Map()){
+function card(post,teamById=new Map(),reactions=null){
   const article=el('article','news-card');
   const top=el('div','news-meta');
   top.append(
@@ -53,6 +54,7 @@ function card(post,teamById=new Map()){
     details.append(el('summary','','Lire la publication'),el('p','news-body',post.body));
     article.append(details);
   }
+  reactions?.render(post.id,article);
   return article;
 }
 
@@ -101,6 +103,7 @@ function showFeed(root,rows,ready,teams=[],initialTeamCode=null){
     root.prepend(notice);
   }
   const teamById=new Map(teams.map(t=>[t.id,t]));
+  let reactionController=null;
   const update=()=>{
     container.replaceChildren();
     const results=filterNews(rows,{kind:select.value,query:search.value,teamId:teamSelect.value});
@@ -108,12 +111,13 @@ function showFeed(root,rows,ready,teams=[],initialTeamCode=null){
     if(!results.length){
       container.append(el('div','news-empty',
         ready?'Aucune actualité publiée ne correspond à ces critères.':'Les premières publications apparaîtront ici après mise en service.'));
-    }else results.forEach(p=>container.append(card(p,teamById)));
+    }else results.forEach(p=>container.append(card(p,teamById,reactionController)));
   };
   search.addEventListener('input',update);
   select.addEventListener('change',update);
   teamSelect.addEventListener('change',update);
   update();
+  return {setReactions(controller){reactionController=controller;update();}};
 }
 
 export function unmountNews(){
@@ -156,7 +160,10 @@ export async function mountNews(initialTeamCode=null){
     const teams=teamResponse.ok?await teamResponse.json():[];
     if(!Array.isArray(data)||!Array.isArray(teams))throw new Error('Format éditorial invalide');
     if(ctrl.signal.aborted||id!==generation||!root.isConnected)return;
-    showFeed(root,data,true,teams,initialTeamCode);
+    const feed=showFeed(root,data,true,teams,initialTeamCode);
+    const reactions=await loadNewsReactions(data);
+    if(ctrl.signal.aborted||id!==generation||!root.isConnected)return;
+    feed.setReactions(reactions);
   }catch(err){
     if(ctrl.signal.aborted||id!==generation||!root.isConnected)return;
     showFeed(root,[],false,[],initialTeamCode);
