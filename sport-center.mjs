@@ -233,7 +233,7 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
         });
         seasonLabel.append(seasonControl);thirdParty.append(seasonLabel);
         thirdParty.append(element('p','agenda-external-note',
-          'Dates confirmées par le club · données sportives et scores de sources externes ('+
+          'Calendrier 2026–2027 complété jusqu’à mai 2027 avec des sources externes ('+
           'SportCorico / TheFootData, relevé du '+EXTERNAL_FIXTURE_REVIEWED_AT+
           '). Seuls les résultats publiés par le club peuvent être considérés comme validés.'));
         const grid=element('div','agenda-external-grid');
