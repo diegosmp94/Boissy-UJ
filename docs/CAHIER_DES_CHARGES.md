@@ -15,6 +15,7 @@ Boissy-UJ est le site d'une association de football. Le projet couvre :
 - La gestion des personnes publiques dispose d'un répertoire privé administrateur filtrable par équipe, publication et recherche, ainsi que d'une actualisation et d'une préparation explicite de dépublication sans écriture immédiate. Les vrais enregistrements sont bloqués jusqu'à la validation de l'authentification MFA AAL2. Le Control Center est désormais réservé aux administrateurs AAL2.
 - Chaque fiche d’équipe est dotée de rubriques d’effectif public, d’encadrement public, de bilan des matchs terminés et d’actualités ciblées. Les noms publics sont distincts des comptes privés ; leur publication exige validation admin MFA AAL2, consentement et droits vérifiés (représentants légaux si nécessaire), audit et dépublication possible. Les données manquantes ne sont jamais inventées.
 - Actualités, médias, événements, vie associative et espace supporters ; pas de messagerie privée ni de commentaires publics.
+- Réactions simples aux publications publiques : un membre connecté peut ajouter/retirer son propre « J’aime » après mise en place de la table RLS ; aucune identité ou réaction d'autrui n'est visible publiquement. La fonctionnalité ne vaut pas homologation RGPD sans test multi-comptes.
 - Un **Control Center** administratif, traçable et protégé.
 - L'offre Premium : **10 €/mois** ou **100 € pour 12 mois sans renouvellement automatique**, à activer uniquement après recette juridique et technique. Stripe est prévu en TEST avant toute autorisation LIVE.
 
