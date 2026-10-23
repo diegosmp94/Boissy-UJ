@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Priorité — Site public opérationnel et publication automatique (23 octobre 2026)
+
+Le workflow `pages-public.yml` prépare et publie depuis `main` **uniquement** le bundle public audité après la CI, puis vérifie sur GitHub Pages la disponibilité des ressources et le SHA du commit déployé. Les pages Matchs, Actualités, Événements et Awards quittent désormais leur chargement si leur API ne répond pas dans les 12 secondes, tout en restant sans contenus ni scores inventés. Si Pages n'est pas configuré pour GitHub Actions, un réglage initial dans Settings → Pages → Source est requis. [Guide de livraison](docs/LOT_PRIORITAIRE_SITE_PUBLIC_OPERATIONNEL.md). Le site conserve noindex jusqu'à validation légale et n'active aucun paiement.
+
 ## Étape 58 B — Alternative locale après refus du quota Free (23 octobre 2026)
 
 Supabase a annoncé **0 par mois** pour un second projet dans l'organisation Boissy-UJ mais l'a refusé : limite de **deux projets Free actifs toutes organisations confondues**. Aucun projet créé et aucun paiement engagé. Le dépôt dispose désormais d'un identifiant de pile Supabase locale, de PostgreSQL 17 et de la commande **npm run local:preflight** pour vérifier les prérequis Docker/CLI et refuser une copie liée au cloud. [Guide de staging local](docs/ETAPE_58B_STAGING_LOCAL.md). **La pile n'a pas été démarrée ; aucun test de base réel validé.**
