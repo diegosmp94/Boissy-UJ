@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Recette de préproduction de l'historique — étape 57 (23 octobre 2026)
+
+Un nouveau protocole `npm run smoke:news-revisions` vérifie sur un Supabase **isolé** les rôles réels Supporter/admin, le refus d'accès AAL1, le challenge MFA AAL2 et le cloisonnement des versions, sans modifier aucun article. Tests CI du protocole et garde anti-production inclus. Aucun test réseau staging exécuté faute de second projet. [Guide et limites](docs/ETAPE_57_RECETTE_NEWS_STAGING.md).
+
 ## Historique des actualités — étape 56 (23 octobre 2026)
 
 Un module administrateur avec MFA AAL2 permet de consulter les anciennes versions d'un article et de les restaurer uniquement en brouillon, avec conservation de l'audit et retrait de la validation des droits. Le module se masque si les nouvelles RPC ne sont pas installées. **La migration n'a pas été appliquée à la production.** [Protocole étape 56](docs/ETAPE_56_HISTORIQUE_ACTUALITES.md).

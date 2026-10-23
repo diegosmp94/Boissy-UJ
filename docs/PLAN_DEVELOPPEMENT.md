@@ -29,6 +29,10 @@ Point d'étape : **23 octobre 2026**. Les changements du site sont développés 
 
 Les pages **Communauté/Premium, Événements/Billetterie et Soutenir** ont une présentation responsive plus complète, un comparateur mensuel/annuel interactif sans prélèvement, un parcours d'information et des FAQ accessibles. Le lien **Awards** est directement visible sur le menu mobile. Les tests de navigation publique Chromium passent de 10 à 16 scénarios, incluant le basculement de période. **Reste hors de cette clôture UI** : tests sur appareils physiques, interactions Stripe/QR/votes avec back-end homologué, contenus sous droits et décisions RGPD. Le front est avancé, mais une homologation à 100 % serait prématurée. [Détails de l'étape 53](ETAPE_53_FINITIONS_FRONTEND.md).
 
+## Étape 57 — Recette de préproduction des permissions de l'historique (code préparé)
+
+Script sans modification de données pour valider un staging distinct, deux identités Supabase réelles avec rôles vérifiés, refus anonyme/Supporter/admin AAL1, défi TOTP administrateur AAL2 et historique assaini. Les tests simulés sont intégrés à la CI. Ce **n'est pas une homologation réelle** tant qu'un projet de staging isolé n'est pas disponible. [Étape 57](ETAPE_57_RECETTE_NEWS_STAGING.md).
+
 ## Étape 56 — Historique et restauration en brouillon des articles (code préparé)
 
 Les snapshots d'audit d'articles existants sont consultables via une RPC AAL2, et une autre RPC restaure une version antérieure exclusivement en brouillon, en exigeant une nouvelle validation des droits et l'absence de modification concurrente. Module du Control Center masqué tant que la migration manque ; aucun changement appliqué à Supabase production. [Détail étape 56](ETAPE_56_HISTORIQUE_ACTUALITES.md).
