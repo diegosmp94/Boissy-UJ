@@ -141,6 +141,12 @@ const scenarios=[
  {name:'mobile-account',hash:'#/mon-espace',width:390,height:844},
  {name:'tablet-legal',hash:'#/mentions-legales',width:768,height:980},
  {name:'tablet-join',hash:'#/rejoindre',width:768,height:980},
+ {name:'mobile-premium',hash:'#/communaute',width:320,height:760},
+ {name:'tablet-premium',hash:'#/communaute',width:768,height:980},
+ {name:'mobile-awards',hash:'#/awards',width:390,height:844},
+ {name:'mobile-events',hash:'#/evenements',width:390,height:844},
+ {name:'mobile-support',hash:'#/soutenir',width:390,height:844},
+ {name:'desktop-events',hash:'#/evenements',width:1366,height:850},
  {name:'desktop-news',hash:'#/actualites',width:1366,height:850},
  {name:'desktop-futsal',hash:'#/equipes/futsal/boissy-uj-futsal',width:1366,height:850}
 ];
@@ -216,6 +222,48 @@ try{
    if(expected==='#/mon-espace'){
     if(!main.querySelector('[data-auth-root]'))errors.push('Account authentication mount absent');
     if(!main.textContent.includes('Protection des données'))errors.push('Privacy notice absent from account');
+   }
+   if(expected==='#/communaute'){
+    const root=main.querySelector('#premium-plan-selector');
+    const monthly=root?.querySelector('[data-period="monthly"]');
+    const annual=root?.querySelector('[data-period="annual"]');
+    const price=root?.querySelector('.premium-price-row strong');
+    if(!root||!monthly||!annual||!price)errors.push('Premium comparison missing');
+    else{
+      if(price.textContent!=='10 €'||monthly.getAttribute('aria-pressed')!=='true')
+        errors.push('Initial monthly plan incorrect');
+      annual.click();
+      if(price.textContent!=='100 €'||annual.getAttribute('aria-pressed')!=='true'||
+         monthly.getAttribute('aria-pressed')!=='false')
+        errors.push('Annual period switch broken');
+      monthly.click();
+      if(price.textContent!=='10 €'||monthly.getAttribute('aria-pressed')!=='true')
+        errors.push('Return to monthly plan broken');
+      if(!main.textContent.includes('Souscription indisponible'))
+        errors.push('Premium availability notice missing');
+    }
+    if(main.querySelector('a[href*="checkout"],a[href*="stripe"]'))
+      errors.push('Payment link unexpectedly active');
+   }
+   if(expected==='#/awards'){
+    if(!main.querySelector('#awards-public-catalog'))
+      errors.push('Awards published catalogue mount absent');
+    if(!main.textContent.includes('Aucun vote actif'))
+      errors.push('Awards vote safety notice missing');
+   }
+   if(expected==='#/evenements'){
+    if(!main.querySelector('#events-public-catalog'))
+      errors.push('Events catalogue mount absent');
+    if(!main.textContent.includes('Billetterie non activée'))
+      errors.push('Ticketing availability notice missing');
+    if(main.querySelector('a[href*="checkout"],button[data-buy-ticket]'))
+      errors.push('Unverified ticket purchase element');
+   }
+   if(expected==='#/soutenir'){
+    if(!main.textContent.includes('Aucun paiement actif'))
+      errors.push('Donation availability notice missing');
+    if(!main.querySelector('.support-commitments'))
+      errors.push('Donation transparency roadmap absent');
    }
    if(expected==='#/mentions-legales'&&!main.textContent.includes('Mentions légales provisoires'))
     errors.push('Legal page incomplete');
