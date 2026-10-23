@@ -128,6 +128,19 @@ begin
 end;
 $fn$;
 
+-- Read-only capability probe; avoids showing a half-installed editor on main.
+create or replace function public.admin_news_revisions_ready()
+returns boolean
+language sql stable security definer set search_path=''
+as $fn$
+ select coalesce((select app_private.is_admin()),false)
+   and coalesce((select auth.jwt()->>'aal')='aal2',false);
+$fn$;
+revoke all on function public.admin_news_revisions_ready()
+ from public,anon,authenticated;
+grant execute on function public.admin_news_revisions_ready()
+ to authenticated;
+
 revoke all on function public.admin_list_news_revisions(uuid)
  from public,anon,authenticated;
 revoke all on function public.admin_restore_news_revision(uuid,bigint,timestamptz)
