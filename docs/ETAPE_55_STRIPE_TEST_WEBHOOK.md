@@ -22,7 +22,7 @@ Ce lot prépare le traitement serveur de la facturation et des droits Premium, e
 3. Stripe crée une Checkout Session **en TEST seulement**. Avant de renvoyer son URL au client, le serveur inscrit une liaison privée immuable Checkout → identifiant Supabase ; l'utilisateur ne peut pas choisir l'identifiant d'un tiers.
 4. Après une session Checkout complète, le **webhook signé** établit l'identité de la session et du client. Un abonnement mensuel ne donne **aucun avantage** sur la seule création de session.
 5. La preuve **invoice.paid**, rattachée à l'abonnement TEST reconnu, active une échéance correspondant à la période facturée. Un paiement annuel Checkout payé active **12 mois calendaires** seulement. Les événements rejoués n'entraînent pas de double attribution.
-6. En cas de suppression de l'abonnement, le droit est révoqué. Une simple facture échouée ne retire pas prématurément une période déjà payée ; le droit s'éteint à son échéance. Les factures anciennes ne réduisent pas une période payée plus récente.
+6. En cas de suppression de l'abonnement, **seul le droit issu de ce même abonnement** est révoqué, après comparaison de sa référence ; un autre achat Premium plus récent ne doit pas être affecté. Une simple facture échouée ne retire pas prématurément une période déjà payée ; le droit s'éteint à son échéance. Les factures anciennes ne réduisent pas une période payée plus récente.
 
 ## Sécurité
 
