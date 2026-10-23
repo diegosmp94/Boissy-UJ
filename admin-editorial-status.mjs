@@ -71,7 +71,8 @@ export async function mountAdminEditorialStatus(root,api,userId,navigate){
  refresh.type='button';
  const grid=el('div','real-admin-kpis');
  const actions=el('div','admin-overview-shortcuts');
- root.append(refresh,grid,actions);
+ const diagnostics=el('div','admin-editorial-diagnostics');
+ root.append(refresh,grid,diagnostics,actions);
  const buttons=el('div','admin-shortcut-grid');
  actions.append(el('h3','','Accès éditorial'),buttons);
  const target=(id,title)=>{
@@ -91,7 +92,7 @@ export async function mountAdminEditorialStatus(root,api,userId,navigate){
    const auth=await safeCall(()=>adminSessionStatus(api,userId));
    if(!root.isConnected||version!==nonce)return;
    if(auth.status!=='admin'){
-    grid.replaceChildren();buttons.replaceChildren();
+    grid.replaceChildren();diagnostics.replaceChildren();buttons.replaceChildren();
     status.textContent='Session administrateur MFA perdue. Diagnostic arrêté.';return;
    }
    const report=await readEditorialOperationalStatus(api);
@@ -127,7 +128,7 @@ export async function mountAdminEditorialStatus(root,api,userId,navigate){
     report.limitedArticles||report.limitedMedia
      ?'Résultats partiels : plafond de dossiers atteint ; ces chiffres ne sont pas des totaux globaux.'
      :'Aucun total fictif ni média privé affiché dans ce diagnostic.');
-   grid.after(news,media,reactions,cap);
+   diagnostics.replaceChildren(news,media,reactions,cap);
    buttons.replaceChildren();
    target('news','Gérer les actualités');
    if(report.mediaAvailable)target('news-media','Gérer les photos et vidéos');
