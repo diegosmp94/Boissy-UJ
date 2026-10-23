@@ -175,6 +175,7 @@ function news(){return pageShell('Vie du club','ACTUALITÉS <em>& MÉDIAS.</em>'
 
 function community(){return pageShell('Une communauté, des avantages','LA PASSION <em>ENSEMBLE.</em>','Un espace supporter gratuit et deux formules Premium prévues pour suivre Boissy-UJ au plus près.',`
 <div class="fan-journey-head"><div><span class="tiny-label">BOISSY-UJ · NOS FORMULES</span><h2>Le club se vit <em>ensemble.</em></h2><p>Rejoignez la communauté gratuite pour consulter les actualités et suivre nos équipes. Les services payants sont présentés en transparence, sans achat possible à ce jour.</p></div><a class="btn btn-outline" href="#/mon-espace">Se connecter ou créer un compte</a></div>
+<p class="fan-activation-note" role="note"><strong>Paiements non activés :</strong> les formules Premium sont informatives et aucune souscription ne peut être achetée ici.</p>
 <div id="premium-plan-selector" class="premium-plan-selector" aria-label="Comparateur des offres Supporter et Premium"><p class="sport-loading">Chargement des formules…</p></div>
 <section class="fan-benefits" aria-labelledby="fan-benefits-heading"><span class="tiny-label">PARCOURS SUPPORTER</span><h2 id="fan-benefits-heading">Tout comprendre <em>avant de rejoindre.</em></h2>
 <div class="fan-journey-grid">
