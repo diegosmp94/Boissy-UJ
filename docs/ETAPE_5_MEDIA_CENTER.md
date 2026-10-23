@@ -19,6 +19,10 @@
 
 Pas encore d'éditeur d'articles sécurisé, de stockage de médias, de gestion des consentements, ni de contrôle côté serveur pour les contenus premium. Le choix des visuels et des consentements des mineurs doit être finalisé avant publication.
 
+## Extension technique ajoutée à l'étape 48
+
+Le code propose une galerie photo et un lecteur vidéo intégrés à chaque actualité, avec table média, RLS, audit administratif et fichiers issus d'un bucket Supabase réservé aux actifs approuvés. Le panneau de gestion est invisible tant que le backend n'est pas déployé. Pour la recette des droits et des médias, voir [Étape 48](ETAPE_48_GALERIES_VIDEOS.md). Aucune photo ni vidéo réelle n'a été semée.
+
 ## Prochaine extension
 - Backend de publication réservée aux éducateurs habilités pour leurs équipes et aux administrateurs, avec audit.
 - Gestion sécurisée de l'upload (formats, tailles, droits à l'image, antivirus si approprié).

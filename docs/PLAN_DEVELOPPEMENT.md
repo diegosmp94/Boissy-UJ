@@ -17,6 +17,10 @@ Point d'étape : **23 octobre 2026**. Les changements du site sont développés 
 
 Le Media Center dispose désormais du code de réaction « J’aime / Retirer » et d'une migration RLS indépendante. **La collecte des réactions reste conditionnée à l'application contrôlée de la migration, à la revue RGPD et à une recette croisée de deux comptes.** En l'absence de table disponible, le Media Center reste consultable. [Détails et sécurité](ETAPE_47_REACTIONS_ACTUALITES.md).
 
+## Étape 48 — Photos et vidéos sous droits vérifiés (code préparé)
+
+L'interface de galeries et le lecteur vidéo natif sont maintenant connectés au Media Center. Le Control Center propose un éditeur de références de fichiers déjà approuvés, exclusivement aux administrateurs MFA AAL2, après existence de la RPC. La migration de médias est **préparée mais non appliquée** : aucune image de mineur, vidéo ni contenu fictif n'est importé. [Détail et conditions d'activation](ETAPE_48_GALERIES_VIDEOS.md).
+
 ## Prochaines actions concrètes
 
 Le travail autonome sur le code et le site public est avancé. La prochaine tranche de la roadmap est une **recette probante**, pas l'activation spéculative de services sensibles :
