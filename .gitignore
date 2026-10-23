@@ -13,3 +13,8 @@ recovery-private/
 *.backup
 *.sql.gz
 *.sql.age
+
+# Supabase CLI ephemeral local state: never commit tokens, links, branches
+supabase/.temp/
+supabase/.branches/
+supabase/.profiles/
