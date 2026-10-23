@@ -25,4 +25,6 @@ Le nouveau module **Historique des actualités** du Control Center permet à un 
 
 Sur Supabase de staging isolé, confirmer les refus pour utilisateurs anonymes, membres, coachs et administrateurs AAL1 ; consulter avec un admin AAL2 ; vérifier la restauration d'un article de test, le refus d'une version d'une autre équipe ou d'un autre article, la protection contre l'écrasement concurrent et la suppression de l'ancien consentement.
 
+La recette de lecture et d'isolation des rôles est maintenant scriptée dans [l'étape 57](ETAPE_57_RECETTE_NEWS_STAGING.md). Elle reste à exécuter avec un vrai projet de préproduction et ne couvre pas de restauration positive.
+
 **Statut : développement prêt à recetter, migration non appliquée à la production. Aucune actualité réelle n'a été restaurée.**
