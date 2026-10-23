@@ -17,6 +17,8 @@
     "smoke:real-permissions": "node scripts/real-permissions-smoke.mjs",
     "smoke:awards-voting": "node scripts/real-awards-voting-smoke.mjs",
     "smoke:news-revisions": "node scripts/real-news-revisions-smoke.mjs",
+    "staging:preflight": "node scripts/staging-readiness.mjs",
+    "staging:migration-plan": "node scripts/staging-migration-plan.mjs",
     "verify:recovery": "node scripts/compare-recovery-inventories.mjs"
   }
 }

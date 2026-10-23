@@ -4,7 +4,7 @@
  */
 export const ACTIVE_WORKSTREAMS=Object.freeze([
  {id:'p1-rls',priority:'P1',title:'Recette réelle des comptes et permissions',
-  next:'Exécuter la recette AAL1/AAL2 sur sept comptes distincts dans un Supabase de staging autorisé.',
+  next:'Créer un staging isolé avec accord de coût puis exécuter le préflight étape 58 et la recette AAL1/AAL2 à sept comptes distincts.',
   dependency:'Projet de staging et comptes/convocations de test consentis',kind:'human'},
  {id:'p1-recovery',priority:'P1',title:'Sauvegarde et restauration isolée',
   next:'Sauvegarder sous contrôle du club, restaurer dans une instance isolée et comparer les inventaires via le vérificateur.',

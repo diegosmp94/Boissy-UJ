@@ -8,7 +8,7 @@ Les priorités P1 bloquent la validation complète ; P2 sont les services non ho
 
 | Chantier restant | Ce qui doit être fait | Dépendance réelle |
 |---|---|---|
-| Recette des comptes et permissions | Exécuter le script à 7 identités + deux convocations sur un projet **de staging distinct**, vérifier MFA/roles et cloisonnement RLS | Comptes consentants, référent staging |
+| Recette des comptes et permissions | Préflight de staging sécurisé développé à l'étape 58 ; créer un projet indépendant puis exécuter la recette à 7 identités + deux convocations et valider MFA/RLS | Comptes consentants, référent staging |
 | Sauvegarde et restauration | Produire un export autorisé, restaurer en instance isolée, comparer les inventaires SQL et checksums ; consigner le PV | Base isolée et responsable autorisé |
 | Safari/Android et accessibilité | Valider l'accueil, le compte, les formulaires, le Control Center avec VoiceOver, TalkBack, clavier | Matériel et testeurs réels |
 | RGPD, mineurs et droits à l'image | Valider politique, conservation, mentions, consentements, effacement des médias Storage | Association et personnes responsables |

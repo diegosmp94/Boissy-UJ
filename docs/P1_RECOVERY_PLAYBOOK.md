@@ -39,6 +39,10 @@ Effectuer la requête **sur la source au moment de la sauvegarde** puis **sur la
 
 Référence officielle : [Supabase — restaurer une base plateforme vers une instance self-hosted](https://supabase.com/docs/guides/self-hosting/restore-from-platform). Les commandes devront être revalidées contre la version de la CLI au moment réel de l'opération.
 
+## Préparation environnement distinct — étape 58
+
+Le préflight stage 58 (**npm run staging:preflight**) est un contrôle réseau **strictement en lecture seule**, qui rejette l'environnement de production et les clés privées. Le manifeste des cinq migrations préparées (**npm run staging:migration-plan**) est également hors ligne. [Consulter le guide de l'étape 58](ETAPE_58_STAGING_ET_RESTAURATION.md). **Ni l'un ni l'autre ne prouvent une restauration**. Le PV de récupération nécessite toujours un PostgreSQL local, réellement isolé, une sauvegarde autorisée, un SHA-256 du dump, l'inventaire source/cible et la vérification des services externes.
+
 ## Comparateur hors ligne développé — étape 52
 
 Après une restauration **réellement exécutée** par le responsable habilité, consigner le résultat de `scripts/db-recovery-verification.sql` dans deux fichiers JSON distincts et privés : un avant la sauvegarde, l'autre sur l'instance isolée restaurée. Lancer `npm run verify:recovery -- source.json restauration.json`.
