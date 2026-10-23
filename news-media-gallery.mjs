@@ -22,6 +22,33 @@ export function mediaKindsFor(post,assets=[]){
  return [...new Set(assets.filter(a=>a.post_id===post.id&&a.visible===true&&a.rights_reviewed===true&&safeMediaPath(a.storage_path,a.kind))
    .map(a=>a.kind))];
 }
+/** In-page lightbox: visitors never leave Boissy-UJ or reach an unreviewed URL.
+ * Browser-native dialog handles Escape and focus trapping; the close button
+ * returns focus to the original photo button.
+ */
+export function openApprovedPhoto(article,button,{src,alt,caption=''}) {
+ if(!src||!src.startsWith(supabaseConfig.url+'/storage/v1/object/public/'+BUCKET+'/'))
+  return false;
+ if(typeof document==='undefined'||!article?.isConnected)return false;
+ const dialog=el('dialog','news-media-lightbox');
+ dialog.setAttribute('aria-label','Photo du club agrandie');
+ const close=el('button','news-media-lightbox-close','Fermer ✕');
+ close.type='button';
+ close.setAttribute('aria-label','Fermer la photo agrandie');
+ const figure=el('figure','news-media-lightbox-content');
+ const image=el('img','news-media-lightbox-image');
+ image.src=src;image.alt=String(alt||'');image.decoding='async';
+ figure.append(image);
+ if(caption)figure.append(el('figcaption','news-media-lightbox-caption',caption));
+ dialog.append(close,figure);
+ const cleanup=()=>{dialog.remove();if(button?.isConnected)button.focus({preventScroll:true});};
+ dialog.addEventListener('close',cleanup,{once:true});
+ close.addEventListener('click',()=>dialog.close());
+ article.append(dialog);
+ try{dialog.showModal();close.focus({preventScroll:true});return true;}
+ catch{dialog.remove();return false;}
+}
+
 const el=(tag,cls='',content=null)=>{
  const n=document.createElement(tag);
  if(cls)n.className=cls;
@@ -42,7 +69,15 @@ export function renderApprovedMedia(article,assets=[]){
    const img=el('img','news-media-photo');
    img.src=src;img.alt=asset.alt_text;
    img.loading='lazy';img.decoding='async';
-   figure.append(img);
+   const expand=el('button','news-media-expand');
+   expand.type='button';
+   expand.setAttribute('aria-label','Agrandir la photo : '+asset.alt_text);
+   expand.setAttribute('aria-haspopup','dialog');
+   expand.append(img);
+   expand.addEventListener('click',()=>openApprovedPhoto(article,expand,{
+    src,alt:asset.alt_text,caption:asset.caption||''
+   }));
+   figure.append(expand);
   }else{
    const video=el('video','news-media-video');
    video.src=src;
