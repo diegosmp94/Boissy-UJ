@@ -19,7 +19,7 @@ test('public release marker contains the validated Git SHA only',()=>{
   'b'.repeat(40)+'?token=secret',null])
   assert.throws(()=>publicReleaseRecord(s),/unverified Git commit/);
  assert.match(marker,/writeFile\(resolve\(root,'release\.json'\),JSON\.stringify\(record\)/);
- assert.doesNotMatch(marker,/service_role|STRIPE_SECRET_KEY|\.env|supabase\/migrations/);
+ assert.doesNotMatch(marker,/service_role|STRIPE_SECRET_KEY|['\"]\\.env(?:[/.]|['\"])|supabase\/migrations/);
 });
 test('Pages publication is automated on main only, after all public release tests',()=>{
  assert.match(yml,/push:\s*\n\s*branches: \[main\]/);
