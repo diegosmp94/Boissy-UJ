@@ -1,0 +1,21 @@
+/* Accueil — prochain match : même catalogue que Match Center / Agenda.
+   Réactualisé chaque heure, au coup d'envoi et quand la page reprend le focus. */
+.home-next-match-panel{display:flex;flex-direction:column;gap:0;min-height:285px;overflow:hidden;isolation:isolate}
+.home-next-match-panel::before{content:"";position:absolute;inset:auto -25% -75% 15%;height:180px;background:radial-gradient(ellipse,#4d9bd344,transparent 65%);pointer-events:none;z-index:-1}
+.home-next-match-panel .panel-heading{display:flex;align-items:center;color:#eed7a0;font-size:11px;letter-spacing:.15em}
+.home-next-team{margin:20px 0 1px!important;font:800 13px/1.4 Outfit,system-ui,sans-serif!important;color:#c4e0f8!important;text-align:center;letter-spacing:.035em}
+.home-next-versus{display:grid!important;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:12px!important;align-items:center!important;padding:22px 0 15px!important;margin:0}
+.home-next-versus .home-next-side{font:850 clamp(14px,1.7vw,18px)/1.18 Outfit,system-ui,sans-serif!important;color:#fff;overflow-wrap:anywhere;text-align:center;max-width:100%;min-width:0}
+.home-next-versus .home-next-vs{display:inline-grid;place-items:center;width:44px;height:44px;font:900 19px/1 Outfit,system-ui,sans-serif;color:#08172a;background:#f4d48f;border-radius:50%;box-shadow:0 2px 22px #ebba6c22}
+.home-next-date{display:block;color:#fff;font-size:clamp(13px,1.3vw,15px);font-weight:800;line-height:1.55;text-align:center;text-transform:capitalize}
+.home-next-ground,.home-next-competition{margin:3px 0 0!important;font-size:12px!important;line-height:1.5!important;color:#b9d0e8!important;text-align:center}
+.home-next-competition{color:#f5d99c!important;font-weight:700}
+.home-next-status{margin:18px 0 10px!important;padding:10px 12px;border:1px solid #9bbddb45;border-radius:10px;background:#102e50;color:#dbe8f6!important;font-size:11px!important;line-height:1.5!important;text-align:center}
+.home-next-actions{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:8px}
+.home-next-action{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:9px 12px;border:1px solid #debd7880;border-radius:9px;font-size:12px;line-height:1.35;font-weight:800;color:#ffe1a4;text-align:center;text-decoration:none;transition:background .15s ease,transform .15s ease}
+.home-next-action:hover{background:#f6d58a19;transform:translateY(-1px)}
+.home-next-action:focus-visible{outline:3px solid #f9d995;outline-offset:3px}
+.home-next-empty{margin:auto 0!important;text-align:center;font-size:14px!important;line-height:1.65!important;color:#d5e5f5!important;padding:25px 0}
+@media(max-width:780px){.home-next-match-panel{min-height:260px}.home-next-versus{padding:14px 0 12px!important}.home-next-versus .home-next-side{font-size:clamp(14px,4vw,17px)!important}}
+@media(max-width:380px){.home-next-match-panel{padding:18px 14px!important}.home-next-versus{gap:7px!important}.home-next-versus .home-next-vs{width:36px;height:36px;font-size:16px}.home-next-versus .home-next-side{font-size:13px!important}.home-next-action{font-size:11px;padding:8px}}
+@media(prefers-reduced-motion:reduce){.home-next-action{transition:none}.home-next-action:hover{transform:none}}
