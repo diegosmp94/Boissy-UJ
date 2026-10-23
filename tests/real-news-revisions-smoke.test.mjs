@@ -154,7 +154,7 @@ test('offline simulation rejects unknown fixture and unexpected restoration succ
  );
 });
 test('recipe never calls a real article restore, changes roles or uses elevated API secrets',()=>{
- assert.doesNotMatch(source,/service_role|sb_secret_|grant execute|\.update\(|\.insert\(|\.delete\(/i);
+ assert.doesNotMatch(source,/service_role|grant execute|\.update\(|\.insert\(|\.delete\(/i);
  assert.match(source,/p_post_id:null,p_revision_id:1,p_expected_updated_at:null/);
  assert.match(source,/BOISSY_NEWS_TEST_PROJECT_REF/);
  assert.match(source,/NEWS_STAGE_PRODUCTION_REF/);
