@@ -35,8 +35,8 @@ const el=(tag,cls='',content=null)=>{
  if(content!==null)node.textContent=String(content);
  return node;
 };
-/** Interactive accessible toggle, not a checkout. Data and buttons never touch
- * auth, payment, localStorage or external services.
+/** Interactive accessible toggle, not a purchase flow. Data and buttons never touch
+ * auth, payment or external services.
  */
 export function mountPremiumPlans(root=document.getElementById('premium-plan-selector')){
  if(!root)return;
