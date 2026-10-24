@@ -76,11 +76,16 @@ jobs:
           done
           echo 'La publication GitHub Pages ne correspond pas encore au commit déployé.' >&2
           exit 1
-      - name: Conserver le rapport public de déploiement (sans données privées)
+      - name: Consolider les preuves et blocages du lancement complet
+        if: always()
+        run: npm run release:acceptance
+      - name: Conserver les rapports de publication (sans données privées)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: boissy-pages-verification
-          path: smoke-artifacts/live-public-report.json
+          path: |
+            smoke-artifacts/live-public-report.json
+            smoke-artifacts/production-readiness.json
           if-no-files-found: ignore
           retention-days: 7
