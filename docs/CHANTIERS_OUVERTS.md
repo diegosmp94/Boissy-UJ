@@ -17,7 +17,7 @@ La publication est maintenant préparée via un workflow GitHub Pages déclench�
 | Safari/Android et accessibilité | Valider l'accueil, le compte, les formulaires, le Control Center avec VoiceOver, TalkBack, clavier | Matériel et testeurs réels |
 | RGPD, mineurs et droits à l'image | Valider politique, conservation, mentions, consentements, effacement des médias Storage | Association et personnes responsables |
 | Données sportives officielles | Revue MFA des sources extérieures et détection des écarts préparées à l'étape 62 ; faire signer la validation des scores et dates avant publication | Club / sources et droit de réutilisation |
-| Publications initiales | Créer les premières actualités autorisées, sans contenu ou identité inventés | Responsable éditorial et droits |
+| Publications initiales | Détecter les publications réellement consenties depuis la revue admin, puis créer au moins un communiqué approuvé sans contenu ni identité inventés | Responsable éditorial et droits |
 
 ## P2 — Fonctions à achever / homologuer
 
