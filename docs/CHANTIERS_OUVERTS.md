@@ -28,7 +28,7 @@ La publication est maintenant préparée via un workflow GitHub Pages déclench�
 | Administration avancée | Suivi éditorial en lecture seule intégré au centre de gestion ; historique et restauration en brouillon codés ; recettes réelles MFA/RLS et audit de publication restent à homologuer |
 | Premium, dons, finances et Stripe TEST | Étape 60 : montant fixe et destination staging durcis ; événements de remboursement/litige bloqués, **sans réconciliation ni révocation**. Développer ces traitements, faire les tests staging puis homologuer dons, fiscalité et conditions avant toute activation |
 | Billetterie et QR | Étape 61 : diagnostic des jauges en lecture seule sous MFA + protocole QR opaque préparés. Reste à développer une réservation transactionnelle privée, annulation, lecteur en ligne à usage unique, contrôle des droits et recette deux scanners avant activation |
-| Awards et communauté | Migration de vote unique et retrait développée ; exécuter tests staging, intégrer webhook vérifié, approuver règlement et activer les écrans |
+| Awards et communauté | Catalogue rendu résilient aux pannes nominations/résultats à l'étape 61 ; migration de vote unique et retrait toujours non déployée. Tests staging à deux comptes, webhook vérifié, règlement et activation restent nécessaires |
 
 ## P3 — Après les dépendances
 
