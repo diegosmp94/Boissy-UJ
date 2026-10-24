@@ -66,7 +66,8 @@ test('step61: QR parser cannot create entries or replace atomic server-side chec
  const code=read('supabase/functions/_shared/free-ticket-qr-protocol.mjs');
  assert.match(code,/randomBytes\(32\)/);
  assert.match(code,/timingSafeEqual/);
- assert.doesNotMatch(code,/service_role|apikey|fetch\(|execute_sql|\.insert\(|\.update\(|\.delete\(/);
+ assert.doesNotMatch(code,/service_role|apikey|fetch\(|execute_sql|\.from\(|\.insert\(|\.delete\(|\.rpc\(/);
+ assert.match(code,/createHash\('sha256'\)\.update\(Buffer\.from\(secret,'hex'\)\)/);
  assert.doesNotMatch(read('events-center.mjs'),/createServerOnlyFreeTicketCode|prepareFreeTicketCode/);
  const eligible=freeEventTicketEligibility(event,now);
  assert.deepEqual(eligible,{eligible:true,reason:'server_authorization_still_required'});
