@@ -71,5 +71,5 @@ test('older published club results remain separate; external match dates do not 
  const page=src('team-pages.mjs'),center=src('sport-center.mjs');
  assert.match(page,/victoryCongratulations\(match,code\)/);
  assert.doesNotMatch(src('remaining-official-season-fixtures.mjs'),/club_validated:true|validated_by_club:true/);
- assert.match(center,/Seuls les résultats publiés par le club peuvent être considérés comme validés/);
+ assert.match(center,/Ces rencontres restent à confirmer par le club/);
 });
