@@ -15,7 +15,7 @@ La publication est maintenant préparée via un workflow GitHub Pages déclench�
 | Recette des comptes et permissions | Préflight de staging sécurisé développé à l'étape 58 ; créer un projet indépendant puis exécuter la recette à 7 identités + deux convocations et valider MFA/RLS | Comptes consentants, référent staging |
 | Sauvegarde et restauration | Produire un export autorisé, restaurer en instance isolée, comparer les inventaires SQL et checksums ; consigner le PV | Base isolée et responsable autorisé |
 | Safari/Android et accessibilité | Étape 63 : tests Chromium renforcés, focus clavier, cibles tactiles 44 px et réduction des animations codés ; reste la recette réelle VoiceOver, TalkBack, zoom et formulaire sur appareils physiques | Matériel et testeurs réels |
-| RGPD, mineurs et droits à l'image | Valider politique, conservation, mentions, consentements, effacement des médias Storage | Association et personnes responsables |
+| RGPD, mineurs et droits à l'image | Étape 63 : suppression de Google Fonts, `no-referrer`, CSP et contrôle des domaines tiers codés ; homologuer responsable, conservation, mentions, consentements, effacement Storage et droits des mineurs | Association et personnes responsables |
 | Données sportives officielles | Revue MFA des sources extérieures et détection des écarts préparées à l'étape 62 ; faire signer la validation des scores et dates avant publication | Club / sources et droit de réutilisation |
 | Publications initiales | Détecter les publications réellement consenties depuis la revue admin, puis créer au moins un communiqué approuvé sans contenu ni identité inventés | Responsable éditorial et droits |
 
