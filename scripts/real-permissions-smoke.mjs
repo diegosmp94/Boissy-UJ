@@ -6,7 +6,8 @@
  */
 import {createHmac} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
-import {resolve} from 'node:path';
+import {resolve,dirname} from 'node:path';
+import {inspectLocalCheckout,checkLocalRuntimes,LOCAL_STACK_ID} from './local-supabase-readiness.mjs';
 
 const PRODUCTION_PROJECT_REF='dahzewvbybujqhogumte';
 const REQUIRED_PERSONAS=['supporter','playerA','playerB','coachA','coachB','admin','tripleRole'];
@@ -40,24 +41,50 @@ export function totpCode(secret,now=Date.now()){
 }
 
 export function validateTarget(env){
-  if(env.BOISSY_TEST_ENVIRONMENT!=='test')throw new Error('Set BOISSY_TEST_ENVIRONMENT=test.');
-  if(env.BOISSY_TEST_ACK!==ACK)throw new Error('Set BOISSY_TEST_ACK='+ACK+' to confirm the isolated test target.');
-  const ref=String(env.BOISSY_TEST_PROJECT_REF||'');
-  if(!/^[a-z0-9]{20}$/.test(ref))throw new Error('BOISSY_TEST_PROJECT_REF must be a Supabase project reference.');
-  if(ref===PRODUCTION_PROJECT_REF)throw new Error('Refusing to run live permission tests against Boissy-UJ production.');
+  // The local recipe must be *explicitly* chosen and bound to loopback.
+  // A 127.0.0.1 port alone is not sufficient: check the repo is unlinked
+  // and Docker/Supabase CLI are local BEFORE sending test credentials.
+  const localOnly=env.BOISSY_TEST_ENVIRONMENT==='local';
+  const staging=env.BOISSY_TEST_ENVIRONMENT==='test';
+  if(!localOnly&&!staging)
+    throw new Error('BOISSY_TEST_ENVIRONMENT must be local or test.');
+  const localAck='YES_RUN_READ_ONLY_PERMISSION_TESTS_ON_LOCAL_DOCKER';
+  if(env.BOISSY_TEST_ACK!==(localOnly?localAck:ACK))
+    throw new Error('An explicit isolated permission-test acknowledgment is required.');
+  const ref=localOnly?LOCAL_STACK_ID:String(env.BOISSY_TEST_PROJECT_REF||'');
+  if(localOnly&&
+    (env.BOISSY_TEST_LOCAL_STACK_ID!==LOCAL_STACK_ID||
+     (env.BOISSY_TEST_PROJECT_REF??'')!==''))
+    throw new Error('Use only the unlinked Boissy-UJ local Docker stack.');
+  if(staging&&(!/^[a-z0-9]{20}$/.test(ref)||ref===PRODUCTION_PROJECT_REF))
+    throw new Error('Refusing invalid or production Supabase hosted test project.');
   let url;
-  try{url=new URL(env.BOISSY_TEST_SUPABASE_URL||'');}catch{throw new Error('BOISSY_TEST_SUPABASE_URL must be a valid Supabase URL.');}
-  if(url.protocol!=='https:'||url.hostname!==ref+'.supabase.co'||url.username||url.password||url.search||url.hash||url.pathname!=='/')
-    throw new Error('The HTTPS Supabase URL must match BOISSY_TEST_PROJECT_REF exactly.');
+  try{url=new URL(env.BOISSY_TEST_SUPABASE_URL||'');}
+  catch{throw new Error('BOISSY_TEST_SUPABASE_URL is not valid.');}
+  if(url.username||url.password||url.search||url.hash||url.pathname!=='/'||
+    url.protocol!==(localOnly?'http:':'https:'))
+    throw new Error('Test endpoint has unsafe URL components.');
+  if(localOnly){
+    if(url.hostname!=='127.0.0.1'||url.port!=='54321'||
+      !/^http:\/\/127\.0\.0\.1:54321\/?$/.test(env.BOISSY_TEST_SUPABASE_URL))
+      throw new Error('Local recipe is allowed only at http://127.0.0.1:54321.');
+  }else if(url.hostname!==ref+'.supabase.co'||url.port!==''){
+    throw new Error('Hosted recipe URL must match the nonproduction project exactly.');
+  }
   const key=String(env.BOISSY_TEST_PUBLISHABLE_KEY||'');
-  if(!key||key.startsWith('sb_secret_'))throw new Error('Provide only a publishable/anon key; secret and service-role keys are forbidden.');
+  if(!key||key.startsWith('sb_secret_')||key.startsWith('sb_service_')||
+     key.startsWith('sk_')||key.startsWith('rk_'))
+    throw new Error('Privileged or missing API key not permitted.');
   if(key.startsWith('eyJ')){
     let claims;
-    try{claims=decodeJwtPayload(key);}catch{throw new Error('The API key is not a valid publishable/anon key.');}
-    if(claims.role!=='anon'||claims.ref&&claims.ref!==ref)
-      throw new Error('The API key must be an anon key for the isolated test project.');
-  }else if(!key.startsWith('sb_publishable_')){
-    throw new Error('The API key must be a publishable key or a legacy anon key.');
+    try{claims=decodeJwtPayload(key);}
+    catch{throw new Error('Legacy JWT is not a valid anon key.');}
+    if(claims.role!=='anon'||
+      claims.ref===PRODUCTION_PROJECT_REF||
+      (staging&&claims.ref&&claims.ref!==ref))
+      throw new Error('Legacy key does not belong to an allowed test environment.');
+  }else if(!/^sb_publishable_[a-zA-Z0-9_-]{8,}$/.test(key)){
+    throw new Error('Only test publishable or legacy anon keys are permitted.');
   }
   let personas,fixtures;
   try{personas=JSON.parse(env.BOISSY_TEST_PERSONAS_JSON||'');}
@@ -85,7 +112,7 @@ export function validateTarget(env){
   const a=fixtures.playerAExclusiveMatchId,b=fixtures.playerBExclusiveMatchId;
   if(!uuid.test(a)||!uuid.test(b)||a===b)
     throw new Error('Two distinct existing exclusive player callup match UUIDs are required.');
-  return {url:url.origin,ref,key,personas,fixtures};
+  return {url:url.origin,ref,key,personas,fixtures,localOnly};
 }
 
 function safeCode(payload){return typeof payload?.code==='string'?payload.code:'HTTP_ERROR';}
@@ -226,7 +253,14 @@ async function testCoachScope(api,state,session,ownTeam,otherTeam,label){
 }
 
 export async function runPermissionRecipe(env=process.env){
-  const config=validateTarget(env),api=await createApi(config),state={passed:0,skipped:0,failed:0};
+  const config=validateTarget(env);
+  if(config.localOnly){
+    // Never attempt even an Auth request until link safety and runtime pass.
+    const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
+    await inspectLocalCheckout(root);
+    checkLocalRuntimes();
+  }
+  const api=await createApi(config),state={passed:0,skipped:0,failed:0};
   const sessions={};
   try{
     const teamIds=await getTeamIds(api,config.fixtures);
