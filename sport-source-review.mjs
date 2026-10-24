@@ -83,7 +83,7 @@ export function sportSourceReview(source=[],clubMatches=[],teams=[],now=Date.now
   const original=source[i];
   const id=key(original?.team_code,original?.localDay||original?.date?.slice(0,10),
     original?.opponent);
-  if(duplicates.get(id)<=1)return item;
+  if(item.kind==='invalid'||duplicates.get(id)<=1)return item;
   return Object.freeze({...item,kind:'conflict',resultLabel:null});
  });
  const counts={};
