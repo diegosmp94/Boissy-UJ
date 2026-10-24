@@ -29,6 +29,10 @@ Point d'étape : **23 octobre 2026**. Les changements du site sont développés 
 
 Les pages **Communauté/Premium, Événements/Billetterie et Soutenir** ont une présentation responsive plus complète, un comparateur mensuel/annuel interactif sans prélèvement, un parcours d'information et des FAQ accessibles. Le lien **Awards** est directement visible sur le menu mobile. Les tests de navigation publique Chromium passent de 10 à 16 scénarios, incluant le basculement de période. **Reste hors de cette clôture UI** : tests sur appareils physiques, interactions Stripe/QR/votes avec back-end homologué, contenus sous droits et décisions RGPD. Le front est avancé, mais une homologation à 100 % serait prématurée. [Détails de l'étape 53](ETAPE_53_FINITIONS_FRONTEND.md).
 
+## Étape 60 — Finances et Stripe TEST (sécurité du code, activation interdite)
+
+Validation stricte des montants Premium mensuel et annuel, rattachement serveur des clés TEST à une référence Supabase de staging précise et interception des événements de remboursement/litige qui étaient auparavant ignorés. Ces événements sont volontairement placés en attente avec HTTP 503 : **ils ne sont ni réconciliés ni susceptibles de révoquer un droit Premium**, donc le système ne doit pas être activé pour encaisser. Aucune Edge Function déployée ou migration appliquée en production, et aucun don activé. [Détails](ETAPE_60_SECURITE_FINANCIERE_TEST.md).
+
 ## Étape 59 — Administration éditoriale, réactions et médias (UI intégrée)
 
 Création d'un module MFA AAL2 de suivi des publications, des brouillons et de la disponibilité des réactions/médias ; lecture des publications indépendante des chargements optionnels et agrandissement des photos autorisées en fenêtre accessible sur le site. **La production ne contient toujours pas les tables réactions et médias** : leurs migrations et recettes RLS/Storage restent nécessaires ; aucun contenu fictif ajouté. [Étape 59](ETAPE_59_ADMIN_MEDIA_REACTIONS.md).
