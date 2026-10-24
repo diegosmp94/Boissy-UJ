@@ -14,6 +14,10 @@ Le bandeau « Prochain match » bascule désormais à **minuit heure de Paris** 
 
 **Le chantier P1 de validation sportive officielle reste ouvert.**
 
+## Fiche joueur publique — aperçu et profils consentis (24 octobre 2026)
+
+Une page individuelle de présentation est disponible dans l'arborescence sportive : [maquette accessible](FICHE_JOUEUR_PUBLIQUE_20261024.md), `#/joueurs/apercu` et, pour les seuls profils publics autorisés, `#/joueurs/<uuid>`. Le rendu indique photo non publiée, âge indisponible, poste/numéro et statistiques sans inventer de données. Le trombinoscope d'équipe relie les identités consenties à leur fiche. **L'alimentation des portraits, âges et statistiques individuels nécessite encore un modèle autorisé, des données réelles et la recette RGPD/MFA** ; cette livraison n'homologue aucun joueur ni mineur.
+
 ## Chantiers actifs uniquement
 
 **Les fonctionnalités déjà développées et vérifiées ont été retirées du tableau des chantiers.** Leurs étapes historiques ci-dessous restent conservées pour assurer la traçabilité. La réussite des tests CI ne clôt pas une homologation juridique ou une recette utilisateur réelle.
