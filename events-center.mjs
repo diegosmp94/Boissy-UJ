@@ -81,7 +81,8 @@ function buildEventCard(event) {
     if (event.priority_kind === 'premium') extras.append(el('span','','Priorité Premium prévue · modalités à confirmer'));
     card.append(extras);
   }
-  const reminder = el('p','event-notice','Réservation en ligne indisponible dans cette préversion.');
+  const reminder = el('p','event-notice',
+    'Réservation en ligne indisponible dans cette préversion. Aucun billet QR n’est délivré depuis le site.');
   card.append(reminder);
   return card;
 }
