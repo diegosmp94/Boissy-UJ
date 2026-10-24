@@ -10,7 +10,7 @@ export const ACTIVE_WORKSTREAMS=Object.freeze([
   next:'Sauvegarder sous contrôle du club, restaurer dans une instance isolée et comparer les inventaires via le vérificateur.',
   dependency:'Destination isolée, habilitation et procédure de stockage sécurisé',kind:'human'},
  {id:'p1-devices',priority:'P1',title:'Recette Safari, Android et accessibilité',
-  next:'Tester sur appareils physiques, clavier, VoiceOver et TalkBack et joindre un PV expurgé.',
+  next:'Après protections automatisées étape 63, réaliser la recette sur vrais iPhone Safari / Android avec VoiceOver, TalkBack, clavier et zoom, puis PV expurgé.',
   dependency:'Appareils et testeurs habilités',kind:'human'},
  {id:'p1-rgpd',priority:'P1',title:'Validation RGPD, droits à l’image et données des mineurs',
   next:'Valider responsables, bases légales, durées, registre, droits des représentants et procédure de retrait.',
