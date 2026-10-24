@@ -46,7 +46,7 @@ test('agenda month grid and team cards can surface archived results without trea
  const month=monthGrid(2026,0,merged);
  assert.ok(month.find(d=>d.key==='2026-01-11').entries.some(x=>x.outcome==='V'));
  const matchCenter=read('sport-center.mjs'),teamPages=read('team-pages.mjs'),rankings=read('league-standings.mjs');
- assert.match(matchCenter,/Historique des matchs/);
+ assert.match(matchCenter,/Archives des matchs et résultats/);
  assert.match(matchCenter,/match\.season/);
  assert.match(teamPages,/m\.season/);
  assert.match(rankings,/appendSourcedSportContext\(section,team\.code\)/);
