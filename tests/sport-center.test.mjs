@@ -48,7 +48,7 @@ test('sports module is read-only and uses DOM textContent for remote data',()=>{
 test('Match Center route mounts and unmounts public sports loader',()=>{
  assert.match(app,/from '\.\/sport-center.mjs'/);
  assert.match(app,/id="match-center-live"/);
- assert.match(app,/if\(path==='\/matchs'\) void mountSport\(route.teamCode\); else unmountSport\(\)/);
+ assert.match(app,/if\(path==='\/matchs'\) void mountSport\(route.teamCode,\{competition\}\); else unmountSport\(\)/);
 });
 test('previous conflicting unused SQL is explicitly archived',()=>{
  assert.match(read('supabase/migrations/20261020220000_core_v1.sql'),/ancienne proposition de migration NON appliquée/);
@@ -60,7 +60,7 @@ test('missing database retains five teams and clearly marked empty fixture lists
  assert.match(loader,/id:'pending-a'/);
  assert.match(loader,/id:'pending-veterans'/);
  assert.match(loader,/id:'pending-futsal'/);
- assert.match(loader,/displayFixtures\(root,FALLBACK_TEAMS,\[\],\[\],initialTeamCode\)/);
+ assert.match(loader,/displayFixtures\(root,FALLBACK_TEAMS,\[\],\[\],initialTeamCode,\{initialCompetition:competition\}\)/);
  assert.match(loader,/calendrier du club n’est pas encore disponible/);
  assert.match(loader,/notice\.setAttribute\('role','status'\)/);
  assert.match(read('styles.css'),/\.sport-notice\s*\{/);
