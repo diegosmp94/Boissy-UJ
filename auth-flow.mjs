@@ -50,3 +50,12 @@ export function validateAuthInput(mode,input={}){
     errors.push('Le nom d’affichage doit contenir entre 2 et 80 caractères, sans caractère de contrôle.');
   return {valid:errors.length===0,errors,email,password,displayName};
 }
+
+/** Returns false as soon as a login/registration form has been replaced.
+ * Promise results from a previous mode or route must never update the
+ * currently displayed account form or trigger its next network action.
+ */
+export function isCurrentAuthForm(root,form){
+  return Boolean(root?.isConnected&&form?.isConnected&&
+    root.querySelector?.('form[data-auth-mode]')===form);
+}
