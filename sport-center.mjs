@@ -150,7 +150,7 @@ function mountEmpty(container,message) {
   empty.append(element('span','sport-empty-icon','⚽'),element('p','',message));
   container.append(empty);
 }
-function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null,{unavailable=[]}={}) {
+function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null,{unavailable=[],initialCompetition='league'}={}) {
   root.replaceChildren();
   const map = new Map(teams.map(team=>[team.id,team]));
   const filter=element('div','sport-filter-bar');
@@ -210,8 +210,8 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null,{una
     legend.append(element('span','sport-outcome sport-outcome-'+code,label));
   }
   root.append(filter);
-  let activeCompetition='league',sourcedSeason='2026-2027';
-  buildCompetitionTabs(root,{onChange:value=>{activeCompetition=value;redraw();}});
+  let activeCompetition=initialCompetition==='cup'?'cup':'league',sourcedSeason='2026-2027';
+  buildCompetitionTabs(root,{defaultKind:activeCompetition,onChange:value=>{activeCompetition=value;redraw();}});
   root.append(context,legend,data,thirdParty);
   function redraw(){
     data.replaceChildren();context.replaceChildren();
@@ -325,7 +325,7 @@ export function unmountSport() {
   currentRequest?.abort();
   currentRequest=null;
 }
-export async function mountSport(initialTeamCode=null) {
+export async function mountSport(initialTeamCode=null,{competition='league'}={}) {
   unmountSport();
   const generation=renderGeneration;
   const root=document.getElementById('match-center-live');
@@ -337,7 +337,7 @@ export async function mountSport(initialTeamCode=null) {
   try{
     const {teams,matches,seasons,unavailable}=await loadPublicSportCatalogs(deadline.signal);
     if (abort.signal.aborted || generation!==renderGeneration || !root.isConnected) return;
-    displayFixtures(root,teams,matches,seasons,initialTeamCode,{unavailable});
+    displayFixtures(root,teams,matches,seasons,initialTeamCode,{unavailable,initialCompetition:competition});
     if(unavailable.length){
       const descriptions=[];
       if(unavailable.includes('club_teams'))
@@ -355,7 +355,7 @@ export async function mountSport(initialTeamCode=null) {
     if (abort.signal.aborted || generation!==renderGeneration || !root.isConnected) return;
     // La migration sportive n'est pas encore présente dans tous les environnements.
     // Conserver l'interface sans annoncer faussement un calendrier vide ou un score.
-    displayFixtures(root,FALLBACK_TEAMS,[],[],initialTeamCode);
+    displayFixtures(root,FALLBACK_TEAMS,[],[],initialTeamCode,{initialCompetition:competition});
     const notice=element('p','sport-notice',
       'Le calendrier du club n’est pas encore disponible. Présentation des équipes uniquement ; aucun match ni résultat ne peut être confirmé pour le moment.');
     notice.setAttribute('role','status');
