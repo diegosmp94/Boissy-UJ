@@ -146,23 +146,23 @@ function authCard(root, mode = "login") {
       let result;
       // Callback volontairement SANS hash : Supabase renvoie ?code=... avant le router.
       const redirectTo = authRedirectUrl(window.location);
-      if (mode === "login") {setRecoveryIntent(false);result = await api.auth.signInWithPassword({ email, password });}
+      if (mode === "login") {setRecoveryIntent(false);result = await withAuthDeadline(api.auth.signInWithPassword({ email, password }));}
       if (mode === "register") {
         setRecoveryIntent(false);
-        result = await api.auth.signUp({ email, password, options: {
+        result = await withAuthDeadline(api.auth.signUp({ email, password, options: {
           data: { display_name: review.displayName }, emailRedirectTo: redirectTo
-        } });
+        } }));
       }
       if (mode === "reset") {
         setRecoveryIntent(true);
-        result = await api.auth.resetPasswordForEmail(email,{redirectTo});
+        result = await withAuthDeadline(api.auth.resetPasswordForEmail(email,{redirectTo}));
       }
       if (mode === "resend") {
-        result = await api.auth.resend({
+        result = await withAuthDeadline(api.auth.resend({
           type: "signup",email,options:{emailRedirectTo:redirectTo}
-        });
+        }));
       }
-      if (mode === "newPassword") result = await api.auth.updateUser({ password });
+      if (mode === "newPassword") result = await withAuthDeadline(api.auth.updateUser({ password }));
       form.querySelectorAll('input[type="password"]').forEach(input => { input.value = ""; });
       if (result?.error) {
         if(mode==='reset')setRecoveryIntent(false);
@@ -243,11 +243,19 @@ async function showSession(root, api) {
     if(signOut.disabled)return;
     sessionViewGeneration+=1;
     signOut.disabled = true;
-    const { error: signOutError } = await api.auth.signOut();
-    if (signOutError) {
-      signOut.disabled = false;
-      account.append(el("p", "auth-warning", safeMessage(signOutError)));
-    } else {recoveryMode=false;setRecoveryIntent(false);authCard(root, "login");}
+    try{
+      const { error: signOutError } = await withAuthDeadline(api.auth.signOut());
+      if (!root.isConnected)return;
+      if (signOutError) {
+        signOut.disabled = false;
+        account.append(el("p", "auth-warning", safeMessage(signOutError)));
+      } else {recoveryMode=false;setRecoveryIntent(false);authCard(root, "login");}
+    }catch{
+      if(root.isConnected){
+        signOut.disabled=false;
+        account.append(el('p','auth-warning','Déconnexion temporairement indisponible. Réessaie.'));
+      }
+    }
   });
   account.append(signOut);
   root.append(account);
