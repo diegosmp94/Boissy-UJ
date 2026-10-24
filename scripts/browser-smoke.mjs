@@ -299,6 +299,20 @@ try{
     const isNews=expected.endsWith('/actualites');
     if(isPlayers&&!main.querySelector('#team-profile-extras'))
      errors.push('Team players panel missing');
+    if(isPlayers){
+     const positions=[...main.querySelectorAll('.team-position-section>h2')]
+      .map(h=>h.textContent.trim());
+     // When the network catalogue has loaded, five permanent sections
+     // must appear even when none of the records are published.
+     if(positions.length){
+      const expectedOrder=['Gardiens','Défenseurs','Milieux','Attaquants','Éducateurs'];
+      if(expectedOrder.some((label,index)=>positions[index]!==label))
+       errors.push('Team roster missing permanent Educateurs section or group order');
+      const educators=main.querySelector('.team-educators-section');
+      if(!educators||!educators.querySelector('.team-extras-educator-grid'))
+       errors.push('Team educators cards container missing');
+     }
+    }
     if(isMatches&&(!main.querySelector('#team-profile-live')
       ||!main.querySelector('#team-league-standing')))
      errors.push('Team matches or standings missing');
