@@ -49,6 +49,7 @@
  .topbar{gap:12px;padding-left:clamp(18px,3vw,40px);padding-right:clamp(18px,3vw,40px)}
  .header-classic-links{gap:16px}
 }
+#team-league-standing{scroll-margin-top:102px}
 .mobile-classic-menu{grid-template-columns:minmax(0,1fr);align-content:start;
  gap:3px}
 .mobile-classic-menu>.mobile-teams{width:100%;min-width:0}
