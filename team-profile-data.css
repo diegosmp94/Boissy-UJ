@@ -32,3 +32,46 @@
  .team-extras-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.team-extras-person{padding:15px}
  .team-extras-article{padding:19px}}
 @media(max-width:380px){.team-extras-metrics{grid-template-columns:1fr}}
+
+/* Joueurs : trombinoscope type carte de club, prénom/nom uniquement.
+   Aucun portrait de personne fictive : silhouette neutre jusqu'à publication validée. */
+.team-extras-player-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:17px}
+.team-extras-player-grid .team-extras-player-card{display:flex;flex-direction:column;
+ gap:0;min-width:0;min-height:0;padding:0;overflow:hidden;text-decoration:none;
+ border:1px solid #b7cbdb70;border-radius:17px;
+ background:linear-gradient(160deg,#123859,#091a35);color:#fff;
+ box-shadow:0 12px 28px #0002;transition:transform .16s,border-color .16s}
+.team-extras-player-card[href]:hover{transform:translateY(-3px);border-color:#f0ce83}
+.team-extras-player-card[href]:focus-visible{outline:3px solid #f1d18d;outline-offset:3px}
+.team-extras-player-portrait{position:relative;isolation:isolate;display:flex;
+ align-items:flex-end;justify-content:center;width:100%;aspect-ratio:4/5;overflow:hidden;
+ background:radial-gradient(ellipse at 50% 18%,#3273a3 0%,#12345c 55%,#091a35 100%);
+ border-bottom:2px solid #e3ba71}
+.team-extras-player-portrait::after{content:"";position:absolute;inset:0;
+ background:linear-gradient(180deg,transparent 54%,#061a3575 100%);
+ pointer-events:none}
+.team-extras-player-silhouette{position:absolute;inset:8% 7% 0;overflow:hidden}
+.team-extras-player-head{position:absolute;left:50%;top:12%;width:34%;aspect-ratio:1;
+ transform:translateX(-50%);border-radius:50%;
+ background:linear-gradient(145deg,#afc8d6,#4c7291)}
+.team-extras-player-shoulders{position:absolute;left:50%;bottom:-23%;width:110%;
+ height:69%;transform:translateX(-50%);border-radius:50% 50% 15% 15%;
+ background:linear-gradient(140deg,#93b6cd,#305675)}
+.team-extras-player-number{position:absolute;z-index:2;bottom:12px;right:12px;
+ display:grid;place-items:center;min-width:49px;height:49px;padding:0 8px;
+ color:#091a32;background:linear-gradient(145deg,#ffe8b2,#d7ad5e);
+ border:2px solid #fff6cb;border-radius:12px;
+ font:900 clamp(22px,2.7vw,33px)/1 Outfit,system-ui,sans-serif;
+ box-shadow:0 8px 19px #020c20a0}
+.team-extras-player-card .team-extras-player-name{display:flex;align-items:center;
+ justify-content:center;min-height:76px;padding:17px 12px;margin:0;
+ text-align:center;overflow-wrap:anywhere;color:#f7f9ff;
+ font:850 clamp(16px,1.65vw,21px)/1.25 Outfit,system-ui,sans-serif}
+@media(max-width:1100px){.team-extras-player-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:720px){.team-extras-player-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ .team-extras-player-number{right:9px;bottom:9px;min-width:43px;height:43px;font-size:25px}
+ .team-extras-player-card .team-extras-player-name{padding:12px 8px;min-height:66px;font-size:16px}}
+@media(max-width:360px){.team-extras-player-grid{gap:9px}
+ .team-extras-player-number{min-width:35px;height:35px;font-size:21px}
+ .team-extras-player-card .team-extras-player-name{font-size:14px}}
+@media(prefers-reduced-motion:reduce){.team-extras-player-card{transition:none!important}}
