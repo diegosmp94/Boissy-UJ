@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Étape 60 — Garde-fous financiers Stripe TEST (24 octobre 2026)
+
+Le code de facturation TEST vérifie maintenant **exactement 10 € par mois et 100 € pour 12 mois non renouvelés automatiquement**, exige un **projet Supabase staging distinct** pour ses requêtes serveur, et **refuse d'ignorer les remboursements et litiges** : ces événements restent bloqués tant que leur rapprochement fiable n'a pas été développé. Aucun paiement ni don n'est activé ; les Edge Functions et migrations demeurent **non déployées**. [Guide étape 60](docs/ETAPE_60_SECURITE_FINANCIERE_TEST.md).
+
 ## Étape 59 — Suivi éditorial et galerie dans le site (23 octobre 2026)
 
 Le centre de gestion MFA AAL2 propose **Suivi des publications** (comptage des brouillons/articles publics, disponibilité des réactions et des médias sans exposer d'identités), et les actualités chargent les photos et les réactions de façon **indépendante**, sans bloquer la lecture des textes. Les photos approuvées peuvent s'agrandir sur le site avec une fenêtre accessible au clavier. [Détails étape 59](docs/ETAPE_59_ADMIN_MEDIA_REACTIONS.md). **Les migrations Supabase réactions/médias ne sont pas encore installées en production : leur activation réelle reste à homologuer.**
