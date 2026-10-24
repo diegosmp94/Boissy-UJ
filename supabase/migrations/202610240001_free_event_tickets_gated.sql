@@ -67,7 +67,7 @@ begin
      coalesce((select auth.jwt()->>'is_anonymous'),'false')='true'
   then raise exception 'Verified member sign-in required' using errcode='42501'; end if;
 
-  select enabled into v_gate from app_private.free_ticketing_gate where id=1;
+  select enabled into v_gate from app_private.free_ticketing_gate where id=1 for share;
   if not coalesce(v_gate,false)
   then raise exception 'Free ticketing is not activated' using errcode='42501'; end if;
 
@@ -130,7 +130,7 @@ begin
   if v_actor is null
     or coalesce((select auth.jwt()->>'is_anonymous'),'false')='true'
   then raise exception 'Verified member sign-in required' using errcode='42501'; end if;
-  select enabled into v_gate from app_private.free_ticketing_gate where id=1;
+  select enabled into v_gate from app_private.free_ticketing_gate where id=1 for share;
   if not coalesce(v_gate,false)
   then raise exception 'Free ticketing is not activated' using errcode='42501'; end if;
 
@@ -172,7 +172,7 @@ begin
   if v_actor is null
     or not coalesce((select app_private.is_admin()),false)
   then raise exception 'Administrator MFA AAL2 required' using errcode='42501'; end if;
-  select enabled into v_gate from app_private.free_ticketing_gate where id=1;
+  select enabled into v_gate from app_private.free_ticketing_gate where id=1 for share;
   if not coalesce(v_gate,false)
   then raise exception 'Free ticketing is not activated' using errcode='42501'; end if;
 
