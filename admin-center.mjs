@@ -11,6 +11,7 @@ import {mountAdminNewsMedia} from './admin-news-media.mjs';
 import {mountAdminEditorialStatus} from './admin-editorial-status.mjs';
 import {mountAdminNewsRevisions} from './admin-news-revisions.mjs';
 import {mountAdminReadiness} from './admin-readiness.mjs';
+import {mountAdminTicketingReadiness} from './admin-ticketing-readiness.mjs';
 import {mountAdminPlayerTeams} from './admin-player-teams.mjs';
 import {mountAdminCoachTeams} from './admin-coach-teams.mjs';
 import {mountAdminSeasons,mountAdminMatches,mountAdminNews,mountAdminFreeEvents} from './admin-management.mjs';
@@ -26,7 +27,8 @@ export const ADMIN_MODULES=Object.freeze([
  {id:'coach-teams',name:'Affectations entraîneurs',group:'Sport',caption:'Gérer les équipes attribuées aux éducateurs'},  
  {id:'seasons',name:'Saisons',group:'Sport',caption:'Gestion des saisons sportives'},
  {id:'matches',name:'Matchs et résultats',group:'Sport',caption:'Rencontres officielles du club'},
- {id:'events',name:'Événements gratuits',group:'Sport',caption:'Agenda sans billetterie ni paiements'}, 
+ {id:'events',name:'Événements gratuits',group:'Sport',caption:'Agenda sans billetterie ni paiements'},
+ {id:'ticketing',name:'Préparation billetterie',group:'Sport',caption:'Jauges et contrôle des billets QR (non activé)'}, 
  {id:'editorial',name:'Suivi des publications',group:'Contenu',caption:'Contrôles réels des articles et médias'},
  {id:'news',name:'Actualités',group:'Contenu',caption:'Articles et droits de publication'},
  {id:'news-revisions',name:'Historique des actualités',group:'Contenu',caption:'Versions précédentes et restauration en brouillon'}, 
@@ -213,6 +215,9 @@ export async function mountAdminCenter(getClient){
     case 'seasons':mountAdminSeasons(view,api,verified.userId);break;
     case 'matches':mountAdminMatches(view,api,verified.userId);break;
     case 'events':mountAdminFreeEvents(view,api,verified.userId);break;
+    case 'ticketing':void mountAdminTicketingReadiness(view,api,verified.userId,next=>{
+     if(availableModules.some(module=>module.id===next))void selectSection(next);
+    });break;
     case 'editorial':void mountAdminEditorialStatus(view,api,verified.userId,next=>{
      if(availableModules.some(module=>module.id===next))void selectSection(next);
     });break;
