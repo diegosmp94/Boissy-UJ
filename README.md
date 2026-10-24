@@ -30,6 +30,10 @@ Suppression des appels automatiques à Google Fonts, mise en place d’une CSP d
 
 **Le calendrier issu de relevés externes n'est plus présenté comme « confirmé par le club »** dans l'accueil, le Match Center ou les profils. Le Control Center propose une **Revue des sources sportives** derrière MFA AAL2 : elle rapproche les résultats/dates sourcés des dossiers de matchs existants, signale doublons, écarts et rencontres passées sans résultat, et donne accès à l'éditeur sécurisé sans publier automatiquement. Les classements ne restent plus bloqués si l'API tarde et affichent un contexte honnêtement sourcé. **Aucun match, classement ou article fictif n'est enregistré.** [Procédure étape 62](docs/ETAPE_62_SOURCES_SPORTIVES_ET_PUBLICATION.md).
 
+## Étape 65 — Réservation gratuite à usage unique, backend désactivé (24 octobre 2026)
+
+Un backend PostgreSQL **non déployé** prépare désormais une réservation gratuite atomique avec verrouillage de la jauge, une réservation par membre, annulation avant match, QR opaque 256 bits stocké uniquement sous hash, et validation **MFA AAL2** à usage unique. Un interrupteur privé, réinitialisé à **OFF** à chaque installation, interdit toute réservation ou entrée tant que les tests réels ne sont pas homologués. [Dossier étape 65](docs/ETAPE_65_BILLETS_GRATUITS_ATOMIQUES.md).
+
 ## Étape 61 — Billetterie gratuite et Awards (préparation sécurisée, 24 octobre 2026)
 
 Les **Awards restent consultables** même si les nominations ou résultats connaissent une panne, sans afficher de gagnant fictif. Le Control Center ajoute **Préparation billetterie** pour vérifier en lecture seule les dates, jauges et statuts des événements gratuits sous contrôle MFA AAL2. Un protocole de QR opaque à 256 bits est préparé **côté serveur uniquement**, mais **aucun billet, aucune réservation ni entrée QR n'est activé** sans contrôle transactionnel et recette réelle. [Détail étape 61](docs/ETAPE_61_BILLETTERIE_QR_AWARDS.md).

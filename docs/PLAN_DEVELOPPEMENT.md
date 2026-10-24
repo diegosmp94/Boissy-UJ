@@ -57,6 +57,10 @@ Google Fonts retiré pour supprimer un chargement tiers passif. CSP méta de dé
 
 Audit réel : 5 équipes, aucun match, classement ou article publiés. Élimination des faux drapeaux de « date confirmée par le club » sur les relevés de tiers. Ajout au Control Center d'une revue en lecture seule (MFA AAL2) des dates, scores et doublons externes, comparés à l'éditeur interne ; guide de validation par les responsables du club. En cas de panne, les classements disposent d'un timeout et d'un contexte sourcé plutôt que de rester en chargement. **La publication effective de scores et d'articles nécessite encore des données et droits approuvés ; aucune saisie automatique.** [Détails étape 62](ETAPE_62_SOURCES_SPORTIVES_ET_PUBLICATION.md).
 
+## Étape 65 — Backend atomique des billets gratuits (non déployé)
+
+Prototype SQL transactionnel en `app_private`, RLS activé et accès direct refusé : jauge verrouillée, réservation unique par compte/événement, QR à secret de 256 bits stocké sous SHA-256 seulement, annulation du titulaire et scan atomique par administrateur MFA AAL2. Feature gate **OFF** par défaut et réinitialisé à OFF si la migration est rejouée. Inclut audit SQL statique et script de revue RLS/privileges staging. **Aucun test PostgreSQL réel, migration appliquée, QR émis ou billet actif : recettage multi-comptes et deux scanners avant toute activation.** [Détails étape 65](ETAPE_65_BILLETS_GRATUITS_ATOMIQUES.md).
+
 ## Étape 61 — Billetterie QR et Awards (partie code réalisée)
 
 Fiabilisation du catalogue Awards en mode dégradé : catégories publiques toujours visibles lorsque les nominations ou les résultats échouent, sans inventer de résultat. Préparation dans le Control Center d'un diagnostic en lecture seule des jauges/dates/états pour événements gratuits ; module visible uniquement si RPC admin événement disponible et contrôle MFA AAL2. Format de référence QR opaque à 256 bits et hachage côté serveur préparés, **sans émission ni validation de billet**. Il reste à coder et recetter les transitions atomiques, la jauge, les annulations, et le vote Premium réellement authentifié. [Détails](ETAPE_61_BILLETTERIE_QR_AWARDS.md).
