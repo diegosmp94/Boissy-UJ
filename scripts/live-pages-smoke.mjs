@@ -1,4 +1,6 @@
 import {checkPublicSiteBase,inspectPublicAsset} from './public-live-validator.mjs';
+import {mkdir,writeFile} from 'node:fs/promises';
+import {resolve,join} from 'node:path';
 /** Read-only smoke of the actually published GitHub Pages site.
  * Explicit/manual run only: publication may lag main and can be unreachable.
  * No authentication, private data, tracking code, external packages or writes.
@@ -38,6 +40,7 @@ assets.push({
  expected:['User-agent: *','Disallow: /']
 });
 let failed=0;
+const results=[];
 for(const asset of assets){
  const url=new URL(asset.file,base);
  try{
@@ -54,12 +57,30 @@ for(const asset of assets){
   // main-shaped manifest, not equality with the latest main branch.
   if(asset.file==='release.json'&&!inspected.mainMatched)
    console.log('WARN published main-shaped release; exact latest-main equality not checked');
+  results.push({check:asset.file||'index.html',passed:true});
   console.log('PASS '+asset.name+' ('+response.status+', '+data.length+' chars)');
  }catch(error){
   failed++;
+  results.push({check:asset.file||'index.html',passed:false});
   console.error('FAIL '+asset.name+': '+String(error?.message||error));
  }
 }
+// CI evidence contains only public asset names, a Git SHA and pass/fail; it
+// never records HTTP response contents, URLs, auth headers or user accounts.
+const artifactDir=resolve(process.cwd(),'smoke-artifacts');
+await mkdir(artifactDir,{recursive:true});
+await writeFile(join(artifactDir,'live-public-report.json'),JSON.stringify({
+ scope:'anonymous public HTTP only',
+ commitExpected:expectedCommit||null,
+ mainRevisionVerified:failed===0&&Boolean(expectedCommit),
+ publicAssetsPassed:results.filter(item=>item.passed).length,
+ publicAssetsChecked:results.length,
+ passed:failed===0,
+ checks:results,
+ personalDataCollected:false,
+ accountFlowsCertified:false,
+ mobileDevicesCertified:false
+},null,2)+'\n');
 if(failed){
  console.error(failed+' public checks failed; check Pages publishing status and current deployment.');
  process.exitCode=1;
