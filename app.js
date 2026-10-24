@@ -1,6 +1,7 @@
 import {mountEvents,unmountEvents} from './events-center.mjs';
 import {CLUB_TEAMS,DISCIPLINES,teamsByDiscipline,teamRoute,categoryRoute,disciplineLabel} from './club-teams.mjs';
 import {TEAM_SUBPAGE_SECTIONS,teamSubpageRoute,resolveTeamSubpageRoute,teamSubpageNavigation} from './team-subpages.mjs';
+import {mountTeamAffiliatedRoster,unmountTeamAffiliatedRoster} from './team-affiliated-roster.mjs';
 import {mountTeamProfile,unmountTeamProfile} from './team-pages.mjs';
 import {mountTeamPublicExtras,unmountTeamPublicExtras} from './team-profile-data.mjs';
 import {isPublicPlayerId,mountPublicPlayerProfile,unmountPublicPlayerProfile} from './player-profile-page.mjs';
@@ -197,7 +198,8 @@ function teamSubpage(team,section){
     actualites:'Retrouvez exclusivement les actualités publiques et validées de cette équipe.'
   };
   const content=section==='joueurs'
-    ?'<div id="team-profile-extras" class="team-profile-extras" aria-live="polite" aria-label="Joueurs autorisés à la publication"><p class="team-extras-empty">Chargement des joueurs publiés…</p></div>'
+    ?'<div id="team-profile-extras" class="team-profile-extras" aria-live="polite" aria-label="Joueurs autorisés à la publication"><p class="team-extras-empty">Chargement des joueurs publiés…</p></div>'+
+      '<div id="team-affiliated-roster-root" class="team-affiliated-roster-root"></div>'
     :section==='matchs'
       ?'<div id="team-profile-live" class="team-profile-live" aria-live="polite"><p class="team-profile-state">Chargement des matchs de l’équipe…</p></div>'+
        '<div id="team-league-standing" class="league-standings-root league-team-standing" aria-live="polite"><p class="sport-loading">Chargement des classements de l’équipe…</p></div>'
@@ -370,6 +372,8 @@ function render(){
   if(path==='/') mountHomeNextMatch(); else unmountHomeNextMatch();
   const activeSubpage=resolveTeamSubpageRoute(path);
   const activeTeam=teams.find(t=>teamRoute(t).slice(1)===path)||activeSubpage?.team;
+  if(activeSubpage?.section==='joueurs')mountTeamAffiliatedRoster(activeTeam,getAuthClient);
+  else unmountTeamAffiliatedRoster();
   if(activeSubpage?.section==='matchs'){
     void mountTeamProfile(activeTeam.code);unmountTeamPublicExtras();
   }else if(activeSubpage?.section==='joueurs'){
