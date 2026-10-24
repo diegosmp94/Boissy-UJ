@@ -33,3 +33,21 @@ export function validPremiumTestAmount({kind,amount,currency}){
  return currency==='eur'&&Number.isSafeInteger(amount)&&
    ((kind==='monthly'&&amount===1000)||(kind==='annual'&&amount===10000));
 }
+
+/** Private financial RPCs may send a server key ONLY to an exact Supabase
+ * test-project hostname. Call before constructing Stripe or any HTTP request.
+ * Never guess the project ID from an Origin header or untrusted payload.
+ */
+export function verifiedStripeTestProjectOrigin(projectUrl,projectRef){
+ if(typeof projectRef!=='string'||!/^[a-z0-9]{20}$/.test(projectRef)||
+    projectRef==='dahzewvbybujqhogumte')
+  throw new Error('A distinct acknowledged staging project is required');
+ let url;
+ try{url=new URL(projectUrl);}catch{throw new Error('Invalid TEST Supabase URL');}
+ if(url.protocol!=='https:'||url.hostname!==projectRef+'.supabase.co'||
+    (url.pathname!==''&&url.pathname!=='/')||url.search||url.hash||
+    url.username||url.password||url.port||
+    /:443(?:\/|$)/.test(projectUrl))
+  throw new Error('Stripe TEST project endpoint is not an exact Supabase staging root');
+ return url.origin;
+}
