@@ -19,9 +19,9 @@ export function prepareFreeTicketCode(eventId,secretHex){
   throw new Error('Invalid opaque free-ticket reference');
  return BOISSY_QR_VERSION+':'+eventId+':'+secretHex;
 }
-export function createServerOnlyFreeTicketCode(eventId,random=randomBytes){
+export function createServerOnlyFreeTicketCode(eventId){
  if(!UUID.test(String(eventId)))throw new Error('Invalid event ID');
- const secret=random(32);
+ const secret=randomBytes(32);
  if(!Buffer.isBuffer(secret)||secret.length!==32)
   throw new Error('Secure 256-bit server randomness is required');
  return prepareFreeTicketCode(eventId,secret.toString('hex'));
