@@ -16,13 +16,20 @@ const teamOf=code=>CLUB_TEAMS.find(team=>team.code===code);
 export function parisNextMidnight(day){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(day)))return NaN;
  const [y,m,d]=day.split('-').map(Number);
- const base=Date.UTC(y,m-1,d+1,12);
- if(!Number.isFinite(base))return NaN;
- const h=Number(new Intl.DateTimeFormat('en-GB',{
+ if(y<2000||y>2100)return NaN;
+ const start=Date.UTC(y,m-1,d);
+ if(!Number.isFinite(start)||new Date(start).toISOString().slice(0,10)!==day)
+  return NaN;
+ const nextUtc=start+86400000;
+ // At UTC 00:00 Europe/Paris is 01:00 or 02:00. That offset is the
+ // one active at *local midnight*, BEFORE any 02:00/03:00 DST switch.
+ // Sampling midday on the next date instead produces a one-hour error
+ // on the final Saturday of March/October.
+ const parisHour=Number(new Intl.DateTimeFormat('en-GB',{
   timeZone:'Europe/Paris',hour:'2-digit',hourCycle:'h23'
- }).format(new Date(base)));
- const offset=h-12;
- return Date.UTC(y,m-1,d+1)-offset*3600000;
+ }).format(new Date(nextUtc)));
+ if(!Number.isInteger(parisHour)||parisHour<0||parisHour>3)return NaN;
+ return nextUtc-parisHour*3600000;
 }
 /** Date-only fixtures have no kickoff hour: they remain pending until Paris midnight. */
 export function nextMatchBoundary(fixture){
@@ -147,6 +154,12 @@ export function renderHomeNextMatch(root,fixture,{now=Date.now(),dataUnavailable
   fixture.clubConfirmed?'Date annoncée par le club · détails sportifs à confirmer':
    'Calendrier référencé · date et horaire à confirmer par le club';
  root.append(element('p','home-next-status',status));
+ if(dataUnavailable){
+  const warning=element('p','home-next-status home-next-sync-warning',
+   'Mise à jour du calendrier du club momentanément indisponible. Les informations déjà publiées ou référencées peuvent avoir changé.');
+  warning.setAttribute('role','status');
+  root.append(warning);
+ }
  const action=element('div','home-next-actions');
  const all=element('a','home-next-action','Tous les matchs ↗');
  all.href='#/matchs';action.append(all);
@@ -169,14 +182,15 @@ export function mountHomeNextMatch(){
  const root=document.getElementById('home-next-match');
  if(!root)return;
  const generation=sequence;
- let remote={teams:[],matches:[]},loading=false,lastSync=0;
+ let remote={teams:[],matches:[]},loading=false,lastSync=0,remoteUnavailable=false;
  const sourced=publicExternalFixtures({includePast:true,period:'all',season:'2026-2027'});
  const all=()=>mergeNextMatchCalendar(remote.matches,sourced,remote.teams);
  const active=()=>generation===sequence&&root.isConnected;
  const draw=()=>{
   if(!active())return;
   const now=Date.now(),fixtures=all();
-  renderHomeNextMatch(root,nextUpcomingMatch(fixtures,now),{now});
+  renderHomeNextMatch(root,nextUpcomingMatch(fixtures,now),{now,
+   dataUnavailable:remoteUnavailable});
   if(timer!==null)clearTimeout(timer);
   timer=setTimeout(()=>{
    timer=null;
@@ -193,11 +207,11 @@ export function mountHomeNextMatch(){
   try{
    const fresh=await loadPublishedUpcoming({signal:deadline.signal});
    if(!active()||abort.signal.aborted)return;
-   remote=fresh;lastSync=Date.now();
+   remote=fresh;remoteUnavailable=false;lastSync=Date.now();
   }catch{
    // Continue to display the sourced season calendar; no invented club approval.
    if(!active()||abort.signal.aborted)return;
-   lastSync=Date.now();
+   remoteUnavailable=true;lastSync=Date.now();
   }finally{
    deadline.dispose();
    loading=false;
