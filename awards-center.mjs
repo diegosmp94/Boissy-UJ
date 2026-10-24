@@ -47,23 +47,34 @@ async function getRows(table,columns,query,signal,fetcher=fetch){
   return body;
 }
 export async function fetchPublishedAwards(signal,fetcher=fetch){
-  const [awards,nominees,results]=await Promise.all([
-    getRows('club_awards',
-      'id,title,description,team_code,season_label,voting_status,opens_at,closes_at,results_published',
-      {published:'eq.true',order:'team_code.asc,title.asc',limit:'90'},signal,fetcher),
+  // Categories are required. Nominees and result rows are OPTIONAL and
+  // fail closed: never call a missing result "officially empty" or invent a winner.
+  const awards=await getRows('club_awards',
+    'id,title,description,team_code,season_label,voting_status,opens_at,closes_at,results_published',
+    {published:'eq.true',order:'team_code.asc,title.asc',limit:'90'},signal,fetcher);
+  if(!awards.length)return {awards,nominees:[],results:[],
+    nomineesAvailable:true,resultsAvailable:true};
+  const [nomineesOutcome,resultsOutcome]=await Promise.allSettled([
     getRows('club_award_nominees','id,award_id,display_label,published,consent_reviewed,sort_order',
       {published:'eq.true',consent_reviewed:'eq.true',order:'sort_order.asc',limit:'300'},signal,fetcher),
     getRows('club_award_results','award_id,nominee_id',
       {order:'award_id.asc',limit:'90'},signal,fetcher)
   ]);
-  return {awards,nominees,results};
+  const nomineesAvailable=nomineesOutcome.status==='fulfilled';
+  const resultsAvailable=resultsOutcome.status==='fulfilled';
+  return {
+    awards,
+    nominees:nomineesAvailable?nomineesOutcome.value:[],
+    results:resultsAvailable?resultsOutcome.value:[],
+    nomineesAvailable,resultsAvailable
+  };
 }
 function dateFr(s){
   if(!s||Number.isNaN(Date.parse(s)))return null;
   return new Intl.DateTimeFormat('fr-FR',{dateStyle:'medium',
     timeStyle:'short',timeZone:'Europe/Paris'}).format(new Date(s));
 }
-function awardCard(award,nominees,results){
+function awardCard(award,nominees,results,availability={nomineesAvailable:true,resultsAvailable:true}){
   const card=make('article','award-card');
   const meta=make('div','award-card-meta');
   meta.append(make('span','award-team',TEAM_LABELS[award.team_code]||'Équipe'),
@@ -81,7 +92,9 @@ function awardCard(award,nominees,results){
   const heading=make('h4','','Nominations publiées');
   card.append(heading);
   if(!allowed.length){
-    card.append(make('p','award-empty-nominees','Aucun nominé officiellement publié pour le moment.'));
+    card.append(make('p','award-empty-nominees',availability.nomineesAvailable
+      ?'Aucun nominé officiellement publié pour le moment.'
+      :'Les nominations ne peuvent pas être chargées pour le moment.'));
   }else {
     const list=make('ul','award-nominees');
     for(const person of allowed){
@@ -97,12 +110,20 @@ function awardCard(award,nominees,results){
     card.append(result);
   } else {
     card.append(make('p','award-vote-note',
-      'Aucun vote en ligne actif dans cette préversion. Résultats publiés uniquement après vérification du club.'));
+      award.results_published&&!availability.resultsAvailable
+       ?'Les résultats publiés ne peuvent pas être vérifiés pour le moment.'
+       :'Aucun vote en ligne actif dans cette préversion. Résultats publiés uniquement après vérification du club.'));
   }
   return card;
 }
 function build(root,data){
   root.replaceChildren();
+  if(data.nomineesAvailable===false||data.resultsAvailable===false){
+    const notice=make('p','award-no-content',
+      'Certaines données Awards sont temporairement indisponibles. Les catégories publiées restent consultables ; aucune nomination ni résultat non vérifié n’est affiché.');
+    notice.setAttribute('role','status');
+    root.append(notice);
+  }
   const controls=make('div','award-controls');
   const mkSelect=(title,options)=>{
     const label=make('label','award-label',title);
@@ -140,7 +161,7 @@ function build(root,data){
       cards.append(make('div','award-no-content',data.awards.length
         ?'Aucune catégorie ne correspond à ces filtres.'
         :'Le club n’a pas encore publié de catégorie Awards. Aucune nomination fictive n’est affichée.'));
-    }else filtered.forEach(a=>cards.append(awardCard(a,data.nominees,data.results)));
+    }else filtered.forEach(a=>cards.append(awardCard(a,data.nominees,data.results,data)));
   }
   for(const select of [team.select,status.select])
     select.addEventListener('change',paint);
