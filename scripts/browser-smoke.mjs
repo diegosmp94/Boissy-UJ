@@ -2,6 +2,7 @@
  * Chrome runs against a loopback HTTP server; no credentials or test users are created.
  */
 import {createServer} from 'node:http';
+import {assessAnonymousPublicOrigins} from './browser-origin-policy.mjs';
 import {readFile,writeFile,mkdir,mkdtemp,rm,access} from 'node:fs/promises';
 import {spawn} from 'node:child_process';
 import {join,resolve,extname,dirname} from 'node:path';
@@ -174,6 +175,14 @@ try{
    const main=document.querySelector('#main');
    if(!main||!main.textContent.trim())errors.push('Missing main content');
    if(document.documentElement.lang!=='fr')errors.push('Missing document language');
+   const csp=document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+   if(!csp||!csp.content.includes("object-src 'none'")||
+      !csp.content.includes("script-src 'self' https://cdn.jsdelivr.net"))
+     errors.push('Static browser security policy missing');
+   if(document.querySelector('meta[name="referrer"]')?.content!=='no-referrer')
+     errors.push('Personal navigation URL could leak via Referer');
+   if(document.querySelector('link[href*="fonts.googleapis.com"],link[href*="fonts.gstatic.com"]'))
+     errors.push('Passive third-party font request is not allowed');
    const skipLink=document.querySelector('a.skip-link[href="#main"]');
    if(!skipLink)errors.push('Skip navigation link absent');
    if(document.querySelectorAll('#main').length!==1)errors.push('Main landmark duplicated');
@@ -222,6 +231,11 @@ try{
    if(expected==='#/mon-espace'){
     if(!main.querySelector('[data-auth-root]'))errors.push('Account authentication mount absent');
     if(!main.textContent.includes('Protection des données'))errors.push('Privacy notice absent from account');
+    const unlabeled=[...main.querySelectorAll('input,textarea,select')]
+      .filter(node=>node.getClientRects().length>0)
+      .filter(node=>!node.labels?.length&&!node.getAttribute('aria-label')&&
+       !node.getAttribute('aria-labelledby'));
+    if(unlabeled.length)errors.push('Account form contains unlabeled inputs');
    }
    if(expected==='#/communaute'){
     const root=main.querySelector('#premium-plan-selector');
@@ -294,11 +308,17 @@ try{
  }
  await writeFile(join(artifactDir,'browser-smoke.json'),JSON.stringify(reports,null,2));
  const origins=[...chrome.networkOrigins].filter(origin=>!origin.startsWith('http://127.0.0.1:')).sort();
+ const originAudit=assessAnonymousPublicOrigins(origins);
  await writeFile(join(artifactDir,'browser-network-origins.json'),JSON.stringify({
   scope:'Anonymous local preview only; no user account tested; only origin names recorded',
-  externalOrigins:origins
+  externalOrigins:origins,
+  passed:originAudit.passed,
+  unreviewedOrigins:originAudit.unreviewedOrigins
  },null,2));
- console.log(scenarios.length+' public routes verified in Chromium; network origins inventoried without cookies or identities.');
+ if(!originAudit.passed)throw new Error(
+  'Unexpected third-party browser origins. Review data protection before publishing: '+
+  originAudit.unreviewedOrigins.join(', '));
+ console.log(scenarios.length+' public routes verified in Chromium; approved anonymous origins inventoried without cookies or identities.');
 }finally{
  if(chrome)await chrome.shutdown();
  await new Promise(resolve=>app.close(resolve));
