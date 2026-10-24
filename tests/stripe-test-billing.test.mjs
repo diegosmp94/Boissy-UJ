@@ -57,8 +57,8 @@ test('invoice without payment, period or matching plan is refused',()=>{
   subscription:sub};
  const make=(patch={},lines=[line(monthly)])=>
   projectStripeTestEvent(event('invoice.paid',{...base,...patch}),{...opts,lines});
- assert.throws(()=>make({amount_paid:0}),/paid positive invoices/);
- assert.throws(()=>make({status:'draft'}),/paid positive invoices/);
+ assert.throws(()=>make({amount_paid:0}),/exactly 10 EUR/);
+ assert.throws(()=>make({status:'draft'}),/exactly 10 EUR/);
  assert.throws(()=>make({currency:'usd'}),/Invalid TEST invoice/);
  assert.throws(()=>make({},[line(annual)]),/plan price mismatch/);
  assert.throws(()=>make({},[line(monthly),line(monthly)]),/Single recognized/);

@@ -26,7 +26,7 @@ La publication est maintenant préparée via un workflow GitHub Pages déclench�
 | Réactions aux actualités | Tests RLS à deux comptes, revue RGPD, migration préparée mais non appliquée |
 | Galeries et vidéos | Recette sur staging et validation droits, puis migration et import approuvé ; jamais de média privé dans un bucket public |
 | Administration avancée | Suivi éditorial en lecture seule intégré au centre de gestion ; historique et restauration en brouillon codés ; recettes réelles MFA/RLS et audit de publication restent à homologuer |
-| Premium, dons, finances et Stripe TEST | Checkout et webhook TEST codés ; déployer et tester en staging isolé, traiter les remboursements et homologuer la fiscalité avant activation |
+| Premium, dons, finances et Stripe TEST | Étape 60 : montant fixe et destination staging durcis ; événements de remboursement/litige bloqués, **sans réconciliation ni révocation**. Développer ces traitements, faire les tests staging puis homologuer dons, fiscalité et conditions avant toute activation |
 | Billetterie et QR | Validation des jauges, annulations, autorisations et scénario de test |
 | Awards et communauté | Migration de vote unique et retrait développée ; exécuter tests staging, intégrer webhook vérifié, approuver règlement et activer les écrans |
 

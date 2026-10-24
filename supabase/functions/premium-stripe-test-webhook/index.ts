@@ -5,12 +5,14 @@
  * Checkout link through a service-role-only SQL RPC.
  */
 import Stripe from 'npm:stripe@22.6.0';
-import {projectStripeTestEvent} from '../_shared/stripe-test-events.mjs';
+import {STRIPE_TEST_EVENTS,projectStripeTestEvent} from '../_shared/stripe-test-events.mjs';
+import {classifyStripeTestFinancialEvent,verifiedStripeTestProjectOrigin} from '../_shared/stripe-test-financial-guards.mjs';
 
 function configuration(){
  const apiKey=Deno.env.get('STRIPE_TEST_RESTRICTED_KEY')||'';
  const signingSecret=Deno.env.get('STRIPE_TEST_WEBHOOK_SECRET')||'';
  const projectUrl=Deno.env.get('SUPABASE_URL')||'';
+ const projectRef=Deno.env.get('BOISSY_STAGING_PROJECT_REF')||'';
  const serviceKey=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||'';
  const approved=Deno.env.get('BOISSY_TEST_WEBHOOK_ACK');
  const monthlyPriceId=Deno.env.get('STRIPE_TEST_PRICE_MONTHLY')||'';
@@ -18,14 +20,14 @@ function configuration(){
  // The test endpoint is deliberately unable to process anything under LIVE
  // credentials or without isolated TEST webhook credentials.
  if(approved!=='YES_PROCESS_ONLY_STRIPE_TEST_ON_ISOLATED_STAGING'||
-   projectUrl.includes('dahzewvbybujqhogumte.supabase.co')||
    !/^rk_test_[a-zA-Z0-9_]{12,}$/.test(apiKey)||
    !/^whsec_[a-zA-Z0-9_]{12,}$/.test(signingSecret)||
-   !projectUrl.startsWith('https://')||
    !serviceKey||!monthlyPriceId||!annualPriceId){
   throw new Error('Stripe TEST backend is not configured');
  }
- return {apiKey,signingSecret,projectUrl,serviceKey,
+ // Fail closed before the privileged RPC can send the service credential.
+ const isolatedUrl=verifiedStripeTestProjectOrigin(projectUrl,projectRef);
+ return {apiKey,signingSecret,projectUrl:isolatedUrl,serviceKey,
   monthlyPriceId,annualPriceId};
 }
 const respond=(body,status)=>new Response(JSON.stringify({status:body}),{
@@ -63,11 +65,14 @@ Deno.serve(async req=>{
   );
  }catch{return respond('signature_invalid',400);}
  if(event.livemode!==false)return respond('test_events_only',400);
- const recognized=[
-  'checkout.session.completed','checkout.session.async_payment_succeeded',
-  'invoice.paid','invoice.payment_failed','customer.subscription.deleted'
- ];
- if(!recognized.includes(event.type))return respond('ignored',200);
+ // Reversals/chargebacks are intentionally NOT acknowledged as ignored.
+ // No safe Stripe payment -> exact membership binding exists for them yet.
+ // This is a retryable hold in Stripe TEST, not a completed reconciliation.
+ let safety;
+ try{safety=classifyStripeTestFinancialEvent(event,STRIPE_TEST_EVENTS);}
+ catch{return respond('invalid_test_event',400);}
+ if(safety==='financial_hold')return respond('reversal_needs_reconciliation',503);
+ if(safety==='ignore')return respond('ignored',200);
  try{
   const obj=event.data.object;
   let lines;

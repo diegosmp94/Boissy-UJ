@@ -1,3 +1,4 @@
+import {validPremiumTestAmount} from './stripe-test-financial-guards.mjs';
 /** Pure Stripe TEST webhook projection; no service keys, no DB access.
  * All money and identities are checked on the server, never from browser data.
  * The database binds stripe objects to user IDs via private checkout links.
@@ -62,10 +63,11 @@ export function projectStripeTestEvent(event,options={}){
   const item=priceFromLines(lines,wanted);
   if(item.price?.currency&&item.price.currency!=='eur')
    throw new Error('Checkout currency mismatch');
-  if(kind==='annual'&&Number(obj.amount_total)!==10000)
-   throw new Error('Annual plan amount must be 100 EUR');
-  if(kind==='monthly'&&Number(obj.amount_total)<0)
-   throw new Error('Invalid checkout amount');
+  if(!validPremiumTestAmount({
+   kind,amount:obj.amount_total,currency:obj.currency
+  }))throw new Error(kind==='annual'
+   ?'Annual plan amount must be 100 EUR'
+   :'Monthly plan amount must be exactly 10 EUR');
   const sub=stripeId(obj.subscription);
   if(kind==='monthly'&&!isId('sub',sub))
    throw new Error('Monthly checkout must identify Stripe Subscription');
@@ -95,9 +97,11 @@ export function projectStripeTestEvent(event,options={}){
  if(item.price?.currency&&item.price.currency!=='eur')
   throw new Error('Invoice currency mismatch');
  const paid=event.type==='invoice.paid'&&obj.status==='paid'&&
-   Number.isSafeInteger(obj.amount_paid)&&obj.amount_paid>0;
+   validPremiumTestAmount({
+    kind:'monthly',amount:obj.amount_paid,currency:obj.currency
+   });
  if(event.type==='invoice.paid'&&!paid)
-  throw new Error('Only paid positive invoices can grant access');
+  throw new Error('Only paid monthly invoices of exactly 10 EUR can grant access');
  const period=getPeriod(item);
  if(event.type==='invoice.paid'&&(!period||!Number.isSafeInteger(period.start)||
    !Number.isSafeInteger(period.end)||period.end<=period.start))
