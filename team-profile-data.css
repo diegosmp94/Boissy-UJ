@@ -75,3 +75,41 @@
  .team-extras-player-number{min-width:35px;height:35px;font-size:21px}
  .team-extras-player-card .team-extras-player-name{font-size:14px}}
 @media(prefers-reduced-motion:reduce){.team-extras-player-card{transition:none!important}}
+
+/* Four sport-specific sections plus an honest legacy "À classer" fallback. */
+.team-position-section{min-width:0}
+.team-position-section>h2{display:flex;align-items:center;gap:12px;color:#f9fbff;
+ border-bottom:1px solid #e5c6876e;padding:0 0 14px;margin-bottom:19px}
+.team-position-section>h2::before{content:"";display:block;width:5px;height:26px;border-radius:5px;
+ background:#e5bb75}
+.team-affiliated-roster-root{margin:26px 0 32px;max-width:100%}
+.team-affiliated-disclosure{border:1px solid #c6a9698c;border-radius:16px;
+ background:linear-gradient(140deg,#132f50,#0a1b34);overflow:hidden}
+.team-affiliated-disclosure>summary{display:flex;align-items:center;cursor:pointer;min-height:50px;
+ padding:18px 22px;color:#eac583;font-weight:850;list-style:none;line-height:1.4}
+.team-affiliated-disclosure>summary::-webkit-details-marker{display:none}
+.team-affiliated-disclosure>summary::before{content:"⚙";margin-right:11px;font-size:17px}
+.team-affiliated-disclosure>summary:focus-visible,
+.team-affiliated-account-link:focus-visible{outline:3px solid #f4d18d;outline-offset:-3px}
+.team-affiliated-panel{display:grid;gap:16px;padding:0 22px 24px}
+.team-affiliated-panel>p{margin:0;color:#c2d5e9;font-size:13px;line-height:1.6}
+.team-affiliated-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;
+ padding:18px 0 0;border-top:1px solid #fff2}
+.team-affiliated-label{display:flex;min-width:0;flex-direction:column;gap:8px;
+ color:#e2effb;font-size:12px;font-weight:750}
+.team-affiliated-control{width:100%;min-height:44px;padding:10px 12px;color:#f9fbff;
+ border:1px solid #c1d6ec83;border-radius:8px;background:#0b2545;font-size:14px}
+.team-affiliated-control:focus-visible,.team-affiliated-save:focus-visible,
+.team-affiliated-reload:focus-visible{outline:3px solid #f1d18d;outline-offset:3px}
+.team-affiliated-save,.team-affiliated-reload,.team-affiliated-account-link{
+ display:inline-flex;align-items:center;justify-content:center;min-height:44px;
+ padding:11px 15px;border:1px solid #debb73;border-radius:9px;
+ font-size:12px;font-weight:900;cursor:pointer;text-decoration:none}
+.team-affiliated-save{color:#0a203b;background:#e5be73}
+.team-affiliated-reload,.team-affiliated-account-link{color:#f6d89c;background:#13385e}
+.team-affiliated-status{color:#cadbee;line-height:1.55;font-size:12px;grid-column:1/-1}
+.team-affiliated-save:disabled,.team-affiliated-reload:disabled{opacity:.6;cursor:wait}
+@media(max-width:760px){.team-affiliated-form{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:490px){.team-affiliated-form{grid-template-columns:minmax(0,1fr)}
+ .team-affiliated-panel{padding:0 15px 20px}
+ .team-affiliated-disclosure>summary{padding:15px}}
