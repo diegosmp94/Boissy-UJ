@@ -3,6 +3,7 @@ import {authRedirectUrl,authCallbackError,hasAuthCallback,sanitizedAuthCallbackU
 import {mountMemberRoleRequests} from './role-workflow.mjs';
 import {mountAdminMfaSetup} from './admin-security.mjs';
 import {mountMemberSports} from './member-sports.mjs';
+import {withAuthDeadline} from './auth-resilience.mjs';
 
 let clientPromise;
 let mounted = null;
@@ -30,11 +31,12 @@ function safeMessage(error) {
 async function client() {
   if (!supabaseConfig.enabled) throw new Error("L'authentification est temporairement désactivée.");
   if (!clientPromise) {
-    clientPromise = import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/+esm")
-      .then(({ createClient }) => createClient(supabaseConfig.url, supabaseConfig.publishableKey, {
-        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" }
-      }))
-      .catch(error => { clientPromise = null; throw error; });
+    clientPromise = withAuthDeadline(
+      import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/+esm")
+       .then(({ createClient }) => createClient(supabaseConfig.url, supabaseConfig.publishableKey, {
+         auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: "pkce" }
+       }))
+    ).catch(error => { clientPromise = null; throw error; });
   }
   return clientPromise;
 }
@@ -144,23 +146,23 @@ function authCard(root, mode = "login") {
       let result;
       // Callback volontairement SANS hash : Supabase renvoie ?code=... avant le router.
       const redirectTo = authRedirectUrl(window.location);
-      if (mode === "login") {setRecoveryIntent(false);result = await api.auth.signInWithPassword({ email, password });}
+      if (mode === "login") {setRecoveryIntent(false);result = await withAuthDeadline(api.auth.signInWithPassword({ email, password }));}
       if (mode === "register") {
         setRecoveryIntent(false);
-        result = await api.auth.signUp({ email, password, options: {
+        result = await withAuthDeadline(api.auth.signUp({ email, password, options: {
           data: { display_name: review.displayName }, emailRedirectTo: redirectTo
-        } });
+        } }));
       }
       if (mode === "reset") {
         setRecoveryIntent(true);
-        result = await api.auth.resetPasswordForEmail(email,{redirectTo});
+        result = await withAuthDeadline(api.auth.resetPasswordForEmail(email,{redirectTo}));
       }
       if (mode === "resend") {
-        result = await api.auth.resend({
+        result = await withAuthDeadline(api.auth.resend({
           type: "signup",email,options:{emailRedirectTo:redirectTo}
-        });
+        }));
       }
-      if (mode === "newPassword") result = await api.auth.updateUser({ password });
+      if (mode === "newPassword") result = await withAuthDeadline(api.auth.updateUser({ password }));
       form.querySelectorAll('input[type="password"]').forEach(input => { input.value = ""; });
       if (result?.error) {
         if(mode==='reset')setRecoveryIntent(false);
@@ -192,15 +194,35 @@ function authCard(root, mode = "login") {
   });
 }
 
+function renderAuthRetry(root){
+  if(!root.isConnected)return;
+  root.replaceChildren(el('h2','','Connexion temporairement indisponible'),
+    el('p','auth-warning','Le service de compte ne répond pas. Tes informations ne sont pas modifiées.'));
+  const retry=button('Réessayer','auth-submit','button');
+  retry.addEventListener('click',()=>{if(root.isConnected)void mountAuth();});
+  root.append(retry);
+}
 async function showSession(root, api) {
   const view=sessionViewGeneration+=1;
-  const { data: { user }, error } = await api.auth.getUser();
+  let identity;
+  try{identity=await withAuthDeadline(api.auth.getUser());}
+  catch{
+    if(view===sessionViewGeneration)renderAuthRetry(root);
+    return;
+  }
+  const { data: { user } = {}, error } = identity||{};
   if(!root.isConnected||view!==sessionViewGeneration)return;
   if (error || !user) { authCard(root, "login"); return; }
-  const [profileResult, rolesResult] = await Promise.all([
-    api.from("profiles").select("display_name").eq("id", user.id).maybeSingle(),
-    api.from("user_roles").select("role").eq("user_id", user.id)
-  ]);
+  let profileResult,rolesResult;
+  try{
+    [profileResult, rolesResult] = await withAuthDeadline(Promise.all([
+      api.from("profiles").select("display_name").eq("id", user.id).maybeSingle(),
+      api.from("user_roles").select("role").eq("user_id", user.id)
+    ]));
+  }catch{
+    if(view===sessionViewGeneration)renderAuthRetry(root);
+    return;
+  }
   if (!root.isConnected||view!==sessionViewGeneration) return;
   root.replaceChildren();
   const account = el("div", "auth-signed-in");
@@ -221,11 +243,19 @@ async function showSession(root, api) {
     if(signOut.disabled)return;
     sessionViewGeneration+=1;
     signOut.disabled = true;
-    const { error: signOutError } = await api.auth.signOut();
-    if (signOutError) {
-      signOut.disabled = false;
-      account.append(el("p", "auth-warning", safeMessage(signOutError)));
-    } else {recoveryMode=false;setRecoveryIntent(false);authCard(root, "login");}
+    try{
+      const { error: signOutError } = await withAuthDeadline(api.auth.signOut());
+      if (!root.isConnected)return;
+      if (signOutError) {
+        signOut.disabled = false;
+        account.append(el("p", "auth-warning", safeMessage(signOutError)));
+      } else {recoveryMode=false;setRecoveryIntent(false);authCard(root, "login");}
+    }catch{
+      if(root.isConnected){
+        signOut.disabled=false;
+        account.append(el('p','auth-warning','Déconnexion temporairement indisponible. Réessaie.'));
+      }
+    }
   });
   account.append(signOut);
   root.append(account);
@@ -277,7 +307,7 @@ export async function mountAuth() {
       },0);
     });
     mounted={subscription};
-    const {data:{session},error}=await api.auth.getSession();
+    const {data:{session},error}=await withAuthDeadline(api.auth.getSession());
     if(turn!==generation||!root.isConnected)return;
     if(error)throw error;
     // Effacer les paramètres sensibles APRÈS l'initialisation de Supabase et l'échange du code.
@@ -300,11 +330,7 @@ export async function mountAuth() {
     }
     if(mounted?.subscription)mounted.subscription.unsubscribe();
     mounted=null;
-    root.replaceChildren(el('h2','','Service temporairement indisponible'),
-      el('p','auth-warning','La connexion nécessite le service Supabase. Réessaie dans quelques instants.'));
-    const retry=button('Réessayer','auth-submit','button');
-    retry.addEventListener('click',()=>{void mountAuth();});
-    root.append(retry);
+    renderAuthRetry(root);
   }
 }
 

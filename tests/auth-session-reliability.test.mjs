@@ -42,7 +42,7 @@ test('repeated session events must not overwrite newer account or signed-out vie
  assert.match(auth,/event==='SIGNED_OUT'/);
 });
 test('auth callback is cleaned after the code exchange and also on bootstrap failure',()=>{
- assert.match(auth,/const \{data:\{session\},error\}=await api.auth.getSession\(\)/);
+ assert.match(auth,/const \{data:\{session\},error\}=await withAuthDeadline\(api.auth.getSession\(\)\)/);
  assert.match(auth,/if\(isCallback\)\{\s*const safe=sanitizedAuthCallbackUrl\(window.location.href\);/);
  assert.match(auth,/window.history.replaceState\(null,'',safe\)/);
  const sections=auth.split('window.history.replaceState');

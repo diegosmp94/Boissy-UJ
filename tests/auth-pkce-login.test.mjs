@@ -76,7 +76,7 @@ test('email link errors never echo untrusted callback descriptions into the inte
 test('auth state subscription occurs before session read for password recovery',()=>{
  const start=auth.indexOf('export async function mountAuth()');
  const body=auth.slice(start);
- assert.ok(body.indexOf("api.auth.onAuthStateChange(")<body.indexOf('await api.auth.getSession()'));
+ assert.ok(body.indexOf("api.auth.onAuthStateChange(")<body.indexOf('await withAuthDeadline(api.auth.getSession())'));
  assert.match(body,/event==='PASSWORD_RECOVERY'/);
  assert.match(body,/recoveryExpected&&session/);
  assert.match(auth,/sessionStorage.setItem\(RECOVERY_KEY/);
