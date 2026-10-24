@@ -13,7 +13,7 @@ export const ACTIVE_WORKSTREAMS=Object.freeze([
   next:'Après protections automatisées étape 63, réaliser la recette sur vrais iPhone Safari / Android avec VoiceOver, TalkBack, clavier et zoom, puis PV expurgé.',
   dependency:'Appareils et testeurs habilités',kind:'human'},
  {id:'p1-rgpd',priority:'P1',title:'Validation RGPD, droits à l’image et données des mineurs',
-  next:'Valider responsables, bases légales, durées, registre, droits des représentants et procédure de retrait.',
+  next:'Après réduction des domaines tiers étape 63, faire valider responsable, bases légales, durées, registre, droits des représentants et retrait effectif des fichiers.',
   dependency:'Responsable autorisé du club',kind:'human'},
  {id:'p1-content',priority:'P1',title:'Calendrier et résultats officiels du club',
   next:'Utiliser le nouvel écran Revue des sources sportives pour détecter les écarts, obtenir confirmation du club et publier via l’éditeur sécurisé.',
