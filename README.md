@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## P1 — Recette réelle des comptes et permissions (24 octobre 2026)
+
+Audit production **en lecture seule** : 20 tables publiques avec RLS activé sur 20, aucun RPC SECURITY DEFINER exécutable en anonyme et 20 fonctions admin utilisant le contrôle rôle + MFA AAL2. Ce constat structurel ne certifie pas les permissions utilisateur : le script des sept identités est maintenant compatible avec une **stack Supabase Docker locale non liée**, strictement sur `127.0.0.1:54321` et sous double validation, sans créer de projet cloud ni toucher à la production. **Recette réelle MFA/RLS non exécutée**. [Dossier P1](docs/P1_RECETTE_COMPTES_MFA_LOCAL.md).
+
 ## Correctif de stabilité — Chargements publics limités à 12 s
 
 Le prochain match, le bandeau victoires, l'agenda, les fiches d'équipe, l'identité et les rubriques Nous rejoindre/Infos pratiques ne peuvent plus rester indéfiniment dans l'attente d'une API muette. Chaque route réutilise l'arrêt réseau après 12 s, garde ses informations validées ou son repli explicite et annule la requête lorsqu'on quitte la page. [Détail du correctif](docs/CORRECTIF_PUBLIC_CHARGEMENTS_20261024.md).
