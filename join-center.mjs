@@ -1,5 +1,6 @@
 import {supabaseConfig} from './auth-config.mjs';
 import {boundedPublicRequest} from './public-catalog-timeout.mjs';
+import {CLUB_TEAMS} from './club-teams.mjs';
 
 export const JOIN_AUDIENCES=Object.freeze([
   {id:'player',label:'Joueur',heading:'Rejoindre un collectif',
@@ -107,7 +108,9 @@ export async function loadPublicClubInfo(signal,fetcher=fetch){
   return output;
 }
 
-const TEAM_NAMES={a:'Seniors A',b:'Seniors B',c:'Seniors C',veterans:'Vétérans'};
+// Single source of truth: includes Senior in the futsal category, never
+// misleadingly renames that team "Seniors futsal".
+const TEAM_NAMES=Object.fromEntries(CLUB_TEAMS.map(team=>[team.code,team.name]));
 function noticeCard(notice){
   const item=el('details','join-faq-item');
   const title=el('summary','',notice.heading);
@@ -217,9 +220,9 @@ function topicIntro(){
   const wrapper=el('section','join-static-help');
   wrapper.append(el('h2','','Questions utiles avant de commencer'));
   const questions=[
-    ['Quelles sont les équipes présentées ?', 'Le site présente Seniors A (D3), Seniors B (D4), Seniors C (matchs amicaux) et Vétérans (D3). Les effectifs et disponibilités ne sont pas encore publiés.'],
+    ['Quelles sont les équipes présentées ?', 'Le site présente Seniors A (D3), Seniors B (D4), Seniors C (matchs amicaux) et Vétérans (D3) en football à 11, ainsi que Senior (D2) dans la catégorie futsal. Les effectifs et disponibilités ne sont pas encore publiés.'],
     ['Comment demander à devenir entraîneur ?', 'Un rôle entraîneur et chaque affectation à une équipe nécessitent une validation administrative. Le circuit de connexion et de demande sera ouvert après la recette de sécurité.'],
-    ['Où voir les rencontres et les horaires ?', 'Le Match Center présente uniquement les rencontres effectivement publiées par le club. Les lieux et horaires absents restent à confirmer.'],
+    ['Où voir les rencontres et les horaires ?', 'Le Match Center distingue les rencontres publiées par le club des calendriers sourcés non homologués par Boissy UJ. Les lieux et horaires absents restent à confirmer.'],
     ['Puis-je déjà m’inscrire ou envoyer des documents ?', 'Non, aucun formulaire nominatif de candidature n’est actif sur cette préversion. Attends une annonce et un moyen de contact officiellement confirmé.']
   ];
   for(const [q,a] of questions){
