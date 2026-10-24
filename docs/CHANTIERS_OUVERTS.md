@@ -6,7 +6,7 @@ Les priorités P1 bloquent la validation complète ; P2 sont les services non ho
 
 ## Exploitation publique prioritaire
 
-La publication est maintenant préparée via un workflow GitHub Pages déclenché depuis main, avec vérification post-déploiement de la version réelle. **L'activation effective de GitHub Pages et le statut du dernier job restent à vérifier** (Settings → Pages → Source = GitHub Actions si besoin). Les quatre catalogues publics ne restent plus indéfiniment sur un chargement réseau. Les contenus réels restent soumis à validation. [Détails](LOT_PRIORITAIRE_SITE_PUBLIC_OPERATIONNEL.md).
+La publication est préparée depuis main ; l’étape 64 renforce sa vérification avec MIME, adresse exacte, manifeste JSON du commit et rapports anonymisés d’homologation. **L'activation effective de GitHub Pages et le statut du dernier job restent à vérifier** (Settings → Pages → Source = GitHub Actions si besoin). Les quatre catalogues publics ne restent plus indéfiniment sur un chargement réseau. Les contenus réels restent soumis à validation. [Détails](LOT_PRIORITAIRE_SITE_PUBLIC_OPERATIONNEL.md).
 
 ## P1 — Priorités bloquantes
 
