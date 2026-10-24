@@ -116,9 +116,10 @@ test('team pages link only verified published players and the preview is availab
  assert.match(app,/isPublicPlayerId\(path\.slice\('\/joueurs\/'\.length\)\)/);
  assert.match(app,/path==='\/joueurs\/apercu'\|\|publicPlayerId/);
  assert.match(app,/mountPublicPlayerProfile\(publicPlayerId\)/);
- assert.match(teamModule,/person\.person_kind==='player'&&isPublicPlayerId\(person\.id\)/);
- assert.match(teamModule,/profile\.href=playerPublicRoute\(person\.id\)/);
- assert.match(teamModule,/demo\.href='#\/joueurs\/apercu'/);
+ assert.match(teamModule,/const validProfile=isPublicPlayerId\(person\?\.id\)/);
+ assert.match(teamModule,/card\.href=playerPublicRoute\(person\.id\)/);
+ assert.match(app,/#\/joueurs\/apercu/);
+ assert.match(teamModule,/team-extras-player-name/);
  assert.match(src('index.html'),/player-profile-page\.css/);
  assert.match(css,/@media\(max-width:600px\)/);
  assert.doesNotMatch(src('player-profile-page.mjs'),/service_role|sb_secret_|\.insert\(|\.update\(|\.delete\(|method:'POST'|innerHTML/);
