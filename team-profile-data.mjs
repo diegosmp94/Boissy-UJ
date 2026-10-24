@@ -112,7 +112,7 @@ export function isPublicEducator(person){
  if(person.person_kind!=='staff')return false;
  const role=String(person.role_label||'').normalize('NFD')
   .replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('fr-FR').trim();
- return /^(entraineur|educateur|coach|adjoint|preparateur physique|preparateur sportif|assistant entraineur)(\\b|\\s|$)/.test(role);
+ return /^(entraineur|educateur|coach|adjoint|preparateur physique|preparateur sportif|assistant entraineur)(\b|\s|$)/.test(role);
 }
 export function publicEducators(people){
  return (Array.isArray(people)?people:[]).filter(isPublicEducator);
