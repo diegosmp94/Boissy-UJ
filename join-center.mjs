@@ -1,4 +1,5 @@
 import {supabaseConfig} from './auth-config.mjs';
+import {boundedPublicRequest} from './public-catalog-timeout.mjs';
 
 export const JOIN_AUDIENCES=Object.freeze([
   {id:'player',label:'Joueur',heading:'Rejoindre un collectif',
@@ -291,16 +292,17 @@ async function mount(kind,id,build){
   const root=document.getElementById(id);
   if(!root)return;
   const ctrl=new AbortController();state.controller=ctrl;
+  const deadline=boundedPublicRequest(ctrl.signal);
   root.replaceChildren(el('p','join-loading','Chargement des informations vérifiées du club…'));
   try{
-    const data=await loadPublicClubInfo(ctrl.signal);
+    const data=await loadPublicClubInfo(deadline.signal);
     if(ctrl.signal.aborted||generation!==state.generation||!root.isConnected)return;
     build(root,data);
   }catch{
     if(ctrl.signal.aborted||generation!==state.generation||!root.isConnected)return;
     root.replaceChildren(el('p','join-neutral',
       'Les informations officielles sont momentanément indisponibles. Aucun contact, horaire ou recrutement non vérifié ne sera affiché.'));
-  }
+  }finally{deadline.dispose();}
 }
 export const mountJoin=()=>mount('join','join-public-hub',buildJoin);
 export const unmountJoin=()=>stop('join');

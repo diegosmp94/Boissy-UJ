@@ -1,5 +1,6 @@
 import {supabaseConfig} from './auth-config.mjs';
 import {CLUB_TEAMS,DISCIPLINES,teamsByDiscipline} from './club-teams.mjs';
+import {boundedPublicRequest} from './public-catalog-timeout.mjs';
 export const IDENTITY_SECTIONS=Object.freeze([
  {id:'history',label:'Histoire'}, {id:'values',label:'Valeurs'},
  {id:'governance',label:'Organisation'}, {id:'projects',label:'Projets'}
@@ -39,6 +40,7 @@ export async function mountIdentity(){
  const g=generation,root=document.getElementById('identity-public-root');
  if(!root)return;
  const ctrl=new AbortController();controller=ctrl;
+ const deadline=boundedPublicRequest(ctrl.signal);
  const top=node('section','identity-overview');
  top.append(node('p','identity-eyebrow','NOTRE CLUB'),node('h2','','Cinq équipes. Deux disciplines.'),
   node('p','identity-lead','Boissy-UJ réunit le football à 11 et le futsal. Découvrez les équipes et les contenus officiellement publiés.'));
@@ -75,7 +77,7 @@ export async function mountIdentity(){
  root.replaceChildren(top,published,links);
  list.append(node('p','identity-empty','Chargement des contenus publiés…'));
  try{
-  const rows=await loadPublishedIdentity(ctrl.signal);
+  const rows=await loadPublishedIdentity(deadline.signal);
   if(ctrl.signal.aborted||generation!==g||!root.isConnected)return;
   const draw=()=>{
    const filtered=filterIdentitySections(rows,{section:category.value,query:search.value});
@@ -95,5 +97,5 @@ export async function mountIdentity(){
  }catch{
   if(ctrl.signal.aborted||generation!==g||!root.isConnected)return;
   list.replaceChildren(node('p','identity-empty','Les publications officielles sont momentanément indisponibles. Aucun historique, dirigeant ou projet non vérifié ne sera affiché.'));
- }
+ }finally{deadline.dispose();}
 }

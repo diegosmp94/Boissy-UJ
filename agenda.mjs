@@ -4,6 +4,7 @@ import {publicExternalFixtures,EXTERNAL_FIXTURE_REVIEWED_AT} from './external-ma
 import {mergeCalendarPublicEntries,parisDateKey} from './calendar-month.mjs';
 import {mountMonthCalendar} from './calendar-view.mjs';
 import {clubOutcome} from './league-standings.mjs';
+import {boundedPublicRequest} from './public-catalog-timeout.mjs';
 
 const ROOT = supabaseConfig.url + '/rest/v1/';
 const OPTIONS = Object.freeze([
@@ -90,6 +91,7 @@ export async function mountAgenda(){
   const generation=active,root=document.getElementById('agenda-public-root');
   if(!root)return;
   const controller=new AbortController();pending=controller;
+  const deadline=boundedPublicRequest(controller.signal);
   const intro=make('p','agenda-note','Parcourez les mois passés et à venir. Les résultats et rencontres du club sont distingués des données d’un site tiers, qui restent à valider.');
   const form=make('div','agenda-filters');
   const kindLabel=make('label','agenda-field','Catégorie');
@@ -140,7 +142,7 @@ export async function mountAgenda(){
     }
   });
   try{
-    const rows=await loadPublicAgenda(controller.signal);
+    const rows=await loadPublicAgenda(deadline.signal);
     if(controller.signal.aborted||generation!==active||!root.isConnected)return;
     const draw=()=>{
       const selected=combinePublishedAgenda(rows.matches,rows.events,rows.teams,{
@@ -235,5 +237,5 @@ export async function mountAgenda(){
       publicExternalFixtures({includePast:true,period:'all'}),[]));
     exportBtn.disabled=true;
     list.replaceChildren();
-  }
+  }finally{deadline.dispose();}
 }

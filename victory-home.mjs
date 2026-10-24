@@ -4,6 +4,7 @@
 import {supabaseConfig} from './auth-config.mjs';
 import {collectiveVictoryCongratulations} from './victory-congratulations.mjs';
 import {createVictoryNotice} from './victory-notice.mjs';
+import {boundedPublicRequest} from './public-catalog-timeout.mjs';
 
 const BASE=supabaseConfig.url+'/rest/v1/';
 let sequence=0,request=null;
@@ -36,9 +37,10 @@ export async function mountHomeVictory(){
  const id=sequence,root=document.getElementById('home-victory-banner');
  if(!root)return;
  const controller=new AbortController();request=controller;
+ const deadline=boundedPublicRequest(controller.signal);
  root.replaceChildren();
  try{
-  const notice=await loadHomeVictory({signal:controller.signal});
+  const notice=await loadHomeVictory({signal:deadline.signal});
   if(controller.signal.aborted||sequence!==id||!root.isConnected)return;
   if(notice){
    const card=createVictoryNotice(notice,{collective:true});
@@ -53,5 +55,5 @@ export async function mountHomeVictory(){
   // Failure is safe and silent: never display unverified congratulation text.
   if(controller.signal.aborted||sequence!==id)return;
   root.replaceChildren();
- }
+ }finally{deadline.dispose();}
 }
