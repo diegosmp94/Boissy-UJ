@@ -35,6 +35,10 @@ Chaque module n'obtient ses points que lorsque ses critères sont réalisés et 
 
 Le correctif [P1 Identité / RGPD / déploiement](P1_IDENTITE_RGPD_DEPLOIEMENT.md) ajoute des pages de transparence, les points d'accès légaux, la navigation clavier/mobile et un contrôle de packaging en CI. **Aucun des 15 points du domaine visuel ni des 4 points du domaine RGPD/déploiement ne peut être qualifié d'intégralement homologué avant la recette multi-appareils, la validation des mentions, la preuve de restauration et la validation juridique.** Les points restent attribués uniquement lors de la recette réelle.
 
+## Étape 64 — preuves automatisées et homologation distinctes
+
+La commande `npm run release:acceptance` ne fait que consolider les preuves techniques HTTP et les chantiers ouverts (6 P1, 6 P2, 2 P3 au début de l'étape). Elle ne signe aucun module et ne transforme pas des tests CI en points homologués. Le contrôle réel de GitHub Pages par commit, les comptes avec permissions/MFA, la restauration isolée, les appareils iPhone/Android et les éléments juridiques doivent avoir leurs preuves indépendantes et un PV du club. [Recette finale](ETAPE_64_RECETTE_FINALE_DEPLOIEMENT.md).
+
 ## État initial
 
 **0/100 points homologués à l'échelle du produit complet.** Les écrans statiques constituent le premier socle visuel, pas la validation finale d'un module entier.
