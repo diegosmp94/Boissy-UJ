@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {
  STRIPE_TEST_REVERSAL_EVENTS,classifyStripeTestFinancialEvent,
- validPremiumTestAmount
+ validPremiumTestAmount,verifiedStripeTestProjectOrigin
 } from '../supabase/functions/_shared/stripe-test-financial-guards.mjs';
 import {
  STRIPE_TEST_EVENTS,projectStripeTestEvent
@@ -111,4 +111,37 @@ test('step 60: no funds, donations or LIVE UI changes accompany financial guard'
  assert.match(frontend,/Souscription indisponible/);
  assert.match(frontend,/Aucun achat, renouvellement ou accès payant n’est disponible/);
  assert.doesNotMatch(frontend+index,/stripe\.redirectToCheckout|checkout\.sessions\.create|sk_live_/);
+});
+
+test('step 60: service credentials cannot be routed to production or arbitrary endpoints',()=>{
+ const ref='abcde12345abcde12345';
+ assert.equal(verifiedStripeTestProjectOrigin('https://'+ref+'.supabase.co/',ref),
+  'https://'+ref+'.supabase.co');
+ for(const [url,project] of [
+  ['https://dahzewvbybujqhogumte.supabase.co/','dahzewvbybujqhogumte'],
+  ['https://evil.example/','abcde12345abcde12345'],
+  ['http://'+ref+'.supabase.co/',ref],
+  ['https://'+ref+'.supabase.co.attacker.example/',ref],
+  ['https://user@'+ref+'.supabase.co/',ref],
+  ['https://'+ref+'.supabase.co/steal',ref],
+  ['https://'+ref+'.supabase.co/?a=1',ref],
+  ['https://'+ref+'.supabase.co/#fragment',ref],
+  ['https://'+ref+'.supabase.co:443/',ref],
+  ['https://'+ref+'.supabase.co/', 'different12345other12345'],
+  ['https://'+ref+'.supabase.co/', ''],
+  ['',ref]
+ ])assert.throws(()=>verifiedStripeTestProjectOrigin(url,project),
+  undefined,url+' for '+project);
+});
+test('step 60: BOTH server financial endpoints enforce exact staging ref before using secrets',()=>{
+ for(const file of [
+  'supabase/functions/premium-stripe-test-checkout/index.ts',
+  'supabase/functions/premium-stripe-test-webhook/index.ts'
+ ]){
+  const text=read(file);
+  assert.match(text,/Deno\.env\.get\('BOISSY_STAGING_PROJECT_REF'\)/);
+  assert.match(text,/verifiedStripeTestProjectOrigin\(/);
+  assert.match(text,/rk_test_/);
+  assert.doesNotMatch(text,/rk_live_|sk_live_|pk_live_/);
+ }
 });
