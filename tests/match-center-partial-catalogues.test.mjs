@@ -125,7 +125,7 @@ test('aborted route cancels outstanding requests instead of rendering misleading
 
 test('partial publication UI retains internal navigation and never activates privileged writes',()=>{
  assert.match(code,/const settled=await Promise\.allSettled\(requests\)/);
- assert.match(code,/displayFixtures\(root,teams,matches,seasons,initialTeamCode,\{unavailable\}\)/);
+ assert.match(code,/displayFixtures\(root,teams,matches,seasons,initialTeamCode,\{unavailable,initialCompetition:competition\}\)/);
  assert.match(code,/notice\.setAttribute\('role','status'\)/);
  assert.match(code,/if \(abort\.signal\.aborted \|\| generation!==renderGeneration/);
  assert.match(code,/publicExternalFixtures\(/);

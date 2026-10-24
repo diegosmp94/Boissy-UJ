@@ -27,7 +27,7 @@ test('route parser does not accidentally redirect team-specific hash URLs to hom
  assert.deepEqual(parsePublicRoute('#/'),{path:'/',teamCode:null});
  assert.deepEqual(parsePublicRoute(''),{path:'/',teamCode:null});
  assert.match(app,/const route=parsePublicRoute\(location.hash\)/);
- assert.match(app,/if\(path==='\/matchs'\) void mountSport\(route.teamCode\)/);
+ assert.match(app,/if\(path==='\/matchs'\) void mountSport\(route.teamCode,\{competition\}\)/);
  assert.match(app,/if\(path==='\/actualites'\) void mountNews\(route.teamCode\)/);
 });
 test('profile links route to scoped results and scoped editorial feed',()=>{
@@ -62,11 +62,11 @@ test('news team filter fetches only public posts, read-only team metadata, and n
  assert.doesNotMatch(media,/innerHTML\s*=|method:'POST'/);
 });
 test('Match Center prefills both discipline and exact requested team, preserving isolation',()=>{
- assert.match(sport,/function displayFixtures\(root,teams,matches,seasons=\[\],initialTeamCode=null,\{unavailable=\[\]\}=\{\}\)/);
+ assert.match(sport,/function displayFixtures\(root,teams,matches,seasons=\[\],initialTeamCode=null,\{unavailable=\[\],initialCompetition='league'\}=\{\}\)/);
  assert.match(sport,/requested=teams.find\(t=>t.code===initialTeamCode\)/);
  assert.match(sport,/disciplineSelect.value=requested.discipline/);
  assert.match(sport,/select.value=requested.id/);
- assert.match(sport,/export async function mountSport\(initialTeamCode=null\)/);
+ assert.match(sport,/export async function mountSport\(initialTeamCode=null,\{competition='league'\}=\{\}\)/);
  const teams=[{id:'football-id',discipline:'football'},{id:'futsal-id',discipline:'futsal'}];
  const matches=[{team_id:'football-id',id:'one'},{team_id:'futsal-id',id:'two'}];
  assert.deepEqual(filterPublishedFixtures(matches,{teamId:'futsal-id',discipline:'futsal',teams}).map(m=>m.id),['two']);

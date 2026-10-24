@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="./club-editor.css" />
   <link rel="stylesheet" href="./disciplines.css" />
   <link rel="stylesheet" href="./team-pages.css" />
+  <link rel="stylesheet" href="./header-navigation.css" />
   <link rel="stylesheet" href="./league-standings.css" />
   <link rel="stylesheet" href="./victory-notice.css" />
   <link rel="stylesheet" href="./home-next-match.css" />
@@ -51,10 +52,10 @@
   </div>
   <header class="topbar" id="topbar">
     <a class="brand" href="#/" aria-label="Boissy-UJ — accueil"><img src="./assets/ecusson-boissy-uj.webp" alt="" width="42" height="42"/><span>BOISSY<span class="brand-accent">–UJ</span><small>UNION JEUNES</small></span></a>
-    <nav class="desktop-links" aria-label="Navigation principale">
-      <a href="#/">Accueil</a><a href="#/matchs">Matchs</a>
-      <div class="desktop-team-nav" id="desktop-team-nav">
-        <a href="#/equipes" id="desktop-teams-trigger" aria-controls="desktop-teams-submenu" aria-expanded="false">Équipes</a>
+    <nav class="desktop-links header-classic-links" aria-label="Navigation principale">
+      <a class="header-home-link" href="#/">Accueil</a>
+      <div class="desktop-team-nav desktop-header-group" id="desktop-team-nav">
+        <button type="button" class="header-group-trigger" id="desktop-teams-trigger" aria-controls="desktop-teams-submenu" aria-expanded="false">Équipes <span class="header-chevron" aria-hidden="true">⌄</span></button>
         <div id="desktop-teams-submenu" class="desktop-teams-submenu" hidden>
           <div class="desktop-teams-surface">
             <div class="desktop-teams-intro">
@@ -80,12 +81,42 @@
           </div>
         </div>
       </div>
-      <a href="#/agenda">Agenda</a><a href="#/actualites">Actualités</a><a href="#/communaute">Communauté</a><a href="#/awards">Awards</a><a href="#/evenements">Événements</a><a href="#/soutenir">Soutenir</a>
+      <div class="desktop-header-group" id="desktop-competitions-nav">
+        <button type="button" class="header-group-trigger" id="desktop-competitions-trigger" aria-controls="desktop-competitions-submenu" aria-expanded="false">Compétitions <span class="header-chevron" aria-hidden="true">⌄</span></button>
+        <div id="desktop-competitions-submenu" class="desktop-header-panel header-competitions-panel" hidden>
+          <div class="header-panel-body">
+            <p class="header-panel-kicker">SUR LES TERRAINS</p>
+            <strong class="header-panel-title">Compétitions</strong>
+            <a href="#/matchs">Matchs et résultats <small>Les cinq équipes</small></a>
+            <a href="#/matchs?competition=league">Championnat <small>Calendriers et résultats</small></a>
+            <a href="#/matchs?competition=cup">Coupe <small>Rencontres de coupe</small></a>
+            <a href="#/matchs?section=classements">Classements <small>Classements et bilans</small></a>
+            <a href="#/agenda">Agenda <small>Dates à retenir</small></a>
+          </div>
+        </div>
+      </div>
+      <div class="desktop-header-group" id="desktop-club-nav">
+        <button type="button" class="header-group-trigger" id="desktop-club-trigger" aria-controls="desktop-club-submenu" aria-expanded="false">Vie du club <span class="header-chevron" aria-hidden="true">⌄</span></button>
+        <div id="desktop-club-submenu" class="desktop-header-panel header-club-panel" hidden>
+          <div class="header-panel-body">
+            <p class="header-panel-kicker">DÉCOUVRIR BOISSY UJ</p>
+            <strong class="header-panel-title">Vie du club</strong>
+            <a href="#/actualites">Actualités</a>
+            <a href="#/evenements">Événements</a>
+            <a href="#/awards">Awards</a>
+            <a href="#/communaute">Communauté</a>
+            <a href="#/club">Notre club</a>
+            <a href="#/rejoindre">Nous rejoindre</a>
+            <a href="#/soutenir">Soutenir le club</a>
+            <a href="#/infos-pratiques">Infos pratiques</a>
+          </div>
+        </div>
+      </div>
     </nav>
     <div class="header-actions"><a class="header-account" href="#/mon-espace">Mon espace <span aria-hidden="true">↗</span></a><button class="menu-toggle" id="menu-toggle" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span><span></span></button></div>
   </header>
-  <nav class="mobile-menu" id="mobile-menu" aria-label="Menu mobile" hidden>
-    <a href="#/">Accueil</a><a href="#/matchs">Match Center</a>
+  <nav class="mobile-menu mobile-classic-menu" id="mobile-menu" aria-label="Menu mobile" hidden>
+    <a href="#/">Accueil</a>
     <details class="mobile-teams">
       <summary>Équipes <span aria-hidden="true">⌄</span></summary>
       <div class="mobile-teams-content">
@@ -109,7 +140,31 @@
         </details>
       </div>
     </details>
-    <a href="#/agenda">Agenda du club</a><a href="#/actualites">Actualités & médias</a><a href="#/communaute">Communauté</a><a href="#/awards">Awards</a><a href="#/evenements">Événements</a><a href="#/soutenir">Soutenir le club</a><a href="#/club">Notre club</a><a href="#/rejoindre">Nous rejoindre</a><a href="#/infos-pratiques">Infos pratiques</a><a href="#/mon-espace">Mon espace</a>
+
+    <details class="mobile-teams mobile-header-group">
+      <summary>Compétitions <span aria-hidden="true">⌄</span></summary>
+      <div class="mobile-teams-content">
+        <a href="#/matchs">Matchs et résultats</a>
+        <a href="#/matchs?competition=league">Championnat</a>
+        <a href="#/matchs?competition=cup">Coupe</a>
+        <a href="#/matchs?section=classements">Classements</a>
+        <a href="#/agenda">Agenda</a>
+      </div>
+    </details>
+    <details class="mobile-teams mobile-header-group">
+      <summary>Vie du club <span aria-hidden="true">⌄</span></summary>
+      <div class="mobile-teams-content">
+        <a href="#/actualites">Actualités</a>
+        <a href="#/evenements">Événements</a>
+        <a href="#/awards">Awards</a>
+        <a href="#/communaute">Communauté</a>
+        <a href="#/club">Notre club</a>
+        <a href="#/rejoindre">Nous rejoindre</a>
+        <a href="#/soutenir">Soutenir le club</a>
+        <a href="#/infos-pratiques">Infos pratiques</a>
+      </div>
+    </details>
+    <a href="#/mon-espace">Mon espace</a>
   </nav>
   <main id="main" tabindex="-1"></main>
   <footer class="global-legal-footer" aria-label="Informations légales">

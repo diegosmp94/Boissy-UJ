@@ -147,6 +147,7 @@ const port=app.address().port;
 let chrome;
 const scenarios=[
  {name:'mobile-home',hash:'#/',width:320,height:760},
+ {name:'desktop-classic-header',hash:'#/',width:1366,height:850},
  {name:'mobile-teams',hash:'#/equipes',width:390,height:844},
  {name:'mobile-player-preview',hash:'#/joueurs/apercu',width:390,height:844},
  {name:'mobile-matches',hash:'#/matchs',width:390,height:844},
@@ -214,6 +215,32 @@ try{
    }
    if(expected==='#/'){
     if(document.querySelectorAll('.chapter').length!==8)errors.push('Expected 8 cinematic chapters');
+    if(width>=1200){
+     const groups=[...document.querySelectorAll('.desktop-header-group')];
+     if(groups.length!==3)errors.push('Classic header must have three navigation groups');
+     for(const group of groups){
+      const trigger=group.querySelector('.header-group-trigger');
+      const panel=group.querySelector('#'+trigger?.getAttribute('aria-controls'));
+      if(!trigger||!panel){errors.push('Header dropdown missing');continue;}
+      trigger.focus();
+      trigger.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowDown',bubbles:true,cancelable:true}));
+      if(panel.hidden||trigger.getAttribute('aria-expanded')!=='true')
+       errors.push('Header dropdown not keyboard accessible: '+group.id);
+      if(document.activeElement!==panel.querySelector('a'))
+       errors.push('ArrowDown did not move focus into header menu: '+group.id);
+      document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+      if(!panel.hidden||trigger.getAttribute('aria-expanded')!=='false')
+       errors.push('Header dropdown did not close: '+group.id);
+      if(document.activeElement!==trigger)
+       errors.push('Header dropdown focus not returned: '+group.id);
+     }
+     for(const href of ['#/equipes/football/seniors-a','#/equipes/futsal/boissy-uj-futsal',
+      '#/matchs?competition=league','#/matchs?competition=cup',
+      '#/matchs?section=classements','#/agenda','#/soutenir','#/rejoindre']){
+      if(!document.querySelector('.desktop-links a[href="'+href+'"]'))
+       errors.push('Classic header lost route '+href);
+     }
+    }
     // The mobile menu and account entry must be comfortably tappable on a 320px device.
     if(width<768){
      for(const selector of ['#menu-toggle','.header-account']){
@@ -230,8 +257,17 @@ try{
      else{
       toggle.click();
       if(menu.hidden||toggle.getAttribute('aria-expanded')!=='true')errors.push('Mobile menu not opening');
+      const groups=[...menu.querySelectorAll('.mobile-teams')].filter(g=>!g.classList.contains('mobile-team-discipline'));
+      if(groups.length!==3)errors.push('Mobile header should group teams, competitions and club');
+      const competitions=menu.querySelector('.mobile-header-group');
+      if(competitions){
+       competitions.open=true;
+       if(!competitions.querySelector('a[href="#/matchs?competition=cup"]'))
+        errors.push('Mobile cup shortcut missing');
+      }
       document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
       if(!menu.hidden||toggle.getAttribute('aria-expanded')!=='false')errors.push('Mobile menu not closing');
+      if(menu.querySelector('details[open]'))errors.push('Mobile accordion remained open after closing menu');
       if(document.activeElement!==toggle)errors.push('Focus not restored after Escape');
      }
     }

@@ -286,23 +286,35 @@ function render(){
   main.innerHTML=publicPlayerId?playerProfilePage():routes[path]();
   document.body.classList.toggle('on-home',path==='/');
   document.querySelectorAll('.desktop-links a,.bottom-nav a,.mobile-menu a').forEach(el=>{
-    const active=el.getAttribute('href')===`#${path}`;
+    const href=el.getAttribute('href');
+    const active=href===location.hash||(href===`#${path}`&&!location.hash.includes('?'));
     if(active)el.setAttribute('aria-current','page'); else el.removeAttribute('aria-current');
   });
   document.querySelectorAll('.bottom-nav a').forEach(el=>el.classList.toggle('active',el.getAttribute('href')===`#${path}`||(el.dataset.nav==='equipes'&&path.startsWith('/equipes/'))));
-  const teamsMainLink=$('#desktop-teams-trigger');
-  if(path==='/equipes')teamsMainLink?.setAttribute('aria-current','page');
-  else teamsMainLink?.removeAttribute('aria-current');
-  const desktopTeamsNav=$('#desktop-team-nav');
-  if(desktopTeamsNav)desktopTeamsNav.dataset.sectionActive=String(path==='/equipes'||path.startsWith('/equipes/'));
+  const groupPaths={
+    'desktop-team-nav':path==='/equipes'||path.startsWith('/equipes/'),
+    'desktop-competitions-nav':path==='/matchs'||path==='/agenda',
+    'desktop-club-nav':['/actualites','/evenements','/awards','/communaute',
+      '/club','/rejoindre','/soutenir','/infos-pratiques'].includes(path)
+  };
+  for(const group of desktopHeaderGroups){
+    const active=Boolean(groupPaths[group.id]);
+    group.dataset.sectionActive=String(active);
+    const trigger=group.querySelector('.header-group-trigger');
+    if(active)trigger?.setAttribute('aria-current','page');
+    else trigger?.removeAttribute('aria-current');
+  }
   closeMenu();
-  closeDesktopTeams();
+  closeDesktopMenus();
   window.scrollTo({top:0,behavior:'instant'});
   if(hasRenderedRoute)main.focus({preventScroll:true});
   hasRenderedRoute=true;
   if(path==='/')setupChapters();
   if(path==='/mon-espace') void mountAuth(); else unmountAuth();
-  if(path==='/matchs') void mountSport(route.teamCode); else unmountSport();
+  const sportQuery=path==='/matchs'
+    ?new URLSearchParams(String(location.hash).split('?')[1]||''):null;
+  const competition=sportQuery?.get('competition')==='cup'?'cup':'league';
+  if(path==='/matchs') void mountSport(route.teamCode,{competition}); else unmountSport();
   if(path==='/') void mountHomeVictory(); else unmountHomeVictory();
   if(path==='/') mountHomeNextMatch(); else unmountHomeNextMatch();
   const activeTeam=teams.find(t=>teamRoute(t).slice(1)===path);
@@ -314,6 +326,10 @@ function render(){
   if(path==='/matchs') void mountLeagueStandings(route.teamCode);
   else if(activeTeam) void mountLeagueStandings(activeTeam.code);
   else unmountLeagueStandings();
+  if(path==='/matchs'&&sportQuery?.get('section')==='classements'){
+    requestAnimationFrame(()=>document.getElementById('team-league-standing')
+      ?.scrollIntoView({block:'start',behavior:'instant'}));
+  }
   if(path==='/actualites') void mountNews(route.teamCode); else unmountNews();
   if(path==='/evenements') void mountEvents(); else unmountEvents();
   if(path==='/agenda') void mountAgenda(); else unmountAgenda();
@@ -343,55 +359,73 @@ function setupChapters(){
   },{threshold:[0.25,0.5,0.75]});
   sections.forEach(section=>observer.observe(section));
 }
-const desktopTeamNav=$('#desktop-team-nav');
-const desktopTeamsTrigger=$('#desktop-teams-trigger');
-const desktopTeamsPanel=$('#desktop-teams-submenu');
-let suppressDesktopFocusOpen=false;
-function openDesktopTeams(){
-  if(!desktopTeamsPanel||!desktopTeamsTrigger)return;
-  desktopTeamsPanel.hidden=false;
-  desktopTeamsTrigger.setAttribute('aria-expanded','true');
-  desktopTeamNav.dataset.open='true';
-}
-function closeDesktopTeams({returnFocus=false}={}){
-  if(!desktopTeamsPanel||!desktopTeamsTrigger)return;
-  desktopTeamsPanel.hidden=true;
-  desktopTeamsTrigger.setAttribute('aria-expanded','false');
-  desktopTeamNav.dataset.open='false';
-  if(returnFocus){
-    suppressDesktopFocusOpen=true;
-    desktopTeamsTrigger.focus();
-    suppressDesktopFocusOpen=false;
+const desktopHeaderGroups=[...document.querySelectorAll('.desktop-header-group')];
+let suppressDesktopHeaderFocusOpen=false;
+function closeDesktopMenus({except=null,returnFocus=false}={}){
+  for(const group of desktopHeaderGroups){
+    if(group===except)continue;
+    const trigger=group.querySelector('.header-group-trigger');
+    const panel=group.querySelector('#'+trigger?.getAttribute('aria-controls'));
+    if(!trigger||!panel)continue;
+    const wasOpen=!panel.hidden;
+    const focusInside=group.contains(document.activeElement);
+    panel.hidden=true;
+    trigger.setAttribute('aria-expanded','false');
+    group.dataset.open='false';
+    if(returnFocus&&wasOpen&&focusInside){
+      suppressDesktopHeaderFocusOpen=true;
+      trigger.focus();
+      suppressDesktopHeaderFocusOpen=false;
+    }
   }
 }
-// Le pointeur ouvre le menu sans clic ; le focus clavier offre le même accès.
-desktopTeamNav?.addEventListener('pointerenter',event=>{
-  if(event.pointerType==='mouse'||event.pointerType==='pen')openDesktopTeams();
-});
-desktopTeamNav?.addEventListener('pointerleave',event=>{
-  if(event.pointerType==='mouse'||event.pointerType==='pen')closeDesktopTeams();
-});
-desktopTeamNav?.addEventListener('focusin',()=>{
-  if(!suppressDesktopFocusOpen)openDesktopTeams();
-});
-desktopTeamNav?.addEventListener('focusout',event=>{
-  if(!desktopTeamNav.contains(event.relatedTarget))closeDesktopTeams();
-});
-desktopTeamNav?.addEventListener('click',event=>{
-  if(event.target.closest('a'))closeDesktopTeams();
-});
+function openDesktopMenu(group){
+  if(!group)return;
+  const trigger=group.querySelector('.header-group-trigger');
+  const panel=group.querySelector('#'+trigger?.getAttribute('aria-controls'));
+  if(!trigger||!panel)return;
+  closeDesktopMenus({except:group});
+  panel.hidden=false;
+  trigger.setAttribute('aria-expanded','true');
+  group.dataset.open='true';
+}
+for(const group of desktopHeaderGroups){
+  const trigger=group.querySelector('.header-group-trigger');
+  const panel=group.querySelector('.desktop-teams-submenu,.desktop-header-panel');
+  if(!trigger||!panel)continue;
+  group.addEventListener('pointerenter',event=>{
+    if(event.pointerType==='mouse'||event.pointerType==='pen')openDesktopMenu(group);
+  });
+  group.addEventListener('pointerleave',event=>{
+    if(event.pointerType==='mouse'||event.pointerType==='pen')closeDesktopMenus();
+  });
+  group.addEventListener('focusin',()=>{
+    if(!suppressDesktopHeaderFocusOpen)openDesktopMenu(group);
+  });
+  group.addEventListener('focusout',event=>{
+    if(!group.contains(event.relatedTarget))closeDesktopMenus();
+  });
+  trigger.addEventListener('click',()=>openDesktopMenu(group));
+  trigger.addEventListener('keydown',event=>{
+    if(event.key!=='ArrowDown')return;
+    event.preventDefault();
+    openDesktopMenu(group);
+    panel.querySelector('a')?.focus();
+  });
+  group.addEventListener('click',event=>{
+    if(event.target.closest('a'))closeDesktopMenus();
+  });
+}
 document.addEventListener('pointerdown',event=>{
-  if(!desktopTeamNav?.contains(event.target))closeDesktopTeams();
+  if(!desktopHeaderGroups.some(group=>group.contains(event.target)))closeDesktopMenus();
 });
-function closeMenu({returnFocus=false}={}){const menu=$('#mobile-menu'),toggle=$('#menu-toggle');const wasOpen=!menu.hidden;menu.hidden=true;toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Ouvrir le menu');document.body.classList.remove('menu-open');if(returnFocus&&wasOpen)toggle.focus();}
+function closeMenu({returnFocus=false}={}){const menu=$('#mobile-menu'),toggle=$('#menu-toggle');const wasOpen=!menu.hidden;menu.hidden=true;toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Ouvrir le menu');document.body.classList.remove('menu-open');menu.querySelectorAll('details[open]').forEach(group=>{group.open=false;});if(returnFocus&&wasOpen)toggle.focus();}
 $('#menu-toggle').addEventListener('click',()=>{const menu=$('#mobile-menu'),toggle=$('#menu-toggle');const open=menu.hidden;menu.hidden=!open;toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Fermer le menu':'Ouvrir le menu');document.body.classList.toggle('menu-open',open);if(open)menu.querySelector('a')?.focus();});
 $('#mobile-menu').addEventListener('click',e=>{if(e.target.closest('a'))closeMenu()});
 document.addEventListener('keydown',e=>{
   if(e.key!=='Escape')return;
   closeMenu({returnFocus:true});
-  const wasOpen=desktopTeamsPanel&&!desktopTeamsPanel.hidden;
-  const focusedInside=desktopTeamNav?.contains(document.activeElement);
-  closeDesktopTeams({returnFocus:Boolean(wasOpen&&focusedInside)});
+  closeDesktopMenus({returnFocus:true});
 });
 main.addEventListener('click',e=>{const discipline=e.target.closest('[data-discipline-target]');if(discipline){document.getElementById(discipline.dataset.disciplineTarget)?.scrollIntoView({behavior:'smooth',block:'start'});return;}const next=e.target.closest('[data-next]');const dot=e.target.closest('[data-chapter]');const target=next?.dataset.next??dot?.dataset.chapter;if(target){const section=document.getElementById(target);section?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});if(section){section.tabIndex=-1;section.focus({preventScroll:true});}}});
 // Le routeur GitHub Pages utilise #/route : un lien #main déclencherait une
