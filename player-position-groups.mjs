@@ -9,7 +9,7 @@ export function positionFromPublicRole(role){
  const text=String(role||'').normalize('NFD')
   .replace(/[\u0300-\u036f]/g,'').trim().toLocaleLowerCase('fr-FR');
  if(/^(gardien|goalkeeper|gb)(\b|\s|$)/.test(text))return 'goalkeeper';
- if(/^(defenseur|defense|defender|arriere|lateral)(\b|\s|$)/.test(text))return 'defender';
+ if(/^(defenseur|defender|arriere|lateral)(\b|\s|$)/.test(text))return 'defender';
  if(/^(milieu|midfielder)(\b|\s|$)/.test(text))return 'midfielder';
  if(/^(attaquant|avant|ailier|buteur|forward)(\b|\s|$)/.test(text))return 'forward';
  return null;
