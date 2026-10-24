@@ -35,6 +35,24 @@ for(const m of html.matchAll(/(?:src|href)=["']\.\/([^"'?#]+)[^"']*["']/g)){
 for(const fragment of ['#/confidentialite','#/mentions-legales','name="robots" content="noindex, nofollow"']){
  if(!html.includes(fragment))fail.push('Preview compliance guard absent: '+fragment);
 }
+// Static Pages cannot set response headers in this repository; verify that
+// its head provides a limited CSP, no passive font provider and no Referer.
+const configuration=await readFile(join(root,'auth-config.mjs'),'utf8');
+const supabaseHost=configuration.match(/url:\s*["']https:\/\/([a-z0-9]{20}\.supabase\.co)["']/)?.[1];
+const csp=html.match(/<meta\s+http-equiv="Content-Security-Policy"\s+content="([^"]+)"\s*\/?>/i)?.[1]||'';
+if(!supabaseHost||!csp.includes('https://'+supabaseHost))
+ fail.push('Browser security policy does not pin the configured Supabase origin');
+for(const rule of ["default-src 'self'","script-src 'self' https://cdn.jsdelivr.net",
+ "object-src 'none'","base-uri 'self'","frame-src 'none'",
+ "form-action 'self'","upgrade-insecure-requests"]){
+ if(!csp.includes(rule))fail.push('Browser CSP guard absent: '+rule);
+}
+if(/script-src[^;]*(?:'unsafe-inline'|'unsafe-eval'|\*)/.test(csp))
+ fail.push('Script CSP cannot allow inline execution, eval or wildcard sources');
+if(!html.includes('name="referrer" content="no-referrer"'))
+ fail.push('Referrer protection is absent');
+if(/<link\b[^>]*https?:\/\/fonts\.(?:googleapis|gstatic)\.com/i.test(html))
+ fail.push('External font provider reintroduced without privacy review');
 if(fail.length){
  console.error(fail.join('\n'));
  process.exitCode=1;
