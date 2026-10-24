@@ -347,7 +347,7 @@ export async function mountSport(initialTeamCode=null) {
       if(unavailable.includes('club_seasons'))
         descriptions.push('Le filtre des saisons est temporairement indisponible, sans masquer les matchs accessibles');
       const notice=element('p','sport-notice',descriptions.join('. ')+
-        '. Les archives provenant de sources extérieures restent consultables sans homologation par Boissy UJ.');
+        '. Les autres rencontres restent consultables, mais ne sont pas confirmées par Boissy UJ.');
       notice.setAttribute('role','status');
       root.prepend(notice);
     }
@@ -357,7 +357,7 @@ export async function mountSport(initialTeamCode=null) {
     // Conserver l'interface sans annoncer faussement un calendrier vide ou un score.
     displayFixtures(root,FALLBACK_TEAMS,[],[],initialTeamCode);
     const notice=element('p','sport-notice',
-      'La source du calendrier n’est pas encore disponible. Présentation des équipes uniquement ; aucun match ni résultat ne peut être confirmé pour le moment.');
+      'Le calendrier du club n’est pas encore disponible. Présentation des équipes uniquement ; aucun match ni résultat ne peut être confirmé pour le moment.');
     notice.setAttribute('role','status');
     root.prepend(notice);
   }finally{deadline.dispose();}
