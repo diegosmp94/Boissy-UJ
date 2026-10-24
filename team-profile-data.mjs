@@ -103,6 +103,49 @@ export function renderPublicPlayerRosterCard(person){
  card.append(portrait,element('h3','team-extras-player-name',String(person.display_name||'').trim()));
  return card;
 }
+/** An educator is a published coach, or a staff member explicitly described
+ * as coaching/training support. Public roster records are independent of
+ * private coach/team assignments and require per-team publication consent. */
+export function isPublicEducator(person){
+ if(!person||person.published!==true||person.consent_confirmed!==true)return false;
+ if(person.person_kind==='coach')return true;
+ if(person.person_kind!=='staff')return false;
+ const role=String(person.role_label||'').normalize('NFD')
+  .replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('fr-FR').trim();
+ return /^(entraineur|educateur|coach|adjoint|preparateur physique|preparateur sportif|assistant entraineur)(\\b|\\s|$)/.test(role);
+}
+export function publicEducators(people){
+ return (Array.isArray(people)?people:[]).filter(isPublicEducator);
+}
+/** A visual placeholder, not a real portrait or a public player profile. */
+export function renderPublicEducatorCard(person){
+ const card=element('article','team-extras-person team-extras-educator-card');
+ const portrait=element('div','team-extras-player-portrait team-extras-educator-portrait');
+ portrait.setAttribute('role','img');
+ portrait.setAttribute('aria-label','Photo de l’éducateur non publiée');
+ const silhouette=element('div','team-extras-player-silhouette');
+ silhouette.setAttribute('aria-hidden','true');
+ silhouette.append(element('span','team-extras-player-head'),
+  element('span','team-extras-player-shoulders'));
+ portrait.append(silhouette);
+ const detail=element('div','team-extras-educator-detail');
+ detail.append(element('h3','team-extras-educator-name',
+    String(person.display_name||'').trim()),
+   element('p','team-extras-educator-function',
+    String(person.role_label||'Fonction non renseignée').trim()));
+ card.append(portrait,detail);
+ return card;
+}
+function educatorsSection(root,people){
+ const section=element('section','team-extras-group team-position-section team-educators-section');
+ section.setAttribute('aria-label','Éducateurs');
+ section.append(element('h2','','Éducateurs'));
+ const grid=element('div','team-extras-people team-extras-player-grid team-extras-educator-grid');
+ const items=publicEducators(people);
+ if(!items.length)grid.append(empty('Aucun éducateur autorisé à la publication pour cette équipe actuellement.'));
+ else for(const person of items)grid.append(renderPublicEducatorCard(person));
+ section.append(grid);root.append(section);
+}
 function group(root,title,items){
  const section=element('section','team-extras-group');
  section.append(element('h2','',title));
@@ -125,8 +168,8 @@ function group(root,title,items){
  section.append(grid);
  root.append(section);
 }
-function groupedPlayers(root,players){
- const approved=groupPublishedPlayers(players);
+function groupedPlayers(root,people){
+ const approved=groupPublishedPlayers(people);
  for(const position of PLAYER_POSITION_GROUPS){
   const section=element('section','team-extras-group team-position-section');
   section.append(element('h2','',position.label));
@@ -136,6 +179,7 @@ function groupedPlayers(root,players){
   else for(const person of items)grid.append(renderPublicPlayerRosterCard(person));
   section.append(grid);root.append(section);
  }
+ educatorsSection(root,people);
  if(approved.unclassified.length){
   const section=element('section','team-extras-group team-position-section');
   section.append(element('h2','','À classer'));
@@ -206,9 +250,10 @@ export async function mountTeamPublicExtras(code,{view='all'}={}){
    const warn=element('p','team-extras-notice','L’annuaire public est temporairement indisponible.');
    warn.setAttribute('role','status');root.append(warn);
   }
-  groupedPlayers(root,data.people.filter(p=>p.person_kind==='player'));
+  groupedPlayers(root,data.people);
   if(view!=='players'){
-   group(root,'Encadrement',data.people.filter(p=>p.person_kind!=='player'));
+   const otherStaff=data.people.filter(p=>p.person_kind==='staff'&&!isPublicEducator(p));
+   if(otherStaff.length)group(root,'Encadrement',otherStaff);
    statsSection(root,data.metrics,data.errors.includes('metrics'));
    newsSection(root,data.news,data.errors.includes('news'),code);
   }
