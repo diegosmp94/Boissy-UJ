@@ -100,7 +100,7 @@ test('public preview shows photo slot, age, position and stats but no fictional 
 });
 
 test('consented player uses real name/position/number and never fabricates age, photo or stats',()=>{
- const nodes=rendered({person,team:{name:'Seniors A',division:'Départemental 3',discipline:'football'}});
+ const nodes=rendered({person,team:{code:'a',slug:'seniors-a',name:'Seniors A',division:'Départemental 3',discipline:'football'}});
  const content=nodes.map(n=>n.textContent).join(' | ');
  for(const real of ['Joueur autorisé','Milieu','Présentation validée par le club.','8','Seniors A']){
   assert.ok(content.includes(real),real);
