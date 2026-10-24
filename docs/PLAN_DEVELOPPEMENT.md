@@ -29,6 +29,10 @@ Point d'étape : **23 octobre 2026**. Les changements du site sont développés 
 
 Les pages **Communauté/Premium, Événements/Billetterie et Soutenir** ont une présentation responsive plus complète, un comparateur mensuel/annuel interactif sans prélèvement, un parcours d'information et des FAQ accessibles. Le lien **Awards** est directement visible sur le menu mobile. Les tests de navigation publique Chromium passent de 10 à 16 scénarios, incluant le basculement de période. **Reste hors de cette clôture UI** : tests sur appareils physiques, interactions Stripe/QR/votes avec back-end homologué, contenus sous droits et décisions RGPD. Le front est avancé, mais une homologation à 100 % serait prématurée. [Détails de l'étape 53](ETAPE_53_FINITIONS_FRONTEND.md).
 
+## Stabilisation publique — Repli des six catalogues encore non bornés
+
+Après la mise en ligne vérifiée et le correctif Mon espace, les appels HTTP publics du prochain match, des félicitations, des fiches équipes, de l'agenda, de l'identité et de la section Nous rejoindre/Infos pratiques ont désormais un délai de 12 secondes, avec annulation au départ de la page et états d'indisponibilité sans donnée fictive. Aucune écriture Supabase. [Détail](CORRECTIF_PUBLIC_CHARGEMENTS_20261024.md).
+
 ## Stabilisation en production — Connectivité de « Mon espace »
 
 Après résolution de la configuration GitHub Pages, **les 11 contrôles du site public sont verts** sur le commit `f77664652407`. Correction des promesses de comptes non bornées (chargement CDN, session, utilisateur, profil, inscription, mot de passe et déconnexion) par des timeouts de 12 secondes et une interface d'erreur réessayable. Ne remplace ni recette réelle Supabase/Auth/MFA ni tests RGPD des membres. [Détails](CORRECTIF_MON_ESPACE_RESEAU_20261024.md).
