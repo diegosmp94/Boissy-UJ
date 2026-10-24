@@ -223,8 +223,11 @@ try{
       const panel=group.querySelector('#'+trigger?.getAttribute('aria-controls'));
       if(!trigger||!panel){errors.push('Header dropdown missing');continue;}
       trigger.focus();
+      trigger.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowDown',bubbles:true,cancelable:true}));
       if(panel.hidden||trigger.getAttribute('aria-expanded')!=='true')
        errors.push('Header dropdown not keyboard accessible: '+group.id);
+      if(document.activeElement!==panel.querySelector('a'))
+       errors.push('ArrowDown did not move focus into header menu: '+group.id);
       document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
       if(!panel.hidden||trigger.getAttribute('aria-expanded')!=='false')
        errors.push('Header dropdown did not close: '+group.id);
