@@ -64,13 +64,9 @@ test('P1 local role test refuses unknown Docker stack, mixed prod ref or shared 
   {...valid,BOISSY_TEST_PUBLISHABLE_KEY:'sb_secret_secret123456'},
   {...valid,BOISSY_TEST_PUBLISHABLE_KEY:'sk_live_secret'},
   {...valid,BOISSY_TEST_PUBLISHABLE_KEY:'bad'},
-  {...valid,BOISSY_TEST_PUBLISHABLE_KEY:anonJwt().replace('not-a-real-signature','')},
   {...valid,BOISSY_TEST_PUBLISHABLE_KEY:(
    'eyJhbGciOiJIUzI1NiJ9.'+Buffer.from(JSON.stringify({role:'service_role'})).toString('base64url')+'.sig')}
  ]){
-  // A legacy key with an omitted JWT signature is not treated as proof of authenticity
-  // by the parser, so do not use that case to infer signature verification.
-  if(env.BOISSY_TEST_PUBLISHABLE_KEY?.endsWith('.')||env.BOISSY_TEST_PUBLISHABLE_KEY===anonJwt().replace('not-a-real-signature',''))continue;
   assert.throws(()=>validateTarget(env));
  }
 });
