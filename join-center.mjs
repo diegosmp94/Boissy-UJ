@@ -86,7 +86,11 @@ async function publicRows(table,columns,signal,fetcher){
   return rows;
 }
 export async function loadPublicClubInfo(signal,fetcher=fetch){
-  const [listings,notices,contacts]=await Promise.all([
+  // Three independent PUBLIC catalogues. Failure in one must not hide already
+  // published information in the other two. Aborting navigation is different
+  // from a partial provider outage and must still cancel rendering.
+  const names=['listings','notices','contacts'];
+  const results=await Promise.allSettled([
     publicRows('club_join_opportunities',
       'id,title,description,audience,team_code,stage,published,sort_order',signal,fetcher),
     publicRows('club_public_notices',
@@ -94,7 +98,13 @@ export async function loadPublicClubInfo(signal,fetcher=fetch){
     publicRows('club_contact_channels',
       'id,label,channel_type,channel_value,audience,published,sort_order',signal,fetcher)
   ]);
-  return {listings,notices,contacts};
+  if(signal?.aborted)throw new Error('Requête annulée');
+  const output={listings:[],notices:[],contacts:[],unavailable:[]};
+  for(let i=0;i<results.length;i++){
+    if(results[i].status==='fulfilled')output[names[i]]=results[i].value;
+    else output.unavailable.push(names[i]);
+  }
+  return output;
 }
 
 const TEAM_NAMES={a:'Seniors A',b:'Seniors B',c:'Seniors C',veterans:'Vétérans'};
@@ -104,13 +114,18 @@ function noticeCard(notice){
   item.append(title,el('p','',notice.body));
   return item;
 }
-function contactArea(contacts,audience){
+function contactArea(contacts,audience,unavailable=false){
   const area=el('section','join-contacts');
   area.append(el('h3','','Contacter le club'),
     el('p','join-intro','Seuls les moyens de contact explicitement publiés par Boissy-UJ sont proposés.'));
   const found=filterPublicContacts(contacts,audience);
   const links=el('div','join-contact-links');
-  if(!found.length){
+  if(unavailable){
+    const warning=el('p','join-neutral',
+      'Les contacts officiels sont momentanément indisponibles. Aucun contact non vérifié n’est affiché.');
+    warning.setAttribute('role','status');
+    area.append(warning);
+  }else if(!found.length){
     area.append(el('p','join-neutral','Aucun moyen de contact officiel n’est encore publié pour cette rubrique.'));
   }else {
     for(const c of found){
@@ -142,7 +157,7 @@ function introSteps(audience){
   section.append(list);
   return section;
 }
-function listingSection(listings,role){
+function listingSection(listings,role,unavailable=false){
   const section=el('section','join-listing-section');
   section.append(el('h2','','Annonces du club'));
   const helper=el('p','join-intro',
@@ -171,6 +186,13 @@ function listingSection(listings,role){
       audience:role,team:team.value,query:search.value
     });
     list.replaceChildren();
+    if(unavailable){
+      const notice=el('p','join-neutral',
+        'Les annonces officielles sont momentanément indisponibles. Aucune annonce non vérifiée n’est affichée.');
+      notice.setAttribute('role','status');
+      list.append(notice);
+      return;
+    }
     if(!rows.length){
       list.append(el('p','join-neutral',
         'Aucune annonce officielle publiée pour cette sélection actuellement. Cela ne signifie pas que le club recrute ou ne recrute pas.'));
@@ -223,8 +245,8 @@ function buildJoin(root,data){
     }
     dynamic.replaceChildren(
       introSteps(selected),
-      listingSection(data.listings,selected),
-      contactArea(data.contacts,selected)
+      listingSection(data.listings,selected,data.unavailable.includes('listings')),
+      contactArea(data.contacts,selected,data.unavailable.includes('contacts'))
     );
   };
   for(const audience of JOIN_AUDIENCES){
@@ -235,6 +257,12 @@ function buildJoin(root,data){
   }
   choice.append(buttons);
   root.append(choice,dynamic,topicIntro());
+  if(data.unavailable.includes('notices')){
+    const warning=el('p','join-neutral',
+      'Les questions et informations officielles du club ne peuvent pas être chargées pour le moment.');
+    warning.setAttribute('role','status');
+    root.append(warning);
+  }
   if(data.notices.some(n=>n.published&&n.topic==='faq')){
     const group=el('section','join-static-help');
     group.append(el('h2','','Informations publiées par le club'));
@@ -268,14 +296,19 @@ function buildPractical(root,data){
   const redraw=()=>{
     const filtered=filterPublicNotices(data.notices,{topic:topic.value,query:search.value});
     articles.replaceChildren();
-    if(!filtered.length)articles.append(el('p','join-neutral',
+    if(data.unavailable.includes('notices')){
+      const warning=el('p','join-neutral',
+        'Les informations pratiques officielles sont momentanément indisponibles. Les horaires et lieux ne peuvent pas être confirmés.');
+      warning.setAttribute('role','status');
+      articles.append(warning);
+    }else if(!filtered.length)articles.append(el('p','join-neutral',
       'Aucune information pratique vérifiée n’est encore publiée dans cette sélection.'));
     else filtered.forEach(row=>articles.append(noticeCard(row)));
   };
   topic.addEventListener('change',redraw);
   search.addEventListener('input',redraw);
   redraw();
-  root.append(contactArea(data.contacts,'general'));
+  root.append(contactArea(data.contacts,'general',data.unavailable.includes('contacts')));
   const footer=el('a','join-back-link','Nous rejoindre ↗');
   footer.href='#/rejoindre';root.append(footer);
 }
