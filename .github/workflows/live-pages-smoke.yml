@@ -17,4 +17,5 @@ jobs:
       - name: Tester la disponibilité publique sans authentification
         env:
           BOISSY_PUBLIC_URL: https://diegosmp94.github.io/Boissy-UJ/
+          BOISSY_EXPECTED_COMMIT: ${{ github.sha }}
         run: npm run smoke:live
