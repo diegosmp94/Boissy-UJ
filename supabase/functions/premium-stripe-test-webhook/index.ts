@@ -5,7 +5,8 @@
  * Checkout link through a service-role-only SQL RPC.
  */
 import Stripe from 'npm:stripe@22.6.0';
-import {projectStripeTestEvent} from '../_shared/stripe-test-events.mjs';
+import {STRIPE_TEST_EVENTS,projectStripeTestEvent} from '../_shared/stripe-test-events.mjs';
+import {classifyStripeTestFinancialEvent} from '../_shared/stripe-test-financial-guards.mjs';
 
 function configuration(){
  const apiKey=Deno.env.get('STRIPE_TEST_RESTRICTED_KEY')||'';
@@ -63,11 +64,14 @@ Deno.serve(async req=>{
   );
  }catch{return respond('signature_invalid',400);}
  if(event.livemode!==false)return respond('test_events_only',400);
- const recognized=[
-  'checkout.session.completed','checkout.session.async_payment_succeeded',
-  'invoice.paid','invoice.payment_failed','customer.subscription.deleted'
- ];
- if(!recognized.includes(event.type))return respond('ignored',200);
+ // Reversals/chargebacks are intentionally NOT acknowledged as ignored.
+ // No safe Stripe payment -> exact membership binding exists for them yet.
+ // This is a retryable hold in Stripe TEST, not a completed reconciliation.
+ let safety;
+ try{safety=classifyStripeTestFinancialEvent(event,STRIPE_TEST_EVENTS);}
+ catch{return respond('invalid_test_event',400);}
+ if(safety==='financial_hold')return respond('reversal_needs_reconciliation',503);
+ if(safety==='ignore')return respond('ignored',200);
  try{
   const obj=event.data.object;
   let lines;
