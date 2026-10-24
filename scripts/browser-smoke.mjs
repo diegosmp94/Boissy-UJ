@@ -148,6 +148,7 @@ let chrome;
 const scenarios=[
  {name:'mobile-home',hash:'#/',width:320,height:760},
  {name:'mobile-teams',hash:'#/equipes',width:390,height:844},
+ {name:'mobile-player-preview',hash:'#/joueurs/apercu',width:390,height:844},
  {name:'mobile-matches',hash:'#/matchs',width:390,height:844},
  {name:'mobile-admin-guest',hash:'#/control-center',width:390,height:844},
  {name:'mobile-privacy',hash:'#/confidentialite',width:390,height:844},
@@ -242,6 +243,15 @@ try{
      if(location.hash!==expected)errors.push('Skip link replaced current SPA route');
      if(document.activeElement!==main)errors.push('Skip link did not focus main');
     }
+   }
+   if(expected==='#/joueurs/apercu'){
+    if(!main.querySelector('.player-profile-hero'))errors.push('Player profile preview hero missing');
+    if(!main.querySelector('.player-profile-portrait'))errors.push('Player portrait slot missing');
+    if(!main.textContent.includes('APERÇU DU MODÈLE'))errors.push('Unmarked public player preview');
+    if(!main.textContent.includes('Âge')||!main.textContent.includes('Poste')
+      ||!main.textContent.includes('Passes décisives'))errors.push('Player profile fields missing');
+    if(!main.textContent.includes('Aucune statistique individuelle validée'))
+      errors.push('Player stats incorrectly represented as real');
    }
    if(expected==='#/control-center'){
     if(!main.querySelector('#real-admin-root'))errors.push('Protected administration guard absent');

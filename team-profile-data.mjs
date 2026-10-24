@@ -2,6 +2,7 @@ import {supabaseConfig} from './auth-config.mjs';
 import {CLUB_TEAMS} from './club-teams.mjs';
 import {teamDeepLink} from './team-links.mjs';
 import {boundedPublicRequest} from './public-catalog-timeout.mjs';
+import {isPublicPlayerId,playerPublicRoute} from './player-profile-page.mjs';
 
 const BASE=supabaseConfig.url+'/rest/v1/';
 const element=(tag,cls='',value=null)=>{
@@ -88,9 +89,20 @@ function group(root,title,items){
   const body=element('div');
   body.append(element('span','tiny-label',person.role_label),element('h3','',person.display_name));
   if(person.biography)body.append(element('p','',person.biography));
+  if(person.person_kind==='player'&&isPublicPlayerId(person.id)){
+   const profile=element('a','team-extras-person-profile-link','Voir la fiche joueur ↗');
+   profile.href=playerPublicRoute(person.id);
+   body.append(profile);
+  }
   card.append(info,body);grid.append(card);
  }
- section.append(grid);root.append(section);
+ section.append(grid);
+ if(title==='Effectif'){
+  const demo=element('a','team-extras-person-profile-link','Découvrir le modèle de fiche joueur ↗');
+  demo.href='#/joueurs/apercu';
+  section.append(demo);
+ }
+ root.append(section);
 }
 function statsSection(root,stats,unavailable){
  const section=element('section','team-extras-group');

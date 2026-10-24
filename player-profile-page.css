@@ -1,0 +1,81 @@
+/* Individual public player profile — navy, royal blue and muted gold. */
+.player-profile-public-root{display:grid;gap:24px;min-width:0;margin:12px 0 42px}
+.player-profile-breadcrumb{display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:#c7d8ea;font-size:13px}
+.player-profile-breadcrumb a{color:#edcd8b;font-weight:800;text-decoration:none}
+.player-profile-breadcrumb a:hover{text-decoration:underline}
+.player-profile-hero{position:relative;isolation:isolate;min-width:0;display:grid;
+ grid-template-columns:minmax(200px,33%) minmax(0,1fr) 104px;gap:clamp(16px,3.5vw,44px);
+ align-items:center;padding:clamp(18px,3.5vw,38px);
+ border:1px solid #d7b77589;border-radius:23px;
+ background:radial-gradient(ellipse at 10% 0,#1c5985 0,transparent 58%),
+ linear-gradient(135deg,#15385d 0%,#0c2646 58%,#061729 100%);
+ box-shadow:0 18px 55px #010c2240;overflow:hidden}
+.player-profile-hero::after{content:"BOISSY UJ";position:absolute;right:-2%;bottom:-12%;
+ font:900 clamp(65px,12vw,170px)/1 Outfit,system-ui,sans-serif;letter-spacing:-.09em;
+ color:#ffffff08;white-space:nowrap;pointer-events:none;z-index:-1}
+.player-profile-portrait{height:300px;min-width:0;display:flex;flex-direction:column;justify-content:end;
+ align-items:center;gap:20px;border-radius:18px;padding:24px 12px 18px;
+ border:1px solid #eac67c75;background:linear-gradient(145deg,#204c76,#09203f 65%,#061424)}
+.player-profile-portrait-icon{position:relative;width:126px;height:166px;overflow:hidden}
+.player-profile-avatar-head{position:absolute;left:37px;top:12px;width:53px;height:60px;
+ border-radius:50%;background:linear-gradient(#b3c4d6,#6c8eaa)}
+.player-profile-avatar-shoulders{position:absolute;left:0;bottom:-25px;width:126px;height:103px;
+ border-radius:62px 62px 14px 14px;background:linear-gradient(140deg,#92abc5,#34587a)}
+.player-profile-portrait-text{padding:10px 14px;border:1px solid #c8e0ee65;
+ border-radius:100px;color:#e8f1fc;font-size:10px;font-weight:900;letter-spacing:.12em}
+.player-profile-hero-copy{min-width:0}
+.player-profile-eyebrow{margin:0 0 14px!important;color:#f2cd7f!important;
+ font-size:11px!important;letter-spacing:.15em;text-transform:uppercase;font-weight:900}
+.player-profile-hero h2{font:900 clamp(32px,4.3vw,70px)/1.02 Outfit,system-ui,sans-serif;
+ letter-spacing:-.045em;color:#fff;margin:0 0 19px;overflow-wrap:anywhere}
+.player-profile-subtitle{color:#d2e3f4!important;font-size:clamp(14px,1.6vw,18px)!important;line-height:1.5}
+.player-profile-chips{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0}
+.player-profile-chips span{color:#f9e4b8;border:1px solid #deb97880;background:#bc9b5020;
+ padding:9px 13px;border-radius:100px;font-size:12px;font-weight:800}
+.player-profile-number{display:grid;gap:5px;justify-items:center;align-self:start;text-align:center}
+.player-profile-number small{font-size:9px;font-weight:900;letter-spacing:.15em;color:#e5d1a8}
+.player-profile-number strong{font:900 clamp(55px,6vw,92px)/1 Outfit,system-ui,sans-serif;color:#f3ce83}
+.player-profile-preview-note{border:1px solid #d2ae7275;border-radius:13px;background:#173457;
+ padding:17px 20px;color:#f1e4cb;line-height:1.65;font-size:13px;margin:0}
+.player-profile-panel{padding:clamp(20px,3vw,32px);border:1px solid #aec6dc60;
+ border-radius:17px;background:linear-gradient(135deg,#102e51,#081c36)}
+.player-profile-panel h3{font:850 clamp(22px,2.5vw,30px)/1.2 Outfit,system-ui,sans-serif;
+ color:#fff;margin:0 0 21px}
+.player-profile-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0}
+.player-profile-fact{min-width:0;padding:15px 17px;border-radius:12px;background:#071e3a;
+ border:1px solid #6d99c34a}
+.player-profile-fact dt{color:#9dc4e5;font-size:11px;letter-spacing:.03em}
+.player-profile-fact dd{margin:9px 0 0;color:#fff;font-size:clamp(15px,1.65vw,20px);
+ font-weight:850;overflow-wrap:anywhere}
+.player-profile-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.player-profile-stat{display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:9px;min-height:130px;padding:14px;text-align:center;border-radius:14px;
+ border:1px solid #d4b57482;background:linear-gradient(140deg,#18395e,#071d36)}
+.player-profile-stat strong{font:900 44px Outfit,system-ui,sans-serif;color:#f0ce8e}
+.player-profile-stat span{font-size:12px;color:#d2e4f6;font-weight:750}
+.player-profile-data-note,.player-profile-biography{color:#c4d8ed;line-height:1.65;font-size:13px}
+.player-profile-data-note{margin:16px 0 0}
+.player-profile-biography{font-size:15px}
+.player-profile-actions{display:flex;gap:12px;flex-wrap:wrap}
+.player-profile-link{display:inline-flex;min-height:44px;align-items:center;padding:11px 16px;
+ background:#143459;border:1px solid #e5be7377;border-radius:10px;color:#f1d19a;
+ font-size:13px;font-weight:800;text-decoration:none}
+.player-profile-link:hover{background:#204b76}
+.player-profile-link:focus-visible{outline:3px solid #f1cf83;outline-offset:3px}
+.team-extras-person-profile-link{display:inline-flex;min-height:44px;align-items:center;
+ margin-top:11px;padding:10px 12px;border-radius:9px;border:1px solid #e2bd7777;
+ color:#f4d291;font-weight:800;font-size:12px;text-decoration:none}
+.team-extras-person-profile-link:hover{background:#20486b}
+@media(max-width:900px){.player-profile-hero{grid-template-columns:210px minmax(0,1fr)}
+ .player-profile-number{grid-column:2;grid-row:2;justify-items:start}
+ .player-profile-facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.player-profile-hero{grid-template-columns:minmax(0,1fr);gap:17px}
+ .player-profile-portrait{height:225px}
+ .player-profile-portrait-icon{transform:scale(.8);transform-origin:bottom center;height:125px}
+ .player-profile-number{grid-column:1;grid-row:auto;justify-items:start}
+ .player-profile-hero h2{font-size:clamp(30px,9vw,46px)}
+ .player-profile-facts,.player-profile-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .player-profile-stat{min-height:110px}
+ .player-profile-stat strong{font-size:36px}}
+@media(max-width:360px){.player-profile-facts{grid-template-columns:minmax(0,1fr)}}
+@media(prefers-reduced-motion:reduce){.player-profile-link{transition:none}}

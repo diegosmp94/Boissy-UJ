@@ -2,6 +2,7 @@ import {mountEvents,unmountEvents} from './events-center.mjs';
 import {CLUB_TEAMS,DISCIPLINES,teamsByDiscipline,teamRoute,categoryRoute,disciplineLabel} from './club-teams.mjs';
 import {mountTeamProfile,unmountTeamProfile} from './team-pages.mjs';
 import {mountTeamPublicExtras,unmountTeamPublicExtras} from './team-profile-data.mjs';
+import {isPublicPlayerId,mountPublicPlayerProfile,unmountPublicPlayerProfile} from './player-profile-page.mjs';
 import {mountAwards,unmountAwards} from './awards-center.mjs';
 import {mountPremiumPlans} from './premium-front.mjs';
 import {mountJoin,unmountJoin,mountPractical,unmountPractical} from './join-center.mjs';
@@ -164,6 +165,7 @@ function singleTeamPage(team){
         <a href="${categoryRoute(team.discipline)}">← Toutes les équipes ${disciplineLabel(team.discipline)}</a>
         <a href="${teamDeepLink('matchs',team.code)}">Matchs de cette équipe ↗</a>
         <a href="${teamDeepLink('actualites',team.code)}">Actualités de cette équipe ↗</a>
+        <a href="#/joueurs/apercu">Aperçu d’une fiche joueur ↗</a>
       </nav>
       <section class="team-sibling-section" aria-label="Autres équipes de la discipline">
         <h2>Autres équipes</h2><div class="team-siblings">
@@ -261,19 +263,27 @@ function legal(){
 
 function account(){return pageShell('Espace personnel','MON <em>ESPACE.</em>','Un seul compte, plusieurs rôles : supporter, licencié, éducateur ou administrateur. Inscription et connexion sécurisées via Supabase.',`<div class="trust-auth-notice"><strong>Protection des données</strong><p>Les informations saisies servent à gérer ton compte et les fonctionnalités du club. Consulte les finalités, les prestataires et les droits applicables avant de t’inscrire.</p><a href="#/confidentialite">Lire la politique de confidentialité ↗</a></div>`+authMarkup()+`<div class="cc-entry-link"><span class="tiny-label">ADMINISTRATION PROTÉGÉE</span><h2>Centre de gestion Boissy-UJ</h2><p>Ce panneau est réservé aux administrateurs habilités et nécessite la double authentification MFA AAL2. Les autres comptes n’y ont pas accès.</p><a class="btn btn-outline" href="#/control-center">Ouvrir le Centre de gestion <span aria-hidden="true">↗</span></a></div>`);}
 function controlCenter(){return adminCenterMarkup();}
+function playerProfilePage(){return pageShell(
+ 'Le collectif · Fiche individuelle','FICHE <em>JOUEUR.</em>',
+ 'Portrait, poste, numéro et statistiques : uniquement les informations validées pour la publication par le club.',
+ '<div id="player-profile-public-root" class="player-profile-public-root" aria-live="polite">'+
+ '<p class="player-profile-preview-note">Préparation de la fiche joueur…</p></div>'
+);}
 const teamRoutes=Object.fromEntries([
   ...DISCIPLINES.map(d=>[categoryRoute(d.id).slice(1),()=>categoryTeamPage(d.id)]),
   ...teams.map(t=>[teamRoute(t).slice(1),()=>singleTeamPage(t)])
 ]);
-const routes={'/':home,'/matchs':matches,'/equipes':teamPage,'/actualites':news,'/communaute':community,'/awards':awards,'/evenements':events,'/agenda':agenda,'/soutenir':support,'/rejoindre':join,'/infos-pratiques':practical,'/club':identity,'/mon-espace':account,'/control-center':controlCenter,'/confidentialite':privacy,'/mentions-legales':legal,...teamRoutes};
+const routes={'/':home,'/matchs':matches,'/equipes':teamPage,'/actualites':news,'/communaute':community,'/awards':awards,'/evenements':events,'/agenda':agenda,'/soutenir':support,'/rejoindre':join,'/infos-pratiques':practical,'/club':identity,'/mon-espace':account,'/control-center':controlCenter,'/joueurs/apercu':playerProfilePage,'/confidentialite':privacy,'/mentions-legales':legal,...teamRoutes};
 let observer;
 let hasRenderedRoute=false;
 function render(){
   if(observer)observer.disconnect();
   const route=parsePublicRoute(location.hash);
   let path=route.path;
-  if(!Object.hasOwn(routes,path))path='/';
-  main.innerHTML=routes[path]();
+  const publicPlayerId=path.startsWith('/joueurs/')&&
+    isPublicPlayerId(path.slice('/joueurs/'.length))?path.slice('/joueurs/'.length):null;
+  if(!Object.hasOwn(routes,path)&&!publicPlayerId)path='/';
+  main.innerHTML=publicPlayerId?playerProfilePage():routes[path]();
   document.body.classList.toggle('on-home',path==='/');
   document.querySelectorAll('.desktop-links a,.bottom-nav a,.mobile-menu a').forEach(el=>{
     const active=el.getAttribute('href')===`#${path}`;
@@ -298,6 +308,8 @@ function render(){
   const activeTeam=teams.find(t=>teamRoute(t).slice(1)===path);
   if(activeTeam){void mountTeamProfile(activeTeam.code);void mountTeamPublicExtras(activeTeam.code);}
   else {unmountTeamProfile();unmountTeamPublicExtras();}
+  if(path==='/joueurs/apercu'||publicPlayerId)void mountPublicPlayerProfile(publicPlayerId);
+  else unmountPublicPlayerProfile();
   if(path==='/matchs') void mountTeamStats(); else unmountTeamStats();
   if(path==='/matchs') void mountLeagueStandings(route.teamCode);
   else if(activeTeam) void mountLeagueStandings(activeTeam.code);
@@ -312,7 +324,7 @@ function render(){
   
   if(path==='/club') void mountIdentity(); else unmountIdentity();
   if(path==='/control-center') void mountAdminCenter(getAuthClient); else unmountAdminCenter();
-  document.title=(path==='/'?'Boissy-UJ — Club officiel':`Boissy-UJ — ${({ '/matchs':'Match Center','/equipes':'Nos équipes','/actualites':'Actualités','/communaute':'Communauté','/awards':'Awards','/evenements':'Événements','/agenda':'Agenda','/soutenir':'Soutenir le club','/rejoindre':'Nous rejoindre','/infos-pratiques':'Infos pratiques','/club':'Notre club','/mon-espace':'Mon espace','/control-center':'Administration sécurisée','/confidentialite':'Confidentialité','/mentions-legales':'Mentions légales',...Object.fromEntries(DISCIPLINES.map(d=>[categoryRoute(d.id).slice(1),disciplineLabel(d.id)])),...Object.fromEntries(teams.map(t=>[teamRoute(t).slice(1),t.name]))})[path]}`);
+  document.title=(path==='/'?'Boissy-UJ — Club officiel':`Boissy-UJ — ${({ '/matchs':'Match Center','/equipes':'Nos équipes','/actualites':'Actualités','/communaute':'Communauté','/awards':'Awards','/evenements':'Événements','/agenda':'Agenda','/soutenir':'Soutenir le club','/rejoindre':'Nous rejoindre','/infos-pratiques':'Infos pratiques','/club':'Notre club','/mon-espace':'Mon espace','/control-center':'Administration sécurisée','/joueurs/apercu':'Aperçu fiche joueur','/confidentialite':'Confidentialité','/mentions-legales':'Mentions légales',...Object.fromEntries(DISCIPLINES.map(d=>[categoryRoute(d.id).slice(1),disciplineLabel(d.id)])),...Object.fromEntries(teams.map(t=>[teamRoute(t).slice(1),t.name]))})[path]|| (publicPlayerId?'Fiche joueur':'Boissy UJ')}`);
 }
 function setupChapters(){
   const sections=[...document.querySelectorAll('.chapter')];
