@@ -1,5 +1,5 @@
 import { supabaseConfig } from "./auth-config.mjs";
-import {authRedirectUrl,authCallbackError,hasAuthCallback,sanitizedAuthCallbackUrl,loginSuccessMessage,validateAuthInput} from "./auth-flow.mjs";
+import {authRedirectUrl,authCallbackError,hasAuthCallback,sanitizedAuthCallbackUrl,loginSuccessMessage,validateAuthInput,isCurrentAuthForm} from "./auth-flow.mjs";
 import {mountMemberRoleRequests} from './role-workflow.mjs';
 import {mountAdminMfaSetup} from './admin-security.mjs';
 import {mountMemberSports} from './member-sports.mjs';
@@ -128,6 +128,10 @@ function authCard(root, mode = "login") {
   }));
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    // Forms are replaced when changing mode or navigating away. An old
+    // Supabase response must not change the new form or show stale notices.
+    const isCurrent=()=>isCurrentAuthForm(root,form);
+    if(!isCurrent())return;
     const submit = form.querySelector('[type="submit"]');
     submit.disabled = true;
     alertFor(root, "Opération en cours…");
@@ -143,6 +147,7 @@ function authCard(root, mode = "login") {
     const {email,password}=review;
     try {
       const api = await client();
+      if(!isCurrent())return; // Stop before starting an obsolete auth request.
       let result;
       // Callback volontairement SANS hash : Supabase renvoie ?code=... avant le router.
       const redirectTo = authRedirectUrl(window.location);
@@ -163,6 +168,12 @@ function authCard(root, mode = "login") {
         }));
       }
       if (mode === "newPassword") result = await withAuthDeadline(api.auth.updateUser({ password }));
+      if(!isCurrent()){
+        // Keep recovery intent correct if a request completed after the user
+        // left the reset form. No stale form messages or navigation.
+        if(mode==='reset'&&result?.error)setRecoveryIntent(false);
+        return;
+      }
       form.querySelectorAll('input[type="password"]').forEach(input => { input.value = ""; });
       if (result?.error) {
         if(mode==='reset')setRecoveryIntent(false);
@@ -187,7 +198,7 @@ function authCard(root, mode = "login") {
       }
     } catch (error) {
       if(mode==='reset')setRecoveryIntent(false);
-      alertFor(root, safeMessage(error), true);
+      if(isCurrent())alertFor(root, safeMessage(error), true);
     } finally {
       if (submit.isConnected) submit.disabled = false;
     }
