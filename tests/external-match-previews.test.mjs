@@ -31,13 +31,13 @@ test('site clearly distinguishes sourced previews from real club-published fixtu
  const agenda=read('agenda.mjs'),sport=read('sport-center.mjs'),styles=read('agenda.css'),source=read('external-match-previews.mjs');
  assert.match(agenda,/publishedKeys/);
  assert.match(agenda,/normalizeOpponent/);
- assert.match(agenda,/Calendrier externe — à confirmer par le club/);
- assert.match(agenda,/Score relevé/);
+ assert.match(agenda,/Autres rencontres · à confirmer/);
+ assert.match(agenda,/Score :/);
  assert.doesNotMatch(agenda,/Vérifier sur SportCorico/);
  assert.match(agenda,/exportedEntries=selected/);
  assert.doesNotMatch(agenda,/exportedEntries=\w*(?:suggestions|external)/);
  assert.match(sport,/publicExternalFixtures\(/);
- assert.match(sport,/Historique des matchs · sources externes/);
+ assert.match(sport,/Archives des matchs et résultats/);
  assert.match(sport,/name:'Senior',division:'Départemental 2'/);
  assert.match(styles,/agenda-thirdparty/);
  assert.doesNotMatch(source,/\bfetch\(|\.rpc\(|\bservice_role\b|supabase\.co/);
