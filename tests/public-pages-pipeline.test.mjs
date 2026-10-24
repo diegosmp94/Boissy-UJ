@@ -46,7 +46,9 @@ test('publication checks the actual HTTPS origin and exact main revision after d
  assert.match(yml,/exit 1/);
  assert.match(live,/const expectedCommit=String\(process\.env\.BOISSY_EXPECTED_COMMIT/);
  assert.match(live,/release\.json/);
- assert.match(live,/'"commit":"'\+expectedCommit\+'"'|'"commit":"'\+expectedCommit\+'"/);
+ assert.match(live,/inspectPublicAsset\(/);
+ assert.match(live,/expectedCommit/);
+ assert.match(read('scripts/public-live-validator.mjs'),/record\.commit!==expected/);
  assert.match(live,/Authentification/);
  assert.match(live,/Calendrier et résultats/);
  assert.match(live,/Actualités/);
