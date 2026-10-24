@@ -5,6 +5,7 @@ import {supabaseConfig} from './auth-config.mjs';
 import {CLUB_TEAMS,teamRoute} from './club-teams.mjs';
 import {publicExternalFixtures} from './external-match-previews.mjs';
 import {parisDateKey} from './calendar-month.mjs';
+import {boundedPublicRequest} from './public-catalog-timeout.mjs';
 
 export const NEXT_MATCH_REFRESH_MS=60*60*1000;
 const ENDPOINT=supabaseConfig.url+'/rest/v1/';
@@ -188,8 +189,9 @@ export function mountHomeNextMatch(){
   if(loading||!active())return;
   loading=true;
   const abort=new AbortController();controller=abort;
+  const deadline=boundedPublicRequest(abort.signal);
   try{
-   const fresh=await loadPublishedUpcoming({signal:abort.signal});
+   const fresh=await loadPublishedUpcoming({signal:deadline.signal});
    if(!active()||abort.signal.aborted)return;
    remote=fresh;lastSync=Date.now();
   }catch{
@@ -197,6 +199,7 @@ export function mountHomeNextMatch(){
    if(!active()||abort.signal.aborted)return;
    lastSync=Date.now();
   }finally{
+   deadline.dispose();
    loading=false;
    if(active())draw();
   }
