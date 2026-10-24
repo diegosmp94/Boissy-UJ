@@ -31,7 +31,7 @@ export function mountMonthCalendar(root,{now=Date.now()}={}){
  for(const b of [prev,currentButton,next])b.type='button';
  controls.append(prev,currentButton,next);header.append(heading,controls);
  const legend=make('p','month-calendar-legend',
-  'Vert = victoire · jaune/orange = nul · rouge = défaite. Doré = résultat ou rencontre d’une source externe ; bleu = publication du club. Cliquez sur une date pour voir les détails.');
+  'Vert = victoire · jaune/orange = nul · rouge = défaite. Doré = rencontre à confirmer ; bleu = publication du club. Cliquez sur une date pour voir les détails.');
  const board=make('div','month-calendar-board');
  const details=make('div','month-calendar-details');
  details.setAttribute('aria-live','polite');
@@ -41,8 +41,8 @@ export function mountMonthCalendar(root,{now=Date.now()}={}){
    (item.outcome?' is-result-'+item.outcome:''));
   const title=make('h4','',item.title);
   const state=item.external
-   ?(item.status==='played'?'Résultat relevé · non homologué par le club':
-      item.status==='unknown'?'Rencontre passée · score non communiqué':'Source externe · à confirmer')
+   ?(item.status==='played'?'Résultat · à confirmer par le club':
+      item.status==='unknown'?'Rencontre passée · score non communiqué':'Rencontre à confirmer par le club')
    :item.kind==='match'?'Match publié par le club':'Événement publié par le club';
   const meta=make('p','month-calendar-meta',state+' · '+timeLabel(item)+(item.info?' · '+item.info:''));
   const desc=make('p','',item.subtitle||'');
@@ -57,7 +57,7 @@ export function mountMonthCalendar(root,{now=Date.now()}={}){
    card.append(profile);
   }
   // Supporters remain on Boissy UJ. Only internal sections are navigable;
-  // third-party provenance is already shown as text in the result details.
+  // unconfirmed match status is shown without publishing provider details.
   if(!item.external&&typeof item.href==='string'&&item.href.startsWith('#/')){
    const link=make('a','month-calendar-link','Voir la rubrique ↗');
    link.href=item.href;card.append(link);
