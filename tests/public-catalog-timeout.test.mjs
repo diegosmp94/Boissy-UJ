@@ -32,7 +32,7 @@ test('navigating away still cancels pending request and cleanly disposes timeout
 });
 test('public catalogs display their existing truthful unavailable state on timeout rather than a permanent spinner',()=>{
  const setups=[
-  ['sport-center.mjs','La source du calendrier n’est pas encore disponible'],
+  ['sport-center.mjs','Le calendrier du club n’est pas encore disponible'],
   ['events-center.mjs','populate(root,[],false)'],
   ['media-center.mjs','showFeed(root,[],false'],
   ['awards-center.mjs','Le catalogue Awards est momentanément indisponible']
