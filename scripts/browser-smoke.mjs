@@ -327,7 +327,7 @@ try{
   {selector:'.global-legal-footer a[href="#/mentions-legales"]',
    route:'#/mentions-legales',marker:'Mentions légales provisoires'},
   {selector:'.bottom-nav a[href="#/matchs"]',
-   route:'#/matchs',marker:'Match Center'}
+   route:'#/matchs',marker:'Calendriers et résultats publiés'}
  ];
  for(const step of flow){
   const clicked=await evaluate(chrome.send,
