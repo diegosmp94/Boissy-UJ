@@ -18,7 +18,8 @@ export function checkPublicSiteBase(input){
  let url;
  try{url=new URL(String(input));}catch{throw Error('Invalid publication base URL');}
  const official=url.protocol==='https:'&&url.hostname===PUBLIC_SITE_HOST&&
-   url.pathname===PUBLIC_SITE_PATH&&!url.port;
+   url.pathname===PUBLIC_SITE_PATH&&!url.port&&
+   !/:443(?:\/|$)/i.test(String(input));
  const local=url.protocol==='http:'&&['127.0.0.1','localhost'].includes(url.hostname)&&
    url.pathname==='/';
  if(!official&&!local)throw Error('Only official Boissy-UJ GitHub Pages or loopback test origin allowed');
