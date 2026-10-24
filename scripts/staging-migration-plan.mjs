@@ -14,12 +14,13 @@ export const STAGING_PROPOSED_MIGRATIONS=Object.freeze([
  {file:'202610230002_verified_news_media_assets.sql',group:'médias'},
  {file:'202610230003_premium_awards_ballots.sql',group:'Awards'},
  {file:'202610230004_stripe_test_billing_webhook.sql',group:'Stripe TEST'},
- {file:'202610230005_news_revision_restore.sql',group:'versions des actualités'}
+ {file:'202610230005_news_revision_restore.sql',group:'versions des actualités'},
+ {file:'202610240001_free_event_tickets_gated.sql',group:'billets gratuits désactivés'}
 ]);
 export const STAGING_SCHEMA_BLOCKERS=Object.freeze([
  'Existing production schema and history must be reconciled manually',
  'No member data, auth accounts, photos or storage files are to be copied into staging',
- 'All five prepared P2 migrations require schema review and staging acceptance',
+ 'All six prepared P2 migrations require schema review and staging acceptance',
  'Stripe TEST functions must not be deployed to production',
  'Passing this offline inventory does not prove a migration runs successfully'
 ]);
