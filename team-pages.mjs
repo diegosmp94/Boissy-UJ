@@ -1,7 +1,7 @@
 import {supabaseConfig} from './auth-config.mjs';
 import {CLUB_TEAMS} from './club-teams.mjs';
 import {boundedPublicRequest} from './public-catalog-timeout.mjs';
-import {publicExternalFixtures,EXTERNAL_FIXTURE_REVIEWED_AT} from './external-match-previews.mjs';
+import {publicExternalFixtures} from './external-match-previews.mjs';
 import {clubOutcome} from './league-standings.mjs';
 import {victoryCongratulations} from './victory-congratulations.mjs';
 import {createVictoryNotice} from './victory-notice.mjs';
@@ -82,12 +82,12 @@ export async function mountTeamProfile(code){
     root.replaceChildren();
     if(remoteUnavailable){
       const notice=node('p','team-profile-state',
-        'Les rencontres publiées par le club sont momentanément indisponibles. Les archives sourcées ci-dessous restent consultables, mais ne sont pas homologuées par Boissy UJ.');
+        'Les rencontres publiées par le club sont momentanément indisponibles. Les archives ci-dessous restent consultables, mais leurs résultats ne sont pas confirmés par Boissy UJ.');
       notice.setAttribute('role','status');
       root.append(notice);
     }else if(!result.configured){
       root.append(node('p','team-profile-state',
-        'Aucune rencontre publiée n’est encore configurée pour cette équipe. Les éventuelles archives sourcées restent consultables ci-dessous.'));
+        'Aucune rencontre publiée n’est encore configurée pour cette équipe. Les éventuelles archives restent consultables ci-dessous.'));
     }
     const groups=groupTeamResults(result.matches);
     const legend=node('div','sport-result-legend');
@@ -116,7 +116,7 @@ export async function mountTeamProfile(code){
     const competitionNote=node('p','team-competition-help',
       code==='c'
         ?'Seniors C : rencontres amicales, sans championnat officiel. Aucun match de coupe annoncé en 2026–2027.'
-        :'Championnat et coupe sont séparés par équipe. Les résultats externes ne sont pas homologués ; les nouvelles dates ajoutées jusqu’à mai 2027 restent à revalider par le club.');
+        :'Championnat et coupe sont séparés par équipe. Les autres rencontres et résultats restent à confirmer par le club ; les dates annoncées jusqu’à mai 2027 peuvent être corrigées.');
     root.append(competitionNote);
     const cupDetails=cupInformation(code,'2026-2027');
     const cupNotice=node('aside','team-cup-participation');
@@ -164,10 +164,9 @@ export async function mountTeamProfile(code){
       const sourced=publicExternalFixtures({team:code,includePast:true,period:'all'});
       if(sourced.length){
         const section=node('section','team-profile-group team-profile-external');
-        section.append(node('h2','','Résultats précédents et archives sourcées'),
+        section.append(node('h2','','Résultats précédents et calendrier'),
           node('p','team-profile-disclaimer',
-            'Sources SportCorico et TheFootData · saisons 2025–2026 et 2026–2027 · dernier contrôle du calendrier '+
-            EXTERNAL_FIXTURE_REVIEWED_AT+'. Non homologuées par le club ; les scores peuvent être corrigés.'));
+            'Les matchs présentés dans cette section sont à confirmer par le club : dates et scores peuvent être corrigés.'));
         const filter=node('label','team-archive-season-label','Afficher les résultats de : ');
         const select=node('select','sport-team-select');
         select.setAttribute('aria-label','Saison des rencontres archivées de cette équipe');
@@ -177,7 +176,7 @@ export async function mountTeamProfile(code){
         select.value=activeSeason;
         filter.append(select);section.append(filter);
         if(code==='b')section.append(node('p','team-profile-disclaimer',
-          'Seniors B : calendrier de championnat partiel. Certaines journées manquent encore dans les sources consultées ; aucun adversaire ni horaire manquant n’a été inventé.'));
+          'Seniors B : calendrier de championnat partiel. Certaines journées manquent encore dans le calendrier disponible ; aucun adversaire ni horaire manquant n’a été inventé.'));
         const list=node('div','team-profile-matches');
         select.addEventListener('change',()=>{
           activeSeason=select.value;renderCategory();
@@ -192,7 +191,7 @@ export async function mountTeamProfile(code){
         for(const m of ordered){
           const item=node('article','team-profile-match');
           item.append(node('span','team-profile-match-kind',
-            m.season+' · '+(['played','administrative'].includes(m.status)?'Résultat sourcé':
+            m.season+' · '+(['played','administrative'].includes(m.status)?'Résultat à confirmer':
               m.status==='unknown'?'Score non communiqué':'Rencontre annoncée')),
             node('p','team-profile-match-date',m.dateOnly
               ?new Intl.DateTimeFormat('fr-FR',{dateStyle:'long',timeZone:'UTC'})
@@ -211,7 +210,7 @@ export async function mountTeamProfile(code){
             }
           }
           item.append(node('small','team-source-attribution',
-            'Source du relevé : '+m.source_label+' · '+(m.validated_by_club?'Confirmé par le club':'Score non homologué par le club')));
+            m.validated_by_club?'Confirmé par le club':'À confirmer par le club'));
           cards.push({node:item,season:m.season,kind:competitionKind(m),section});
           list.append(item);
         }
@@ -223,7 +222,7 @@ export async function mountTeamProfile(code){
     if(unclassifiedCount)root.append(node('p','team-competition-unclassified',
       unclassifiedCount+' rencontre(s) publiées ne sont pas encore classées. Un administrateur doit indiquer Championnat ou Coupe pour les afficher dans le bon onglet.'));
     root.append(node('p','team-profile-disclaimer',
-      'Les résultats publiés par le club et les références de sources externes ne sont pas équivalents. Aucun classement officiel FFF ne peut être déduit du seul bilan de notre équipe.'));
+      'Les rencontres non confirmées ne valent pas validation officielle. Aucun classement complet ne peut être déduit du seul bilan de notre équipe.'));
   }catch{
     if(controller.signal.aborted||current!==generation||!root.isConnected)return;
     root.replaceChildren(node('p','team-profile-state','Données sportives temporairement indisponibles. Aucun résultat non vérifié ne sera présenté.'));
