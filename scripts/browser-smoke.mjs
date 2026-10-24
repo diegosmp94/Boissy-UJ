@@ -3,6 +3,7 @@
  */
 import {createServer} from 'node:http';
 import {assessAnonymousPublicOrigins} from './browser-origin-policy.mjs';
+import {isReadyPublicRouteSnapshot} from './browser-smoke-readiness.mjs';
 import {readFile,writeFile,mkdir,mkdtemp,rm,access} from 'node:fs/promises';
 import {spawn} from 'node:child_process';
 import {join,resolve,extname,dirname} from 'node:path';
@@ -119,14 +120,25 @@ async function evaluate(send,expression){
  return result.result?.value;
 }
 async function ready(send,match){
- for(let i=0;i<90;i++){
+ // A navigated hash and a nonempty <main> in one CDP read can be a transient
+ // frame while app.js is replacing content. Require three successive valid
+ // snapshots of the *same* #main as the later assertions.
+ // The 20 s budget also covers the 12 s public/auth network deadline.
+ let consecutive=0;
+ for(let i=0;i<160;i++){
   try{
-   const value=await evaluate(send,`({path:location.hash,dom:document.readyState,main:document.querySelector('main')?.textContent?.length||0})`);
-   if(value?.path===match&&value.dom!=='loading'&&value.main>60)return;
-  }catch{}
+   const value=await evaluate(send,`(()=>{
+    const main=document.querySelector('#main');
+    return {path:location.hash,dom:document.readyState,
+      mainCount:document.querySelectorAll('#main').length,
+      mainChars:main?.textContent?.trim().length||0};
+   })()`);
+   consecutive=isReadyPublicRouteSnapshot(value,match)?consecutive+1:0;
+   if(consecutive>=3)return;
+  }catch{consecutive=0;}
   await sleep(125);
  }
- throw new Error('Timed out rendering public route '+match);
+ throw new Error('Timed out waiting for stable public route content '+match);
 }
 await mkdir(artifactDir,{recursive:true});
 const app=server();
