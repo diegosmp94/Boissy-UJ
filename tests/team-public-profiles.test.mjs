@@ -129,7 +129,9 @@ test('each team subpage now contains sections for roster, coaching, metrics and 
  assert.match(app,/id="team-profile-extras"/);
  assert.match(app,/mountTeamPublicExtras\(activeTeam.code\)/);
  assert.match(app,/unmountTeamPublicExtras\(\)/);
- for(const section of ['Effectif','Encadrement','Bilan de l’équipe','Actualités de l’équipe'])assert.ok(read('team-profile-data.mjs').includes(section));
+ for(const section of ['Encadrement','Bilan de l’équipe','Actualités de l’équipe'])assert.ok(read('team-profile-data.mjs').includes(section));
+ assert.match(read('team-profile-data.mjs'),/groupedPlayers\(root,data.people.filter/);
+ assert.match(read('player-position-groups.mjs'),/Gardiens/);
  assert.match(read('index.html'),/team-profile-data.css/);
  assert.match(read('team-profile-data.css'),/@media\(max-width:720px\)/);
  assert.doesNotMatch(read('team-profile-data.mjs'),/innerHTML\s*=/);
