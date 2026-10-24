@@ -29,7 +29,7 @@ export function groupAdminModules(modules){
 }
 export function availableAdminModules(modules,{eventsReady=false,coachTeamsReady=false,mediaReady=false,newsRevisionsReady=false}={}){
  return modules.filter(module=>
-  (module.id!=='events'||eventsReady===true)&&
+  (!['events','ticketing'].includes(module.id)||eventsReady===true)&&
   (module.id!=='coach-teams'||coachTeamsReady===true)&&
   (module.id!=='news-media'||mediaReady===true)&&
   (module.id!=='news-revisions'||newsRevisionsReady===true));

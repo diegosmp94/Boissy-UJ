@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Étape 61 — Billetterie gratuite et Awards (préparation sécurisée, 24 octobre 2026)
+
+Les **Awards restent consultables** même si les nominations ou résultats connaissent une panne, sans afficher de gagnant fictif. Le Control Center ajoute **Préparation billetterie** pour vérifier en lecture seule les dates, jauges et statuts des événements gratuits sous contrôle MFA AAL2. Un protocole de QR opaque à 256 bits est préparé **côté serveur uniquement**, mais **aucun billet, aucune réservation ni entrée QR n'est activé** sans contrôle transactionnel et recette réelle. [Détail étape 61](docs/ETAPE_61_BILLETTERIE_QR_AWARDS.md).
+
 ## Étape 60 — Garde-fous financiers Stripe TEST (24 octobre 2026)
 
 Le code de facturation TEST vérifie maintenant **exactement 10 € par mois et 100 € pour 12 mois non renouvelés automatiquement**, exige un **projet Supabase staging distinct** pour ses requêtes serveur, et **refuse d'ignorer les remboursements et litiges** : ces événements restent bloqués tant que leur rapprochement fiable n'a pas été développé. Aucun paiement ni don n'est activé ; les Edge Functions et migrations demeurent **non déployées**. [Guide étape 60](docs/ETAPE_60_SECURITE_FINANCIERE_TEST.md).
