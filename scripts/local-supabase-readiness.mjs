@@ -55,6 +55,22 @@ function commandAvailable(executable,args){
   return r.status===0&&!r.error;
  }catch{return false;}
 }
+/** Fail closed when a Docker CLI is redirected to remote infrastructure.
+ * The local recipe must only talk to a user's own machine, not a shared
+ * hosted daemon; no remote project credentials should be present.
+ */
+export function assertLocalDockerEnvironment(env=process.env){
+ const host=String(env.DOCKER_HOST||'').trim();
+ const context=String(env.DOCKER_CONTEXT||'').trim();
+ if(host&&!['unix:///var/run/docker.sock','npipe:////./pipe/docker_engine'].includes(host))
+  throw new Error('Only a local Docker socket is allowed for test personas.');
+ if(context&&!['default','desktop-linux'].includes(context))
+  throw new Error('Unreviewed remote Docker context not allowed.');
+ if(env.DOCKER_TLS_VERIFY||env.DOCKER_CERT_PATH||
+    env.SUPABASE_ACCESS_TOKEN||env.SUPABASE_DB_PASSWORD)
+  throw new Error('Remote Docker or hosted Supabase credentials must be removed before local tests.');
+ return Object.freeze({localDocker:true,remoteCloudCredentials:false});
+}
 export function checkLocalRuntimes(run=commandAvailable){
  if(!run('supabase',['--version']))
   throw new Error('Supabase CLI must be installed on this local workstation.');
