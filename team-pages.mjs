@@ -1,5 +1,6 @@
 import {supabaseConfig} from './auth-config.mjs';
 import {CLUB_TEAMS} from './club-teams.mjs';
+import {boundedPublicRequest} from './public-catalog-timeout.mjs';
 import {publicExternalFixtures,EXTERNAL_FIXTURE_REVIEWED_AT} from './external-match-previews.mjs';
 import {clubOutcome} from './league-standings.mjs';
 import {victoryCongratulations} from './victory-congratulations.mjs';
@@ -64,13 +65,29 @@ export async function mountTeamProfile(code){
   const root=document.getElementById('team-profile-live');
   if(!root||!CLUB_TEAMS.some(t=>t.code===code))return;
   const controller=new AbortController();requestController=controller;
+  const deadline=boundedPublicRequest(controller.signal);
   root.replaceChildren(node('p','team-profile-state','Chargement des rencontres publiées…'));
   try{
-    const result=await loadTeamPublishedMatches(code,{signal:controller.signal});
+    let result,remoteUnavailable=false;
+    try{
+      result=await loadTeamPublishedMatches(code,{signal:deadline.signal});
+    }catch{
+      // A failed or timed-out Supabase read must never hide the locally sourced
+      // historical fixtures. Do not turn the outage into a fictitious club match.
+      if(controller.signal.aborted||current!==generation||!root.isConnected)return;
+      remoteUnavailable=true;
+      result={configured:false,matches:[]};
+    }
     if(controller.signal.aborted||current!==generation||!root.isConnected)return;
     root.replaceChildren();
-    if(!result.configured){
-      root.append(node('p','team-profile-state','L’équipe est en cours de configuration. Aucun calendrier officiel disponible.'));return;
+    if(remoteUnavailable){
+      const notice=node('p','team-profile-state',
+        'Les rencontres publiées par le club sont momentanément indisponibles. Les archives sourcées ci-dessous restent consultables, mais ne sont pas homologuées par Boissy UJ.');
+      notice.setAttribute('role','status');
+      root.append(notice);
+    }else if(!result.configured){
+      root.append(node('p','team-profile-state',
+        'Aucune rencontre publiée n’est encore configurée pour cette équipe. Les éventuelles archives sourcées restent consultables ci-dessous.'));
     }
     const groups=groupTeamResults(result.matches);
     const legend=node('div','sport-result-legend');
@@ -106,8 +123,12 @@ export async function mountTeamProfile(code){
     cupNotice.append(node('strong','',cupDetails.headline),node('p','',cupDetails.detail));
     cupNotice.hidden=true;notices.push(cupNotice);root.append(cupNotice);
     for(const [heading,items,empty] of [
-      ['Prochaines rencontres',groups.upcoming,'Aucune rencontre à venir publiée.'],
-      ['Derniers résultats',groups.played,'Aucun résultat publié pour le moment.']
+      ['Prochaines rencontres',groups.upcoming,remoteUnavailable
+        ?'Calendrier publié par le club momentanément indisponible.'
+        :'Aucune rencontre à venir publiée.'],
+      ['Derniers résultats',groups.played,remoteUnavailable
+        ?'Résultats publiés par le club momentanément indisponibles.'
+        :'Aucun résultat publié pour le moment.']
     ]){
       const section=node('section','team-profile-group');
       section.append(node('h2','',heading));
@@ -206,5 +227,5 @@ export async function mountTeamProfile(code){
   }catch{
     if(controller.signal.aborted||current!==generation||!root.isConnected)return;
     root.replaceChildren(node('p','team-profile-state','Données sportives temporairement indisponibles. Aucun résultat non vérifié ne sera présenté.'));
-  }
+  }finally{deadline.dispose();}
 }
