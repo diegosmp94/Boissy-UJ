@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Correctif de stabilité — Chargements publics limités à 12 s
+
+Le prochain match, le bandeau victoires, l'agenda, les fiches d'équipe, l'identité et les rubriques Nous rejoindre/Infos pratiques ne peuvent plus rester indéfiniment dans l'attente d'une API muette. Chaque route réutilise l'arrêt réseau après 12 s, garde ses informations validées ou son repli explicite et annule la requête lorsqu'on quitte la page. [Détail du correctif](docs/CORRECTIF_PUBLIC_CHARGEMENTS_20261024.md).
+
 ## Correctif site opérationnel — Fiabilité des comptes après publication (24 octobre 2026)
 
 GitHub Pages publie désormais **la bonne version de `main`** : build, deploy, verify et 11/11 ressources HTTP ont passé les vérifications après nouvelle publication du commit `f77664652407`. Le compte `Mon espace` bénéficie de délais réseau maximaux et d'un bouton Réessayer lorsqu'un service CDN / Supabase ne répond pas : fini le chargement qui peut rester bloqué sans limite. Les paiements et les outils administratifs restent inchangés. [Détail du correctif](docs/CORRECTIF_MON_ESPACE_RESEAU_20261024.md).
