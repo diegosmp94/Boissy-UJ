@@ -1,6 +1,7 @@
 import {supabaseConfig} from './auth-config.mjs';
 import {CLUB_TEAMS} from './club-teams.mjs';
 import {teamDeepLink} from './team-links.mjs';
+import {boundedPublicRequest} from './public-catalog-timeout.mjs';
 
 const BASE=supabaseConfig.url+'/rest/v1/';
 const element=(tag,cls='',value=null)=>{
@@ -138,9 +139,10 @@ export async function mountTeamPublicExtras(code){
  if(!root)return;
  const id=generation;
  const controller=new AbortController();active=controller;
+ const deadline=boundedPublicRequest(controller.signal);
  root.replaceChildren(element('p','team-extras-empty','Chargement des informations publiques de l’équipe…'));
  try{
-  const data=await loadTeamPublicExtras(code,{signal:controller.signal});
+  const data=await loadTeamPublicExtras(code,{signal:deadline.signal});
   if(controller.signal.aborted||generation!==id||!root.isConnected)return;
   root.replaceChildren();
   if(!data.configured){
@@ -159,5 +161,5 @@ export async function mountTeamPublicExtras(code){
  }catch{
   if(controller.signal.aborted||generation!==id||!root.isConnected)return;
   root.replaceChildren(empty('Les informations de l’équipe sont momentanément indisponibles. Aucun membre non validé ne sera affiché.'));
- }
+ }finally{deadline.dispose();}
 }
