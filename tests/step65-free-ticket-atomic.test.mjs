@@ -135,5 +135,5 @@ test('migration is transactional, static QA is not a substitute for live two-sca
  assert.match(sql,/commit;\s*$/);
  assert.match(sql,/DO NOT APPLY TO PRODUCTION/);
  assert.doesNotMatch(sql,/stripe|payment_intent|checkout\.sessions|sk_live_/i);
- assert.match(priv,/not.*a live multi-account or/);
+ assert.match(priv,/not a live multi-account or/i);
 });
