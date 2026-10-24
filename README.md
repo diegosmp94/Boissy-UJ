@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Étape 64 — Recette finale et preuve de déploiement (24 octobre 2026)
+
+Le contrôle HTTP GitHub Pages **exige** désormais un manifeste `release.json` valide, la bonne version de `main`, `robots.txt`, les ressources publiques et les types MIME corrects. La CI conserve un rapport HTTP anonymisé et un état d'homologation séparé via `npm run release:acceptance`. Les tests Chromium couvrent aussi la **navigation mobile entre Mon espace, confidentialité, mentions légales et matchs sans rechargement**. **Un site techniquement publié ne vaut pas homologation des rôles, du RGPD, des finances ou des appareils physiques** : [recette étape 64](docs/ETAPE_64_RECETTE_FINALE_DEPLOIEMENT.md).
+
 ## Étape 63 — Cybersécurité, confidentialité et accessibilité (24 octobre 2026)
 
 Suppression des appels automatiques à Google Fonts, mise en place d’une CSP de défense dans l’export GitHub Pages et du référent `no-referrer`. Les tests Chromium anonymes surveillent les domaines réellement contactés, les libellés de connexion, le focus et les cibles tactiles sur mobile ; les préférences de réduction des animations sont respectées globalement. **La recette réelle iPhone/Safari, Android/TalkBack, RGPD, sauvegarde et droits des mineurs reste ouverte.** [Dossier étape 63](docs/ETAPE_63_CYBER_RGPD_ACCESSIBILITE.md).
