@@ -11,6 +11,7 @@
 .home-next-ground,.home-next-competition{margin:3px 0 0!important;font-size:12px!important;line-height:1.5!important;color:#b9d0e8!important;text-align:center}
 .home-next-competition{color:#f5d99c!important;font-weight:700}
 .home-next-status{margin:18px 0 10px!important;padding:10px 12px;border:1px solid #9bbddb45;border-radius:10px;background:#102e50;color:#dbe8f6!important;font-size:11px!important;line-height:1.5!important;text-align:center}
+.home-next-sync-warning{margin:0 0 10px!important;border-color:#e4b76880;background:#3c2b20;color:#f9e8cb!important}
 .home-next-actions{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:8px}
 .home-next-action{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:9px 12px;border:1px solid #debd7880;border-radius:9px;font-size:12px;line-height:1.35;font-weight:800;color:#ffe1a4;text-align:center;text-decoration:none;transition:background .15s ease,transform .15s ease}
 .home-next-action:hover{background:#f6d58a19;transform:translateY(-1px)}

@@ -8,6 +8,12 @@ Le Match Center charge indépendamment le référentiel des cinq équipes, les r
 
 Les **chantiers P1 d'homologation des résultats, MFA, restauration et droits** restent ouverts.
 
+## Correctif accueil : passage à l'heure d'été/hiver et disponibilité (24 octobre 2026)
+
+Le bandeau « Prochain match » bascule désormais à **minuit heure de Paris** même si le changement d'heure se produit durant la nuit du lendemain. Les dates irréelles sont écartées. En cas de panne des données officielles, une rencontre issue d'une source tierce reste consultable avec une alerte explicite et disparaît de la position « prochain match » à la bonne borne. Retour du service, mise à jour horaire, liens internes et navigation restent inchangés. [Correctif et tests](CORRECTIF_PROCHAIN_MATCH_DST_INDISPONIBILITE_20261024.md).
+
+**Le chantier P1 de validation sportive officielle reste ouvert.**
+
 ## Chantiers actifs uniquement
 
 **Les fonctionnalités déjà développées et vérifiées ont été retirées du tableau des chantiers.** Leurs étapes historiques ci-dessous restent conservées pour assurer la traçabilité. La réussite des tests CI ne clôt pas une homologation juridique ou une recette utilisateur réelle.
