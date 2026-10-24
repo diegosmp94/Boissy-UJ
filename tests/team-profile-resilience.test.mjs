@@ -28,11 +28,11 @@ test('team profiles use a bounded request, preserve static archives on outage, a
  assert.match(js,/loadTeamPublishedMatches\(code,\{signal:deadline\.signal\}\)/);
  assert.match(js,/remoteUnavailable=true/);
  assert.match(js,/result=\{configured:false,matches:\[\]\}/);
- assert.match(js,/Les archives sourcées ci-dessous restent consultables/);
+ assert.match(js,/Les archives ci-dessous restent consultables/);
  assert.match(js,/notice\.setAttribute\('role','status'\)/);
  assert.match(js,/\}finally\{deadline\.dispose\(\);\}/);
  assert.match(js,/const sourced=publicExternalFixtures\(\{team:code,includePast:true,period:'all'\}\)/);
- assert.match(js,/Non homologuées par le club/);
+ assert.match(js,/Les matchs présentés dans cette section sont à confirmer par le club/);
  assert.match(js,/!result\.configured\)\{/);
  assert.doesNotMatch(js,/L’équipe est en cours de configuration\. Aucun calendrier officiel disponible\.\'\)\);return;/);
  assert.doesNotMatch(js,/\.insert\(|\.upsert\(|\.update\(|\.delete\(|service_role/);
