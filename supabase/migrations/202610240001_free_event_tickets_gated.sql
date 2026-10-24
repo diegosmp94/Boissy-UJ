@@ -10,7 +10,8 @@ create table if not exists app_private.free_ticketing_gate (
   updated_at timestamptz not null default now()
 );
 insert into app_private.free_ticketing_gate(id,enabled)
-values (1,false) on conflict(id) do nothing;
+values (1,false) on conflict(id) do update
+  set enabled=false,updated_at=clock_timestamp();
 alter table app_private.free_ticketing_gate enable row level security;
 revoke all on app_private.free_ticketing_gate from public,anon,authenticated;
 
@@ -80,6 +81,7 @@ begin
     or v_event.access_kind <> 'public' or v_event.booking_kind <> 'free'
     or v_event.price_cents <> 0
     or v_event.booking_status <> 'open'
+    or v_event.priority_kind <> 'none' -- no privileged early booking until separately audited
     or v_event.capacity is null or v_event.capacity < 1
     or v_event.starts_at is null or v_event.starts_at <= clock_timestamp()
     or v_event.ends_at is null or v_event.ends_at <= v_event.starts_at
