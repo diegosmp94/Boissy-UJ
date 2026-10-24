@@ -35,8 +35,9 @@ test('five team roster routes share one educators section and each requires publ
  assert.equal(CLUB_TEAMS.length,5);
  const source=src('team-profile-data.mjs');
  assert.match(source,/groupedPlayers\(root,data\.people\)/);
+ const grouped=source.slice(source.indexOf('function groupedPlayers('));
  const order=['for(const position of PLAYER_POSITION_GROUPS)','educatorsSection(root,people)','if(approved.unclassified.length)'];
- for(let i=1;i<order.length;i++)assert.ok(source.indexOf(order[i-1])<source.indexOf(order[i]));
+ for(let i=1;i<order.length;i++)assert.ok(grouped.indexOf(order[i-1])<grouped.indexOf(order[i]));
  assert.match(source,/section\.append\(element\('h2','','Éducateurs'\)\)/);
  assert.match(source,/if\(!items\.length\)grid\.append\(empty\('Aucun éducateur autorisé à la publication/);
  assert.match(source,/data\.people\.filter\(p=>p\.person_kind==='staff'&&!isPublicEducator\(p\)\)/);
