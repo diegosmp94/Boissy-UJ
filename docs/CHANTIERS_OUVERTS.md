@@ -1,6 +1,6 @@
 # Chantiers encore ouverts — Boissy-UJ
 
-**Révision : 23 octobre 2026.** Les fonctionnalités déjà développées et vérifiées par la CI ne figurent **plus dans cette liste active**. Leur historique reste dans les documents d'étapes du dépôt. Un développement techniquement terminé peut toutefois laisser **une homologation réelle** à faire ; celle-ci reste ici tant que sa preuve n'existe pas.
+**Révision : 24 octobre 2026.** Les fonctionnalités déjà développées et vérifiées par la CI ne figurent **plus dans cette liste active**. Leur historique reste dans les documents d'étapes du dépôt. Un développement techniquement terminé peut toutefois laisser **une homologation réelle** à faire ; celle-ci reste ici tant que sa preuve n'existe pas.
 
 Les priorités P1 bloquent la validation complète ; P2 sont les services non homologués ou les interfaces incomplètes ; P3 dépend d'accords externes.
 
