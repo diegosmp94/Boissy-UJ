@@ -79,8 +79,8 @@ test('public loader remains consent-gated and no external photographs are fetche
  const source=readFileSync(new URL('../team-profile-data.mjs',import.meta.url),'utf8');
  assert.match(source,/published:'eq.true',consent_confirmed:'eq.true'/);
  assert.match(source,/person\.published===true&&person\.consent_confirmed===true|p\.published===true&&p\.consent_confirmed===true/);
- assert.match(source,/groupedPlayers\(root,data\.people\.filter\(p=>p\.person_kind==='player'\)\)/);
- assert.match(source,/groupPublishedPlayers\(players\)/);
+ assert.match(source,/groupedPlayers\(root,data\.people\)/);
+ assert.match(source,/groupPublishedPlayers\(people\)/);
  assert.match(source,/grid\.append\(renderPublicPlayerRosterCard\(person\)\)/);
  assert.doesNotMatch(source,/method:'POST'|\.insert\(|\.upsert\(|innerHTML\s*=/);
 });
