@@ -313,6 +313,41 @@ try{
   if(result.errors.length)throw new Error(scenario.name+': '+result.errors.join(', '));
   console.log('BROWSER PASS '+scenario.name+': '+result.route+' '+result.width+'px');
  }
+
+ // Critical genuine SPA flow: follow links without a full reload, then verify
+ // focus and the newly rendered view. No accounts or production writes.
+ await chrome.send('Emulation.setDeviceMetricsOverride',{
+  width:390,height:844,deviceScaleFactor:1,mobile:true
+ });
+ await chrome.send('Page.navigate',{url:'http://127.0.0.1:'+port+'/#/mon-espace'});
+ await ready(chrome.send,'#/mon-espace');
+ const flow=[
+  {selector:'.trust-auth-notice a[href="#/confidentialite"]',
+   route:'#/confidentialite',marker:'Responsable et finalités'},
+  {selector:'.global-legal-footer a[href="#/mentions-legales"]',
+   route:'#/mentions-legales',marker:'Mentions légales provisoires'},
+  {selector:'.bottom-nav a[href="#/matchs"]',
+   route:'#/matchs',marker:'Calendriers et résultats publiés'}
+ ];
+ for(const step of flow){
+  const clicked=await evaluate(chrome.send,
+   '(()=>{const link=document.querySelector('+JSON.stringify(step.selector)+');'+
+   'if(!link||!link.getClientRects().length)return false;link.click();return true;})()');
+  if(!clicked)throw Error('Critical SPA link not reachable: '+step.selector);
+  let passed=false;
+  for(let attempt=0;attempt<60;attempt++){
+   const state=await evaluate(chrome.send,
+    '(()=>{const main=document.querySelector("#main");return {'+
+    'route:location.hash,body:main?.textContent||"",focused:document.activeElement===main,'+
+    'overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth+2};})()');
+   if(state.route===step.route&&state.body.includes(step.marker)&&state.focused&&!state.overflow){
+    passed=true;break;
+   }
+   await sleep(100);
+  }
+  if(!passed)throw Error('Critical mobile SPA navigation/focus failed on '+step.route);
+ }
+ console.log('BROWSER PASS critical mobile SPA navigation, focus and no horizontal overflow');
  await writeFile(join(artifactDir,'browser-smoke.json'),JSON.stringify(reports,null,2));
  const origins=[...chrome.networkOrigins].filter(origin=>!origin.startsWith('http://127.0.0.1:')).sort();
  const originAudit=assessAnonymousPublicOrigins(origins);

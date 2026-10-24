@@ -29,6 +29,10 @@ Point d'étape : **23 octobre 2026**. Les changements du site sont développés 
 
 Les pages **Communauté/Premium, Événements/Billetterie et Soutenir** ont une présentation responsive plus complète, un comparateur mensuel/annuel interactif sans prélèvement, un parcours d'information et des FAQ accessibles. Le lien **Awards** est directement visible sur le menu mobile. Les tests de navigation publique Chromium passent de 10 à 16 scénarios, incluant le basculement de période. **Reste hors de cette clôture UI** : tests sur appareils physiques, interactions Stripe/QR/votes avec back-end homologué, contenus sous droits et décisions RGPD. Le front est avancé, mais une homologation à 100 % serait prématurée. [Détails de l'étape 53](ETAPE_53_FINITIONS_FRONTEND.md).
 
+## Étape 64 — Recette finale et preuve d'exploitation
+
+Nouveau contrôle strict de l'adresse canonique GitHub Pages, des types MIME, ressources, directives `robots.txt`, mesures CSP et `release.json` avec SHA `main` exact. Les actions de déploiement automatique et de contrôle manuel archivent un rapport de publication expurgé et une liste de **chantiers bloquants de l'homologation complète**. Le parcours mobile sans rechargement contrôle réellement focus, navigation et largeur d'écran. **Aucune validation réelle de Pages, iPhone/Android, MFA/RLS, RGPD ou restauration n'est déduite de la CI seule.** [Détails étape 64](ETAPE_64_RECETTE_FINALE_DEPLOIEMENT.md).
+
 ## Étape 63 — Sécurité web, confidentialité et accessibilité (automatisation)
 
 Google Fonts retiré pour supprimer un chargement tiers passif. CSP méta de défense sur l'export statique, référent `no-referrer`, vérification que les scripts et l'accès Supabase restent limités aux origines approuvées. Tests Chromium anonymes sur les origines, le focus, les libellés et les cibles tactiles ; CSS réduit les animations selon le système et autorise le zoom. **Ne vaut pas homologation** : les essais sur vrais iPhone Safari / Android TalkBack et les validations de droits RGPD (mineurs, données, Storage), RLS et restauration restent ouverts. [Détails](ETAPE_63_CYBER_RGPD_ACCESSIBILITE.md).
