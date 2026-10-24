@@ -43,8 +43,8 @@ export function mergeCalendarPublicEntries(published,external,teams=[]){
   .map((x,index)=>({
    id:'external-'+x.team_code+'-'+x.localDay+'-'+index,kind:'match',
    time:x.time,localDay:x.localDay,dateOnly:x.dateOnly,
-   title:x.team_name+' — '+x.opponent,subtitle:['played','administrative'].includes(x.status)?'Résultat relevé sur '+x.source_label:
-    x.status==='unknown'?'Match passé · score à confirmer':'Rencontre annoncée sur '+x.source_label,
+   title:x.team_name+' — '+x.opponent,subtitle:['played','administrative'].includes(x.status)?'Résultat à confirmer par le club':
+    x.status==='unknown'?'Match passé · score à confirmer':'Rencontre à confirmer par le club',
    place:x.venue||'',info:(['played','administrative'].includes(x.status)?x.result:x.is_home?'Domicile annoncé':'Extérieur annoncé')+
     ' · '+x.season+' · '+x.competition,
    // Provenance kept as readable metadata, never a visitor-facing external link.

@@ -42,11 +42,11 @@ test('historic league positions are labeled previous season only',()=>{
 test('agenda month grid and team cards can surface archived results without treating them as club confirmed',()=>{
  const sourced=publicExternalFixtures({season:'2025-2026',team:'b',includePast:true,period:'all'});
  const merged=mergeCalendarPublicEntries([],sourced,[]);
- assert.ok(merged.every(x=>x.external===true&&x.subtitle.includes('TheFootData')&&x.info.includes('2025-2026')));
+ assert.ok(merged.every(x=>x.external===true&&x.subtitle.includes('à confirmer par le club')&&x.info.includes('2025-2026')&&x.sourceLabel==='TheFootData'));
  const month=monthGrid(2026,0,merged);
  assert.ok(month.find(d=>d.key==='2026-01-11').entries.some(x=>x.outcome==='V'));
  const matchCenter=read('sport-center.mjs'),teamPages=read('team-pages.mjs'),rankings=read('league-standings.mjs');
- assert.match(matchCenter,/Historique des matchs/);
+ assert.match(matchCenter,/Archives des matchs et résultats/);
  assert.match(matchCenter,/match\.season/);
  assert.match(teamPages,/m\.season/);
  assert.match(rankings,/appendSourcedSportContext\(section,team\.code\)/);
@@ -73,6 +73,6 @@ test('past rankings stay visible even after a verified current league table is p
  assert.match(sourced,/if\(current&&includeCurrent\)/);
  assert.match(sourced,/if\(archive\)/);
  assert.match(read('team-pages.mjs'),/Saison des rencontres archivées de cette équipe/);
- assert.match(read('sport-center.mjs'),/Filtrer les archives externes par saison/);
+ assert.match(read('sport-center.mjs'),/Filtrer les archives des matchs par saison/);
  assert.match(read('league-standings.css'),/\.team-profile-match\[hidden\]\{display:none!important\}/);
 });

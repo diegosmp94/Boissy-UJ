@@ -1,7 +1,7 @@
 import { supabaseConfig } from './auth-config.mjs';
 import {boundedPublicRequest} from './public-catalog-timeout.mjs';
 import {CLUB_TEAMS,teamRoute} from './club-teams.mjs';
-import {publicExternalFixtures,EXTERNAL_FIXTURE_REVIEWED_AT} from './external-match-previews.mjs';
+import {publicExternalFixtures} from './external-match-previews.mjs';
 import {clubOutcome} from './league-standings.mjs';
 import {victoryCongratulations,collectiveVictoryCongratulations} from './victory-congratulations.mjs';
 import {createVictoryNotice} from './victory-notice.mjs';
@@ -135,11 +135,7 @@ function matchCard(match,teamsById) {
     outcome==='V'?'Victoire':outcome==='D'?'Défaite':'Match nul');
     meta.append(result);}
   const foot=element('div','sport-foot');
-  const teamLabel=element('span','',club);
-  const source=element('span','',match.source_kind === 'fff'
-    ? 'Référence FFF fournie par le club · à vérifier'
-    : 'Données saisies par le club');
-  foot.append(teamLabel,source);
+  foot.append(element('span','',club));
   if(match.competition_label)foot.append(element('span','sport-competition-label',match.competition_label));
   if (match.venue) foot.append(element('span','',match.venue));
   const team=CLUB_TEAMS.find(t=>t.code===linked?.code);
@@ -270,10 +266,10 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null,{una
         &&(competitionKind(m)===activeCompetition||
           activeCompetition==='league'&&m.team_code==='c'&&competitionKind(m)==='friendly'));
       if(availableExternal.length){
-        thirdParty.append(element('h2','','Historique des matchs · sources externes'));
-        const seasonLabel=element('label','sport-source-season-label','Saison des résultats sourcés : ');
+        thirdParty.append(element('h2','','Archives des matchs et résultats'));
+        const seasonLabel=element('label','sport-source-season-label','Saison : ');
         const seasonControl=element('select','sport-team-select');
-        seasonControl.setAttribute('aria-label','Filtrer les archives externes par saison');
+        seasonControl.setAttribute('aria-label','Filtrer les archives des matchs par saison');
         for(const [value,label] of [['all','Toutes les saisons'],['2026-2027','2026–2027'],['2025-2026','2025–2026']]){
           const option=element('option','',label);option.value=value;seasonControl.append(option);
         }
@@ -283,9 +279,7 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null,{una
         });
         seasonLabel.append(seasonControl);thirdParty.append(seasonLabel);
         thirdParty.append(element('p','agenda-external-note',
-          'Calendrier 2026–2027 complété jusqu’à mai 2027 avec des sources externes ('+
-          'SportCorico / TheFootData, relevé du '+EXTERNAL_FIXTURE_REVIEWED_AT+
-          '). Seuls les résultats publiés par le club peuvent être considérés comme validés.'));
+          'Ces rencontres restent à confirmer par le club. Les dates et scores peuvent évoluer.'));
         const grid=element('div','agenda-external-grid');
         for(const match of external){
           const card=element('article','agenda-external-card');
@@ -294,9 +288,9 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null,{una
             :dateLabel(match.time));
           date.dateTime=match.localDay;
           const result=['played','administrative'].includes(match.status)
-            ?'Score relevé : '+match.result+' · non homologué par le club'
+            ?'Score : '+match.result+' · à confirmer par le club'
             :match.status==='unknown'?'Match passé · résultat non communiqué'
-            :match.is_home?'Domicile indiqué':'Extérieur indiqué';
+            :match.is_home?'Domicile · à confirmer':'Extérieur · à confirmer';
           card.append(date,element('h3','',match.team_name+' — '+match.opponent),
             element('p','',result),
             element('p','sport-date',match.season+' · '+(match.competition||'Compétition non précisée')));
@@ -309,8 +303,6 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null,{una
                 win==='V'?'Victoire':win==='D'?'Défaite':'Match nul'));
             }
           }
-          card.append(element('small','sport-source-attribution',
-            'Source du relevé : '+match.source_label+' · résultat non homologué par le club'));
           const teamProfile=CLUB_TEAMS.find(t=>t.code===match.team_code);
           if(teamProfile){
             const page=element('a','agenda-link','Fiche '+teamProfile.name+' ↗');
@@ -319,7 +311,7 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null,{una
           grid.append(card);
         }
         if(external.length)thirdParty.append(grid);
-        else thirdParty.append(element('p','sport-form-empty','Aucune rencontre sourcée pour cette saison.'));
+        else thirdParty.append(element('p','sport-form-empty','Aucune rencontre référencée pour cette saison.'));
       }
     }
   }
@@ -355,7 +347,7 @@ export async function mountSport(initialTeamCode=null) {
       if(unavailable.includes('club_seasons'))
         descriptions.push('Le filtre des saisons est temporairement indisponible, sans masquer les matchs accessibles');
       const notice=element('p','sport-notice',descriptions.join('. ')+
-        '. Les archives provenant de sources extérieures restent consultables sans homologation par Boissy UJ.');
+        '. Les autres rencontres restent consultables, mais ne sont pas confirmées par Boissy UJ.');
       notice.setAttribute('role','status');
       root.prepend(notice);
     }
@@ -365,7 +357,7 @@ export async function mountSport(initialTeamCode=null) {
     // Conserver l'interface sans annoncer faussement un calendrier vide ou un score.
     displayFixtures(root,FALLBACK_TEAMS,[],[],initialTeamCode);
     const notice=element('p','sport-notice',
-      'La source du calendrier n’est pas encore disponible. Présentation des équipes uniquement ; aucun match ni résultat ne peut être confirmé pour le moment.');
+      'Le calendrier du club n’est pas encore disponible. Présentation des équipes uniquement ; aucun match ni résultat ne peut être confirmé pour le moment.');
     notice.setAttribute('role','status');
     root.prepend(notice);
   }finally{deadline.dispose();}

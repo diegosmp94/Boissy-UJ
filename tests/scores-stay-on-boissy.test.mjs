@@ -7,16 +7,17 @@ import {publicExternalFixtures} from '../external-match-previews.mjs';
 const source=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 test('every public sports result page renders data without clickable outbound source links',()=>{
  for(const path of ['team-pages.mjs','sport-center.mjs','agenda.mjs',
-   'calendar-view.mjs','sourced-standings.mjs']){
+   'calendar-view.mjs','calendar-month.mjs','sourced-standings.mjs']){
   const s=source(path);
   assert.doesNotMatch(s,/\.href\s*=\s*(?:m\.source|match\.source|archive\.source|source)\s*;/);
   assert.doesNotMatch(s,/Vérifier sur .*↗|Vérifier la source ↗|Voir le classement archivé ↗|Consulter le résultat source ↗/);
   assert.doesNotMatch(s,/https:\/\/epreuves\.fff\.fr/);
+  assert.doesNotMatch(s,/SportCorico|TheFootData|Source du relevé|Sources des résultats|Source du classement historique/);
  }
- assert.match(source('team-pages.mjs'),/Source du relevé/);
- assert.match(source('sport-center.mjs'),/sport-source-attribution/);
- assert.match(source('agenda.mjs'),/Score relevé/);
- assert.match(source('sourced-standings.mjs'),/Source du classement historique/);
+ assert.match(source('team-pages.mjs'),/À confirmer par le club/);
+ assert.match(source('sport-center.mjs'),/Score :/);
+ assert.match(source('agenda.mjs'),/Score :/);
+ assert.match(source('sourced-standings.mjs'),/Classement historique à confirmer par le club/);
  assert.match(source('calendar-view.mjs'),/!item\.external&&typeof item\.href==='string'&&item\.href\.startsWith\('#\/'\)/);
 });
 test('historical scored source matches are fully readable locally with no offsite navigation URL',()=>{
@@ -27,7 +28,9 @@ test('historical scored source matches are fully readable locally with no offsit
  assert.equal(result.outcome,'V');
  assert.match(result.info,/6 – 1/);
  assert.equal(result.external,true);
- assert.equal(result.sourceLabel,'SportCorico');
+ assert.equal(result.sourceLabel,'SportCorico'); // provenance preserved in internal data
+ assert.equal(result.subtitle,'Résultat à confirmer par le club');
+ assert.doesNotMatch(result.subtitle,/SportCorico|TheFootData/);
  assert.equal(result.href,undefined);
  assert.equal(calendar.some(x=>typeof x.href==='string'&&x.href.startsWith('http')),false);
 });

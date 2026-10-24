@@ -1,6 +1,6 @@
 import {supabaseConfig} from './auth-config.mjs';
 import {buildPublicCalendar} from './calendar-export.mjs';
-import {publicExternalFixtures,EXTERNAL_FIXTURE_REVIEWED_AT} from './external-match-previews.mjs';
+import {publicExternalFixtures} from './external-match-previews.mjs';
 import {mergeCalendarPublicEntries,parisDateKey} from './calendar-month.mjs';
 import {mountMonthCalendar} from './calendar-view.mjs';
 import {clubOutcome} from './league-standings.mjs';
@@ -172,11 +172,9 @@ export async function mountAgenda(){
         query:search.value,period:period.value
       }).filter(m=>!publishedKeys.has(m.team_code+'|'+m.localDay+'|'+normalizeOpponent(m.opponent)));
       if(suggestions.length){
-        external.append(make('h2','','Calendrier externe — à confirmer par le club'));
+        external.append(make('h2','','Autres rencontres · à confirmer'));
         external.append(make('p','agenda-external-note',
-          'Calendrier 2026–2027 complété jusqu’à mai 2027 avec des relevés sportifs '+
-          'SportCorico / TheFootData du '+EXTERNAL_FIXTURE_REVIEWED_AT+
-          '. Scores affichés ici, sans homologation du club lorsqu’elle n’est pas encore connue.'));
+          'Ces rencontres et résultats sont à confirmer par le club. Les informations peuvent évoluer.'));
         const grid=make('div','agenda-external-grid');
         for(const match of suggestions){
           const card=make('article','agenda-external-card');
@@ -189,12 +187,10 @@ export async function mountAgenda(){
           date.dateTime=new Date(match.time).toISOString();
           const title=make('h3','',match.team_name+' — '+match.opponent);
           const detail=make('p','',match.is_home?'Domicile annoncé':'Extérieur annoncé');
-          const attribution=make('small','agenda-source-attribution',
-            'Source : '+match.source_label+' · score non homologué par le club');
           const score=make('p','agenda-referenced-score',
-            ['played','administrative'].includes(match.status)?'Score relevé : '+match.result:
+            ['played','administrative'].includes(match.status)?'Score : '+match.result+' · à confirmer':
               match.status==='unknown'?'Résultat non renseigné':'Rencontre programmée');
-          card.append(date,title,detail,score,attribution);
+          card.append(date,title,detail,score);
           if(match.venue)card.append(make('p','agenda-place',match.venue));
           if(outcome)card.append(make('span','sport-outcome sport-outcome-'+outcome,
             outcome==='V'?'Victoire':outcome==='N'?'Match nul':'Défaite'));

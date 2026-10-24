@@ -61,7 +61,7 @@ test('missing database retains five teams and clearly marked empty fixture lists
  assert.match(loader,/id:'pending-veterans'/);
  assert.match(loader,/id:'pending-futsal'/);
  assert.match(loader,/displayFixtures\(root,FALLBACK_TEAMS,\[\],\[\],initialTeamCode\)/);
- assert.match(loader,/source du calendrier n’est pas encore disponible/);
+ assert.match(loader,/calendrier du club n’est pas encore disponible/);
  assert.match(loader,/notice\.setAttribute\('role','status'\)/);
  assert.match(read('styles.css'),/\.sport-notice\s*\{/);
 });
