@@ -39,7 +39,9 @@ test('premium UI uses actual keyboard-accessible toggle, not a fake checkout',()
 });
 test('front-end routes, mobile Awards entry and supporting styles are wired',()=>{
  assert.match(index,/href="\.\/premium-front\.css"/);
- assert.match(index,/<a href="#\/awards">Awards<\/a><a href="#\/evenements">/);
+ assert.match(index,/<a href="#\/awards">Awards<\/a>/);
+ assert.match(index,/<a href="#\/evenements">Événements<\/a>/);
+ assert.match(index,/<summary>Vie du club/);
  for(const route of ["'/communaute':community","'/awards':awards","'/evenements':events","'/soutenir':support"])
   assert.ok(app.includes(route),route);
  for(const cls of ['premium-comparison','fan-journey-head','fan-faq','fan-journey-grid','premium-period-choice'])
