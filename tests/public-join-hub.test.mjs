@@ -97,7 +97,7 @@ test('three REST reads use only select + published filter and no personal submis
    return {ok:true,json:async()=>[]};
  };
  const data=await loadPublicClubInfo(undefined,fake);
- assert.deepEqual(data,{listings:[],notices:[],contacts:[]});
+ assert.deepEqual(data,{listings:[],notices:[],contacts:[],unavailable:[]});
  assert.equal(urls.length,3);
  assert.ok(urls.every(url=>url.includes('published=eq.true')));
  assert.ok(urls.some(url=>url.includes('/club_join_opportunities?')));
