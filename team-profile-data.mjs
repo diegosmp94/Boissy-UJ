@@ -75,33 +75,53 @@ export async function loadTeamPublicExtras(code,{signal,fetcher=fetch,now=Date.n
  };
 }
 const empty=(message)=>element('p','team-extras-empty',message);
+/** Public roster card: only the authorized name, image slot and shirt number.
+ * The existing club catalogue does not yet supply image metadata, so this is
+ * deliberately an identity-free portrait placeholder, never a fabricated face.
+ */
+export function renderPublicPlayerRosterCard(person){
+ const validProfile=isPublicPlayerId(person?.id);
+ const card=element(validProfile?'a':'article','team-extras-person team-extras-player-card');
+ if(validProfile){
+  card.href=playerPublicRoute(person.id);
+  card.setAttribute('aria-label','Voir la fiche de '+String(person.display_name||'').trim());
+ }
+ const portrait=element('div','team-extras-player-portrait');
+ portrait.setAttribute('role','img');
+ portrait.setAttribute('aria-label','Photo du joueur non publiée');
+ const silhouette=element('div','team-extras-player-silhouette');
+ silhouette.setAttribute('aria-hidden','true');
+ silhouette.append(element('span','team-extras-player-head'),element('span','team-extras-player-shoulders'));
+ portrait.append(silhouette);
+ const number=element('span','team-extras-player-number',
+  Number.isInteger(person.shirt_number)&&person.shirt_number>=1&&person.shirt_number<=99
+   ?String(person.shirt_number):'—');
+ number.setAttribute('aria-label',number.textContent==='—'
+  ?'Numéro non communiqué':'Numéro de maillot '+number.textContent);
+ portrait.append(number);
+ card.append(portrait,element('h3','team-extras-player-name',String(person.display_name||'').trim()));
+ return card;
+}
 function group(root,title,items){
  const section=element('section','team-extras-group');
  section.append(element('h2','',title));
  const grid=element('div','team-extras-people');
+ if(title==='Effectif')grid.classList.add('team-extras-player-grid');
  if(!items.length)grid.append(empty('Aucune identité autorisée à la publication pour le moment.'));
  for(const person of items){
+  if(person.person_kind==='player'){
+   grid.append(renderPublicPlayerRosterCard(person));
+   continue;
+  }
   const card=element('article','team-extras-person');
-  const info=element('div','team-extras-person-icon',person.person_kind==='player'
-    ?(person.shirt_number!=null?String(person.shirt_number):'UJ')
-    :person.person_kind==='coach'?'COACH':'STAFF');
+  const info=element('div','team-extras-person-icon',person.person_kind==='coach'?'COACH':'STAFF');
   info.setAttribute('aria-hidden','true');
   const body=element('div');
   body.append(element('span','tiny-label',person.role_label),element('h3','',person.display_name));
   if(person.biography)body.append(element('p','',person.biography));
-  if(person.person_kind==='player'&&isPublicPlayerId(person.id)){
-   const profile=element('a','team-extras-person-profile-link','Voir la fiche joueur ↗');
-   profile.href=playerPublicRoute(person.id);
-   body.append(profile);
-  }
   card.append(info,body);grid.append(card);
  }
  section.append(grid);
- if(title==='Effectif'){
-  const demo=element('a','team-extras-person-profile-link','Découvrir le modèle de fiche joueur ↗');
-  demo.href='#/joueurs/apercu';
-  section.append(demo);
- }
  root.append(section);
 }
 function statsSection(root,stats,unavailable){
