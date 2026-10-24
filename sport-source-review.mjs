@@ -11,7 +11,8 @@ const normalize=value=>String(value??'').normalize('NFD')
  .replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/gi,'').toLowerCase();
 const datePattern=/^\d{4}-\d{2}-\d{2}$/;
 const safeDate=value=>typeof value==='string'&&datePattern.test(value)&&
- !Number.isNaN(Date.parse(value+'T12:00:00Z'));
+ !Number.isNaN(Date.parse(value+'T12:00:00Z'))&&
+ new Date(value+'T12:00:00Z').toISOString().slice(0,10)===value;
 const key=(team,day,opponent)=>team+'|'+day+'|'+normalize(opponent);
 export const SPORT_REVIEW_STATUSES=Object.freeze({
  new:'À valider par le club',
