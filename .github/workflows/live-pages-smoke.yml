@@ -19,3 +19,16 @@ jobs:
           BOISSY_PUBLIC_URL: https://diegosmp94.github.io/Boissy-UJ/
           BOISSY_EXPECTED_COMMIT: ${{ github.sha }}
         run: npm run smoke:live
+      - name: Consolider les preuves de mise en service
+        if: always()
+        run: npm run release:acceptance
+      - name: Conserver les rapports de vérification anonymes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: boissy-pages-manual-verification
+          path: |
+            smoke-artifacts/live-public-report.json
+            smoke-artifacts/production-readiness.json
+          if-no-files-found: ignore
+          retention-days: 7
