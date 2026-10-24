@@ -286,7 +286,8 @@ function render(){
   main.innerHTML=publicPlayerId?playerProfilePage():routes[path]();
   document.body.classList.toggle('on-home',path==='/');
   document.querySelectorAll('.desktop-links a,.bottom-nav a,.mobile-menu a').forEach(el=>{
-    const active=el.getAttribute('href')===`#${path}`;
+    const href=el.getAttribute('href');
+    const active=href===location.hash||(href===`#${path}`&&!location.hash.includes('?'));
     if(active)el.setAttribute('aria-current','page'); else el.removeAttribute('aria-current');
   });
   document.querySelectorAll('.bottom-nav a').forEach(el=>el.classList.toggle('active',el.getAttribute('href')===`#${path}`||(el.dataset.nav==='equipes'&&path.startsWith('/equipes/'))));
