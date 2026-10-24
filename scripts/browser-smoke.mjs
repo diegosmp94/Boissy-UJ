@@ -285,7 +285,7 @@ try{
     }
    }
    if(expected.includes('/equipes/')&&
-     /\\/(joueurs|matchs|actualites)$/.test(expected)){
+     ['/joueurs','/matchs','/actualites'].some(suffix=>expected.endsWith(suffix))){
     const nav=main.querySelector('.team-subpage-navigation');
     if(!nav)errors.push('Team subpage navigation missing');
     if(nav&&nav.querySelectorAll('a').length!==4)
@@ -304,11 +304,8 @@ try{
      errors.push('Team matches or standings missing');
     if(isNews&&!main.querySelector('#news-feed-public'))
      errors.push('Team scoped news feed missing');
-    if(main.querySelectorAll('#team-profile-extras,#team-profile-live,#news-feed-public').length!==1+
-      (isMatches?0:0)){
-      // Matches additionally expose standings, not a news/roster container.
-      errors.push('Unrelated section leaked into team subpage');
-    }
+    if(main.querySelectorAll('#team-profile-extras,#team-profile-live,#news-feed-public').length!==1)
+     errors.push('Unrelated section leaked into team subpage');
    }
    if(expected==='#/joueurs/apercu'){
     if(!main.querySelector('.player-profile-hero'))errors.push('Player profile preview hero missing');
