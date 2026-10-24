@@ -21,7 +21,7 @@ test('home synchronizes from same 2026-27 calendar as Match Center and Agenda',(
  assert.equal(next.opponent,'FC Chennevières 1');
  assert.equal(next.localDay,'2026-10-24');
  assert.equal(next.published,false);
- assert.equal(next.clubConfirmed,true);
+ assert.equal(next.clubConfirmed,false);
  assert.equal(next.status,'scheduled');
  assert.equal(combined.some(x=>x.localDay.startsWith('2027-05')),true);
  assert.ok(combined.every(x=>!('href' in x)&&!('source' in x)));

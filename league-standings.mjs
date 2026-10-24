@@ -1,5 +1,6 @@
 import {appendSourcedSportContext} from './sourced-standings.mjs';
 import {supabaseConfig} from './auth-config.mjs';
+import {boundedPublicRequest} from './public-catalog-timeout.mjs';
 import {CLUB_TEAMS,teamRoute} from './club-teams.mjs';
 
 export function clubOutcome(match){
@@ -96,14 +97,15 @@ export async function mountLeagueStandings(code=null){
  const id=seq,root=document.getElementById('team-league-standing');
  if(!root)return;
  const ctrl=new AbortController();abort=ctrl;
+ const deadline=boundedPublicRequest(ctrl.signal);
  root.replaceChildren(el('p','league-empty','Chargement du classement publié…'));
  try{
-  const data=await fetchPublicStandings({signal:ctrl.signal});
+  const data=await fetchPublicStandings({signal:deadline.signal});
   if(id!==seq||ctrl.signal.aborted||!root.isConnected)return;
   const teams=CLUB_TEAMS.filter(t=>code===null||t.code===code);
   const r=await fetch(supabaseConfig.url+'/rest/v1/club_teams?'+new URLSearchParams({
    select:'id,code',order:'sort_order.asc',limit:'5'}),
-   {method:'GET',signal:ctrl.signal,cache:'no-store',
+   {method:'GET',signal:deadline.signal,cache:'no-store',
     headers:{apikey:supabaseConfig.publishableKey,Accept:'application/json'}});
   if(!r.ok)throw Error('Équipes indisponibles');
   const mapped=await r.json();
@@ -118,6 +120,15 @@ export async function mountLeagueStandings(code=null){
   }
  }catch{
   if(id!==seq||ctrl.signal.aborted||!root.isConnected)return;
-  root.replaceChildren(el('p','league-empty','Classement temporairement indisponible. Aucun rang non vérifié n’est affiché.'));
- }
+  root.replaceChildren();
+  const message=el('p','league-empty',
+   'Classement du club momentanément indisponible : aucun rang officiel ne peut être confirmé.');
+  message.setAttribute('role','status');
+  root.append(message);
+  for(const team of CLUB_TEAMS.filter(t=>code===null||t.code===code)){
+   const panel=el('div','league-team-panel');
+   renderLeagueStanding(panel,null,team);
+   root.append(panel);
+  }
+ }finally{deadline.dispose();}
 }

@@ -53,8 +53,8 @@ test('signed-out and AAL1 visitors get no admin data and an account sign-in rout
 });
 test('administrative panel only shows real operational modules',()=>{
  assert.deepEqual(ADMIN_MODULES.map(m=>m.id),
-  ['overview','readiness','users','approvals','teams','player-teams','coach-teams','seasons','matches','events','ticketing','editorial','news','news-revisions','news-media','identity']);
- assert.equal(new Set(ADMIN_MODULES.map(m=>m.id)).size,16);
+  ['overview','readiness','users','approvals','teams','player-teams','coach-teams','seasons','matches','sport-review','events','ticketing','editorial','news','news-revisions','news-media','identity']);
+ assert.equal(new Set(ADMIN_MODULES.map(m=>m.id)).size,17);
  assert.doesNotMatch(guard,/dummy|prototype|simulation|fake payment|premium|stripe|mockData/i);
  assert.match(guard,/mountAuthenticatedClubIdentityEditor\(view,api,verified.userId\)/);
  assert.match(guard,/mountAuthenticatedTeamPeopleEditor\(view,api,verified.userId\)/);

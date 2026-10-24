@@ -16,7 +16,7 @@ export const ACTIVE_WORKSTREAMS=Object.freeze([
   next:'Valider responsables, bases légales, durées, registre, droits des représentants et procédure de retrait.',
   dependency:'Responsable autorisé du club',kind:'human'},
  {id:'p1-content',priority:'P1',title:'Calendrier et résultats officiels du club',
-  next:'Faire valider les dates et résultats sourcés, puis les publier via les outils existants ; aucune invention de score.',
+  next:'Utiliser le nouvel écran Revue des sources sportives pour détecter les écarts, obtenir confirmation du club et publier via l’éditeur sécurisé.',
   dependency:'Référent sportif et données vérifiées',kind:'human'},
  {id:'p1-news',priority:'P1',title:'Premières actualités autorisées',
   next:'Préparer et publier les contenus du club avec consentement et droits attestés.',

@@ -73,7 +73,7 @@ export function mergeNextMatchCalendar(published=[],sourced=[],teams=[]){
    teamCode:row.team_code,opponent:row.opponent,time:row.time,
    localDay:row.localDay,dateOnly:row.dateOnly,status:'scheduled',
    is_home:row.is_home===true,venue:null,competition:row.competition,
-   published:false,clubConfirmed:row.date_confirmed_by_club===true,
+   published:false,clubConfirmed:false, // external listings are not club authorizations
    sourceLabel:row.source_label
   }));
  return [...official,...external];

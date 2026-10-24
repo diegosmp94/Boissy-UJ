@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Étape 62 — Revue des sources sportives et publication responsable (24 octobre 2026)
+
+**Le calendrier issu de relevés externes n'est plus présenté comme « confirmé par le club »** dans l'accueil, le Match Center ou les profils. Le Control Center propose une **Revue des sources sportives** derrière MFA AAL2 : elle rapproche les résultats/dates sourcés des dossiers de matchs existants, signale doublons, écarts et rencontres passées sans résultat, et donne accès à l'éditeur sécurisé sans publier automatiquement. Les classements ne restent plus bloqués si l'API tarde et affichent un contexte honnêtement sourcé. **Aucun match, classement ou article fictif n'est enregistré.** [Procédure étape 62](docs/ETAPE_62_SOURCES_SPORTIVES_ET_PUBLICATION.md).
+
 ## Étape 61 — Billetterie gratuite et Awards (préparation sécurisée, 24 octobre 2026)
 
 Les **Awards restent consultables** même si les nominations ou résultats connaissent une panne, sans afficher de gagnant fictif. Le Control Center ajoute **Préparation billetterie** pour vérifier en lecture seule les dates, jauges et statuts des événements gratuits sous contrôle MFA AAL2. Un protocole de QR opaque à 256 bits est préparé **côté serveur uniquement**, mais **aucun billet, aucune réservation ni entrée QR n'est activé** sans contrôle transactionnel et recette réelle. [Détail étape 61](docs/ETAPE_61_BILLETTERIE_QR_AWARDS.md).
