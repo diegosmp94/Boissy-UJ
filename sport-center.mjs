@@ -8,7 +8,6 @@ import {createVictoryNotice} from './victory-notice.mjs';
 import {buildCompetitionTabs,competitionKind,cupInformation} from './competition-tabs.mjs';
 
 const ENDPOINT = supabaseConfig.url + '/rest/v1/';
-const TEAM_CODES = ['a','b','c','veterans','futsal'];
 /* Fallback de présentation uniquement, sans rencontre inventée.
    Ces identités correspondent aux catégories confirmées dans le cahier des charges. */
 const FALLBACK_TEAMS = Object.freeze([
@@ -59,9 +58,9 @@ function dateLabel(value) {
     timeZone:'Europe/Paris'
   }).format(new Date(value));
 }
-async function getRows(table, params, signal) {
+async function getRows(table, params, signal, fetcher=fetch) {
   const url=ENDPOINT + table + '?' + new URLSearchParams(params);
-  const response=await fetch(url,{
+  const response=await fetcher(url,{
     method:'GET',signal,cache:'no-store',
     headers:{'apikey':supabaseConfig.publishableKey,'Accept':'application/json'}
   });
@@ -69,6 +68,50 @@ async function getRows(table, params, signal) {
   const rows=await response.json();
   if (!Array.isArray(rows)) throw new Error('Réponse sportive invalide');
   return rows;
+}
+/**
+ * Each public catalogue is independent: a missing season list must not hide
+ * already published matches, and a missing team must not be assigned a
+ * fabricated UUID. Unverified teams are display-only placeholders.
+ */
+export async function loadPublicSportCatalogs(signal,fetcher=fetch){
+  const requests=[
+    getRows('club_teams',{
+      select:'id,code,name,division,source_kind,discipline,sort_order',
+      order:'sort_order.asc',limit:'10'
+    },signal,fetcher),
+    getRows('matches',{
+      select:'id,team_id,season_id,opponent_name,scheduled_at,venue,is_home,home_score,away_score,match_status,source_kind,published,competition_kind,competition_label',
+      published:'eq.true',order:'scheduled_at.asc',limit:'100'
+    },signal,fetcher),
+    getRows('club_seasons',{select:'id,label,state',order:'label.desc',limit:'100'},signal,fetcher)
+  ];
+  const settled=await Promise.allSettled(requests);
+  if(signal?.aborted)throw new Error('Requête annulée');
+  const names=['club_teams','matches','club_seasons'];
+  const unavailable=names.filter((_,i)=>settled[i].status==='rejected');
+  const remoteTeams=settled[0].status==='fulfilled'?settled[0].value:[];
+  const byCode=new Map(),usedIds=new Set();
+  for(const row of remoteTeams){
+    if(!row||typeof row!=='object')continue;
+    const definition=CLUB_TEAMS.find(x=>x.code===row.code);
+    if(!definition||row.discipline!==definition.discipline||
+       typeof row.id!=='string'||!row.id||usedIds.has(row.id)||byCode.has(row.code))
+      continue;
+    usedIds.add(row.id);
+    byCode.set(row.code,{...row,name:definition.name,discipline:definition.discipline});
+  }
+  // A partial team catalogue is not evidence that the absent squad has no
+  // games. Only retain verified real IDs, never attach games to pending IDs.
+  if(byCode.size<CLUB_TEAMS.length&&!unavailable.includes('club_teams'))
+    unavailable.push('club_teams');
+  const teams=CLUB_TEAMS.map(definition=>
+    byCode.get(definition.code)||FALLBACK_TEAMS.find(t=>t.code===definition.code));
+  const published=settled[1].status==='fulfilled'?settled[1].value:[];
+  const matches=published.filter(match=>match?.published===true&&
+    usedIds.has(match.team_id));
+  const seasons=settled[2].status==='fulfilled'?settled[2].value:[];
+  return {teams,matches,seasons,unavailable};
 }
 function matchCard(match,teamsById) {
   const linked=teamsById.get(match.team_id);
@@ -111,7 +154,7 @@ function mountEmpty(container,message) {
   empty.append(element('span','sport-empty-icon','⚽'),element('p','',message));
   container.append(empty);
 }
-function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
+function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null,{unavailable=[]}={}) {
   root.replaceChildren();
   const map = new Map(teams.map(team=>[team.id,team]));
   const filter=element('div','sport-filter-bar');
@@ -157,7 +200,9 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
     seasonLabel.append(seasonSelect);
     filter.append(seasonLabel);
   }
-  filter.append(element('span','sport-count',matches.length+' rencontre(s) publiée(s)'));
+  filter.append(element('span','sport-count',unavailable.includes('matches')
+    ?'Rencontres publiées : source momentanément indisponible'
+    :matches.length+' rencontre(s) publiée(s)'));
   const data=element('div','sport-fixtures');
   const thirdParty=element('section','agenda-thirdparty sport-external-fixtures');
   const context=element('div','sport-competition-context');
@@ -200,8 +245,12 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null) {
     }
     thirdParty.replaceChildren();
     for (const [title,list,empty] of [
-      ['Prochaines rencontres',blocks.upcoming,'Aucune rencontre à venir publiée pour cette équipe.'],
-      ['Derniers résultats',blocks.results,'Aucun résultat publié pour cette équipe.']
+      ['Prochaines rencontres',blocks.upcoming,unavailable.includes('matches')
+        ?'Calendrier du club momentanément indisponible pour cette équipe.'
+        :'Aucune rencontre à venir publiée pour cette équipe.'],
+      ['Derniers résultats',blocks.results,unavailable.includes('matches')
+        ?'Résultats du club momentanément indisponibles pour cette équipe.'
+        :'Aucun résultat publié pour cette équipe.']
     ]) {
       const section=element('section','sport-fixture-group');
       section.append(element('h3','',title));
@@ -294,16 +343,22 @@ export async function mountSport(initialTeamCode=null) {
   const deadline=boundedPublicRequest(abort.signal);
   root.replaceChildren(element('p','sport-loading','Chargement des informations du club…'));
   try{
-    const [teams,matches,seasons]=await Promise.all([
-      getRows('club_teams',{select:'id,code,name,division,source_kind,discipline,sort_order',order:'sort_order.asc'},deadline.signal),
-      getRows('matches',{select:'id,team_id,season_id,opponent_name,scheduled_at,venue,is_home,home_score,away_score,match_status,source_kind,published,competition_kind,competition_label',
-        published:'eq.true',order:'scheduled_at.asc',limit:'100'},deadline.signal),
-      getRows('club_seasons',{select:'id,label,state',order:'label.desc'},deadline.signal)
-    ]);
+    const {teams,matches,seasons,unavailable}=await loadPublicSportCatalogs(deadline.signal);
     if (abort.signal.aborted || generation!==renderGeneration || !root.isConnected) return;
-    const uniqueCodes=new Set(teams.map(t=>t.code));
-    if (!TEAM_CODES.every(c=>uniqueCodes.has(c))) throw new Error('Équipes non configurées');
-    displayFixtures(root,teams,matches,seasons,initialTeamCode);
+    displayFixtures(root,teams,matches,seasons,initialTeamCode,{unavailable});
+    if(unavailable.length){
+      const descriptions=[];
+      if(unavailable.includes('club_teams'))
+        descriptions.push('Certaines équipes ne sont pas vérifiables pour le moment ; leurs éventuelles rencontres officielles ne sont pas affichées');
+      if(unavailable.includes('matches'))
+        descriptions.push('Les rencontres publiées par le club sont temporairement indisponibles');
+      if(unavailable.includes('club_seasons'))
+        descriptions.push('Le filtre des saisons est temporairement indisponible, sans masquer les matchs accessibles');
+      const notice=element('p','sport-notice',descriptions.join('. ')+
+        '. Les archives provenant de sources extérieures restent consultables sans homologation par Boissy UJ.');
+      notice.setAttribute('role','status');
+      root.prepend(notice);
+    }
   } catch(err){
     if (abort.signal.aborted || generation!==renderGeneration || !root.isConnected) return;
     // La migration sportive n'est pas encore présente dans tous les environnements.

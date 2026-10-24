@@ -2,6 +2,12 @@
 
 Point d'étape : **23 octobre 2026**. Les changements du site sont développés sur une branche dédiée, contrôlés, puis fusionnés dans `main` après validation CI. Les étapes 45–46 couvrent le prochain match d'accueil et la mise à jour des rencontres passées ; le suivi de la provenance des dates a été renforcé depuis.
 
+## Résilience du Match Center — source partielle (24 octobre 2026)
+
+Le Match Center charge indépendamment le référentiel des cinq équipes, les rencontres publiées et la liste des saisons. Une panne des saisons ne masque plus les matchs déjà publiés ; une panne du calendrier ne se transforme plus en une fausse affirmation « zéro rencontre ». Les équipes non vérifiables gardent une fiche de présentation sans score officiel attribué à un identifiant fictif. Les archives sportives externes restent consultables avec provenance, jamais présentées comme homologuées. Voir [le correctif et sa recette](CORRECTIF_MATCH_CENTER_DISPONIBILITE_PARTIELLE_20261024.md).
+
+Les **chantiers P1 d'homologation des résultats, MFA, restauration et droits** restent ouverts.
+
 ## Chantiers actifs uniquement
 
 **Les fonctionnalités déjà développées et vérifiées ont été retirées du tableau des chantiers.** Leurs étapes historiques ci-dessous restent conservées pour assurer la traçabilité. La réussite des tests CI ne clôt pas une homologation juridique ou une recette utilisateur réelle.
