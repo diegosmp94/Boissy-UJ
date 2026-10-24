@@ -29,6 +29,10 @@ Point d'étape : **23 octobre 2026**. Les changements du site sont développés 
 
 Les pages **Communauté/Premium, Événements/Billetterie et Soutenir** ont une présentation responsive plus complète, un comparateur mensuel/annuel interactif sans prélèvement, un parcours d'information et des FAQ accessibles. Le lien **Awards** est directement visible sur le menu mobile. Les tests de navigation publique Chromium passent de 10 à 16 scénarios, incluant le basculement de période. **Reste hors de cette clôture UI** : tests sur appareils physiques, interactions Stripe/QR/votes avec back-end homologué, contenus sous droits et décisions RGPD. Le front est avancé, mais une homologation à 100 % serait prématurée. [Détails de l'étape 53](ETAPE_53_FINITIONS_FRONTEND.md).
 
+## P1 — Recette des comptes, garde MFA et RLS
+
+Audit SQL de production en lecture seule (20/20 tables publiques RLS, 0 RPC SECURITY DEFINER accessible sans connexion, 20/20 fonctions admin liées à `app_private.is_admin` et MFA AAL2) ; warnings `SECURITY DEFINER` toujours à examiner par RPC. Le test MFA/RLS à sept identités accepte désormais une pile Supabase Docker **strictement locale** après préflight de projet non lié et de l'outillage, sans création de comptes ni écriture à la production. **La recette réelle de sept profils et deux convocations reste à exécuter** avec données de test consenties sur la pile isolée. [Détails](P1_RECETTE_COMPTES_MFA_LOCAL.md).
+
 ## Stabilisation publique — Repli des six catalogues encore non bornés
 
 Après la mise en ligne vérifiée et le correctif Mon espace, les appels HTTP publics du prochain match, des félicitations, des fiches équipes, de l'agenda, de l'identité et de la section Nous rejoindre/Infos pratiques ont désormais un délai de 12 secondes, avec annulation au départ de la page et états d'indisponibilité sans donnée fictive. Aucune écriture Supabase. [Détail](CORRECTIF_PUBLIC_CHARGEMENTS_20261024.md).

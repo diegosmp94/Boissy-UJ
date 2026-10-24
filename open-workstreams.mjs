@@ -4,7 +4,7 @@
  */
 export const ACTIVE_WORKSTREAMS=Object.freeze([
  {id:'p1-rls',priority:'P1',title:'Recette réelle des comptes et permissions',
-  next:'Quota Supabase Free atteint : installer une pile Supabase Docker locale isolée ou libérer une place Free autorisée, puis tester MFA/RLS à sept comptes.',
+  next:'Mode Docker local isolé ajouté à la recette à sept comptes ; vérifier le préflight, préparer le schéma et des utilisateurs fictifs puis exécuter les tests MFA/RLS réels sans prod.',
   dependency:'Projet de staging et comptes/convocations de test consentis',kind:'human'},
  {id:'p1-recovery',priority:'P1',title:'Sauvegarde et restauration isolée',
   next:'Sauvegarder sous contrôle du club, restaurer dans une instance isolée et comparer les inventaires via le vérificateur.',

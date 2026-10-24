@@ -12,7 +12,7 @@ La publication est préparée depuis main ; l’étape 64 renforce sa vérificat
 
 | Chantier restant | Ce qui doit être fait | Dépendance réelle |
 |---|---|---|
-| Recette des comptes et permissions | Préflight de staging sécurisé développé à l'étape 58 ; créer un projet indépendant puis exécuter la recette à 7 identités + deux convocations et valider MFA/RLS | Comptes consentants, référent staging |
+| Recette des comptes et permissions | Préflight de staging et recette à sept identités existants ; mode Supabase Docker local indépendant ajouté au P1 pour contourner le quota cloud sans coût. Préparer le schéma de test, sept identités et deux convocations, puis exécuter la vraie recette MFA/RLS | Comptes consentants, référent staging |
 | Sauvegarde et restauration | Produire un export autorisé, restaurer en instance isolée, comparer les inventaires SQL et checksums ; consigner le PV | Base isolée et responsable autorisé |
 | Safari/Android et accessibilité | Étape 63 : tests Chromium renforcés, focus clavier, cibles tactiles 44 px et réduction des animations codés ; reste la recette réelle VoiceOver, TalkBack, zoom et formulaire sur appareils physiques | Matériel et testeurs réels |
 | RGPD, mineurs et droits à l'image | Étape 63 : suppression de Google Fonts, `no-referrer`, CSP et contrôle des domaines tiers codés ; homologuer responsable, conservation, mentions, consentements, effacement Storage et droits des mineurs | Association et personnes responsables |

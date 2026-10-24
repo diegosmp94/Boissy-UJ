@@ -52,7 +52,7 @@ test('CLI refuses to run without all explicit test-project guards',()=>{
  for(const key of Object.keys(env))if(key.startsWith('BOISSY_TEST_'))delete env[key];
  const result=spawnSync(process.execPath,[script],{env,encoding:'utf8'});
  assert.equal(result.status,1);
- assert.match(result.stderr,/BOISSY_TEST_ENVIRONMENT=test/);
+ assert.match(result.stderr,/BOISSY_TEST_ENVIRONMENT must be local or test/);
  assert.doesNotMatch(result.stdout+result.stderr,/dahzewvbybujqhogumte|service_role|sb_secret_/);
 });
 
