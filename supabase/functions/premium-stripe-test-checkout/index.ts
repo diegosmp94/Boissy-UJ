@@ -5,8 +5,8 @@
  * binding is committed. This route grants ZERO Premium entitlements.
  */
 import Stripe from 'npm:stripe@22.6.0';
+import {verifiedStripeTestProjectOrigin} from '../_shared/stripe-test-financial-guards.mjs';
 
-const PRODUCTION_REF='dahzewvbybujqhogumte';
 const reply=(code,status,origin=null,extra={})=>new Response(
  JSON.stringify({status:code,...extra}),{status,headers:{
   'content-type':'application/json; charset=utf-8','cache-control':'no-store',
@@ -17,28 +17,27 @@ const reply=(code,status,origin=null,extra={})=>new Response(
 function settings(){
  const stripeKey=Deno.env.get('STRIPE_TEST_RESTRICTED_KEY')||'';
  const url=Deno.env.get('SUPABASE_URL')||'';
+ const projectRef=Deno.env.get('BOISSY_STAGING_PROJECT_REF')||'';
  const pubKey=Deno.env.get('SUPABASE_ANON_KEY')||'';
  const serviceKey=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||'';
  const origin=Deno.env.get('BOISSY_STAGING_ORIGIN')||'';
  const priceMonthly=Deno.env.get('STRIPE_TEST_PRICE_MONTHLY')||'';
  const priceAnnual=Deno.env.get('STRIPE_TEST_PRICE_ANNUAL')||'';
  const gate=Deno.env.get('BOISSY_TEST_CHECKOUT_ACK');
- let stageURL,stageOrigin;
- try{stageURL=new URL(url);stageOrigin=new URL(origin);}catch{
-  throw new Error('Invalid isolated staging configuration');
- }
+ let stageOrigin,isolatedUrl;
+ try{
+  stageOrigin=new URL(origin);
+  isolatedUrl=verifiedStripeTestProjectOrigin(url,projectRef);
+ }catch{throw new Error('Invalid isolated staging configuration');}
  if(gate!=='YES_ENABLE_CHECKOUT_ONLY_ON_ISOLATED_STAGING'||
   !/^rk_test_[a-zA-Z0-9_]{12,}$/.test(stripeKey)||
   !pubKey||!serviceKey||
-  stageURL.protocol!=='https:'||
-  !/^[a-z0-9]{20}\.supabase\.co$/.test(stageURL.hostname)||
-  stageURL.hostname===PRODUCTION_REF+'.supabase.co'||
   stageOrigin.protocol!=='https:'||stageOrigin.origin!==origin||
   !/^price_[a-zA-Z0-9_]{6,100}$/.test(priceMonthly)||
   !/^price_[a-zA-Z0-9_]{6,100}$/.test(priceAnnual)||
   priceMonthly===priceAnnual)
   throw new Error('Isolated Stripe TEST checkout configuration incomplete');
- return {stripeKey,url:stageURL.origin,pubKey,serviceKey,origin,
+ return {stripeKey,url:isolatedUrl,pubKey,serviceKey,origin,
   priceMonthly,priceAnnual};
 }
 async function verifiedUser(config,token){
