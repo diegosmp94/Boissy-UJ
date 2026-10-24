@@ -3,6 +3,7 @@ import {CLUB_TEAMS} from './club-teams.mjs';
 import {teamDeepLink} from './team-links.mjs';
 import {boundedPublicRequest} from './public-catalog-timeout.mjs';
 import {isPublicPlayerId,playerPublicRoute} from './player-profile-page.mjs';
+import {PLAYER_POSITION_GROUPS,groupPublishedPlayers} from './player-position-groups.mjs';
 
 const BASE=supabaseConfig.url+'/rest/v1/';
 const element=(tag,cls='',value=null)=>{
@@ -124,6 +125,26 @@ function group(root,title,items){
  section.append(grid);
  root.append(section);
 }
+function groupedPlayers(root,players){
+ const approved=groupPublishedPlayers(players);
+ for(const position of PLAYER_POSITION_GROUPS){
+  const section=element('section','team-extras-group team-position-section');
+  section.append(element('h2','',position.label));
+  const grid=element('div','team-extras-people team-extras-player-grid');
+  const items=approved.groups[position.id];
+  if(!items.length)grid.append(empty('Aucun joueur publié dans cette catégorie pour le moment.'));
+  else for(const person of items)grid.append(renderPublicPlayerRosterCard(person));
+  section.append(grid);root.append(section);
+ }
+ if(approved.unclassified.length){
+  const section=element('section','team-extras-group team-position-section');
+  section.append(element('h2','','À classer'));
+  const grid=element('div','team-extras-people team-extras-player-grid');
+  for(const person of approved.unclassified)grid.append(renderPublicPlayerRosterCard(person));
+  section.append(grid,empty('Position à confirmer par le club. Aucun joueur publié n’est masqué.'));
+  root.append(section);
+ }
+}
 function statsSection(root,stats,unavailable){
  const section=element('section','team-extras-group');
  section.append(element('h2','','Bilan de l’équipe'));
@@ -185,7 +206,7 @@ export async function mountTeamPublicExtras(code,{view='all'}={}){
    const warn=element('p','team-extras-notice','L’annuaire public est temporairement indisponible.');
    warn.setAttribute('role','status');root.append(warn);
   }
-  group(root,'Effectif',data.people.filter(p=>p.person_kind==='player'));
+  groupedPlayers(root,data.people.filter(p=>p.person_kind==='player'));
   if(view!=='players'){
    group(root,'Encadrement',data.people.filter(p=>p.person_kind!=='player'));
    statsSection(root,data.metrics,data.errors.includes('metrics'));
