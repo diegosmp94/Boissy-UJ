@@ -33,6 +33,10 @@ Les pages **Communauté/Premium, Événements/Billetterie et Soutenir** ont une 
 
 Audit SQL de production en lecture seule (20/20 tables publiques RLS, 0 RPC SECURITY DEFINER accessible sans connexion, 20/20 fonctions admin liées à `app_private.is_admin` et MFA AAL2) ; warnings `SECURITY DEFINER` toujours à examiner par RPC. Le test MFA/RLS à sept identités accepte désormais une pile Supabase Docker **strictement locale** après préflight de projet non lié et de l'outillage, sans création de comptes ni écriture à la production. **La recette réelle de sept profils et deux convocations reste à exécuter** avec données de test consenties sur la pile isolée. [Détails](P1_RECETTE_COMPTES_MFA_LOCAL.md).
 
+## Stabilisation du recrutement et des informations pratiques — Disponibilité partielle
+
+Les trois catalogues publics (annonces du club, informations pratiques, contacts officiellement publiés) sont lus et affichés **indépendamment** : une panne ne masque plus les deux autres sources. Le site distingue « aucune annonce publiée » de « service inaccessible ». Les FAQ statiques continuent à fonctionner sans données inventées. [Détails](CORRECTIF_REJOINDRE_DISPONIBILITE_PARTIELLE_20261024.md).
+
 ## Stabilisation publique — Repli des six catalogues encore non bornés
 
 Après la mise en ligne vérifiée et le correctif Mon espace, les appels HTTP publics du prochain match, des félicitations, des fiches équipes, de l'agenda, de l'identité et de la section Nous rejoindre/Infos pratiques ont désormais un délai de 12 secondes, avec annulation au départ de la page et états d'indisponibilité sans donnée fictive. Aucune écriture Supabase. [Détail](CORRECTIF_PUBLIC_CHARGEMENTS_20261024.md).
