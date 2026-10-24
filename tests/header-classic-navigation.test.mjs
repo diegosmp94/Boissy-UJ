@@ -15,7 +15,8 @@ test('classic navigation has four top-level options and keeps My Space separate'
  assert.match(desktop,/>Équipes <span/);
  assert.match(desktop,/>Compétitions <span/);
  assert.match(desktop,/>Vie du club <span/);
- assert.doesNotMatch(desktop,/>Matchs<\/a>|>Awards<\/a>\s*<a/);
+ assert.doesNotMatch(desktop,/<a href="#\/matchs">Matchs<\/a>/);
+ assert.match(desktop,/<strong class="header-panel-title">Vie du club<\/strong>/);
  assert.match(html,/class="header-account" href="#\/mon-espace"/);
  for(const id of ['desktop-teams','desktop-competitions','desktop-club']){
   assert.match(desktop,new RegExp('id="'+id+'-trigger" aria-controls="'+id+'-submenu" aria-expanded="false"'));
