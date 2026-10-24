@@ -59,9 +59,7 @@ export function appendSourcedSportContext(container,teamCode,{includeCurrent=tru
    ['Buts pour',current.goals_for],['Buts contre',current.goals_against]]){
    const row=e('div');row.append(e('dt','',label),e('dd','',value));dl.append(row);
   }card.append(dl);
-  card.append(e('p','league-source','Bilan calculé à partir des seuls scores de championnat retrouvés chez des tiers. Il peut manquer des matchs, des pénalités et les résultats des adversaires. Ce n’est ni le classement actuel, ni un rang officiel.'));
-  card.append(e('small','sourced-standings-attribution',
-   'Sources des résultats : SportCorico / TheFootData · données à confirmer par le club.'));
+  card.append(e('p','league-source','Bilan partiel à confirmer par le club : certains matchs, pénalités ou résultats des adversaires peuvent manquer. Ce n’est ni le classement actuel, ni un rang officiel.'));
   group.append(card);
  }
  if(archive){
@@ -72,7 +70,7 @@ export function appendSourcedSportContext(container,teamCode,{includeCurrent=tru
    ' N / '+archive.losses+' D · '+archive.goals_for+' BP / '+archive.goals_against+
    ' BC. Saison terminée : ce rang ne représente pas la saison 2026–2027.'));
   card.append(e('small','sourced-standings-attribution',
-   'Source du classement historique : TheFootData · archive de la saison 2025–2026.'));
+   'Classement historique à confirmer par le club.'));
   group.append(card);
  }
  if(group.children.length)container.append(group);
