@@ -87,7 +87,7 @@ test('position workflow mounts only on the player subpage and never publishes id
  assert.match(app,/activeSubpage\?\.section==='joueurs'\)mountTeamAffiliatedRoster\(activeTeam,getAuthClient\)/);
  assert.match(app,/else unmountTeamAffiliatedRoster\(\)/);
  assert.match(app,/id="team-affiliated-roster-root"/);
- assert.match(page,/groupedPlayers\(root,data.people.filter/);
+ assert.match(page,/groupedPlayers\(root,data.people\)/);
  assert.match(page,/for\(const position of PLAYER_POSITION_GROUPS\)/);
  assert.match(page,/position.label/);
  assert.match(editor,/getAuthClient\(\)/);
