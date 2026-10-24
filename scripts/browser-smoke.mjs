@@ -192,6 +192,13 @@ try{
    if(emptyLabels.length)errors.push('Unlabelled header or legal control');
    if(!document.querySelector('a[href="#/confidentialite"]')||
       !document.querySelector('a[href="#/mentions-legales"]'))errors.push('Legal links missing');
+   if(width<768){
+    const tiny=[...document.querySelectorAll('#menu-toggle,.bottom-nav a')]
+     .filter(node=>node.getClientRects().length>0)
+     .filter(node=>node.getBoundingClientRect().height<44||
+       node.getBoundingClientRect().width<44);
+    if(tiny.length)errors.push('Small touch target in primary mobile navigation');
+   }
    if(expected==='#/'){
     if(document.querySelectorAll('.chapter').length!==8)errors.push('Expected 8 cinematic chapters');
     // The mobile menu and account entry must be comfortably tappable on a 320px device.
