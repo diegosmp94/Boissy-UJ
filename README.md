@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Correctif site opérationnel — Fiabilité des comptes après publication (24 octobre 2026)
+
+GitHub Pages publie désormais **la bonne version de `main`** : build, deploy, verify et 11/11 ressources HTTP ont passé les vérifications après nouvelle publication du commit `f77664652407`. Le compte `Mon espace` bénéficie de délais réseau maximaux et d'un bouton Réessayer lorsqu'un service CDN / Supabase ne répond pas : fini le chargement qui peut rester bloqué sans limite. Les paiements et les outils administratifs restent inchangés. [Détail du correctif](docs/CORRECTIF_MON_ESPACE_RESEAU_20261024.md).
+
 ## Étape 64 — Recette finale et preuve de déploiement (24 octobre 2026)
 
 Le contrôle HTTP GitHub Pages **exige** désormais un manifeste `release.json` valide, la bonne version de `main`, `robots.txt`, les ressources publiques et les types MIME corrects. La CI conserve un rapport HTTP anonymisé et un état d'homologation séparé via `npm run release:acceptance`. Les tests Chromium couvrent aussi la **navigation mobile entre Mon espace, confidentialité, mentions légales et matchs sans rechargement**. **Un site techniquement publié ne vaut pas homologation des rôles, du RGPD, des finances ou des appareils physiques** : [recette étape 64](docs/ETAPE_64_RECETTE_FINALE_DEPLOIEMENT.md).
