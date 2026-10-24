@@ -4,8 +4,8 @@ import {readFileSync} from 'node:fs';
 const src=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const html=src('index.html'),app=src('app.js'),css=src('header-navigation.css'),
  sport=src('sport-center.mjs'),smoke=src('scripts/browser-smoke.mjs');
-const desktop=html.slice(html.indexOf('    <nav class="desktop-links"'),html.indexOf('    <div class="header-actions">'));
-const mobile=html.slice(html.indexOf('  <nav class="mobile-menu"'),html.indexOf('  <main id="main"'));
+const desktop=html.slice(html.indexOf('    <nav class="desktop-links header-classic-links"'),html.indexOf('    <div class="header-actions">'));
+const mobile=html.slice(html.indexOf('  <nav class="mobile-menu mobile-classic-menu"'),html.indexOf('  <main id="main"'));
 
 test('classic navigation has four top-level options and keeps My Space separate',()=>{
  const top=desktop.match(/class="desktop-header-group"/g)||[];
