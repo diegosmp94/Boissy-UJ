@@ -62,7 +62,7 @@ test('news team filter fetches only public posts, read-only team metadata, and n
  assert.doesNotMatch(media,/innerHTML\s*=|method:'POST'/);
 });
 test('Match Center prefills both discipline and exact requested team, preserving isolation',()=>{
- assert.match(sport,/function displayFixtures\(root,teams,matches,seasons=\[\],initialTeamCode=null\)/);
+ assert.match(sport,/function displayFixtures\(root,teams,matches,seasons=\[\],initialTeamCode=null,\{unavailable=\[\]\}=\{\}\)/);
  assert.match(sport,/requested=teams.find\(t=>t.code===initialTeamCode\)/);
  assert.match(sport,/disciplineSelect.value=requested.discipline/);
  assert.match(sport,/select.value=requested.id/);
