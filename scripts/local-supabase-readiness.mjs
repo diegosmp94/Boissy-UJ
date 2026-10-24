@@ -82,6 +82,7 @@ async function main(){
  const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
  await inspectLocalCheckout(root);
  console.log('PASS: local Supabase configuration is isolated and unlinked.');
+ assertLocalDockerEnvironment();
  checkLocalRuntimes();
  console.log('PASS: Supabase CLI and Docker are locally available.');
  console.log('NEXT: review migrations, then explicitly run supabase start locally.');
