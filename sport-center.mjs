@@ -8,7 +8,6 @@ import {createVictoryNotice} from './victory-notice.mjs';
 import {buildCompetitionTabs,competitionKind,cupInformation} from './competition-tabs.mjs';
 
 const ENDPOINT = supabaseConfig.url + '/rest/v1/';
-const TEAM_CODES = ['a','b','c','veterans','futsal'];
 /* Fallback de présentation uniquement, sans rencontre inventée.
    Ces identités correspondent aux catégories confirmées dans le cahier des charges. */
 const FALLBACK_TEAMS = Object.freeze([
@@ -94,6 +93,7 @@ export async function loadPublicSportCatalogs(signal,fetcher=fetch){
   const remoteTeams=settled[0].status==='fulfilled'?settled[0].value:[];
   const byCode=new Map(),usedIds=new Set();
   for(const row of remoteTeams){
+    if(!row||typeof row!=='object')continue;
     const definition=CLUB_TEAMS.find(x=>x.code===row.code);
     if(!definition||row.discipline!==definition.discipline||
        typeof row.id!=='string'||!row.id||usedIds.has(row.id)||byCode.has(row.code))
