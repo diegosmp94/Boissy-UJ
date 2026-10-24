@@ -34,7 +34,7 @@ export const ACTIVE_WORKSTREAMS=Object.freeze([
   next:'Tester sur staging le Checkout et webhook Stripe TEST codés, puis traiter remboursements, litiges et obligations fiscales avant activation.',
   dependency:'Situation légale du club, compte de test habilité et décisions de trésorerie',kind:'human'},
  {id:'p2-ticketing',priority:'P2',title:'Billetterie et contrôle des réservations',
-  next:'Développer et vérifier jauges, droits d’accès, annulations et QR en environnement TEST.',
+  next:'Tester sur Supabase staging le backend transactionnel OFF de billets gratuits (jauge, annulation, doubles scans), développer ensuite les écrans membre et scan, puis homologuer avant activation.',
   dependency:'Modèle de billets validé et parcours Stripe TEST homologué',kind:'human'},
  {id:'p2-awards',priority:'P2',title:'Awards et communauté Premium',
   next:'Tester sur staging la migration Awards et son vote unique après événement Stripe TEST signé réellement reçu ; ne pas activer le vote public avant homologation.',
