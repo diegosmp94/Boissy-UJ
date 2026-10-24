@@ -73,7 +73,7 @@ test('matches unavailable are not mislabeled as an empty official season',async(
  assert.equal(data.seasons.length,1);
  assert.match(code,/Rencontres publiées : source momentanément indisponible/);
  assert.match(code,/Calendrier du club momentanément indisponible/);
- assert.match(code,/Les archives provenant de sources extérieures restent consultables/);
+ assert.match(code,/Les autres rencontres restent consultables, mais ne sont pas confirmées par Boissy UJ/);
 });
 
 test('team catalogue unavailable does not bind official matches to fabricated team IDs',async()=>{
@@ -129,6 +129,6 @@ test('partial publication UI retains internal navigation and never activates pri
  assert.match(code,/notice\.setAttribute\('role','status'\)/);
  assert.match(code,/if \(abort\.signal\.aborted \|\| generation!==renderGeneration/);
  assert.match(code,/publicExternalFixtures\(/);
- assert.match(code,/Source du relevé/);
+ assert.match(code,/Ces rencontres restent à confirmer par le club/);
  assert.doesNotMatch(code,/method:'POST'|service_role|\.insert\(|\.upsert\(|\.delete\(|innerHTML\s*=/);
 });
