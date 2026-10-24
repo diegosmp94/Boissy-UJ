@@ -16,7 +16,7 @@ La publication est maintenant préparée via un workflow GitHub Pages déclench�
 | Sauvegarde et restauration | Produire un export autorisé, restaurer en instance isolée, comparer les inventaires SQL et checksums ; consigner le PV | Base isolée et responsable autorisé |
 | Safari/Android et accessibilité | Valider l'accueil, le compte, les formulaires, le Control Center avec VoiceOver, TalkBack, clavier | Matériel et testeurs réels |
 | RGPD, mineurs et droits à l'image | Valider politique, conservation, mentions, consentements, effacement des médias Storage | Association et personnes responsables |
-| Données sportives officielles | Revoir les dates et scores sourcés, publier les rencontres réellement confirmées | Club / sources et droit de réutilisation |
+| Données sportives officielles | Revue MFA des sources extérieures et détection des écarts préparées à l'étape 62 ; faire signer la validation des scores et dates avant publication | Club / sources et droit de réutilisation |
 | Publications initiales | Créer les premières actualités autorisées, sans contenu ou identité inventés | Responsable éditorial et droits |
 
 ## P2 — Fonctions à achever / homologuer
