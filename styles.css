@@ -1227,3 +1227,33 @@ textarea.staff-input {resize:vertical;line-height:1.6;}
 .menu-toggle{width:44px;height:44px;min-width:44px;min-height:44px}
 .desktop-links>a,.desktop-teams-nav>a{display:inline-flex;align-items:center;min-height:44px}
 .global-legal-footer a{display:inline-flex;align-items:center;min-height:44px}
+
+
+/* Étape 63 : typographie locale de repli, sans échange Google Fonts.
+   Les familles système restent lisibles sur iOS Safari, Android et Windows. */
+:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+h1,h2,h3,.brand,.intro-center strong,.pricing-card .price{
+ font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+}
+:where(input,textarea,select,summary,[tabindex]):focus-visible{
+ outline:3px solid var(--gold,#f0c56e);outline-offset:3px
+}
+@media(max-width:760px){
+ .bottom-nav a{min-height:44px;align-content:center}
+ #menu-toggle{min-width:44px;min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){
+ html:focus-within{scroll-behavior:auto}
+ *,*::before,*::after{
+  scroll-behavior:auto!important;
+  animation-duration:.01ms!important;
+  animation-iteration-count:1!important;
+  transition-duration:.01ms!important
+ }
+}
+@media(forced-colors:active){
+ :where(button,a,input,textarea,select,summary):focus-visible{
+  outline:2px solid Highlight;outline-offset:3px
+ }
+ .skip-link:focus{forced-color-adjust:auto}
+}

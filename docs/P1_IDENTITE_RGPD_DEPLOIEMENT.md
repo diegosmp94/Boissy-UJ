@@ -6,8 +6,8 @@
 - Les introductions peuvent être sautées et la navigation au clavier est rétablie sur le contenu principal après un changement de page. La fermeture du menu mobile par Échap restaure le focus.
 - Les menus mobiles longs deviennent déroulants, les cibles interactives font au moins 44 px et la réduction des animations tient compte de la préférence système.
 - Pages publiques `#/confidentialite` et `#/mentions-legales`, disponibles sans compte ; lien de premier niveau vers la vie privée depuis Mon espace et pied de page commun.
-- Les pages indiquent franchement les prestataires effectivement présents (GitHub Pages, Supabase, Google Fonts et jsDelivr), le traitement technique des comptes et le stockage local de session ; pas d'adresse, de numéro RNA ou de durée de conservation inventés.
-- Métadonnées sociales minimales, referrer strict et préchargement du logo sans ajouter de traceur tiers.
+- Les pages indiquent franchement les prestataires effectivement présents (GitHub Pages, Supabase et jsDelivr (Google Fonts retiré à l’étape 63)), le traitement technique des comptes et le stockage local de session ; pas d'adresse, de numéro RNA ou de durée de conservation inventés.
+- Métadonnées sociales minimales, référent absent (no-referrer) et politique de sécurité CSP et préchargement du logo sans ajouter de traceur tiers.
 - Préproduction : correction de `scripts/build-preview.mjs` afin de copier les modules ESM / styles racine nécessaires, la totalité des assets publics, et **jamais** les dossiers docs/tests/migrations/scripts.
 - `scripts/audit-preview.mjs` contrôle chaque import relatif et les assets HTML du `dist/`, l'absence de dossiers internes/éléments privés, et le maintien explicite du `noindex`. Il est exécuté par les deux workflows GitHub Actions.
 

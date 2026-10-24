@@ -34,14 +34,14 @@ test('P1 privacy information is accessible without authentication on all routes'
 test('P1 legal copy does not invent an RNA, address, DPO, or claim full compliance',()=>{
  assert.match(app,/Mentions légales provisoires/);
  assert.match(app,/coordonnées du responsable de traitement/);
- assert.match(app,/Google Fonts et jsDelivr/);
+ assert.match(app,/jsDelivr pour charger la bibliothèque d'authentification/);
  assert.match(app,/responsable sera affiché dès confirmation/);
  assert.match(app,/Validation juridique à compléter/);
  assert.doesNotMatch(app,/(conformité RGPD certifiée|100 % conforme RGPD|SIREN\s*:\s*\d{9})/i);
 });
 test('P1 initial preview stays out of search results until club legal sign-off',()=>{
  assert.match(html,/name="robots" content="noindex, nofollow"/);
- assert.match(html,/name="referrer" content="strict-origin-when-cross-origin"/);
+ assert.match(html,/name="referrer" content="no-referrer"/);
  assert.match(html,/property="og:description"/);
  assert.match(html,/rel="preload" href="\.\/assets\/ecusson-boissy-uj\.webp"/);
  assert.match(release,/Disallow: \/\\n/);

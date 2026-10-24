@@ -2,6 +2,10 @@
 
 Le dépôt contient le prototype visuel de Boissy-UJ en cours de développement. La branche `main` recevra les versions stabilisées, tandis que les prochaines améliorations pourront être réalisées sur des branches dédiées.
 
+## Étape 63 — Cybersécurité, confidentialité et accessibilité (24 octobre 2026)
+
+Suppression des appels automatiques à Google Fonts, mise en place d’une CSP de défense dans l’export GitHub Pages et du référent `no-referrer`. Les tests Chromium anonymes surveillent les domaines réellement contactés, les libellés de connexion, le focus et les cibles tactiles sur mobile ; les préférences de réduction des animations sont respectées globalement. **La recette réelle iPhone/Safari, Android/TalkBack, RGPD, sauvegarde et droits des mineurs reste ouverte.** [Dossier étape 63](docs/ETAPE_63_CYBER_RGPD_ACCESSIBILITE.md).
+
 ## Étape 62 — Revue des sources sportives et publication responsable (24 octobre 2026)
 
 **Le calendrier issu de relevés externes n'est plus présenté comme « confirmé par le club »** dans l'accueil, le Match Center ou les profils. Le Control Center propose une **Revue des sources sportives** derrière MFA AAL2 : elle rapproche les résultats/dates sourcés des dossiers de matchs existants, signale doublons, écarts et rencontres passées sans résultat, et donne accès à l'éditeur sécurisé sans publier automatiquement. Les classements ne restent plus bloqués si l'API tarde et affichent un contexte honnêtement sourcé. **Aucun match, classement ou article fictif n'est enregistré.** [Procédure étape 62](docs/ETAPE_62_SOURCES_SPORTIVES_ET_PUBLICATION.md).
