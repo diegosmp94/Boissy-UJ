@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {validateTarget,decodeJwtPayload} from '../scripts/real-permissions-smoke.mjs';
-import {LOCAL_STACK_ID} from '../scripts/local-supabase-readiness.mjs';
+import {LOCAL_STACK_ID,assertLocalDockerEnvironment} from '../scripts/local-supabase-readiness.mjs';
 
 const names=['supporter','playerA','playerB','coachA','coachB','admin','tripleRole'];
 const personas=Object.fromEntries(names.map(name=>[name,{
@@ -86,7 +86,24 @@ test('P1 local branch preflights unlinked Docker and Supabase CLI before ever us
  const firstHTTP=code.indexOf('const teamIds=await getTeamIds',before);
  assert.ok(before>=0&&firstHTTP>before);
  assert.match(code.slice(before,firstHTTP),/await inspectLocalCheckout\(root\)/);
+ assert.match(code.slice(before,firstHTTP),/assertLocalDockerEnvironment\(env\)/);
  assert.match(code.slice(before,firstHTTP),/checkLocalRuntimes\(\)/);
  assert.match(code,/return \{url:url.origin,ref,key,personas,fixtures,localOnly\}/);
  assert.doesNotMatch(code,/supabase\s+(?:link|db push|projects create)|apply_migration|auth\/v1\/signup/);
+});
+
+test('P1 local Docker refuses remote daemons and cloud tokens before authentication',()=>{
+ assert.deepEqual(assertLocalDockerEnvironment({}),{localDocker:true,remoteCloudCredentials:false});
+ assert.equal(assertLocalDockerEnvironment({DOCKER_HOST:'unix:///var/run/docker.sock'}).localDocker,true);
+ assert.equal(assertLocalDockerEnvironment({DOCKER_CONTEXT:'desktop-linux'}).localDocker,true);
+ for(const env of [
+  {DOCKER_HOST:'tcp://example.org:2376'},
+  {DOCKER_HOST:'ssh://remote.example'},
+  {DOCKER_HOST:'unix:///run/user/other.sock'},
+  {DOCKER_CONTEXT:'production-remote'},
+  {DOCKER_TLS_VERIFY:'1'},
+  {DOCKER_CERT_PATH:'/private/certs'},
+  {SUPABASE_ACCESS_TOKEN:'test-cloud-token'},
+  {SUPABASE_DB_PASSWORD:'must-not-be-supplied'}
+ ])assert.throws(()=>assertLocalDockerEnvironment(env));
 });
