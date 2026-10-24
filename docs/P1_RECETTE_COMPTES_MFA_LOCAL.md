@@ -34,7 +34,7 @@ En mode local, **toutes** les conditions suivantes sont vérifiées avant toute 
 
 - Dépôt ayant `supabase/config.toml` avec `project_id = "boissy-uj-local"`, PostgreSQL 17, `.gitignore` protégeant `supabase/.temp/` et `supabase/.branches/`.
 - **Aucun projet distant lié** au dépôt (fichier `supabase/.temp/project-ref` absent).
-- Docker disponible et Supabase CLI disponible en local (sans commande de modification du cloud).
+- Docker disponible **sur un socket local** et Supabase CLI disponible en local. La pré-vérification refuse un Docker redirigé vers un serveur distant (`DOCKER_HOST` TCP/SSH, contexte distant), les paramètres Docker TLS et les jetons cloud Supabase dans le shell. Aucun compte ou projet distant n'est utilisé.
 - Cible unique `http://127.0.0.1:54321/` : rejet de `localhost`, IP réseau, hostname cloud, autres ports, chemin, query, fragment et URL avec identifiants.
 - Deux confirmations : `BOISSY_TEST_LOCAL_STACK_ID=boissy-uj-local` et `BOISSY_TEST_ACK=YES_RUN_READ_ONLY_PERMISSION_TESTS_ON_LOCAL_DOCKER`.
 - **Uniquement une clé publique** publishable/anon de l'instance locale : clés `service_role`, `sb_secret_`, Stripe et projet cloud de production rejetés.
