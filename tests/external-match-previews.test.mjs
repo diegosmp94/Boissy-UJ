@@ -12,6 +12,7 @@ test('visitor can see actual dated external references while no matches are publ
  assert.ok(items.some(x=>x.team_code==='veterans'));
  assert.ok(items.some(x=>x.team_code==='futsal'));
  assert.ok(items.every(x=>x.validated_by_club===false));
+ assert.ok(items.every(x=>x.date_confirmed_by_club===false),'A third-party fixture is not a club confirmation');
  assert.ok(items.every(x=>x.source_label==='SportCorico'&&x.source.startsWith('https://www.sportcorico.com/clubs/')));
  assert.ok(items.every(x=>x.time>=now-86400000));
  assert.equal(EXTERNAL_FIXTURE_REVIEWED_AT,'2026-10-23');
