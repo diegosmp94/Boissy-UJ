@@ -1,5 +1,6 @@
 import {mountEvents,unmountEvents} from './events-center.mjs';
 import {CLUB_TEAMS,DISCIPLINES,teamsByDiscipline,teamRoute,categoryRoute,disciplineLabel} from './club-teams.mjs';
+import {TEAM_SUBPAGE_SECTIONS,teamSubpageRoute,resolveTeamSubpageRoute,teamSubpageNavigation} from './team-subpages.mjs';
 import {mountTeamProfile,unmountTeamProfile} from './team-pages.mjs';
 import {mountTeamPublicExtras,unmountTeamPublicExtras} from './team-profile-data.mjs';
 import {isPublicPlayerId,mountPublicPlayerProfile,unmountPublicPlayerProfile} from './player-profile-page.mjs';
@@ -105,7 +106,13 @@ function matches(){return pageShell('Le terrain avant tout','MATCH <em>CENTER.</
 function teamPage(){
   const teamDetail=(t,i,groupTotal)=>`<article class="detail-card team-detail"><span class="tiny-label">${String(i+1).padStart(2,'0')} / ${String(groupTotal).padStart(2,'0')} · ${t.tag}</span>
     <img src="${crest}" width="78" height="78" alt="" loading="lazy"/><h3>${t.name}</h3><p>${t.league}</p><small>${t.desc}</small>
-    <div class="empty-caption">Effectif et calendrier à renseigner</div><a class="team-detail-link" href="${teamRoute(t)}">Voir la fiche équipe ↗</a></article>`;
+    <div class="empty-caption">Effectif et calendrier après publication par le club</div>
+    <a class="team-detail-link" href="${teamRoute(t)}">Voir la fiche équipe ↗</a>
+    <nav class="team-directory-quicklinks" aria-label="Rubriques ${t.name}">
+      <a href="${teamSubpageRoute(t,'joueurs')}">Joueurs</a>
+      <a href="${teamSubpageRoute(t,'matchs')}">Matchs</a>
+      <a href="${teamSubpageRoute(t,'actualites')}">Actualités</a>
+    </nav></article>`;
   const group=(id,label,description,groupTeams)=>`<section class="discipline-section" id="${id}" aria-labelledby="${id}-title">
     <div class="discipline-heading"><span class="tiny-label">BOISSY-UJ · ${groupTeams.length} ÉQUIPE${groupTeams.length>1?'S':''}</span>
     <h2 id="${id}-title">${label}</h2><p>${description}</p><a class="team-category-link" href="${categoryRoute(groupTeams[0].discipline)}">Explorer la catégorie ↗</a></div>
@@ -135,6 +142,11 @@ function categoryTeamPage(discipline){
         <img src="${crest}" width="78" height="78" alt="" loading="lazy">
         <h2>${team.name}</h2><p>${team.league}</p><small>${team.desc}</small>
         <a class="team-detail-link" href="${teamRoute(team)}">Voir la fiche équipe ↗</a>
+        <nav class="team-directory-quicklinks" aria-label="Rubriques ${team.name}">
+          <a href="${teamSubpageRoute(team,'joueurs')}">Joueurs</a>
+          <a href="${teamSubpageRoute(team,'matchs')}">Matchs</a>
+          <a href="${teamSubpageRoute(team,'actualites')}">Actualités</a>
+        </nav>
       </article>`).join('')}</div>
     <div class="team-hierarchy-footer"><a href="${categoryRoute(isFutsal?'football':'futsal')}">Découvrir aussi le ${isFutsal?'football à 11':'futsal'} ↗</a></div>`);
 }
@@ -154,6 +166,7 @@ function singleTeamPage(team){
           <span class="team-profile-division">${team.division}</span>
         </div>
       </section>
+      ${teamSubpageNavigation(team)}
       <div id="team-league-standing" class="league-standings-root league-team-standing" aria-live="polite"><p class="sport-loading">Classement du championnat en cours de chargement…</p></div>
       <div id="team-profile-live" class="team-profile-live" aria-live="polite">
         <p class="team-profile-state">Chargement des rencontres publiées…</p>
@@ -163,8 +176,9 @@ function singleTeamPage(team){
       </div>
       <nav class="team-profile-actions" aria-label="Navigation sportive">
         <a href="${categoryRoute(team.discipline)}">← Toutes les équipes ${disciplineLabel(team.discipline)}</a>
-        <a href="${teamDeepLink('matchs',team.code)}">Matchs de cette équipe ↗</a>
-        <a href="${teamDeepLink('actualites',team.code)}">Actualités de cette équipe ↗</a>
+        <a href="${teamSubpageRoute(team,'joueurs')}">Joueurs de cette équipe ↗</a>
+        <a href="${teamSubpageRoute(team,'matchs')}">Matchs de cette équipe ↗</a>
+        <a href="${teamSubpageRoute(team,'actualites')}">Actualités de cette équipe ↗</a>
         <a href="#/joueurs/apercu">Aperçu d’une fiche joueur ↗</a>
       </nav>
       <section class="team-sibling-section" aria-label="Autres équipes de la discipline">
@@ -172,6 +186,40 @@ function singleTeamPage(team){
         ${group.filter(t=>t.code!==team.code).map(t=>`<a href="${teamRoute(t)}">${t.name} <span>↗</span></a>`).join('')||'<p>Une équipe pour cette discipline.</p>'}
         </div>
       </section>`);
+}
+function teamSubpage(team,section){
+  const labels={joueurs:'Joueurs',matchs:'Matchs',actualites:'Actualités'};
+  const current=labels[section];
+  if(!current)throw new Error('Rubrique équipe inconnue');
+  const intro={
+    joueurs:'Découvrez les joueurs dont les informations ont été autorisées et publiées par le club.',
+    matchs:'Retrouvez les rencontres, résultats et compétitions de cette équipe, sans scores inventés.',
+    actualites:'Retrouvez exclusivement les actualités publiques et validées de cette équipe.'
+  };
+  const content=section==='joueurs'
+    ?'<div id="team-profile-extras" class="team-profile-extras" aria-live="polite" aria-label="Joueurs autorisés à la publication"><p class="team-extras-empty">Chargement des joueurs publiés…</p></div>'
+    :section==='matchs'
+      ?'<div id="team-profile-live" class="team-profile-live" aria-live="polite"><p class="team-profile-state">Chargement des matchs de l’équipe…</p></div>'+
+       '<div id="team-league-standing" class="league-standings-root league-team-standing" aria-live="polite"><p class="sport-loading">Chargement des classements de l’équipe…</p></div>'
+      :'<div id="news-feed-public" class="news-root" aria-live="polite"><p class="news-loading">Chargement des actualités de l’équipe…</p></div>';
+  return pageShell('Équipes · '+disciplineLabel(team.discipline)+' · '+team.name,
+    current.toLocaleUpperCase('fr-FR')+' <em>'+team.name.toLocaleUpperCase('fr-FR')+'.</em>',
+    intro[section],
+    `<nav class="team-breadcrumbs" aria-label="Fil d’Ariane">
+       <a href="#/equipes">Équipes</a><span aria-hidden="true">›</span>
+       <a href="${categoryRoute(team.discipline)}">${disciplineLabel(team.discipline)}</a><span aria-hidden="true">›</span>
+       <a href="${teamRoute(team)}">${team.name}</a><span aria-hidden="true">›</span>
+       <span aria-current="page">${current}</span></nav>
+      <div class="team-subpage-heading">
+       <img src="${crest}" width="70" height="70" alt="" loading="lazy">
+       <div><span class="tiny-label">${disciplineLabel(team.discipline)} · ${team.division}</span>
+       <h2>${current} · ${team.name}</h2></div>
+      </div>
+      ${teamSubpageNavigation(team,section)}
+      <div class="team-subpage-content">${content}</div>
+      <nav class="team-subpage-return" aria-label="Retour équipe">
+        <a href="${teamRoute(team)}">← Retour à la présentation de ${team.name}</a>
+      </nav>`);
 }
 function news(){return pageShell('Vie du club','ACTUALITÉS <em>& MÉDIAS.</em>','Découvrez uniquement les informations publiées par Boissy-UJ : la vie du club, nos équipes et les événements.',`<div class="info-banner"><span class="info-icon">i</span><div><strong>Publications contrôlées</strong><p>Les brouillons, contenus privés et médias non autorisés ne sont pas affichés. Le club publiera progressivement ses actualités.</p></div></div><div id="news-feed-public" class="news-root" aria-live="polite"><p class="news-loading">Chargement des actualités…</p></div><div class="detail-grid two"><div class="detail-card"><span class="tiny-label">MÉDIAS</span><h3>Galeries photos</h3><p>Les photos ne seront accessibles qu'après vérification des autorisations de diffusion.</p></div><div class="detail-card"><span class="tiny-label">VIDÉOS</span><h3>Vidéos du club</h3><p>Les rencontres et les coulisses seront diffusées uniquement lorsqu'un contenu aura été publié.</p></div></div>`);}
 
@@ -273,7 +321,10 @@ const teamRoutes=Object.fromEntries([
   ...DISCIPLINES.map(d=>[categoryRoute(d.id).slice(1),()=>categoryTeamPage(d.id)]),
   ...teams.map(t=>[teamRoute(t).slice(1),()=>singleTeamPage(t)])
 ]);
-const routes={'/':home,'/matchs':matches,'/equipes':teamPage,'/actualites':news,'/communaute':community,'/awards':awards,'/evenements':events,'/agenda':agenda,'/soutenir':support,'/rejoindre':join,'/infos-pratiques':practical,'/club':identity,'/mon-espace':account,'/control-center':controlCenter,'/joueurs/apercu':playerProfilePage,'/confidentialite':privacy,'/mentions-legales':legal,...teamRoutes};
+const teamSubpageRoutes=Object.fromEntries(teams.flatMap(team=>
+  TEAM_SUBPAGE_SECTIONS.map(section=>
+    [teamSubpageRoute(team,section.id).slice(1),()=>teamSubpage(team,section.id)])));
+const routes={'/':home,'/matchs':matches,'/equipes':teamPage,'/actualites':news,'/communaute':community,'/awards':awards,'/evenements':events,'/agenda':agenda,'/soutenir':support,'/rejoindre':join,'/infos-pratiques':practical,'/club':identity,'/mon-espace':account,'/control-center':controlCenter,'/joueurs/apercu':playerProfilePage,'/confidentialite':privacy,'/mentions-legales':legal,...teamSubpageRoutes,...teamRoutes};
 let observer;
 let hasRenderedRoute=false;
 function render(){
@@ -317,20 +368,28 @@ function render(){
   if(path==='/matchs') void mountSport(route.teamCode,{competition}); else unmountSport();
   if(path==='/') void mountHomeVictory(); else unmountHomeVictory();
   if(path==='/') mountHomeNextMatch(); else unmountHomeNextMatch();
-  const activeTeam=teams.find(t=>teamRoute(t).slice(1)===path);
-  if(activeTeam){void mountTeamProfile(activeTeam.code);void mountTeamPublicExtras(activeTeam.code);}
-  else {unmountTeamProfile();unmountTeamPublicExtras();}
+  const activeSubpage=resolveTeamSubpageRoute(path);
+  const activeTeam=teams.find(t=>teamRoute(t).slice(1)===path)||activeSubpage?.team;
+  if(activeSubpage?.section==='matchs'){
+    void mountTeamProfile(activeTeam.code);unmountTeamPublicExtras();
+  }else if(activeSubpage?.section==='joueurs'){
+    unmountTeamProfile();void mountTeamPublicExtras(activeTeam.code,{view:'players'});
+  }else if(activeTeam&&!activeSubpage){
+    void mountTeamProfile(activeTeam.code);void mountTeamPublicExtras(activeTeam.code);
+  }else {unmountTeamProfile();unmountTeamPublicExtras();}
   if(path==='/joueurs/apercu'||publicPlayerId)void mountPublicPlayerProfile(publicPlayerId);
   else unmountPublicPlayerProfile();
   if(path==='/matchs') void mountTeamStats(); else unmountTeamStats();
   if(path==='/matchs') void mountLeagueStandings(route.teamCode);
-  else if(activeTeam) void mountLeagueStandings(activeTeam.code);
+  else if(activeTeam&&(!activeSubpage||activeSubpage.section==='matchs')) void mountLeagueStandings(activeTeam.code);
   else unmountLeagueStandings();
   if(path==='/matchs'&&sportQuery?.get('section')==='classements'){
     requestAnimationFrame(()=>document.getElementById('team-league-standing')
       ?.scrollIntoView({block:'start',behavior:'instant'}));
   }
-  if(path==='/actualites') void mountNews(route.teamCode); else unmountNews();
+  if(path==='/actualites'||activeSubpage?.section==='actualites')
+    void mountNews(activeSubpage?.team.code||route.teamCode);
+  else unmountNews();
   if(path==='/evenements') void mountEvents(); else unmountEvents();
   if(path==='/agenda') void mountAgenda(); else unmountAgenda();
   if(path==='/awards') void mountAwards(); else unmountAwards();
@@ -340,7 +399,9 @@ function render(){
   
   if(path==='/club') void mountIdentity(); else unmountIdentity();
   if(path==='/control-center') void mountAdminCenter(getAuthClient); else unmountAdminCenter();
-  document.title=(path==='/'?'Boissy-UJ — Club officiel':`Boissy-UJ — ${({ '/matchs':'Match Center','/equipes':'Nos équipes','/actualites':'Actualités','/communaute':'Communauté','/awards':'Awards','/evenements':'Événements','/agenda':'Agenda','/soutenir':'Soutenir le club','/rejoindre':'Nous rejoindre','/infos-pratiques':'Infos pratiques','/club':'Notre club','/mon-espace':'Mon espace','/control-center':'Administration sécurisée','/joueurs/apercu':'Aperçu fiche joueur','/confidentialite':'Confidentialité','/mentions-legales':'Mentions légales',...Object.fromEntries(DISCIPLINES.map(d=>[categoryRoute(d.id).slice(1),disciplineLabel(d.id)])),...Object.fromEntries(teams.map(t=>[teamRoute(t).slice(1),t.name]))})[path]|| (publicPlayerId?'Fiche joueur':'Boissy UJ')}`);
+  document.title=(path==='/'?'Boissy-UJ — Club officiel':`Boissy-UJ — ${({ '/matchs':'Match Center','/equipes':'Nos équipes','/actualites':'Actualités','/communaute':'Communauté','/awards':'Awards','/evenements':'Événements','/agenda':'Agenda','/soutenir':'Soutenir le club','/rejoindre':'Nous rejoindre','/infos-pratiques':'Infos pratiques','/club':'Notre club','/mon-espace':'Mon espace','/control-center':'Administration sécurisée','/joueurs/apercu':'Aperçu fiche joueur','/confidentialite':'Confidentialité','/mentions-legales':'Mentions légales',...Object.fromEntries(DISCIPLINES.map(d=>[categoryRoute(d.id).slice(1),disciplineLabel(d.id)])),...Object.fromEntries(teams.map(t=>[teamRoute(t).slice(1),t.name])),
+    ...Object.fromEntries(teams.flatMap(t=>TEAM_SUBPAGE_SECTIONS.map(section=>
+      [teamSubpageRoute(t,section.id).slice(1),t.name+' · '+section.label])))})[path]|| (publicPlayerId?'Fiche joueur':'Boissy UJ')}`);
 }
 function setupChapters(){
   const sections=[...document.querySelectorAll('.chapter')];

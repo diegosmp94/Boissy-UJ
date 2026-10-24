@@ -1,0 +1,44 @@
+/* Pages d'équipes : sous-navigation autonome (Joueurs / Matchs / Actualités). */
+.team-subpage-navigation{display:flex;flex-wrap:wrap;align-items:center;gap:9px;
+ margin:0 0 30px;padding:12px;border:1px solid #b7ccea45;border-radius:14px;
+ background:linear-gradient(130deg,#122e51,#0a1f3e)}
+.team-subpage-navigation a{display:inline-flex;align-items:center;justify-content:center;
+ gap:7px;min-height:46px;padding:11px 18px;border:1px solid transparent;
+ border-radius:10px;color:#d2e4f6;font-weight:850;font-size:13px;
+ text-decoration:none;transition:border-color .14s,background .14s,color .14s}
+.team-subpage-navigation a:hover,.team-subpage-navigation a:focus-visible{
+ background:#1b456c;border-color:#c6dff27a;color:#fff}
+.team-subpage-navigation a[aria-current="page"]{
+ border-color:#e7bd6a;background:#d5ab5d;color:#081a32}
+.team-subpage-heading{display:flex;align-items:center;gap:21px;padding:20px 25px;
+ border-radius:17px;border:1px solid #9dc2e954;margin:0 0 24px;
+ background:radial-gradient(ellipse at left,#184c7c,#0b2545 62%,#081b34)}
+.team-subpage-heading img{flex:0 0 auto;width:70px;height:70px;padding:5px;
+ border-radius:50%;object-fit:contain;background:#fff}
+.team-subpage-heading h2{margin:8px 0 0;font:900 clamp(23px,3.2vw,34px)/1.15 Outfit,system-ui,sans-serif;color:#fff}
+.team-subpage-content{min-height:170px}
+.team-subpage-return{display:flex;margin:32px 0 40px}
+.team-subpage-return a{display:inline-flex;align-items:center;min-height:44px;
+ border-radius:10px;border:1px solid #d8bc8270;padding:12px 17px;
+ color:#f6d69b;font-size:13px;font-weight:850;text-decoration:none}
+.team-subpage-return a:hover{background:#21486c}
+.team-directory-quicklinks{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}
+.team-directory-quicklinks a{display:inline-flex;align-items:center;min-height:44px;
+ border-radius:8px;border:1px solid #dfc68b70;padding:10px 12px;
+ color:#f4d299;font-size:12px;font-weight:800;text-decoration:none}
+.team-directory-quicklinks a:hover{background:#244970;color:#fff}
+.team-subpage-navigation a:focus-visible,.team-directory-quicklinks a:focus-visible,
+.team-subpage-return a:focus-visible{outline:3px solid #f2ca7a;outline-offset:3px}
+@media(max-width:640px){
+ .team-subpage-navigation{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;padding:8px;margin-bottom:22px}
+ .team-subpage-navigation a{padding:10px 7px;font-size:12px;white-space:normal}
+ .team-subpage-heading{gap:12px;padding:17px}
+ .team-subpage-heading img{width:52px;height:52px}
+ .team-subpage-heading h2{font-size:clamp(19px,5.5vw,27px)}
+ .team-directory-quicklinks{gap:6px}
+ .team-directory-quicklinks a{padding:9px 11px}
+}
+@media(prefers-reduced-motion:reduce){
+ .team-subpage-navigation a{transition:none!important}
+}

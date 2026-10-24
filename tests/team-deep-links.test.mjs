@@ -28,11 +28,13 @@ test('route parser does not accidentally redirect team-specific hash URLs to hom
  assert.deepEqual(parsePublicRoute(''),{path:'/',teamCode:null});
  assert.match(app,/const route=parsePublicRoute\(location.hash\)/);
  assert.match(app,/if\(path==='\/matchs'\) void mountSport\(route.teamCode,\{competition\}\)/);
- assert.match(app,/if\(path==='\/actualites'\) void mountNews\(route.teamCode\)/);
+ assert.match(app,/if\(path==='\/actualites'\|\|activeSubpage\?\.section==='actualites'\)/);
+ assert.match(app,/mountNews\(activeSubpage\?\.team\.code\|\|route\.teamCode\)/);
 });
 test('profile links route to scoped results and scoped editorial feed',()=>{
- assert.match(app,/teamDeepLink\('matchs',team.code\)/);
- assert.match(app,/teamDeepLink\('actualites',team.code\)/);
+ assert.match(app,/teamSubpageRoute\(team,'matchs'\)/);
+ assert.match(app,/teamSubpageRoute\(team,'actualites'\)/);
+ assert.match(app,/teamSubpageNavigation\(team\)/);
  assert.match(read('team-profile-data.mjs'),/teamDeepLink\('actualites',teamCode\)/);
  assert.match(read('index.html'),/team-deep-links\.css/);
 });

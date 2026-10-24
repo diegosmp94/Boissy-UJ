@@ -42,7 +42,7 @@ test('all remaining public catalogue mounts enforce finite timeout with original
   ['home-next-match.mjs','loadPublishedUpcoming({signal:deadline.signal})'],
   ['victory-home.mjs','loadHomeVictory({signal:deadline.signal})'],
   ['agenda.mjs','loadPublicAgenda(deadline.signal)'],
-  ['team-profile-data.mjs','loadTeamPublicExtras(code,{signal:deadline.signal})'],
+  ['team-profile-data.mjs',"loadTeamPublicExtras(code,{signal:deadline.signal,onlyPeople:view==='players'})"],
   ['club-identity.mjs','loadPublishedIdentity(deadline.signal)'],
   ['join-center.mjs','loadPublicClubInfo(deadline.signal)']
  ];

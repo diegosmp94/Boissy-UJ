@@ -41,7 +41,7 @@ export function validateTeamMetrics(rows,teamId){
  return stats;
 }
 /** Trois flux indépendants ; l'absence d'un ne masque pas les deux autres. */
-export async function loadTeamPublicExtras(code,{signal,fetcher=fetch,now=Date.now()}={}){
+export async function loadTeamPublicExtras(code,{signal,fetcher=fetch,now=Date.now(),onlyPeople=false}={}){
  const team=CLUB_TEAMS.find(x=>x.code===code);
  if(!team)throw new Error('Équipe inconnue');
  const lookup=await rows('club_teams',{select:'id,code,discipline',code:'eq.'+code,limit:'1'},signal,fetcher);
@@ -53,16 +53,16 @@ export async function loadTeamPublicExtras(code,{signal,fetcher=fetch,now=Date.n
    team_id:'eq.'+remote.id,published:'eq.true',consent_confirmed:'eq.true',
    order:'sort_order.asc',limit:'150'
   },signal,fetcher),
-  rows('team_form_summary',{
+  (onlyPeople?Promise.resolve([]):rows('team_form_summary',{
    select:'team_id,played,wins,draws,losses,goals_for,goals_against',
    team_id:'eq.'+remote.id,limit:'1'
-  },signal,fetcher),
-  rows('news_posts',{
+  },signal,fetcher)),
+  (onlyPeople?Promise.resolve([]):rows('news_posts',{
    select:'id,team_id,title,excerpt,status,visibility,consent_reviewed,published_at',
    team_id:'eq.'+remote.id,status:'eq.published',visibility:'eq.public',
    consent_reviewed:'eq.true',published_at:'lte.'+new Date(now).toISOString(),
    order:'published_at.desc',limit:'6'
-  },signal,fetcher)
+  },signal,fetcher))
  ];
  const result=await Promise.allSettled(tasks);
  const errors=result.map((r,i)=>r.status==='rejected'?['people','metrics','news'][i]:null).filter(Boolean);
@@ -145,7 +145,7 @@ function newsSection(root,posts,unavailable,teamCode){
 }
 let active=null,generation=0;
 export function unmountTeamPublicExtras(){generation++;active?.abort();active=null}
-export async function mountTeamPublicExtras(code){
+export async function mountTeamPublicExtras(code,{view='all'}={}){
  unmountTeamPublicExtras();
  const root=document.getElementById('team-profile-extras');
  if(!root)return;
@@ -154,7 +154,7 @@ export async function mountTeamPublicExtras(code){
  const deadline=boundedPublicRequest(controller.signal);
  root.replaceChildren(element('p','team-extras-empty','Chargement des informations publiques de l’équipe…'));
  try{
-  const data=await loadTeamPublicExtras(code,{signal:deadline.signal});
+  const data=await loadTeamPublicExtras(code,{signal:deadline.signal,onlyPeople:view==='players'});
   if(controller.signal.aborted||generation!==id||!root.isConnected)return;
   root.replaceChildren();
   if(!data.configured){
@@ -166,9 +166,11 @@ export async function mountTeamPublicExtras(code){
    warn.setAttribute('role','status');root.append(warn);
   }
   group(root,'Effectif',data.people.filter(p=>p.person_kind==='player'));
-  group(root,'Encadrement',data.people.filter(p=>p.person_kind!=='player'));
-  statsSection(root,data.metrics,data.errors.includes('metrics'));
-  newsSection(root,data.news,data.errors.includes('news'),code);
+  if(view!=='players'){
+   group(root,'Encadrement',data.people.filter(p=>p.person_kind!=='player'));
+   statsSection(root,data.metrics,data.errors.includes('metrics'));
+   newsSection(root,data.news,data.errors.includes('news'),code);
+  }
   root.append(element('p','team-extras-note','Aucun nom, photographie ou contenu personnel n’est ajouté automatiquement. Les fiches publiques requièrent les autorisations de publication vérifiées par le club. Les statistiques proviennent des résultats publiés.'));
  }catch{
   if(controller.signal.aborted||generation!==id||!root.isConnected)return;

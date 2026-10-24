@@ -149,6 +149,10 @@ const scenarios=[
  {name:'mobile-home',hash:'#/',width:320,height:760},
  {name:'desktop-classic-header',hash:'#/',width:1366,height:850},
  {name:'mobile-teams',hash:'#/equipes',width:390,height:844},
+ {name:'mobile-team-players',hash:'#/equipes/football/seniors-a/joueurs',width:390,height:844},
+ {name:'mobile-team-matches',hash:'#/equipes/football/seniors-a/matchs',width:390,height:844},
+ {name:'mobile-team-news',hash:'#/equipes/football/seniors-a/actualites',width:390,height:844},
+ {name:'desktop-futsal-players',hash:'#/equipes/futsal/boissy-uj-futsal/joueurs',width:1366,height:850},
  {name:'mobile-player-preview',hash:'#/joueurs/apercu',width:390,height:844},
  {name:'mobile-matches',hash:'#/matchs',width:390,height:844},
  {name:'mobile-admin-guest',hash:'#/control-center',width:390,height:844},
@@ -279,6 +283,29 @@ try{
      if(location.hash!==expected)errors.push('Skip link replaced current SPA route');
      if(document.activeElement!==main)errors.push('Skip link did not focus main');
     }
+   }
+   if(expected.includes('/equipes/')&&
+     ['/joueurs','/matchs','/actualites'].some(suffix=>expected.endsWith(suffix))){
+    const nav=main.querySelector('.team-subpage-navigation');
+    if(!nav)errors.push('Team subpage navigation missing');
+    if(nav&&nav.querySelectorAll('a').length!==4)
+     errors.push('Team subpage must expose presentation and three tabs');
+    if(nav&&nav.querySelectorAll('a[aria-current="page"]').length!==1)
+     errors.push('Current team subpage tab missing');
+    if(!main.querySelector('.team-breadcrumbs'))
+     errors.push('Team subpage breadcrumb missing');
+    const isPlayers=expected.endsWith('/joueurs');
+    const isMatches=expected.endsWith('/matchs');
+    const isNews=expected.endsWith('/actualites');
+    if(isPlayers&&!main.querySelector('#team-profile-extras'))
+     errors.push('Team players panel missing');
+    if(isMatches&&(!main.querySelector('#team-profile-live')
+      ||!main.querySelector('#team-league-standing')))
+     errors.push('Team matches or standings missing');
+    if(isNews&&!main.querySelector('#news-feed-public'))
+     errors.push('Team scoped news feed missing');
+    if(main.querySelectorAll('#team-profile-extras,#team-profile-live,#news-feed-public').length!==1)
+     errors.push('Unrelated section leaked into team subpage');
    }
    if(expected==='#/joueurs/apercu'){
     if(!main.querySelector('.player-profile-hero'))errors.push('Player profile preview hero missing');
