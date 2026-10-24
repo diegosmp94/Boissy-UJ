@@ -7,7 +7,7 @@
 import {createHmac} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {resolve,dirname} from 'node:path';
-import {inspectLocalCheckout,checkLocalRuntimes,LOCAL_STACK_ID} from './local-supabase-readiness.mjs';
+import {inspectLocalCheckout,checkLocalRuntimes,assertLocalDockerEnvironment,LOCAL_STACK_ID} from './local-supabase-readiness.mjs';
 
 const PRODUCTION_PROJECT_REF='dahzewvbybujqhogumte';
 const REQUIRED_PERSONAS=['supporter','playerA','playerB','coachA','coachB','admin','tripleRole'];
@@ -258,6 +258,7 @@ export async function runPermissionRecipe(env=process.env){
     // Never attempt even an Auth request until link safety and runtime pass.
     const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
     await inspectLocalCheckout(root);
+    assertLocalDockerEnvironment(env);
     checkLocalRuntimes();
   }
   const api=await createApi(config),state={passed:0,skipped:0,failed:0};
