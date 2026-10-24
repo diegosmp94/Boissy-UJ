@@ -88,7 +88,8 @@ test('unavailable notices and contacts have explicit per-section status instead 
 test('public-only fallback never makes up an email, coach, training session or a published news item',()=>{
  assert.match(join,/Seuls les moyens de contact explicitement publiés/);
  assert.match(join,/Ne communique pas de dossier de santé/);
- assert.match(join,/filterPublicContacts\(data\.contacts/);
+ assert.match(join,/filterPublicContacts\(contacts,audience\)/);
+ assert.match(join,/contactArea\(data\.contacts,selected,data\.unavailable\.includes\('contacts'\)\)/);
  assert.match(join,/filterPublicNotices\(data\.notices/);
  assert.match(join,/filterJoinListings\(listings/);
 });
