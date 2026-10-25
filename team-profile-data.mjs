@@ -1,6 +1,6 @@
 import {supabaseConfig} from './auth-config.mjs';
 import {CLUB_TEAMS} from './club-teams.mjs';
-import {teamDeepLink} from './team-links.mjs';
+import {teamSubpageRoute} from './team-subpages.mjs';
 import {boundedPublicRequest} from './public-catalog-timeout.mjs';
 import {isPublicPlayerId,playerPublicRoute} from './player-profile-page.mjs';
 import {PLAYER_POSITION_GROUPS,groupPublishedPlayers} from './player-position-groups.mjs';
@@ -206,6 +206,11 @@ function statsSection(root,stats,unavailable){
  }
  root.append(section);
 }
+export function teamNewsRoute(teamCode){
+ const team=CLUB_TEAMS.find(t=>t.code===teamCode);
+ if(!team)throw new Error('Équipe inconnue');
+ return teamSubpageRoute(team,'actualites');
+}
 function newsSection(root,posts,unavailable,teamCode){
  const section=element('section','team-extras-group');
  section.append(element('h2','','Actualités de l’équipe'));
@@ -225,7 +230,7 @@ function newsSection(root,posts,unavailable,teamCode){
   section.append(list);
  }
  const link=element('a','team-extras-more-link','Voir toutes les actualités de cette équipe ↗');
- link.href=teamDeepLink('actualites',teamCode);section.append(link);
+ link.href=teamNewsRoute(teamCode);section.append(link);
  root.append(section);
 }
 let active=null,generation=0;
@@ -250,7 +255,9 @@ export async function mountTeamPublicExtras(code,{view='all'}={}){
    const warn=element('p','team-extras-notice','L’annuaire public est temporairement indisponible.');
    warn.setAttribute('role','status');root.append(warn);
   }
-  groupedPlayers(root,data.people);
+  // A network or permissions failure is not evidence of an empty squad.
+  // Keep independently loaded team news and metrics available.
+  if(!unavailable)groupedPlayers(root,data.people);
   if(view!=='players'){
    const otherStaff=data.people.filter(p=>p.person_kind==='staff'&&!isPublicEducator(p));
    if(otherStaff.length)group(root,'Encadrement',otherStaff);

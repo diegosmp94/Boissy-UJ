@@ -35,7 +35,7 @@ test('profile links route to scoped results and scoped editorial feed',()=>{
  assert.match(app,/teamSubpageRoute\(team,'matchs'\)/);
  assert.match(app,/teamSubpageRoute\(team,'actualites'\)/);
  assert.match(app,/teamSubpageNavigation\(team\)/);
- assert.match(read('team-profile-data.mjs'),/teamDeepLink\('actualites',teamCode\)/);
+ assert.match(read('team-profile-data.mjs'),/link.href=teamNewsRoute\(teamCode\)/);
  assert.match(read('index.html'),/team-deep-links\.css/);
 });
 test('news search filters by actual UUID as well as category and query',()=>{

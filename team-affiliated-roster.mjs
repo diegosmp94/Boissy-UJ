@@ -32,9 +32,14 @@ export function mountTeamAffiliatedRoster(team,getAuthClient){
   'Espace privé : sélectionne un joueur déjà affilié à cette équipe, sa catégorie et son numéro. Ces changements ne publient jamais son nom ou sa photo.');
  const status=el('p','team-affiliated-status','');
  status.setAttribute('role','status');
- panel.append(intro,status);
+ const retry=el('button','team-affiliated-reload','Réessayer la vérification');
+ retry.type='button';retry.hidden=true;
+ const refresh=el('button','team-affiliated-reload','Actualiser les affiliations');
+ refresh.type='button';refresh.hidden=true;
+ panel.append(intro,status,retry,refresh);
  disclosure.append(panel);root.replaceChildren(disclosure);
- let opened=false,busy=false,teamId=null,api=null,rows=[];
+ let opened=false,busy=false,loading=false,teamId=null,api=null,rows=[];
+ let emptyNotice=null;
  const alive=()=>serial===generation&&root.isConnected&&disclosure.isConnected;
  const label=(name,input)=>{
   const wrap=el('label','team-affiliated-label',name);wrap.append(input);return wrap;
@@ -47,7 +52,8 @@ export function mountTeamAffiliatedRoster(team,getAuthClient){
   return auth.data.user.id;
  }
  async function load(){
-  if(!alive()||busy)return;
+  if(!alive()||busy||loading)return;
+  loading=true;retry.disabled=true;retry.hidden=true;refresh.disabled=true;
   status.textContent='Vérification des droits et de l’affiliation…';
   try{
    await verify();
@@ -62,27 +68,38 @@ export function mountTeamAffiliatedRoster(team,getAuthClient){
    if(listing.error||!Array.isArray(listing.data))throw new Error('Accès non autorisé ou module indisponible');
    rows=listing.data.filter(p=>typeof p.player_user_id==='string'&&
       typeof p.display_name==='string');
+   if(!alive())return;
    render();
   }catch{
    if(alive()){
+    rows=[];teamId=null;refresh.hidden=true;
+    emptyNotice?.remove();emptyNotice=null;
     panel.querySelector('form')?.remove();
     status.textContent='Gestion réservée aux éducateurs affectés à cette équipe et aux administrateurs MFA. Connecte-toi dans Mon espace ou réessaie après activation du module.';
-    if(!panel.querySelector('a')){
+    if(!panel.querySelector('.team-affiliated-account-link')){
      const a=el('a','team-affiliated-account-link','Accéder à Mon espace');
      a.href='#/mon-espace';panel.append(a);
     }
+    retry.hidden=false;
    }
+  }finally{
+   loading=false;
+   if(alive()){retry.disabled=false;refresh.disabled=false;}
   }
  }
+ retry.addEventListener('click',()=>void load());
+ refresh.addEventListener('click',()=>void load());
  function render(){
   if(!alive())return;
   panel.querySelector('form')?.remove();
   panel.querySelector('.team-affiliated-account-link')?.remove();
+  emptyNotice?.remove();emptyNotice=null;
+  retry.hidden=true;refresh.hidden=false;
   status.textContent=rows.length+' joueur(s) officiellement affilié(s) à '+known.name+'.';
   if(!rows.length){
    const note=el('p','team-affiliated-status',
     'Aucun joueur affilié. L’administrateur doit d’abord attribuer le rôle Joueur et rattacher son compte à cette équipe dans Administration > Affectations joueurs.');
-   panel.append(note);return;
+   emptyNotice=note;panel.append(note);return;
   }
   const form=el('form','team-affiliated-form');
   const select=el('select','team-affiliated-control');
@@ -98,7 +115,6 @@ export function mountTeamAffiliatedRoster(team,getAuthClient){
   number.type='number';number.min='1';number.max='99';number.step='1';number.required=true;
   const button=el('button','team-affiliated-save','Enregistrer la catégorie et le numéro');
   button.type='submit';
-  const refresh=el('button','team-affiliated-reload','Actualiser les joueurs');refresh.type='button';
   const feedback=el('p','team-affiliated-status','');
   feedback.setAttribute('role','status');
   const update=()=>{
@@ -110,9 +126,8 @@ export function mountTeamAffiliatedRoster(team,getAuthClient){
   };
   select.addEventListener('change',update);update();
   form.append(label('Joueur affilié',select),label('Catégorie',position),
-   label('Numéro de maillot',number),button,refresh,feedback);
+   label('Numéro de maillot',number),button,feedback);
   panel.append(form);
-  refresh.addEventListener('click',()=>{if(!busy)void load();});
   form.addEventListener('submit',async event=>{
    event.preventDefault();
    if(busy||!alive()||!teamId)return;

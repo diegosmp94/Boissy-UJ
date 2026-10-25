@@ -109,6 +109,8 @@
 .team-affiliated-reload,.team-affiliated-account-link{color:#f6d89c;background:#13385e}
 .team-affiliated-status{color:#cadbee;line-height:1.55;font-size:12px;grid-column:1/-1}
 .team-affiliated-save:disabled,.team-affiliated-reload:disabled{opacity:.6;cursor:wait}
+/* Author-level flex styles must not override the native hidden attribute. */
+.team-affiliated-reload[hidden]{display:none!important}
 @media(max-width:760px){.team-affiliated-form{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:490px){.team-affiliated-form{grid-template-columns:minmax(0,1fr)}
  .team-affiliated-panel{padding:0 15px 20px}
