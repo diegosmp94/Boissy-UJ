@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {CLUB_TEAMS} from '../club-teams.mjs';
 import {mountTeamAffiliatedRoster,unmountTeamAffiliatedRoster} from '../team-affiliated-roster.mjs';
+import {mountTeamPublicExtras,unmountTeamPublicExtras} from '../team-profile-data.mjs';
 
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
@@ -127,12 +128,29 @@ test('unassigned player has no implicit goalkeeper selection and cannot be saved
   if(prev===undefined)delete globalThis.document;else globalThis.document=prev;
  }
 });
-test('unconfigured public catalogue retains four player groups and Educateurs without inventing identities',()=>{
- const source=read('team-profile-data.mjs');
- assert.match(source,/if\(!data\.configured\)\{\s*\/\/ The public squad structure/);
- assert.match(source,/Annuaire public non configuré pour cette équipe/);
- assert.match(source,/groupedPlayers\(root,\[\]\);/);
- assert.match(source,/for\(const position of PLAYER_POSITION_GROUPS\)/);
- assert.match(source,/educatorsSection\(root,people\)/);
- assert.match(source,/Aucun éducateur autorisé à la publication/);
+test('unconfigured public catalogue renders five honest empty groups without inventing identities',async()=>{
+ const {root,document}=fakeDom();
+ document.getElementById=id=>id==='team-profile-extras'?root:null;
+ const previousDocument=globalThis.document,previousFetch=globalThis.fetch;
+ const requests=[];
+ globalThis.document=document;
+ globalThis.fetch=async(url,options)=>{
+  requests.push({url,options});
+  assert.match(url,/\/rest\/v1\/club_teams\?/);
+  return {ok:true,json:async()=>[]};
+ };
+ try{
+  await mountTeamPublicExtras('a',{view:'players'});
+  const headings=root.findAll(n=>n.tagName==='H2').map(n=>n.textContent);
+  assert.deepEqual(headings,['Gardiens','Défenseurs','Milieux','Attaquants','Éducateurs']);
+  assert.equal(root.findAll(n=>n.className.includes('team-extras-player-card')).length,0);
+  assert.equal(requests.length,1,'no optional stats or news requests for an empty team');
+  assert.equal(requests[0].options.method,'GET');
+  assert.ok(root.findAll(n=>n.textContent.includes('Annuaire public non configuré')).length>0);
+  assert.ok(root.findAll(n=>n.textContent.includes('Aucun éducateur autorisé')).length>0);
+ }finally{
+  unmountTeamPublicExtras();
+  if(previousDocument===undefined)delete globalThis.document;else globalThis.document=previousDocument;
+  if(previousFetch===undefined)delete globalThis.fetch;else globalThis.fetch=previousFetch;
+ }
 });
