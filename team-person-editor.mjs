@@ -5,12 +5,21 @@
 import {supabaseConfig} from './auth-config.mjs';
 import {CLUB_TEAMS} from './club-teams.mjs';
 import {mountAdminRosterDirectory} from './team-roster-admin.mjs';
+import {PLAYER_POSITION_GROUPS,positionFromPublicRole} from './player-position-groups.mjs';
 
 const make=(tag,cls='',value=null)=>{
  const n=document.createElement(tag);if(cls)n.className=cls;
  if(value!==null)n.textContent=String(value);return n;
 };
 const btn=(label)=>{const b=make('button','staff-action',label);b.type='button';return b;};
+/** Explicit publication guidance; private assignments never silently become public. */
+export function publicPositionForRole(kind,roleLabel){
+ return kind==='player'?positionFromPublicRole(roleLabel):null;
+}
+export function canonicalPublicPlayerRole(group){
+ const names={goalkeeper:'Gardien',defender:'Défenseur',midfielder:'Milieu',forward:'Attaquant'};
+ return Object.hasOwn(names,group)?names[group]:null;
+}
 export function validateTeamPersonDraft(raw){
  const code=String(raw.teamCode||'');
  const kind=String(raw.personKind||'');
@@ -67,6 +76,15 @@ function frame(root,local=false){
  f.name=make('input','club-editor-control');f.name.maxLength=100;
  f.role=make('input','club-editor-control');f.role.maxLength=80;
  f.role.placeholder='Ex. Gardien, Défenseur, Entraîneur';
+ f.position=make('select','club-editor-control');
+ const positionBlank=make('option','','Choisir une catégorie…');positionBlank.value='';
+ f.position.append(positionBlank);
+ for(const group of PLAYER_POSITION_GROUPS){
+  const opt=make('option','',group.label);opt.value=group.id;f.position.append(opt);
+ }
+ const positionField=labeled('Catégorie du joueur (rubrique du site)',f.position);
+ const positionHelp=make('p','club-editor-help',
+  'La catégorie détermine où le joueur apparaît. Son poste précis peut ensuite être indiqué dans « Rôle / poste ». La répartition privée des éducateurs n’est jamais publiée automatiquement.');
  f.number=make('input','club-editor-control');f.number.type='number';f.number.min='1';f.number.max='99';
  f.bio=make('textarea','club-editor-control');f.bio.rows=3;f.bio.maxLength=280;
  f.order=make('input','club-editor-control');f.order.type='number';f.order.min='0';f.order.max='10000';f.order.value='0';
@@ -76,7 +94,7 @@ function frame(root,local=false){
  const consent=labeled('Je confirme les accords applicables, la vérification des faits et des droits (y compris responsables légaux si nécessaires).',f.consent);consent.classList.add('club-editor-check');
  form.append(
   labeled('Équipe',f.team),labeled('Type de personne',f.kind),labeled('Nom public validé',f.name),
-  labeled('Rôle / poste',f.role),labeled('Numéro de maillot (facultatif)',f.number),
+  positionField,positionHelp,labeled('Rôle / poste',f.role),labeled('Numéro de maillot (facultatif)',f.number),
   labeled('Présentation publique facultative',f.bio),labeled('Ordre de présentation',f.order),
   publication,consent
  );
@@ -87,6 +105,11 @@ function frame(root,local=false){
  const values=()=>({teamCode:f.team.value,personKind:f.kind.value,displayName:f.name.value,
   roleLabel:f.role.value,shirtNumber:f.number.value,biography:f.bio.value,
   sortOrder:f.order.value,publish:f.publish.checked,consentConfirmed:f.consent.checked});
+ const syncPublicPosition=()=>{
+  const player=f.kind.value==='player';
+  positionField.hidden=!player;positionHelp.hidden=!player;
+  f.position.value=publicPositionForRole(f.kind.value,f.role.value)||'';
+ };
  const draw=()=>{
   const v=validateTeamPersonDraft(values());
   preview.replaceChildren();
@@ -99,9 +122,18 @@ function frame(root,local=false){
   sample.append(make('span','tiny-label',CLUB_TEAMS.find(t=>t.code===v.teamCode)?.name+' · '+v.personKind),
    make('h3','',v.displayName),make('p','',v.roleLabel));
   if(v.biography)sample.append(make('p','',v.biography));
+  if(v.personKind==='player'&&!publicPositionForRole(v.personKind,v.roleLabel))
+   sample.append(make('small','club-editor-position-warning',
+    'Poste non reconnu : la fiche apparaîtra dans « À classer » jusqu’à validation d’une catégorie.'));
   sample.append(make('small','',v.publish?'APERÇU · publication demandée':'APERÇU · brouillon privé'));
   preview.append(sample);
  };
+ f.position.addEventListener('change',()=>{
+  const role=canonicalPublicPlayerRole(f.position.value);
+  if(f.kind.value==='player'&&role){f.role.value=role;draw();}
+ });
+ f.role.addEventListener('input',()=>{syncPublicPosition();draw();});
+ f.kind.addEventListener('change',()=>{syncPublicPosition();draw();});
  for(const event of ['input','change'])form.addEventListener(event,draw);
  action.addEventListener('click',draw);
  const fill=(row,teams=[])=>{
@@ -109,6 +141,7 @@ function frame(root,local=false){
   f.kind.value=row?.person_kind||'player';
   f.name.value=row?.display_name||'';
   f.role.value=row?.role_label||'';
+  syncPublicPosition();
   f.number.value=row?.shirt_number==null?'':String(row.shirt_number);
   f.bio.value=row?.biography||'';
   f.order.value=String(row?.sort_order??0);
