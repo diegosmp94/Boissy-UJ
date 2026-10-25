@@ -60,6 +60,11 @@ test('public roster fetch failure is not presented as zero registered players or
  assert.match(code,/if\(view!=='players'\)/);
 });
 
+test('hidden coach controls stay visually hidden under the custom flex styles',()=>{
+ const css=src('team-profile-data.css');
+ assert.match(css,/\.team-affiliated-reload\[hidden\]\{display:none!important\}/);
+});
+
 test('staff roster retries expired login, refreshes empty memberships and clears private form on rights loss',async()=>{
  const previous=globalThis.document;
  const root=fakeElement('div');
