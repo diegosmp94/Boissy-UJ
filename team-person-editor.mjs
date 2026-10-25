@@ -177,7 +177,7 @@ export async function mountAuthenticatedTeamPeopleEditor(container,api,userId){
  const selectLabel=make('label','club-editor-field','Profil à modifier');
  const selector=make('select','club-editor-control');
  selectLabel.append(selector);frameData.form.insertBefore(selectLabel,frameData.form.firstChild);
- let teams=[],entries=[],loading=false,confirmation=null,rosterRevision=0;
+ let teams=[],entries=[],loading=false,confirmation=null,rosterRevision=0,reloadRevision=0;
  const directory=make('section','team-roster-directory');
  directory.setAttribute('aria-label','Répertoire privé des fiches sportives');
  root.insertBefore(directory,frameData.form);
@@ -204,30 +204,61 @@ export async function mountAuthenticatedTeamPeopleEditor(container,api,userId){
   browser.update(entries,teams,selected()?.id||null);
  };
  async function reload(preferred=null){
-  if(!await verifyAdmin(api,userId)){
-   if(root.isConnected)root.replaceChildren(make('p','club-editor-feedback','Accès refusé : vérification administrateur ou MFA insuffisante.'));
-   return;
-  }
-  const [teamData,peopleData]=await Promise.all([
-   api.from('club_teams').select('id,code,name').order('sort_order'),
-   api.rpc('admin_list_team_public_people')
-  ]);
-  if(!root.isConnected)return;
-  if(teamData.error||peopleData.error||!Array.isArray(peopleData.data)){
-   frameData.action.disabled=true;
-   frameData.feedback.textContent='Chargement sécurisé indisponible. Aucune donnée modifiée. Utilise « Actualiser les profils » pour réessayer.';
-   return;
-  }
-  teams=teamData.data||[];entries=peopleData.data;
+  const run=++reloadRevision;
+  const current=()=>root.isConnected&&run===reloadRevision;
+  // Clear confidential admin data BEFORE requesting a fresh MFA-gated snapshot.
+  // This also prevents stale counts or identities from remaining visible if MFA expires.
   rosterRevision++;rosterAudit?.invalidate();
-  frameData.action.disabled=false;
-  selector.replaceChildren();
-  const fresh=make('option','','+ Nouveau profil');fresh.value='new';selector.append(fresh);
-  for(const person of entries){
-   const opt=make('option','',person.display_name+' · '+(person.published?'Publié':'Brouillon'));
-   opt.value=person.id;selector.append(opt);
+  confirmation=null;teams=[];entries=[];
+  browser.update([],[],null);
+  selector.replaceChildren();selector.disabled=true;
+  frameData.fill(null);
+  frameData.action.disabled=true;withdraw.disabled=true;refresh.disabled=true;
+  frameData.feedback.textContent='Vérification MFA et actualisation des profils…';
+  try{
+   if(!await verifyAdmin(api,userId)){
+    if(current())root.replaceChildren(make('p','club-editor-feedback',
+     'Accès refusé : vérification administrateur ou MFA insuffisante.'));
+    return false;
+   }
+   if(!current())return false;
+   const [teamData,peopleData]=await Promise.all([
+    api.from('club_teams').select('id,code,name').order('sort_order'),
+    api.rpc('admin_list_team_public_people')
+   ]);
+   if(!current())return false;
+   if(teamData.error||peopleData.error||!Array.isArray(peopleData.data)
+      ||!Array.isArray(teamData.data)){
+    frameData.feedback.textContent='Chargement sécurisé indisponible. Aucune donnée modifiée. Utilise « Actualiser les profils » pour réessayer.';
+    return false;
+   }
+   // A role/MFA revocation while a request was in flight MUST prevent
+   // private names from ever being inserted into the document.
+   if(!await verifyAdmin(api,userId)){
+    if(current())root.replaceChildren(make('p','club-editor-feedback',
+      'Session administrateur ou MFA expiré pendant le chargement. Reconnecte-toi.'));
+    return false;
+   }
+   if(!current())return false;
+   teams=teamData.data;entries=peopleData.data;
+   rosterRevision++;rosterAudit?.invalidate();
+   selector.replaceChildren();
+   const fresh=make('option','','+ Nouveau profil');fresh.value='new';selector.append(fresh);
+   for(const person of entries){
+    const opt=make('option','',person.display_name+' · '+(person.published?'Publié':'Brouillon'));
+    opt.value=person.id;selector.append(opt);
+   }
+   selector.value=entries.some(r=>r.id===preferred)?preferred:'new';
+   selector.disabled=false;frameData.action.disabled=loading;
+   choose();
+   return true;
+  }catch{
+   if(current())frameData.feedback.textContent=
+    'Service temporairement indisponible. Aucun profil privé chargé ou modifié.';
+   return false;
+  }finally{
+   if(current())refresh.disabled=loading;
   }
-  selector.value=entries.some(r=>r.id===preferred)?preferred:'new';choose();
  }
  selector.addEventListener('change',choose);
  refresh.addEventListener('click',async()=>{
@@ -272,8 +303,9 @@ export async function mountAuthenticatedTeamPeopleEditor(container,api,userId){
      ?'Cette fiche a changé. Recharge avant de modifier.':'Enregistrement refusé par le serveur.';
     return;
    }
-   await reload(result.data);
-   if(root.isConnected)frameData.feedback.textContent='Profil enregistré. Visibilité contrôlée par Supabase.';
+   const refreshed=await reload(result.data);
+   if(root.isConnected&&refreshed)
+    frameData.feedback.textContent='Profil enregistré et relu. Visibilité contrôlée par Supabase.';
   }catch{
    if(root.isConnected)frameData.feedback.textContent='Service temporairement indisponible. Aucun enregistrement confirmé.';
   }finally{
