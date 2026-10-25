@@ -1,5 +1,6 @@
 import {supabaseConfig} from './auth-config.mjs';
 import {CLUB_TEAMS} from './club-teams.mjs';
+import {teamSubpageRoute} from './team-subpages.mjs';
 import {teamDeepLink} from './team-links.mjs';
 import {boundedPublicRequest} from './public-catalog-timeout.mjs';
 import {isPublicPlayerId,playerPublicRoute} from './player-profile-page.mjs';
@@ -225,7 +226,7 @@ function newsSection(root,posts,unavailable,teamCode){
   section.append(list);
  }
  const link=element('a','team-extras-more-link','Voir toutes les actualités de cette équipe ↗');
- link.href=teamDeepLink('actualites',teamCode);section.append(link);
+ link.href=teamSubpageRoute(CLUB_TEAMS.find(t=>t.code===teamCode),'actualites');section.append(link);
  root.append(section);
 }
 let active=null,generation=0;
@@ -250,7 +251,9 @@ export async function mountTeamPublicExtras(code,{view='all'}={}){
    const warn=element('p','team-extras-notice','L’annuaire public est temporairement indisponible.');
    warn.setAttribute('role','status');root.append(warn);
   }
-  groupedPlayers(root,data.people);
+  // A network or permissions failure is not evidence of an empty squad.
+  // Keep independently loaded team news and metrics available.
+  if(!unavailable)groupedPlayers(root,data.people);
   if(view!=='players'){
    const otherStaff=data.people.filter(p=>p.person_kind==='staff'&&!isPublicEducator(p));
    if(otherStaff.length)group(root,'Encadrement',otherStaff);
