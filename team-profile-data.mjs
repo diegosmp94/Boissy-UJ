@@ -206,6 +206,11 @@ function statsSection(root,stats,unavailable){
  }
  root.append(section);
 }
+export function teamNewsRoute(teamCode){
+ const team=CLUB_TEAMS.find(t=>t.code===teamCode);
+ if(!team)throw new Error('Équipe inconnue');
+ return teamSubpageRoute(team,'actualites');
+}
 function newsSection(root,posts,unavailable,teamCode){
  const section=element('section','team-extras-group');
  section.append(element('h2','','Actualités de l’équipe'));
@@ -225,7 +230,7 @@ function newsSection(root,posts,unavailable,teamCode){
   section.append(list);
  }
  const link=element('a','team-extras-more-link','Voir toutes les actualités de cette équipe ↗');
- link.href=teamSubpageRoute(CLUB_TEAMS.find(t=>t.code===teamCode),'actualites');section.append(link);
+ link.href=teamNewsRoute(teamCode);section.append(link);
  root.append(section);
 }
 let active=null,generation=0;
