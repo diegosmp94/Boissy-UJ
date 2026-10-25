@@ -53,6 +53,8 @@ export function mountTeamAffiliatedRoster(team,getAuthClient){
  }
  async function load(){
   if(!alive()||busy||loading)return;
+  // A refresh must not unexpectedly switch the coach to another player's record.
+  const preferredPlayerId=panel.querySelector('form select')?.value||null;
   loading=true;retry.disabled=true;retry.hidden=true;refresh.disabled=true;
   status.textContent='Vérification des droits et de l’affiliation…';
   try{
@@ -69,7 +71,7 @@ export function mountTeamAffiliatedRoster(team,getAuthClient){
    rows=listing.data.filter(p=>typeof p.player_user_id==='string'&&
       typeof p.display_name==='string');
    if(!alive())return;
-   render();
+   render(preferredPlayerId);
   }catch{
    if(alive()){
     rows=[];teamId=null;refresh.hidden=true;
@@ -89,7 +91,7 @@ export function mountTeamAffiliatedRoster(team,getAuthClient){
  }
  retry.addEventListener('click',()=>void load());
  refresh.addEventListener('click',()=>void load());
- function render(){
+ function render(preferredPlayerId=null,{restoreFocus=false}={}){
   if(!alive())return;
   panel.querySelector('form')?.remove();
   panel.querySelector('.team-affiliated-account-link')?.remove();
@@ -108,8 +110,11 @@ export function mountTeamAffiliatedRoster(team,getAuthClient){
    const name=String(p.display_name).slice(0,100);
    select.append(option(p.player_user_id,name));
   }
+  if(preferredPlayerId&&rows.some(p=>p.player_user_id===preferredPlayerId))
+   select.value=preferredPlayerId;
   const position=el('select','team-affiliated-control');
   position.required=true;
+  position.append(option('','Choisir une catégorie…'));
   for(const p of PLAYER_POSITION_GROUPS)position.append(option(p.id,p.label));
   const number=el('input','team-affiliated-control');
   number.type='number';number.min='1';number.max='99';number.step='1';number.required=true;
@@ -119,7 +124,8 @@ export function mountTeamAffiliatedRoster(team,getAuthClient){
   feedback.setAttribute('role','status');
   const update=()=>{
    const p=rows.find(item=>item.player_user_id===select.value);
-   position.value=validPrivatePosition(p?.position_group)?p.position_group:'goalkeeper';
+   // Never imply Gardien by default: a new assignment needs an explicit choice.
+   position.value=validPrivatePosition(p?.position_group)?p.position_group:'';
    number.value=p?.shirt_number==null?'':String(p.shirt_number);
    feedback.textContent=p?.position_group
     ?'Affectation privée existante. Tu peux la modifier.':'Joueur à répartir : sélectionne une catégorie et un numéro.';
@@ -128,6 +134,7 @@ export function mountTeamAffiliatedRoster(team,getAuthClient){
   form.append(label('Joueur affilié',select),label('Catégorie',position),
    label('Numéro de maillot',number),button,feedback);
   panel.append(form);
+  if(restoreFocus&&alive())select.focus();
   form.addEventListener('submit',async event=>{
    event.preventDefault();
    if(busy||!alive()||!teamId)return;
@@ -158,7 +165,7 @@ export function mountTeamAffiliatedRoster(team,getAuthClient){
     if(!alive())return;
     if(!list.error&&Array.isArray(list.data)){
      rows=list.data.filter(p=>typeof p.player_user_id==='string'&&typeof p.display_name==='string');
-     render();
+     render(draft.p_player_user_id,{restoreFocus:true});
      status.textContent='Effectif privé actualisé. Publication publique soumise à validation du club.';
     }else feedback.textContent='Enregistrement réussi, mais actualisation impossible. Recharge la liste.';
    }catch{

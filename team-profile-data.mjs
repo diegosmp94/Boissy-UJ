@@ -248,7 +248,11 @@ export async function mountTeamPublicExtras(code,{view='all'}={}){
   if(controller.signal.aborted||generation!==id||!root.isConnected)return;
   root.replaceChildren();
   if(!data.configured){
-   root.append(empty('Informations d’équipe non configurées.'));return;
+   // The public squad structure remains navigable before a club_team row exists.
+   // This is a configuration gap, not an invented or approved team roster.
+   root.append(empty('Annuaire public non configuré pour cette équipe. Aucun membre n’est publié.'));
+   groupedPlayers(root,[]);
+   return;
   }
   const unavailable=data.errors.includes('people');
   if(unavailable){
