@@ -110,6 +110,8 @@ test('coaches and non-coaching staff never receive a player category automatical
 test('admin editor remains read-only in local preview and maintains publish/consent guard',()=>{
  const src=read('team-person-editor.mjs');
  const positions=read('player-position-groups.mjs');
+ const editorStyles=read('club-editor.css');
+ assert.match(editorStyles,/\.club-editor-field\[hidden\],\.club-editor-help\[hidden\]\{display:none!important\}/);
  assert.match(src,/function canonicalPublicPlayerRole|export function canonicalPublicPlayerRole/);
  assert.match(src,/if\(v\.personKind==='player'&&!publicPositionForRole/);
  assert.match(src,/syncPublicPosition\(\)/);
