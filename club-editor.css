@@ -6,6 +6,8 @@
 .club-editor-help{font-size:14px;color:#c0d3e9;line-height:1.65;margin:0 0 26px;max-width:740px}
 .club-editor-form{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin:20px 0}
 .club-editor-field{display:grid;gap:7px;min-width:0;font-size:14px;font-weight:700;color:#dce9fc;line-height:1.45}
+/* Force actual hiding: author display:grid would otherwise override the hidden attribute. */
+.club-editor-field[hidden],.club-editor-help[hidden]{display:none!important}
 .club-editor-control{box-sizing:border-box;min-width:0;width:100%;min-height:48px;padding:11px 12px;border:1px solid #9dbbe070;border-radius:9px;color:#fff;background:#071832;font:inherit}
 textarea.club-editor-control{min-height:150px;resize:vertical;line-height:1.6}
 .club-editor-control:focus-visible,.club-editor-check input:focus-visible,
