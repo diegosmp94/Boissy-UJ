@@ -34,7 +34,9 @@ export function mountTeamAffiliatedRoster(team,getAuthClient){
  status.setAttribute('role','status');
  const retry=el('button','team-affiliated-reload','Réessayer la vérification');
  retry.type='button';retry.hidden=true;
- panel.append(intro,status,retry);
+ const refresh=el('button','team-affiliated-reload','Actualiser les affiliations');
+ refresh.type='button';refresh.hidden=true;
+ panel.append(intro,status,retry,refresh);
  disclosure.append(panel);root.replaceChildren(disclosure);
  let opened=false,busy=false,loading=false,teamId=null,api=null,rows=[];
  let emptyNotice=null;
@@ -51,7 +53,7 @@ export function mountTeamAffiliatedRoster(team,getAuthClient){
  }
  async function load(){
   if(!alive()||busy||loading)return;
-  loading=true;retry.disabled=true;retry.hidden=true;
+  loading=true;retry.disabled=true;retry.hidden=true;refresh.disabled=true;
   status.textContent='Vérification des droits et de l’affiliation…';
   try{
    await verify();
@@ -70,7 +72,7 @@ export function mountTeamAffiliatedRoster(team,getAuthClient){
    render();
   }catch{
    if(alive()){
-    rows=[];teamId=null;
+    rows=[];teamId=null;refresh.hidden=true;
     emptyNotice?.remove();emptyNotice=null;
     panel.querySelector('form')?.remove();
     status.textContent='Gestion réservée aux éducateurs affectés à cette équipe et aux administrateurs MFA. Connecte-toi dans Mon espace ou réessaie après activation du module.';
@@ -82,16 +84,17 @@ export function mountTeamAffiliatedRoster(team,getAuthClient){
    }
   }finally{
    loading=false;
-   if(alive())retry.disabled=false;
+   if(alive()){retry.disabled=false;refresh.disabled=false;}
   }
  }
  retry.addEventListener('click',()=>void load());
+ refresh.addEventListener('click',()=>void load());
  function render(){
   if(!alive())return;
   panel.querySelector('form')?.remove();
   panel.querySelector('.team-affiliated-account-link')?.remove();
   emptyNotice?.remove();emptyNotice=null;
-  retry.hidden=true;
+  retry.hidden=true;refresh.hidden=false;
   status.textContent=rows.length+' joueur(s) officiellement affilié(s) à '+known.name+'.';
   if(!rows.length){
    const note=el('p','team-affiliated-status',
@@ -112,7 +115,6 @@ export function mountTeamAffiliatedRoster(team,getAuthClient){
   number.type='number';number.min='1';number.max='99';number.step='1';number.required=true;
   const button=el('button','team-affiliated-save','Enregistrer la catégorie et le numéro');
   button.type='submit';
-  const refresh=el('button','team-affiliated-reload','Actualiser les joueurs');refresh.type='button';
   const feedback=el('p','team-affiliated-status','');
   feedback.setAttribute('role','status');
   const update=()=>{
@@ -124,9 +126,8 @@ export function mountTeamAffiliatedRoster(team,getAuthClient){
   };
   select.addEventListener('change',update);update();
   form.append(label('Joueur affilié',select),label('Catégorie',position),
-   label('Numéro de maillot',number),button,refresh,feedback);
+   label('Numéro de maillot',number),button,feedback);
   panel.append(form);
-  refresh.addEventListener('click',()=>{if(!busy)void load();});
   form.addEventListener('submit',async event=>{
    event.preventDefault();
    if(busy||!alive()||!teamId)return;
