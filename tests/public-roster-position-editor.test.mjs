@@ -117,7 +117,9 @@ test('admin editor remains read-only in local preview and maintains publish/cons
  assert.match(src,/form\.noValidate=true/);
  assert.match(src,/if\(!await verifyAdmin\(api,userId\)\)/);
  assert.match(src,/admin_save_team_public_person/);
- assert.doesNotMatch(src,/admin_list_team_coaches|service_role|\\.insert\\(/);
+ assert.ok(!src.includes('admin_list_team_coaches'));
+ assert.ok(!src.includes('service_role'));
+ assert.ok(!src.includes('.insert('));
  assert.match(positions,/goalkeeper/);
  assert.equal(validateTeamPersonDraft({
   teamCode:'a',personKind:'player',displayName:'Exemple Validé',
