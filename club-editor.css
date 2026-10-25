@@ -22,3 +22,21 @@ textarea.club-editor-control{min-height:150px;resize:vertical;line-height:1.6}
 .club-editor-sample small{display:block;color:#edc778;margin-top:16px}
 .club-editor-errors{margin:0;padding:18px 20px 18px 34px;border:1px solid #f2ac7880;border-radius:12px;color:#ffe0c8;font-size:13px;line-height:1.7}
 @media(max-width:760px){.club-editor-private{padding:18px}.club-editor-sample{padding:18px}.club-editor-form{gap:14px}}
+
+/* Private roster readiness: aggregate counts only, no names or implicit publication. */
+.admin-roster-readiness{margin:22px 0;padding:clamp(16px,2vw,25px);
+ border:1px solid #c7ad716b;border-radius:15px;background:#0b2647;min-width:0}
+.admin-roster-readiness h3{margin:0 0 12px;color:#f8d898;font-size:clamp(18px,2vw,23px)}
+.admin-roster-readiness>p{color:#d8e5f6;line-height:1.65;font-size:13px}
+.admin-roster-readiness>.team-person-secondary-button{min-height:44px;margin:10px 0;
+ border:1px solid #dabb80;border-radius:9px;padding:10px 16px;background:#16456c;color:#fff;
+ font-size:13px;font-weight:800;cursor:pointer}
+.admin-roster-readiness>.team-person-secondary-button:disabled{opacity:.6;cursor:wait}
+.admin-roster-readiness .team-person-secondary-button:focus-visible{outline:3px solid #f1c978;outline-offset:3px}
+.admin-roster-audit-status{font-size:12px;line-height:1.6;color:#e7cc97}
+.admin-roster-audit-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,245px),1fr));gap:12px;margin-top:15px}
+.admin-roster-audit-item{border:1px solid #b1c9e04f;border-radius:12px;padding:15px;background:#12365a;min-width:0}
+.admin-roster-audit-item h4{margin:0 0 10px;font-size:16px;color:#f2d28b}
+.admin-roster-audit-item p{font-size:12px;line-height:1.65;color:#d6e5f5;margin:8px 0}
+.admin-roster-audit-alert{color:#ffd39c!important;font-weight:850}
+.admin-roster-audit-disclaimer{margin:14px 0 0;font-size:12px;line-height:1.65;color:#ebcf9a}

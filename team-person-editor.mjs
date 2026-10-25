@@ -5,6 +5,7 @@
 import {supabaseConfig} from './auth-config.mjs';
 import {CLUB_TEAMS} from './club-teams.mjs';
 import {mountAdminRosterDirectory} from './team-roster-admin.mjs';
+import {mountAdminRosterReadiness} from './admin-roster-readiness.mjs';
 import {PLAYER_POSITION_GROUPS,positionFromPublicRole} from './player-position-groups.mjs';
 
 const make=(tag,cls='',value=null)=>{
@@ -12,6 +13,8 @@ const make=(tag,cls='',value=null)=>{
  if(value!==null)n.textContent=String(value);return n;
 };
 const btn=(label)=>{const b=make('button','staff-action',label);b.type='button';return b;};
+// Secondary admin controls must be real buttons; an undefined `button()` previously crashed the module.
+const button=(label,cls='team-person-secondary-button')=>{const el=make('button',cls,label);el.type='button';return el;};
 /** Explicit publication guidance; private assignments never silently become public. */
 export function publicPositionForRole(kind,roleLabel){
  return kind==='player'?positionFromPublicRole(roleLabel):null;
@@ -174,10 +177,14 @@ export async function mountAuthenticatedTeamPeopleEditor(container,api,userId){
  const selectLabel=make('label','club-editor-field','Profil à modifier');
  const selector=make('select','club-editor-control');
  selectLabel.append(selector);frameData.form.insertBefore(selectLabel,frameData.form.firstChild);
- let teams=[],entries=[],loading=false,confirmation=null;
+ let teams=[],entries=[],loading=false,confirmation=null,rosterRevision=0;
  const directory=make('section','team-roster-directory');
  directory.setAttribute('aria-label','Répertoire privé des fiches sportives');
  root.insertBefore(directory,frameData.form);
+ const auditMount=make('div','team-roster-readiness-slot');
+ root.insertBefore(auditMount,frameData.form);
+ const rosterAudit=mountAdminRosterReadiness(auditMount,api,
+  ()=>verifyAdmin(api,userId),()=>({teams,entries,revision:rosterRevision}));
  const controls=make('div','team-person-secondary-actions');
  const refresh=button('Actualiser les profils','team-person-secondary-button');
  const withdraw=button('Préparer la dépublication','team-person-secondary-button');
@@ -212,6 +219,7 @@ export async function mountAuthenticatedTeamPeopleEditor(container,api,userId){
    return;
   }
   teams=teamData.data||[];entries=peopleData.data;
+  rosterRevision++;rosterAudit?.invalidate();
   frameData.action.disabled=false;
   selector.replaceChildren();
   const fresh=make('option','','+ Nouveau profil');fresh.value='new';selector.append(fresh);
