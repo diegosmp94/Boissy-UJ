@@ -1,7 +1,6 @@
 import {supabaseConfig} from './auth-config.mjs';
 import {CLUB_TEAMS} from './club-teams.mjs';
 import {teamSubpageRoute} from './team-subpages.mjs';
-import {teamDeepLink} from './team-links.mjs';
 import {boundedPublicRequest} from './public-catalog-timeout.mjs';
 import {isPublicPlayerId,playerPublicRoute} from './player-profile-page.mjs';
 import {PLAYER_POSITION_GROUPS,groupPublishedPlayers} from './player-position-groups.mjs';
