@@ -139,3 +139,78 @@ test('an authorized administrator can mount the real public editor without undef
   assert.match(text,/État des effectifs par équipe/);
  }finally{if(old===undefined)delete globalThis.document;else globalThis.document=old;}
 });
+
+test('admin MFA revoked while private public-profile RPC is in flight never reveals private names',async()=>{
+ const {document,Element}=fakeDocument(),previous=globalThis.document;
+ globalThis.document=document;
+ const secretName='PROFIL PRIVE TEST';let level='aal2',resolvePeople;
+ const deferred=new Promise(resolve=>{resolvePeople=resolve;});
+ const root=new Element('div'),userId='admin-uuid';
+ const api={
+  auth:{
+   getUser:async()=>({data:{user:{id:userId}},error:null}),
+   mfa:{getAuthenticatorAssuranceLevel:async()=>({data:{currentLevel:level},error:null})}
+  },
+  from:table=>({select:()=>{
+   if(table==='user_roles')return {eq:async()=>({data:[{role:'admin'}],error:null})};
+   if(table==='club_teams')return {order:async()=>({data:teams,error:null})};
+   throw new Error('Unexpected table '+table);
+  }}),
+  rpc:async name=>{
+   if(name==='admin_list_team_public_people')return deferred;
+   throw new Error('Unexpected RPC '+name);
+  }
+ };
+ try{
+  const mounting=mountAuthenticatedTeamPeopleEditor(root,api,userId);
+  await flush();await flush();
+  assert.ok(!root.descendants().some(el=>el.textContent.includes(secretName)));
+  level='aal1';
+  resolvePeople({data:[{id:'private-1',team_id:'team-1',display_name:secretName,
+   person_kind:'player',published:false,consent_confirmed:false}],error:null});
+  await mounting;
+  const visible=root.descendants().map(el=>el.textContent).join(' | ');
+  assert.doesNotMatch(visible,/PROFIL PRIVE TEST|Profil chargé/);
+  assert.match(visible,/MFA expiré pendant le chargement/);
+  assert.equal(root.find('team-roster-directory').length,0,
+   'private directory removed from DOM on expired MFA');
+ }finally{if(previous===undefined)delete globalThis.document;else globalThis.document=previous;}
+});
+
+test('refresh clears stale private names before checking MFA and blocks an expired admin',async()=>{
+ const {document,Element}=fakeDocument(),previous=globalThis.document;
+ globalThis.document=document;
+ const root=new Element('div'),userId='admin-uuid',secret='NOM BROUILLON TEST';
+ let level='aal2',reads=0;
+ const api={
+  auth:{
+   getUser:async()=>({data:{user:{id:userId}},error:null}),
+   mfa:{getAuthenticatorAssuranceLevel:async()=>({data:{currentLevel:level},error:null})}
+  },
+  from:table=>({select:()=>{
+   if(table==='user_roles')return {eq:async()=>({data:[{role:'admin'}],error:null})};
+   if(table==='club_teams')return {order:async()=>({data:teams,error:null})};
+   throw new Error('Unexpected table '+table);
+  }}),
+  rpc:async name=>{
+   assert.equal(name,'admin_list_team_public_people');reads++;
+   return {data:[{id:'private-2',team_id:'team-1',display_name:secret,
+    person_kind:'player',published:false,consent_confirmed:false,
+    role_label:'Gardien',shirt_number:1,sort_order:0}],error:null};
+  }
+ };
+ try{
+  await mountAuthenticatedTeamPeopleEditor(root,api,userId);
+  assert.ok(root.descendants().some(n=>n.textContent.includes(secret)),'authorized editor initially loads private draft');
+  const refresh=root.find('team-person-secondary-button')
+   .find(n=>n.tagName==='BUTTON'&&n.textContent==='Actualiser les profils');
+  assert.ok(refresh);
+  level='aal1';
+  refresh.fire('click');
+  assert.doesNotMatch(root.descendants().map(n=>n.textContent).join(' | '),/NOM BROUILLON TEST/,
+   'revalidation blanks previously sensitive contents synchronously');
+  await flush();await flush();
+  assert.equal(reads,1,'expired MFA never makes a second data request');
+  assert.equal(root.find('team-roster-directory').length,0);
+ }finally{if(previous===undefined)delete globalThis.document;else globalThis.document=previous;}
+});
