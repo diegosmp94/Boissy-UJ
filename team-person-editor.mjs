@@ -12,6 +12,8 @@ const make=(tag,cls='',value=null)=>{
  if(value!==null)n.textContent=String(value);return n;
 };
 const btn=(label)=>{const b=make('button','staff-action',label);b.type='button';return b;};
+// Secondary admin controls must be real buttons; an undefined `button()` previously crashed the module.
+const button=(label,cls='team-person-secondary-button')=>{const el=make('button',cls,label);el.type='button';return el;};
 /** Explicit publication guidance; private assignments never silently become public. */
 export function publicPositionForRole(kind,roleLabel){
  return kind==='player'?positionFromPublicRole(roleLabel):null;
