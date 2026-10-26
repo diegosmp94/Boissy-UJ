@@ -18,6 +18,17 @@ alter table public.team_public_people
 grant select(profile_visible,profile_consent_confirmed)
  on public.team_public_people to anon,authenticated;
 
+-- Keep existing editorial audit events valid while admitting the two
+-- additional, explicit individual-profile lifecycle actions.
+alter table app_private.team_public_people_audit
+ drop constraint if exists team_public_people_audit_action_check;
+alter table app_private.team_public_people_audit
+ add constraint team_public_people_audit_action_check
+ check (action in (
+  'create_draft','create_publish','edit_draft','edit_publish','unpublish',
+  'approve_individual_profile','withdraw_individual_profile'
+ ));
+
 -- Any name/team/role/biography/roster consent edit invalidates the
 -- previously reviewed individual fiche until it is explicitly reapproved.
 create or replace function app_private.reset_public_person_profile_review()
