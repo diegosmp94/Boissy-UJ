@@ -8,7 +8,8 @@ test('P1 audit query reports public-table RLS, definer RPCs and admin MFA guard 
   "has_function_privilege('anon'","has_function_privilege('authenticated'",
   'app_private.is_admin','pg_get_functiondef',
   'public_tables','tables_with_rls','anonymous_definer_rpc_exposure',
-  'admin_functions_missing_guard_reference','static_mfa_guard_marker_present'
+  'admin_functions_missing_guard_reference','static_mfa_guard_marker_present',
+  'player_reply_active_scope_guard_markers_present','for share of tm','for share of r'
  ])assert.ok(sql.includes(marker),marker);
 });
 test('P1 reusable metadata audit cannot export personal database rows or mutate production',()=>{
