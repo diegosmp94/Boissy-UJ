@@ -210,7 +210,19 @@ export async function mountAdminCenter(getClient){
    }
    view.append(grid,el('p','admin-workflow-status','Les nombres de rencontres et articles concernent au maximum 250 et 200 dossiers respectivement ; aucune statistique n’est simulée.'));
   }
+  function showModuleRetry(view,id){
+   if(serial!==currentGeneration||!view.isConnected||active!==id)return;
+   // Never leave partially loaded private rows in a failing module.
+   view.replaceChildren();
+   const warning=el('p','admin-empty',adminFailureLabel('module'));
+   warning.setAttribute('role','alert');
+   const retry=el('button','admin-secondary-btn','Réessayer ce module');
+   retry.type='button';
+   retry.addEventListener('click',()=>void selectSection(id));
+   view.append(warning,retry);
+  }
   async function selectSection(id){
+   if(!availableModules.some(module=>module.id===id))return;
    active=id;
    for(const item of sidebar.querySelectorAll('button[data-module]')){
     item.setAttribute('aria-current',String(item.dataset.module===id));
@@ -220,6 +232,7 @@ export async function mountAdminCenter(getClient){
    pane.replaceChildren(view);
    view.append(el('p','admin-workflow-status','Vérification du rôle et du second facteur…'));
    // Must re-check identity and MFA before showing private data on every module change.
+   try{
    const check=await adminSessionStatus(api,verified.userId);
    if(serial!==currentGeneration||!view.isConnected||active!==id)return;
    if(!canOpenAdmin(check,supabaseConfig.adminEnabled)){
@@ -229,28 +242,32 @@ export async function mountAdminCenter(getClient){
    view.replaceChildren();
    switch(id){
     case 'overview':await overview(view);break;
-    case 'readiness':void mountAdminReadiness(view,api,verified.userId);break;
-    case 'users':void mountAdminMembers(view,api,verified.userId);break;
-    case 'approvals':void mountAdminRoleModeration(view,api,verified.userId);break;
-    case 'teams':void mountAuthenticatedTeamPeopleEditor(view,api,verified.userId);break;
-    case 'player-teams':void mountAdminPlayerTeams(view,api,verified.userId);break;
-    case 'coach-teams':void mountAdminCoachTeams(view,api,verified.userId);break;
+    case 'readiness':void mountAdminReadiness(view,api,verified.userId).catch(()=>showModuleRetry(view,id));break;
+    case 'users':void mountAdminMembers(view,api,verified.userId).catch(()=>showModuleRetry(view,id));break;
+    case 'approvals':void mountAdminRoleModeration(view,api,verified.userId).catch(()=>showModuleRetry(view,id));break;
+    case 'teams':void mountAuthenticatedTeamPeopleEditor(view,api,verified.userId).catch(()=>showModuleRetry(view,id));break;
+    case 'player-teams':void mountAdminPlayerTeams(view,api,verified.userId).catch(()=>showModuleRetry(view,id));break;
+    case 'coach-teams':void mountAdminCoachTeams(view,api,verified.userId).catch(()=>showModuleRetry(view,id));break;
     case 'seasons':mountAdminSeasons(view,api,verified.userId);break;
     case 'matches':mountAdminMatches(view,api,verified.userId);break;
     case 'sport-review':void mountAdminSportReview(view,api,verified.userId,next=>{
      if(availableModules.some(module=>module.id===next))void selectSection(next);
-    });break;
+    }).catch(()=>showModuleRetry(view,id));break;
     case 'events':mountAdminFreeEvents(view,api,verified.userId);break;
     case 'ticketing':void mountAdminTicketingReadiness(view,api,verified.userId,next=>{
      if(availableModules.some(module=>module.id===next))void selectSection(next);
-    });break;
+    }).catch(()=>showModuleRetry(view,id));break;
     case 'editorial':void mountAdminEditorialStatus(view,api,verified.userId,next=>{
      if(availableModules.some(module=>module.id===next))void selectSection(next);
-    });break;
+    }).catch(()=>showModuleRetry(view,id));break;
     case 'news':mountAdminNews(view,api,verified.userId);break;
-    case 'news-revisions':void mountAdminNewsRevisions(view,api,verified.userId);break;
-    case 'news-media':void mountAdminNewsMedia(view,api,verified.userId);break;
-    case 'identity':void mountAuthenticatedClubIdentityEditor(view,api,verified.userId);break;
+    case 'news-revisions':void mountAdminNewsRevisions(view,api,verified.userId).catch(()=>showModuleRetry(view,id));break;
+    case 'news-media':void mountAdminNewsMedia(view,api,verified.userId).catch(()=>showModuleRetry(view,id));break;
+    case 'identity':void mountAuthenticatedClubIdentityEditor(view,api,verified.userId).catch(()=>showModuleRetry(view,id));break;
+   }
+   }catch{
+    if(serial!==currentGeneration||!view.isConnected||active!==id)return;
+    showModuleRetry(view,id);
    }
   }
   renderSidebar();
