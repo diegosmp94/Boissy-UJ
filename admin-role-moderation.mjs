@@ -1,4 +1,5 @@
 import {supabaseConfig} from './auth-config.mjs';
+import {createAsyncRevisionGate} from './role-workflow.mjs';
 
 const STATUS_LABEL=Object.freeze({
   pending:'En attente',approved:'Approuvée',rejected:'Refusée',cancelled:'Annulée'
@@ -86,28 +87,42 @@ export async function mountAdminRoleModeration(container,api,userId){
     filterLabel.append(filter);
     section.insertBefore(filterLabel,body);
     let loading=false;
-    async function reload(){
-      if(!section.isConnected)return;
-      body.replaceChildren(el('p','auth-footnote','Chargement sécurisé…'));
-      const gate=await verifiedAdmin(api,userId);
-      if(!section.isConnected)return;
-      if(!gate.authorized){
-        section.hidden=true;body.replaceChildren();
-        return;
-      }
-      const {data,error}=await api.from('role_requests')
-        .select('id,user_id,requested_role,team_id,status,requested_at')
-        .eq('status',filter.value).order('requested_at',{ascending:true}).limit(60);
-      if(!section.isConnected)return;
+    const reloadGate=createAsyncRevisionGate();
+    const isCurrent=ticket=>section.isConnected&&!section.hidden&&reloadGate.isCurrent(ticket);
+    function lockModeration(){
+      reloadGate.invalidate();
       body.replaceChildren();
-      if(error){
-        body.append(el('p','auth-warning','Impossible de vérifier les demandes actuellement.'));
-        return;
-      }
-      if(!data?.length){
-        body.append(el('p','auth-footnote','Aucune demande dans cet état.'));
-        return;
-      }
+      section.hidden=true;
+      status.textContent='Droits administrateur ou MFA non vérifiables. Rouvre ton espace après vérification de la session.';
+    }
+    async function reload(){
+      const ticket=reloadGate.begin();
+      if(!section.isConnected||section.hidden)return;
+      // Clear private identifiers synchronously, before any network checks.
+      body.replaceChildren(el('p','auth-footnote','Chargement sécurisé…'));
+      try{
+        const firstGate=await verifiedAdmin(api,userId);
+        if(!isCurrent(ticket))return;
+        if(!firstGate.authorized){lockModeration();return;}
+        const requestedStatus=filter.value;
+        const response=await api.from('role_requests')
+          .select('id,user_id,requested_role,team_id,status,requested_at')
+          .eq('status',requestedStatus).order('requested_at',{ascending:true}).limit(60);
+        if(!isCurrent(ticket))return;
+        // AAL2 or the admin role may have been revoked during the private read.
+        const afterReadGate=await verifiedAdmin(api,userId);
+        if(!isCurrent(ticket))return;
+        if(!afterReadGate.authorized){lockModeration();return;}
+        const {data,error}=response||{};
+        body.replaceChildren();
+        if(error){
+          body.append(el('p','auth-warning','Impossible de vérifier les demandes actuellement.'));
+          return;
+        }
+        if(!data?.length){
+          body.append(el('p','auth-footnote','Aucune demande dans cet état.'));
+          return;
+        }
       for(const request of data){
         const card=el('article','admin-role-request-card');
         const team=teams.find(t=>t.id===request.team_id);
@@ -131,7 +146,7 @@ export async function mountAdminRoleModeration(container,api,userId){
             const reject=actionButton('Refuser','cc-reset');
             let selected=null;
             async function decide(approval){
-              if(loading||!section.isConnected)return;
+              if(loading||!isCurrent(ticket)||!card.isConnected)return;
               if(!mayDecideRequest(userId,request))return;
               const intent=approval?'approve':'reject';
               if(selected!==intent){
@@ -142,29 +157,36 @@ export async function mountAdminRoleModeration(container,api,userId){
                 return;
               }
               selected=null;loading=true;
-              approve.disabled=true;reject.disabled=true;
+              const decisionReason=reason.value.trim()||null;
+              approve.disabled=true;reject.disabled=true;filter.disabled=true;reason.disabled=true;
               confirmation.textContent='Vérification de la session et enregistrement…';
-              const gate=await verifiedAdmin(api,userId);
-              if(!section.isConnected)return;
-              if(!gate.authorized){
-                confirmation.textContent='Session administrateur ou MFA non valide. Action annulée.';
-                section.hidden=true;
-                return;
+              try{
+                const gate=await verifiedAdmin(api,userId);
+                if(!isCurrent(ticket))return;
+                if(!gate.authorized){lockModeration();return;}
+                // Server-side RPC rechecks role, AAL2, and rejects self-approval.
+                const {error}=await api.rpc('admin_decide_role_request',{
+                  p_request_id:request.id,p_approve:approval,
+                  p_reason:decisionReason
+                });
+                if(!isCurrent(ticket))return;
+                if(error){
+                  confirmation.textContent='Décision refusée ou demande déjà traitée. Recharge les demandes.';
+                  return;
+                }
+                status.textContent='Décision enregistrée et contrôlée par Supabase.';
+                await reload();
+              }catch{
+                if(isCurrent(ticket))
+                  confirmation.textContent='Connexion indisponible : décision non confirmée. Actualise les demandes avant de réessayer.';
+              }finally{
+                loading=false;
+                if(section.isConnected&&!section.hidden)filter.disabled=false;
+                if(isCurrent(ticket)){
+                  approve.disabled=false;reject.disabled=false;reason.disabled=false;
+                  approve.textContent='Approuver';reject.textContent='Refuser';
+                }
               }
-              const {error}=await api.rpc('admin_decide_role_request',{
-                p_request_id:request.id,p_approve:approval,
-                p_reason:reason.value.trim()||null
-              });
-              if(!section.isConnected)return;
-              if(error){
-                loading=false;approve.disabled=false;reject.disabled=false;
-                approve.textContent='Approuver';reject.textContent='Refuser';
-                confirmation.textContent='Décision refusée ou demande déjà traitée. Recharge les demandes.';
-                return;
-              }
-              loading=false;
-              status.textContent='Décision enregistrée et contrôlée par Supabase.';
-              await reload();
             }
             approve.addEventListener('click',()=>void decide(true));
             reject.addEventListener('click',()=>void decide(false));
@@ -174,8 +196,12 @@ export async function mountAdminRoleModeration(container,api,userId){
         }
         body.append(card);
       }
+      }catch{
+        // Failure to reverify permissions fails closed, without retaining stale identifiers.
+        if(isCurrent(ticket))lockModeration();
+      }
     }
-    filter.addEventListener('change',()=>void reload());
+    filter.addEventListener('change',()=>{if(!loading)void reload();});
     await reload();
   }catch{
     if(section.isConnected){
