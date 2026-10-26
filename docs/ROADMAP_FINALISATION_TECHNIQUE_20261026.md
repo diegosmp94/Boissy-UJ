@@ -21,6 +21,7 @@ Accueil en huit chapitres et identité bleu nuit/doré ; navigation responsive e
 - **Étape 68 — développement réalisé et migration vérifiée le 26 octobre 2026** : [annulation atomique des demandes obsolètes, rôles préservés, revalidation des espaces privés](ETAPE_68_COHERENCE_ROLES_20261026.md). Les essais réels multi-comptes restent hors de ce décompte.
 - **Étape 69 — développement livré et contrôles automatiques validés le 26 octobre 2026** : [Control Center résilient](ETAPE_69_CONTROL_CENTER_RESILIENCE_20261026.md), lecture MFA bornée, sondes de modules optionnels indépendantes, actualisation sécurisée et reprise accessible sur panne réseau. Aucune migration ni donnée du club ajoutée ; la recette humaine reste séparée.
 - **Étape 70 — développée et migration Supabase appliquée le 26 octobre 2026** : [cycle des saisons, archivage et reconduction manuelle](ETAPE_70_CYCLE_SAISONS_20261026.md). Deux déclencheurs et deux RPC vérifiés en base ; aucune saison ni résultat réel créé. Les saisies et homologations du club restent séparées.
+- **Étape 71 — développement réalisé et migration Supabase vérifiée le 26 octobre 2026** : [édition atomique des résultats et des compétitions](ETAPE_71_MATCHS_COMPETITIONS_20261026.md) ; nouvelle RPC MFA AAL2 et déclencheur différé confirmés dans le schéma réel, aucun match ou score inventé. Les tests utilisateurs restent séparés.
 
 ## Lot A — Sécuriser et consolider le socle existant (P0)
 

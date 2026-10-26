@@ -188,6 +188,10 @@ export function mountAdminMatches(root,api,userId){
  const hScore=input('number'),aScore=input('number');
  for(const n of [hScore,aScore]){n.min=0;n.max=99;n.step=1;}
  const publish=check('Publier la rencontre sur le site');
+ const competitionKind=select([['unspecified','À classifier (brouillon uniquement)'],['league','Championnat'],['cup','Coupe'],['friendly','Match amical']]);
+ competitionKind.setAttribute('aria-label','Type de compétition du match');
+ const competitionLabel=input();competitionLabel.maxLength=100;
+ competitionLabel.placeholder='Nom du championnat ou de la coupe';
  function loadOptions(){
   return Promise.all([api.from('club_teams').select('id,code,name'),api.rpc('admin_list_management_seasons')])
    .then(([tr,sr])=>{
@@ -201,10 +205,12 @@ export function mountAdminMatches(root,api,userId){
  void loadOptions().then(()=>{
   if(!root.isConnected)return;
   editor(root,'Calendrier et résultats',api,userId,{
-   rpcList:'admin_list_management_matches',rpcSave:'staff_save_match',
+   rpcList:'admin_list_management_matches',rpcSave:'admin_save_classified_match',
    fields:()=>({
     team:{element:field('Équipe',team),fill:r=>team.value=r?.team_id||teams[0]?.id||''},
     season:{element:field('Saison',season),fill:r=>season.value=r?.season_id||''},
+    competitionKind:{element:field('Compétition : championnat, coupe ou amical',competitionKind),fill:r=>competitionKind.value=r?.competition_kind||'unspecified'},
+    competitionLabel:{element:field('Nom exact de la compétition',competitionLabel),fill:r=>competitionLabel.value=r?.competition_label||''},
     opponent:{element:field('Adversaire',opponent),fill:r=>opponent.value=r?.opponent_name||''},
     date:{element:field('Date et heure locale',date),fill:r=>date.value=r?.scheduled_at?new Date(new Date(r.scheduled_at).getTime()-new Date(r.scheduled_at).getTimezoneOffset()*60000).toISOString().slice(0,16):''},
     venue:{element:field('Stade / lieu',venue),fill:r=>venue.value=r?.venue||''},
@@ -214,7 +220,8 @@ export function mountAdminMatches(root,api,userId){
     aScore:{element:field('Score extérieur (si joué)',aScore),fill:r=>aScore.value=r?.away_score??''},
     publish:{label:publish.label,n:publish.n,fill:r=>publish.n.checked=r?.published===true}
    }),
-   preview:()=>({team:team.value,season:season.value,opponent:opponent.value.trim(),
+   preview:()=>({team:team.value,season:season.value,competitionKind:competitionKind.value,
+    competitionLabel:competitionLabel.value.trim(),opponent:opponent.value.trim(),
     date:date.value,venue:venue.value.trim(),home:home.n.checked,state:state.value,
     hScore:hScore.value,aScore:aScore.value,publish:publish.n.checked}),
    validate:d=>validateMatchDraft(d,teams,seasons),
@@ -222,8 +229,15 @@ export function mountAdminMatches(root,api,userId){
     p_opponent_name:d.opponent,p_scheduled_at:new Date(d.date).toISOString(),p_venue:d.venue,
     p_is_home:d.home,p_match_status:d.state,p_home_score:d.state==='played'?Number(d.hScore):null,
     p_away_score:d.state==='played'?Number(d.aScore):null,p_source_kind:'manual',
-    p_source_reference:null,p_publish:d.publish}),
-   display:r=>r.opponent_name+' · '+(r.published?'Publié':'Brouillon')+' · '+new Date(r.scheduled_at).toLocaleDateString('fr-FR')
+    p_source_reference:null,p_publish:d.publish,p_competition_kind:d.competitionKind,
+    p_competition_label:d.competitionLabel||null}),
+   display:r=>r.opponent_name+' · '+(r.published?'Publié':'Brouillon')+' · '+(r.competition_kind||'à classifier')+' · '+new Date(r.scheduled_at).toLocaleDateString('fr-FR')
+  });
+  // Editing a played result is explicit; all other statuses require empty scores.
+  state.addEventListener('change',()=>{
+   const played=state.value==='played';
+   hScore.disabled=!played;aScore.disabled=!played;
+   if(!played){hScore.value='';aScore.value='';}
   });
   mountFffPreview(root,api,userId);
   const leaguePanel=el('section','admin-league-panel');

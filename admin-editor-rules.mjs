@@ -19,6 +19,20 @@ export function validateSeasonDraft(d,previous=null){
 export function validateMatchDraft(d,teams=[],seasons=[]){
  if(!teams.some(t=>t.id===d.team))return 'Sélectionne une équipe du club.';
  if(d.season&&!seasons.some(s=>s.id===d.season))return 'Sélectionne une saison valide.';
+ if(Object.hasOwn(d,'competitionKind')){
+  const kind=d.competitionKind;
+  const label=String(d.competitionLabel??'').trim();
+  if(!['league','cup','friendly','unspecified'].includes(kind))
+   return 'Choisis une compétition valide (Championnat, Coupe, Amical ou À classifier).';
+  if(label.length>100||label.length>0&&label.length<3||/[\x00-\x1f\x7f]/.test(label))
+   return 'Le nom de la compétition doit comporter de 3 à 100 caractères sans caractères de contrôle.';
+  if(kind==='unspecified'&&label.length)
+   return 'Une rencontre non classée ne doit pas porter un intitulé de compétition.';
+  if(['league','cup'].includes(kind)&&!label)
+   return 'Renseigne le nom du championnat ou de la coupe.';
+  if(d.publish&&kind==='unspecified')
+   return 'Classe la rencontre en Championnat, Coupe ou Amical avant publication.';
+ }
  if(String(d.opponent||'').trim().length<2||String(d.opponent||'').trim().length>120)
   return 'Indique un adversaire valide (2 à 120 caractères).';
  if(!d.date||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(d.date)||!Number.isFinite(Date.parse(d.date)))
