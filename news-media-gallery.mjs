@@ -2,7 +2,6 @@
  * Files stay on the club's approved Supabase Storage origin, never a third-party embed.
  */
 import {supabaseConfig} from './auth-config.mjs';
-import {getAuthClient} from './auth.mjs';
 
 const BUCKET='boissy-uj-approved';
 export const MEDIA_URL_TTL_SECONDS=600;
@@ -155,6 +154,7 @@ export async function loadPublishedMedia(posts,signal){
   if(signal?.aborted)return new Map();
   const eligible=[...grouped.values()].flat();
   if(!eligible.length)return grouped;
+  const {getAuthClient}=await import('./auth.mjs');
   const client=await getAuthClient();
   if(signal?.aborted)return new Map();
   const signed=await signApprovedMediaRows(eligible,client);
