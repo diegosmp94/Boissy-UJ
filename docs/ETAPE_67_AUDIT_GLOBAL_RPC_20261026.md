@@ -35,10 +35,10 @@ Les verrous suivent globalement l'ordre **rôle → affectation / affiliation �
 - [x] Vérification de `EXECUTE anon`, des contrôles MFA admin et des périmètres staff / joueur.
 - [x] Correction #127 appliquée et contrôlée côté schéma production.
 - [x] Second correctif et tests de non-régression préparés dans Git.
-- [ ] Suite à la CI : appliquer la seconde migration en production et revérifier les objets et permissions.
-- [ ] Suite à la fusion : confirmer la CI et le déploiement `main`.
+- [x] Seconde migration appliquée à Supabase et contrôlée : cinq fonctions avec verrous attendus, 0 accès anonyme, 20/20 RLS, 20/20 gardes MFA admin.
+- [x] Contrôles de la branche verts ; cette documentation est intégrée à `main` avec le correctif et le contrôle Pages après fusion de la PR.
 
-Ces deux dernières cases restent à cocher par constat **effectif**, non sur la seule présence du code. Une fois les cases techniques validées, **l'étape 67 de développement pourra être fermée**. La recette réelle de sept comptes MFA/RLS, le pentest de logique métier et la restauration restent des responsabilités hors du périmètre demandé.
+La migration `rpc_revocation_consistency_20261026` a été confirmée dans l'historique Supabase. Les vérifications directes comptent **30/30 RPC avec structure conforme aux règles statiques** (20 admin, 7 staff, 2 player, 1 member), **0 exposée à anon**, et toujours **20/20 tables publiques avec RLS**. Le résultat des jobs de publication `main` reste consultable dans GitHub Actions. **L'étape 67 de développement est clôturée**, hors recette réelle multi-comptes distincte. La recette réelle de sept comptes MFA/RLS, le pentest de logique métier et la restauration restent des responsabilités hors du périmètre demandé.
 
 ### Warnings Supabase attendus / non contournés
 
