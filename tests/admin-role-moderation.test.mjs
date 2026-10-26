@@ -42,10 +42,12 @@ test('approval and rejection require two-click confirmation and renewed MFA chec
  assert.match(src,/if\(!gate\.authorized\)/);
  assert.match(src,/api\.rpc\('admin_decide_role_request'/);
  assert.match(src,/p_request_id:request\.id,p_approve:approval/);
- assert.match(src,/p_reason:reason\.value\.trim\(\)\|\|null/);
+ assert.match(src,/const decisionReason=reason\.value\.trim\(\)\|\|null/);
+ assert.match(src,/p_reason:decisionReason/);
 });
 test('moderation fetch is bounded and server query is filter scoped',()=>{
- assert.match(src,/\.eq\('status',filter\.value\)/);
+ assert.match(src,/const requestedStatus=filter\.value/);
+ assert.match(src,/\.eq\('status',requestedStatus\)/);
  assert.match(src,/\.limit\(60\)/);
  assert.match(src,/select\('id,user_id,requested_role,team_id,status,requested_at'\)/);
  assert.match(src,/if\(!section\.isConnected\)return/);
