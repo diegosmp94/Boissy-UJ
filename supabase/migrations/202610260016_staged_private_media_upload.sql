@@ -26,7 +26,7 @@ create policy boissy_admin_staged_media_upload
  with check (
   bucket_id='boissy-uj-approved'
   and coalesce((select app_private.is_admin()),false)
-  and name ~ '^incoming/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\\.(jpg|jpeg|png|webp|avif|mp4|webm)$'
+  and name ~ '^incoming/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}[.](jpg|jpeg|png|webp|avif|mp4|webm)$'
   and char_length(name)<=180
   and exists(
    select 1 from public.news_media_assets a
