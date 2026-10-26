@@ -288,6 +288,7 @@ export async function mountAuth() {
   generation+=1;
   sessionViewGeneration+=1;
   const turn=generation;
+  mounted?.cleanup?.();
   if(mounted?.subscription)mounted.subscription.unsubscribe();
   mounted=null;
   const root=document.querySelector('[data-auth-root]');
@@ -325,7 +326,25 @@ export async function mountAuth() {
         else void showSession(root,api);
       },0);
     });
-    mounted={subscription};
+    // Reopening a private tab rechecks fresh roles and team affiliations.
+    // Remove privileged DOM before any asynchronous read to fail closed.
+    let lastResumeCheck=0;
+    const recheckOnReturn=()=>{
+      if(turn!==generation||!root.isConnected||recoveryMode||
+        document.visibilityState==='hidden'||!root.querySelector('.auth-signed-in'))return;
+      const now=Date.now();
+      if(now-lastResumeCheck<900)return;
+      lastResumeCheck=now;
+      sessionViewGeneration+=1;
+      root.replaceChildren(el('p','auth-loading','Actualisation sécurisée des fonctions et affectations…'));
+      void showSession(root,api);
+    };
+    window.addEventListener('focus',recheckOnReturn);
+    document.addEventListener('visibilitychange',recheckOnReturn);
+    mounted={subscription,cleanup:()=>{
+      window.removeEventListener('focus',recheckOnReturn);
+      document.removeEventListener('visibilitychange',recheckOnReturn);
+    }};
     const {data:{session},error}=await withAuthDeadline(api.auth.getSession());
     if(turn!==generation||!root.isConnected)return;
     if(error)throw error;
@@ -347,6 +366,7 @@ export async function mountAuth() {
     if(isCallback){
       window.history.replaceState(null,'',sanitizedAuthCallbackUrl(window.location.href));
     }
+    mounted?.cleanup?.();
     if(mounted?.subscription)mounted.subscription.unsubscribe();
     mounted=null;
     renderAuthRetry(root);
@@ -356,6 +376,7 @@ export async function mountAuth() {
 export function unmountAuth(){
   generation += 1;
   sessionViewGeneration+=1;
+  mounted?.cleanup?.();
   if (mounted?.subscription) mounted.subscription.unsubscribe();
   mounted = null;
 }

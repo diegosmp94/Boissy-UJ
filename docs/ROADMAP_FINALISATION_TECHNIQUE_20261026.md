@@ -18,6 +18,7 @@ Accueil en huit chapitres et identité bleu nuit/doré ; navigation responsive e
 
 - **Étape 66 — livrée en code le 26 octobre 2026** : [inventaire de l'état du schéma de production et du code](ETAPE_66_INVENTAIRE_CAPACITES_20261026.md), outil `npm run audit:features`, instantané horodaté et absence d'activation des six modules avancés. L'inventaire atteste la présence des objets, **pas** l'homologation ni la validité des migrations préparées.
 - **Étape 67 — développée et appliquée sur Supabase le 26 octobre 2026** : [revue détaillée des 30 RPC et deuxième migration de verrouillage](ETAPE_67_AUDIT_GLOBAL_RPC_20261026.md) ; premier lot [convocations](ETAPE_67_DURCISSEMENT_RPC_CONVOCATIONS_20261026.md). L'homologation des droits par plusieurs comptes réels reste distincte.
+- **Étape 68 — développement réalisé et migration vérifiée le 26 octobre 2026** : [annulation atomique des demandes obsolètes, rôles préservés, revalidation des espaces privés](ETAPE_68_COHERENCE_ROLES_20261026.md). Les essais réels multi-comptes restent hors de ce décompte.
 
 ## Lot A — Sécuriser et consolider le socle existant (P0)
 

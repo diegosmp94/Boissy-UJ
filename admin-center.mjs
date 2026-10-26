@@ -47,11 +47,13 @@ const el=(tag,cls='',text=null)=>{
 const button=label=>{const e=el('button','admin-module-tab',label);e.type='button';return e;};
 let currentGeneration=0;
 let activeSubscription=null;
+let activeReturnCleanup=null;
 export function adminCenterMarkup(){
  return '<div id="real-admin-root" class="real-admin-root" aria-live="polite"><p role="status">Vérification de l’accès administrateur…</p></div>';
 }
 export function unmountAdminCenter(){
  currentGeneration++;
+ activeReturnCleanup?.();activeReturnCleanup=null;
  activeSubscription?.unsubscribe();activeSubscription=null;
  const target=document.getElementById('real-admin-root');
  target?.replaceChildren();
@@ -88,6 +90,26 @@ export async function mountAdminCenter(getClient){
    }
   });
   activeSubscription=subscription;
+  // After a role or MFA revoke in another session, a previously mounted
+  // administration page must not keep showing private identifiers.
+  // Resuming the tab drops stale views synchronously and remounts only
+  // after a fresh getUser + role + AAL2 check.
+  let lastReturnCheck=0;
+  const revalidateOnReturn=()=>{
+   if(serial!==currentGeneration||!root.isConnected||
+     document.visibilityState==='hidden'||!root.querySelector('.real-admin-layout'))return;
+   const now=Date.now();
+   if(now-lastReturnCheck<900)return;
+   lastReturnCheck=now;
+   root.replaceChildren(el('p','admin-empty','Nouvelle vérification des autorisations et du MFA…'));
+   void mountAdminCenter(getClient);
+  };
+  window.addEventListener('focus',revalidateOnReturn);
+  document.addEventListener('visibilitychange',revalidateOnReturn);
+  activeReturnCleanup=()=>{
+   window.removeEventListener('focus',revalidateOnReturn);
+   document.removeEventListener('visibilitychange',revalidateOnReturn);
+  };
   // Fail-closed: do not show an editor without its MFA-only database RPC.
   const eventProbe=await api.rpc('admin_list_free_events');
   if(serial!==currentGeneration||!root.isConnected)return;
