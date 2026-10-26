@@ -70,7 +70,14 @@ create policy boissy_admin_staged_media_upload
  with check (
   bucket_id='boissy-uj-approved'
   and coalesce((select app_private.is_admin()),false)
-  and name ~ '^incoming/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}[.](jpg|jpeg|png|webp|avif|mp4|webm)
+  and name ~ '^incoming/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}[.](jpg|jpeg|png|webp|avif|mp4|webm)$'
+  and char_length(name)<=180
+  and app_private.media_path_upload_allowed(name)
+  and exists (select 1 from public.news_media_assets a
+   where a.storage_path=name and a.visible=false and a.rights_reviewed=false)
+ );
+
+-- DELETE on one queued object only; no listing, public DELETE, UPDATE or
 -- public link access is introduced. Signed URLs still require approved media.
 drop policy if exists boissy_admin_queued_media_delete on storage.objects;
 create policy boissy_admin_queued_media_delete
