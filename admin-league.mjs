@@ -55,7 +55,8 @@ export async function mountAdminLeagueEditor(root,api,userId){
  const intro=el('p','admin-fff-info',
   'Les victoires valent 3 points, les nuls 1 point. Les points et la différence de buts se calculent automatiquement. '
   +'Utilise les flèches pour déplacer les clubs après une journée, par exemple en cas de départage ou de sanction. '
-  +'La publication exige un administrateur MFA AAL2 et une deuxième confirmation.');
+  +'La publication exige un administrateur MFA AAL2, une saison réelle et une deuxième confirmation. '
+  +'Le classement est un tableau complet saisi et contrôlé par le club : les seuls matchs de Boissy UJ ne suffisent pas à calculer les rangs des autres équipes.');
  const toolbar=el('div','league-editor-toolbar');
  const add=el('button','admin-secondary-btn','Ajouter un club');
  add.type='button';toolbar.append(add);
@@ -135,6 +136,11 @@ export async function mountAdminLeagueEditor(root,api,userId){
     p_matchday:Number(matchday.value),p_entries:rankingPayload(rows),p_publish:publish.checked};
    if(!Number.isInteger(payload.p_matchday)||payload.p_matchday<0||payload.p_matchday>80||
       (publish.checked&&rows.length<2))throw Error('Incomplet');
+   if(publish.checked&&(!payload.p_season_id||
+       teams.find(t=>t.id===payload.p_team_id)?.code==='c')){
+    writeStatus('Publication impossible : sélectionne une saison réelle et un championnat (Seniors C joue uniquement des amicaux).');
+    return;
+   }
   }catch{writeStatus('Classement incomplet : vérifie les noms, chiffres, rangs et au moins deux clubs pour publication.');return;}
   const key=JSON.stringify(payload);
   if(key!==confirmKey){
