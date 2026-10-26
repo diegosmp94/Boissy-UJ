@@ -1,7 +1,11 @@
--- Boissy-UJ | Étape 56 : consultation/retour arrière des actualités, MFA AAL2.
--- Préparer en staging, aucune modification de la production depuis ce commit.
+-- Boissy-UJ | Étape 76 : versions, corrections et retour en brouillon MFA AAL2.
+-- Initialement préparée en staging à l'étape 56 ; complète le circuit éditorial.
 -- Les snapshots précédents sont déjà stockés dans staff_news_audit.
 begin;
+
+-- NULL denotes a club-wide article: keep its snapshot auditable and do not
+-- invent a team UUID. The FK still checks team-specific article audits.
+alter table public.staff_news_audit alter column team_id drop not null;
 
 alter table public.staff_news_audit
   drop constraint if exists staff_news_audit_action_check;
@@ -82,8 +86,7 @@ begin
 
  select * into v_old
  from public.news_posts p where p.id=p_post_id for update;
- if not found or v_old.content_kind<>'article' or v_old.visibility<>'public'
-   or v_old.team_id is null then
+ if not found or v_old.content_kind<>'article' or v_old.visibility<>'public' then
    raise exception 'Only existing public text articles may be restored'
      using errcode='42501';
  end if;
@@ -128,6 +131,56 @@ begin
 end;
 $fn$;
 
+-- AAL2 admin editor: reject stale form saves instead of silently overwriting
+-- another person's changes. All checks and the existing audited save are atomic.
+create or replace function public.admin_save_news_article_checked(
+ p_post_id uuid,p_team_id uuid,p_title text,p_excerpt text,p_body text,
+ p_publish boolean,p_rights_confirmed boolean,p_expected_updated_at timestamptz
+) returns uuid
+language plpgsql security definer set search_path=''
+as $fn$
+declare
+ v_actor uuid := (select auth.uid());
+ v_current timestamptz;
+begin
+ if v_actor is null
+   or (select auth.jwt()->>'aal') is distinct from 'aal2'
+   or not coalesce((select app_private.is_admin()),false) then
+  raise exception 'Administrator MFA AAL2 required' using errcode='42501';
+ end if;
+ -- Lock the approved role before the article row: admin revocation and
+ -- publication cannot interleave with a stale role check.
+ perform 1 from public.user_roles r
+ where r.user_id=v_actor and r.role='admin' for share of r;
+ if not found then
+  raise exception 'Administrator role revoked' using errcode='42501';
+ end if;
+
+ if p_post_id is null then
+  if p_expected_updated_at is not null then
+   raise exception 'New article cannot have a prior revision'
+     using errcode='22023';
+  end if;
+ else
+  if p_expected_updated_at is null then
+   raise exception 'Refresh article before changing it' using errcode='40001';
+  end if;
+  select p.updated_at into v_current
+    from public.news_posts p where p.id=p_post_id for update;
+  if not found then
+   raise exception 'Article not found' using errcode='22023';
+  end if;
+  if v_current is distinct from p_expected_updated_at then
+   raise exception 'Article was modified; refresh before saving'
+     using errcode='40001';
+  end if;
+ end if;
+ return public.staff_save_news_article(
+  p_post_id,p_team_id,p_title,p_excerpt,p_body,p_publish,p_rights_confirmed
+ );
+end;
+$fn$;
+
 -- Read-only capability probe; avoids showing a half-installed editor on main.
 create or replace function public.admin_news_revisions_ready()
 returns boolean
@@ -141,6 +194,11 @@ revoke all on function public.admin_news_revisions_ready()
 grant execute on function public.admin_news_revisions_ready()
  to authenticated;
 
+revoke all on function public.admin_save_news_article_checked(uuid,uuid,text,text,text,boolean,boolean,timestamptz)
+ from public,anon,authenticated;
+grant execute on function public.admin_save_news_article_checked(uuid,uuid,text,text,text,boolean,boolean,timestamptz)
+ to authenticated;
+
 revoke all on function public.admin_list_news_revisions(uuid)
  from public,anon,authenticated;
 revoke all on function public.admin_restore_news_revision(uuid,bigint,timestamptz)
@@ -151,4 +209,6 @@ grant execute on function public.admin_restore_news_revision(uuid,bigint,timesta
  to authenticated;
 comment on function public.admin_restore_news_revision(uuid,bigint,timestamptz)
  is 'MFA AAL2 administrator only, same-article revision, optimistic lock; restore to unpublished draft and reset consent.';
+comment on function public.admin_save_news_article_checked(uuid,uuid,text,text,text,boolean,boolean,timestamptz)
+ is 'AAL2 admin editorial save, optimistic revision lock, existing audited text article workflow.';
 commit;
