@@ -135,9 +135,17 @@ export async function mountMemberRoleRequests(container,api,userId){
   let teams=[];
   let disposed=false;
   async function reload(){
-    const response=await api.from('role_requests')
-      .select('id,requested_role,team_id,status,requested_at')
-      .eq('user_id',userId).order('requested_at',{ascending:false}).limit(30);
+    let response;
+    try{
+      response=await api.from('role_requests')
+        .select('id,requested_role,team_id,status,requested_at')
+        .eq('user_id',userId).order('requested_at',{ascending:false}).limit(30);
+    }catch{
+      if(!disposed&&section.isConnected){
+        pending.replaceChildren(elem('p','auth-warning','Lecture des demandes indisponible. Réessaie après vérification de ta connexion.'));
+      }
+      return;
+    }
     if(disposed||!section.isConnected)return;
     pending.replaceChildren();
     if(response.error) {
@@ -171,19 +179,30 @@ export async function mountMemberRoleRequests(container,api,userId){
     form.addEventListener('submit',async ev=>{
       ev.preventDefault();
       if(submit.disabled)return;
-      const teamId=role.value==='coach'?team.value:null;
-      const valid=validateRoleRequest(role.value,teamId);
+      const requestedRole=role.value;
+      const teamId=requestedRole==='coach'?team.value:null;
+      const valid=validateRoleRequest(requestedRole,teamId);
       if(!valid.valid){feedback.textContent=valid.reason;return;}
-      submit.disabled=true;feedback.textContent='Demande en cours…';
-      const {error}=await api.rpc('member_request_role',{
-        p_role:role.value,p_team_id:teamId
-      });
-      if(!section.isConnected)return;
-      feedback.textContent=error
-        ? 'Impossible de déposer cette demande. Vérifie tes rôles ou une éventuelle demande déjà en attente.'
-        : 'Demande enregistrée, en attente de validation administrative.';
-      updateRole();
-      if(!error)await reload();
+      submit.disabled=true;role.disabled=true;team.disabled=true;
+      feedback.textContent='Demande en cours…';
+      try{
+        // Freeze the user's original request while the network call is pending.
+        const {error}=await api.rpc('member_request_role',{
+          p_role:requestedRole,p_team_id:teamId
+        });
+        if(!section.isConnected)return;
+        feedback.textContent=error
+          ? 'Impossible de déposer cette demande. Vérifie tes rôles ou une éventuelle demande déjà en attente.'
+          : 'Demande enregistrée, en attente de validation administrative.';
+        if(!error)await reload();
+      }catch{
+        if(section.isConnected)feedback.textContent='Service indisponible. Aucune demande confirmée, tu peux réessayer.';
+      }finally{
+        if(section.isConnected){
+          role.disabled=false;team.disabled=false;
+          updateRole();
+        }
+      }
     });
     await reload();
   }catch{
