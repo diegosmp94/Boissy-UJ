@@ -242,7 +242,7 @@ async function showSession(root, api) {
   account.append(el("p", "auth-email", user.email || ""));
   const roles = (rolesResult.data || []).map(x => x.role);
   const roleNames = { supporter: "Supporter", player: "Joueur", coach: "Éducateur", admin: "Administrateur" };
-  account.append(el("p", "auth-role-summary", "Rôles : " + (roles.length ? roles.map(x => roleNames[x] || x).join(", ") : "en cours de chargement")));
+  account.append(el("p", "auth-role-summary", "Rôles : " + (roles.length ? roles.map(x => roleNames[x] || x).join(", ") : "Aucun rôle vérifié")));
   if (profileResult.error || rolesResult.error) account.append(el("p", "auth-warning", "Impossible de vérifier toutes les informations du profil pour le moment."));
   if (roles.includes("admin")) account.append(el("p", "auth-warning",
     supabaseConfig.adminEnabled
@@ -270,7 +270,9 @@ async function showSession(root, api) {
   });
   account.append(signOut);
   root.append(account);
-  void mountMemberRoleRequests(account,api,user.id);
+  // Fail closed: role-dependent panels must not mount on a denied/failed role lookup.
+  // Preserve sign-out so members can recover without exposing any privileged UI.
+  if(!rolesResult.error)void mountMemberRoleRequests(account,api,user.id);
   if(!rolesResult.error)mountMemberSports(account,api,user.id,roles);
   // Compte ordinaire : seul le rôle admin attribué par le serveur voit le parcours MFA.
   if(!rolesResult.error&&roles.includes('admin'))void mountAdminMfaSetup(account,api,user.id);
