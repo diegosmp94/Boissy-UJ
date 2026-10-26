@@ -16,7 +16,7 @@ test('existing bucket remains private, type/size-bound and requires review',()=>
  assert.match(old,/image\/jpeg/);
  assert.match(old,/video\/mp4/);
  assert.match(old,/constraint news_media_rights_required check \(not visible or rights_reviewed\)/);
- assert.match(old,/and \(select app_private.media_file_ready\(p_path,p_kind\)\)/);
+ assert.match(old,/if p_visible and not \(select app_private.media_file_ready\(p_path,p_kind\)\)/);
  assert.match(old,/news_media_visible_with_public_post/);
  assert.match(old,/admin_check_news_media_file/);
  assert.match(old,/Maximum 12 assets per article/);
