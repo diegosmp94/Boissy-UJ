@@ -40,8 +40,12 @@ export function sourcedFixtureKey(teamCode,when,opponent){
 /** Even a club cancellation or postponement suppresses a stale sourced copy. */
 export function clubDecisionKeys(published,teams){
  const codeById=new Map(teams.map(t=>[t.id,t.code]));
- return new Set(filterPublishedMatchRows(published).map(m=>
-  sourcedFixtureKey(codeById.get(m.team_id),m.scheduled_at,m.opponent_name))
+ // Published cancellations/results also override sourced copies even when
+ // their score is incomplete or later corrected; never resurrect an old date.
+ return new Set((Array.isArray(published)?published:[])
+  .filter(m=>m?.published===true&&typeof m.id==='string'&&m.id&&
+    MATCH_STATUSES.has(m.match_status))
+  .map(m=>sourcedFixtureKey(codeById.get(m.team_id),m.scheduled_at,m.opponent_name))
   .filter(Boolean));
 }
 export function unconfirmedWithoutClubDecision(external,published,teams){
