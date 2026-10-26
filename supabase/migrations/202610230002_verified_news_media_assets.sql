@@ -1,14 +1,17 @@
--- Etape 48: médias photo et vidéo liés aux articles publics Boissy-UJ.
--- Aucune vidéo automatique, URL tierce, ni identité publiquement exposée.
--- Migration additive à déployer seulement après recette et validation droits à l'image.
+-- Étape 78 : métadonnées approuvées + objets privés protégés par RLS.
+-- Aucun octet téléchargé par la migration ; pas de publication sans consentement.
+-- Les URLs signées courtes sont émises uniquement pour les assets visibles.
 begin;
 
 insert into storage.buckets(id,name,public,file_size_limit,allowed_mime_types)
-values ('boissy-uj-approved','boissy-uj-approved',true,50000000,
+values ('boissy-uj-approved','boissy-uj-approved',false,50000000,
  array['image/jpeg','image/png','image/webp','image/avif','video/mp4','video/webm'])
-on conflict(id) do nothing;
--- Aucun droit INSERT/UPDATE/DELETE sur storage.objects n'est attribué au navigateur :
--- fichiers téléchargés par un responsable habilité via le Dashboard après revue des droits.
+on conflict(id) do update set public=false,
+ file_size_limit=excluded.file_size_limit,
+ allowed_mime_types=excluded.allowed_mime_types;
+-- Bucket PRIVATE : connaître le chemin d'un fichier non validé ne donne pas
+-- un accès HTTP. Aucun INSERT/UPDATE/DELETE ouvert par la migration ;
+-- les responsables utilisent exclusivement le Dashboard après revue des droits.
 
 create table if not exists public.news_media_assets(
  id uuid primary key default gen_random_uuid(),
@@ -52,6 +55,25 @@ create policy news_media_visible_with_public_post
  )
 );
 
+-- Storage remains private even if someone knows or guesses an object path.
+-- A signed URL can only be created for a specific fully approved asset
+-- linked to a published article, through storage.objects SELECT RLS.
+-- No anonymous uploads, replacements, deletions or public file serving.
+drop policy if exists boissy_approved_media_sign_read on storage.objects;
+create policy boissy_approved_media_sign_read
+ on storage.objects for select to anon,authenticated
+ using (
+  bucket_id='boissy-uj-approved'
+  and exists(
+   select 1 from public.news_media_assets a
+   join public.news_posts p on p.id=a.post_id
+   where a.storage_path=name
+    and a.visible=true and a.rights_reviewed=true
+    and p.visibility='public' and p.status='published'
+    and p.consent_reviewed=true and p.published_at<=now()
+  )
+ );
+
 create table if not exists app_private.news_media_change_audit (
  id bigint generated always as identity primary key,
  asset_id uuid not null,
@@ -84,7 +106,7 @@ as $fn$
  select exists (
   select 1 from storage.objects o
   join storage.buckets b on b.id=o.bucket_id
-  where o.bucket_id='boissy-uj-approved' and b.public=true
+  where o.bucket_id='boissy-uj-approved' and b.public=false
     and o.name=p_path
     and (case when o.metadata->>'size' ~ '^[0-9]{1,9}$'
           then (o.metadata->>'size')::bigint else 0 end) between 1 and 50000000
@@ -188,7 +210,7 @@ grant execute on function public.admin_list_news_media() to authenticated;
 grant execute on function public.admin_save_news_media(uuid,uuid,text,text,text,text,integer,boolean,boolean)
  to authenticated;
 comment on function public.admin_check_news_media_file(text,text) is
- 'Admin + MFA AAL2 only: check approved Storage object and metadata without exposing private files.';
+ 'Admin + MFA AAL2 only: verify private bucket object, MIME and size; no direct public URL.';
 comment on table public.news_media_assets is
-  'Media Center Boissy UJ: verified photo/video metadata; public only after article publication and rights check.';
+  'Private-bucket assets are signed for at most 10 minutes only while editorially approved and article is published.';
 commit;

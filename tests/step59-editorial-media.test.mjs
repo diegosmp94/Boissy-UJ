@@ -127,8 +127,9 @@ test('failed one optional news service never blocks the other, and navigation dr
 });
 test('photo lightbox never navigates visitors away from Boissy-UJ or enables autoplay',()=>{
  const media=read('news-media-gallery.mjs'),css=read('news-media-gallery.css');
- const allowed=approvedMediaUrl('club/match.webp','photo');
- assert.match(allowed,/\/storage\/v1\/object\/public\/boissy-uj-approved\//);
+ const allowed=approvedMediaUrl('club/match.webp','photo',
+  'https://dahzewvbybujqhogumte.supabase.co/storage/v1/object/sign/boissy-uj-approved/club/match.webp?token=demo');
+ assert.match(allowed,/\/storage\/v1\/object\/sign\/boissy-uj-approved\//);
  assert.match(media,/dialog\.showModal\(\)/);
  assert.match(media,/dialog\.addEventListener\('close',cleanup/);
  assert.match(media,/button\.focus\(\{preventScroll:true\}\)/);

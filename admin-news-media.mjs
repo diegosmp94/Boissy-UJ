@@ -75,7 +75,7 @@ export async function mountAdminNewsMedia(root,api,userId){
   labeled('Ordre dans la galerie (0 à 11)',order),
   labeled('Droits à l’image vérifiés et autorisations applicables obtenues',rights),
   labeled('Afficher après publication de l’article',visible),
-  el('p','admin-fff-info','Ajoute uniquement un fichier déjà approuvé et téléversé dans le bucket Supabase par un responsable habilité. Vérifie sa présence avant publication. Le retrait de visibilité ne supprime PAS un fichier du bucket public : retire-le aussi dans Supabase Storage en cas de demande d’effacement. Aucun fichier n’est envoyé depuis ce formulaire. Double confirmation et MFA AAL2.'),
+  el('p','admin-fff-info','Ajoute uniquement un fichier déjà approuvé et téléversé dans le bucket Supabase par un responsable habilité. Vérifie sa présence avant publication. Le bucket Supabase est privé : un chemin seul ne rend jamais un média accessible. Les fichiers approuvés sont affichés par des liens signés temporaires (10 minutes). Après retrait des droits, un lien déjà émis peut fonctionner jusqu’à expiration : retire aussi le fichier dans Supabase Storage en cas de demande d’effacement. Aucun fichier n’est envoyé depuis ce formulaire. Double confirmation et MFA AAL2.'),
   save
  );
  root.append(form);

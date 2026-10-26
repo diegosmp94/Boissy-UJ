@@ -4,6 +4,8 @@
 import {supabaseConfig} from './auth-config.mjs';
 
 const BUCKET='boissy-uj-approved';
+export const MEDIA_URL_TTL_SECONDS=600;
+const SIGNED_PREFIX=supabaseConfig.url+'/storage/v1/object/sign/'+BUCKET+'/';
 const IMAGE_EXT=/\.(jpe?g|png|webp|avif)$/i;
 const VIDEO_EXT=/\.(mp4|webm)$/i;
 const PATH=/^[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*\/[A-Za-z0-9_-]+\.(?:jpg|jpeg|png|webp|avif|mp4|webm)$/;
@@ -13,13 +15,47 @@ export function safeMediaPath(path,kind){
  return typeof path==='string'&&path.length<=180&&!path.includes('..')&&PATH.test(path)
    &&(kind==='photo'?IMAGE_EXT.test(path):kind==='video'&&VIDEO_EXT.test(path));
 }
-export function approvedMediaUrl(path,kind){
- if(!safeMediaPath(path,kind))return null;
- return supabaseConfig.url+'/storage/v1/object/public/'+BUCKET+'/'+
-   path.split('/').map(encodeURIComponent).join('/');
+/** A metadata path is NEVER a directly accessible URL.
+ * Only a scoped, expiring Storage signature authorizes delivery.
+ */
+export function approvedMediaUrl(path,kind,signedUrl=null){
+ if(!safeMediaPath(path,kind)||typeof signedUrl!=='string')return null;
+ try{
+  const url=new URL(signedUrl,supabaseConfig.url);
+  const expected=SIGNED_PREFIX+path.split('/').map(encodeURIComponent).join('/');
+  if(url.origin!==new URL(supabaseConfig.url).origin||
+     url.href.split('?')[0]!==expected||!url.searchParams.get('token'))
+   return null;
+  return url.href;
+ }catch{return null;}
+}
+/** Sign eligible assets in bounded batches with Supabase's Storage API.
+ * No service key, no public object URL, no browser storage of signed tokens.
+ */
+export async function signApprovedMediaRows(rows,client,ttl=MEDIA_URL_TTL_SECONDS){
+ const result=new Map();
+ if(!Array.isArray(rows)||!client?.storage?.from)return result;
+ const eligible=rows.filter(a=>a.visible===true&&a.rights_reviewed===true
+  &&safeMediaPath(a.storage_path,a.kind));
+ for(let offset=0;offset<eligible.length;offset+=50){
+  const batch=eligible.slice(offset,offset+50);
+  const paths=batch.map(a=>a.storage_path);
+  try{
+   const signed=await client.storage.from(BUCKET).createSignedUrls(paths,ttl);
+   if(signed.error||!Array.isArray(signed.data))continue;
+   for(const entry of signed.data){
+    if(!paths.includes(entry?.path))continue;
+    const item=batch.find(a=>a.storage_path===entry.path);
+    if(!item||entry.error)continue;
+    const url=approvedMediaUrl(item.storage_path,item.kind,entry.signedUrl);
+    if(url)result.set(item.storage_path,url);
+   }
+  }catch{ /* private media unavailable; do not expose an unsigned fallback */ }
+ }
+ return result;
 }
 export function mediaKindsFor(post,assets=[]){
- return [...new Set(assets.filter(a=>a.post_id===post.id&&a.visible===true&&a.rights_reviewed===true&&safeMediaPath(a.storage_path,a.kind))
+ return [...new Set(assets.filter(a=>a.post_id===post.id&&a.visible===true&&a.rights_reviewed===true&&approvedMediaUrl(a.storage_path,a.kind,a.signed_url))
    .map(a=>a.kind))];
 }
 /** In-page lightbox: visitors never leave Boissy-UJ or reach an unreviewed URL.
@@ -27,7 +63,7 @@ export function mediaKindsFor(post,assets=[]){
  * returns focus to the original photo button.
  */
 export function openApprovedPhoto(article,button,{src,alt,caption=''}) {
- if(!src||!src.startsWith(supabaseConfig.url+'/storage/v1/object/public/'+BUCKET+'/'))
+ if(!src||!src.startsWith(SIGNED_PREFIX)||!new URL(src).searchParams.get('token'))
   return false;
  if(typeof document==='undefined'||!article?.isConnected)return false;
  const dialog=el('dialog','news-media-lightbox');
@@ -58,12 +94,12 @@ const el=(tag,cls='',content=null)=>{
 export function renderApprovedMedia(article,assets=[]){
  const eligible=assets.filter(a=>a.visible===true&&a.rights_reviewed===true
   &&typeof a.alt_text==='string'&&a.alt_text.trim().length>=4
-  &&approvedMediaUrl(a.storage_path,a.kind)).slice(0,12);
+  &&approvedMediaUrl(a.storage_path,a.kind,a.signed_url)).slice(0,12);
  if(!eligible.length)return;
  const wrap=el('div','news-media-gallery');
  wrap.setAttribute('aria-label','Médias autorisés de cette actualité');
  for(const asset of eligible){
-  const src=approvedMediaUrl(asset.storage_path,asset.kind);
+  const src=approvedMediaUrl(asset.storage_path,asset.kind,asset.signed_url);
   const figure=el('figure','news-media-item');
   if(asset.kind==='photo'){
    const img=el('img','news-media-photo');
@@ -115,8 +151,21 @@ export async function loadPublishedMedia(posts,signal){
    if(!item.visible||!item.rights_reviewed||!safeMediaPath(item.storage_path,item.kind))continue;
    grouped.get(item.post_id).push(item);
   }
+  if(signal?.aborted)return new Map();
+  const eligible=[...grouped.values()].flat();
+  if(!eligible.length)return grouped;
+  const {getAuthClient}=await import('./auth.mjs');
+  const client=await getAuthClient();
+  if(signal?.aborted)return new Map();
+  const signed=await signApprovedMediaRows(eligible,client);
+  if(signal?.aborted)return new Map();
+  for(const [id,assets] of grouped){
+   grouped.set(id,assets.filter(a=>signed.has(a.storage_path)).map(a=>({
+    ...a,signed_url:signed.get(a.storage_path)
+   })));
+  }
   return grouped;
  }catch{
-  return new Map(); // cancellation, network failure: articles remain accessible.
+  return new Map(); // signed access failed, keep articles readable with no media.
  }
 }
