@@ -50,7 +50,7 @@ with checks as (
     and p.proname in ('admin_set_player_team_membership','staff_set_affiliated_player_position',
      'staff_list_affiliated_players','admin_save_team_public_person')
     and p.prosecdef
-    and 'search_path=''''''=any(p.proconfig)),
+    and exists(select 1 from unnest(p.proconfig) cfg where cfg='search_path=')),
   'All four audited definer RPCs use an empty SQL search path'
  union all select '09_jersey_team_lock_before_membership',
   exists(select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
