@@ -23,6 +23,8 @@ Accueil en huit chapitres et identité bleu nuit/doré ; navigation responsive e
 - **Étape 70 — développée et migration Supabase appliquée le 26 octobre 2026** : [cycle des saisons, archivage et reconduction manuelle](ETAPE_70_CYCLE_SAISONS_20261026.md). Deux déclencheurs et deux RPC vérifiés en base ; aucune saison ni résultat réel créé. Les saisies et homologations du club restent séparées.
 - **Étape 71 — développement réalisé et migration Supabase vérifiée le 26 octobre 2026** : [édition atomique des résultats et des compétitions](ETAPE_71_MATCHS_COMPETITIONS_20261026.md) ; nouvelle RPC MFA AAL2 et déclencheur différé confirmés dans le schéma réel, aucun match ou score inventé. Les tests utilisateurs restent séparés.
 - **Étape 72 — développée et migration Supabase vérifiée le 26 octobre 2026** : [statistiques par saison et compétition issues uniquement des matchs publiés, classement de poule distinct et protégé](ETAPE_72_STATS_CLASSEMENTS_20261026.md). Vue `security_invoker`, contraintes de publication et RLS contrôlés, aucun match ou classement inventé. Recettes humaines distinctes.
+- **Étape 73 — livrée sur `main`, migration vérifiée** : [affiliations multi-équipes et historique privé](ETAPE_73_EFFECTIFS_AFFECTATIONS_20261026.md). Aucun joueur ou numéro inventé.
+- **Étape 74 — développée et migration Supabase vérifiée le 26 octobre 2026** : [feuilles de match privées, réponses des joueurs et contrôle des rencontres clôturées](ETAPE_74_CONVOCATIONS_FEUILLES_MATCH_20261026.md). Trois RPC contrôlées en production, zéro match ou convocation inventé. Homologation multi-comptes séparée.
 
 ## Lot A — Sécuriser et consolider le socle existant (P0)
 

@@ -1,0 +1,13 @@
+/* Scoped read-only fixture sheet. Names are never rendered outside the authenticated area. */
+.coach-callups-sheet{padding:clamp(12px,2vw,20px);border:1px solid rgba(216,186,121,.45);
+ border-radius:14px;background:rgba(5,27,52,.8);display:grid;gap:12px;min-width:0}
+.coach-callups-sheet[hidden]{display:none}
+.coach-callups-sheet h5{font-size:17px;margin:0;color:#f3d596}
+.coach-match-sheet-list{margin:0;padding-left:25px;display:grid;gap:8px;max-height:380px;overflow-y:auto}
+.coach-match-sheet-player{padding:10px;border:1px solid rgba(190,209,233,.19);border-radius:9px;
+ display:grid;grid-template-columns:minmax(130px,1.4fr) minmax(90px,1fr) minmax(100px,.8fr);
+ gap:8px;align-items:center;color:#eef3fc}
+.coach-match-sheet-player span{font-size:13px;color:#c9d8e8}
+@media(max-width:600px){
+ .coach-match-sheet-player{grid-template-columns:1fr;gap:5px}
+}

@@ -48,7 +48,7 @@ async function mountPlayerArea(view,api,userId,roles){
  const list=el('div','member-callup-list');
  const refresh=button('Actualiser mes convocations','member-sports-secondary');
  view.append(heading,state,refresh,list);
- let loading=false;
+ let loading=false,responseSaving=false;
  async function load(){
   if(loading||!view.isConnected)return;
   loading=true;refresh.disabled=true;
@@ -81,10 +81,12 @@ async function mountPlayerArea(view,api,userId,roles){
     const responseMessage=notice('','member-callup-feedback');
     for(const choice of PLAYER_RESPONSES){
      const b=button(choice.label,choice.value===callup.response?'member-callup-choice is-selected':'member-callup-choice');
+     b.dataset.response=choice.value;
      b.disabled=choice.value===callup.response;
      b.setAttribute('aria-label',choice.label+' pour '+callup.opponent_name);
      b.addEventListener('click',async()=>{
-      if(!canRespondToCallup(callup,roles,choice.value)||!view.isConnected)return;
+      if(responseSaving||!canRespondToCallup(callup,roles,choice.value)||!view.isConnected)return;
+      responseSaving=true;
       const buttons=[...actions.querySelectorAll('button')];buttons.forEach(x=>x.disabled=true);
       responseMessage.textContent='Enregistrement de ta réponse…';
       try{
@@ -104,7 +106,8 @@ async function mountPlayerArea(view,api,userId,roles){
       }catch{
        if(view.isConnected)responseMessage.textContent='Connexion momentanément indisponible. Aucune réponse confirmée.';
       }finally{
-       if(view.isConnected)buttons.forEach(x=>x.disabled=x.textContent===CALLOUT_STATUS[callup.response]);
+       responseSaving=false;
+       if(card.isConnected)buttons.forEach(x=>x.disabled=x.dataset.response===callup.response);
       }
      });
      actions.append(b);
