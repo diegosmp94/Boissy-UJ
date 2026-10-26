@@ -128,7 +128,7 @@ export async function mountTeamProfile(code){
     cupNotice.append(node('strong','',cupDetails.headline),node('p','',cupDetails.detail));
     cupNotice.hidden=true;notices.push(cupNotice);root.append(cupNotice);
     for(const [heading,items,empty] of [
-      ['Prochaines rencontres',groups.upcoming,remoteUnavailable
+      ['Rencontres programmées ou reportées',groups.upcoming,remoteUnavailable
         ?'Calendrier publié par le club momentanément indisponible.'
         :'Aucune rencontre à venir publiée.'],
       ['Derniers résultats',groups.played,remoteUnavailable
@@ -145,7 +145,8 @@ export async function mountTeamProfile(code){
       for(const match of items){
         const card=node('article','team-profile-match');
         const caption=match.match_status==='played'?'Terminé':match.match_status==='postponed'?'Reporté':
-          match.match_status==='cancelled'?'Annulé':'À venir';
+          match.match_status==='cancelled'?'Annulé':
+          Date.parse(match.scheduled_at)<=Date.now()?'Horaire passé · résultat à confirmer':'À venir';
         const opponent=match.opponent_name||'Adversaire à confirmer';
         card.append(
           node('span','team-profile-match-kind',caption),
