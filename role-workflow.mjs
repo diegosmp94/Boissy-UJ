@@ -1,4 +1,5 @@
 import {supabaseConfig} from './auth-config.mjs';
+import {withAuthDeadline} from './auth-resilience.mjs';
 
 export const ADVANCED_ROLES=Object.freeze([
   {id:'player',label:'Joueur',description:'Convocations et espace sportif personnel'},
@@ -141,7 +142,10 @@ export async function mountMemberRoleRequests(container,api,userId){
   const pending=elem('div','member-requests-list');
   pending.setAttribute('aria-live','polite');
   form.append(roleLabel,teamLabel,submit);
-  section.append(form,feedback,elem('h4','','Mes demandes'),pending);
+  const refresh=elem('button','auth-text-button','Actualiser mes demandes');
+  refresh.type='button';
+  refresh.addEventListener('click',()=>void reload());
+  section.append(form,feedback,elem('h4','','Mes demandes'),refresh,pending);
   container.append(section);
   let teams=[];
   let disposed=false;
@@ -150,9 +154,9 @@ export async function mountMemberRoleRequests(container,api,userId){
     const ticket=reloadGate.begin();
     let response;
     try{
-      response=await api.from('role_requests')
+      response=await withAuthDeadline(api.from('role_requests')
         .select('id,requested_role,team_id,status,requested_at')
-        .eq('user_id',userId).order('requested_at',{ascending:false}).limit(30);
+        .eq('user_id',userId).order('requested_at',{ascending:false}).limit(30));
     }catch{
       if(reloadGate.isCurrent(ticket)&&!disposed&&section.isConnected){
         pending.replaceChildren(elem('p','auth-warning','Lecture des demandes indisponible. Réessaie après vérification de ta connexion.'));
@@ -178,7 +182,7 @@ export async function mountMemberRoleRequests(container,api,userId){
     }
   }
   try{
-    const response=await api.from('club_teams').select('id,name,code').order('sort_order',{ascending:true});
+    const response=await withAuthDeadline(api.from('club_teams').select('id,name,code').order('sort_order',{ascending:true}));
     if(disposed||!section.isConnected)return;
     if(response.error) throw new Error('teams unavailable');
     teams=response.data||[];
@@ -201,16 +205,16 @@ export async function mountMemberRoleRequests(container,api,userId){
       feedback.textContent='Demande en cours…';
       try{
         // Freeze the user's original request while the network call is pending.
-        const {error}=await api.rpc('member_request_role',{
+        const {error}=await withAuthDeadline(api.rpc('member_request_role',{
           p_role:requestedRole,p_team_id:teamId
-        });
+        }));
         if(!section.isConnected)return;
         feedback.textContent=error
           ? 'Impossible de déposer cette demande. Vérifie tes rôles ou une éventuelle demande déjà en attente.'
           : 'Demande enregistrée, en attente de validation administrative.';
         if(!error)await reload();
       }catch{
-        if(section.isConnected)feedback.textContent='Service indisponible. Aucune demande confirmée, tu peux réessayer.';
+        if(section.isConnected)feedback.textContent='Service indisponible : résultat non confirmé. Actualise « Mes demandes » avant un nouvel envoi.';
       }finally{
         if(section.isConnected){
           role.disabled=false;team.disabled=false;
@@ -220,6 +224,18 @@ export async function mountMemberRoleRequests(container,api,userId){
     });
     await reload();
   }catch{
-    if(!disposed&&section.isConnected)feedback.textContent='Le service des demandes est temporairement indisponible.';
+    if(!disposed&&section.isConnected){
+      feedback.textContent='Le catalogue des équipes est temporairement indisponible. Aucune demande ne peut être envoyée.';
+      const retry=elem('button','auth-text-button','Réessayer le chargement des équipes');
+      retry.type='button';
+      retry.addEventListener('click',()=>{
+        if(!section.isConnected)return;
+        disposed=true;
+        reloadGate.invalidate();
+        section.remove();
+        void mountMemberRoleRequests(container,api,userId);
+      });
+      section.append(retry);
+    }
   }
 }
