@@ -1,5 +1,7 @@
 # Feuille de route — Boissy-UJ
 
+**Plan exclusivement informatique (sans saisie de contenus ni campagnes de tests)** : [32 étapes de finalisation technique, n° 66 à 97](ROADMAP_FINALISATION_TECHNIQUE_20261026.md). Cette feuille distincte conserve l'historique ci-dessous, qui inclut encore les dépendances d'homologation du club.
+
 Point d'étape : **23 octobre 2026**. Les changements du site sont développés sur une branche dédiée, contrôlés, puis fusionnés dans `main` après validation CI. Les étapes 45–46 couvrent le prochain match d'accueil et la mise à jour des rencontres passées ; le suivi de la provenance des dates a été renforcé depuis.
 
 ## Résilience du Match Center — source partielle (24 octobre 2026)
