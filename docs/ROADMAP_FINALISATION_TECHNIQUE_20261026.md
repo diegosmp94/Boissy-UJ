@@ -1,0 +1,86 @@
+# Boissy UJ — Feuille de route de finalisation technique
+
+**Date de cadrage : 26 octobre 2026** · **Référence : cahier des charges V1.5** · **Point de départ : `main` au commit `e313b5f` (PR #124)**
+
+## Périmètre et méthode
+
+Cette feuille de route porte **uniquement sur les développements manquants** du front-end, du back-end, de Supabase, des interfaces et des intégrations, et sur leur raccordement effectif. Elle **n'inclut pas d'étapes de saisie de contenus par le club ou ses utilisateurs, ni de campagne de tests/homologation**.
+
+Sont donc exclus du décompte : créer les saisons et les scores réels ; rédiger des actualités ; renseigner les effectifs, photos et événements ; produire les textes juridiques ; obtenir des consentements ou validations métier ; réaliser les essais multi-comptes/Safari/Android, les restaurations réelles et les homologations administratives ; obtenir les identifiants ou autorisations d'un partenaire FFF. Le développement des **outils qui permettront ces actions**, lui, reste inclus.
+
+Les contrôles automatiques déjà configurés sur les PR demeurent des garde-fous de livraison, **pas des étapes autonomes** ni une homologation. Une migration risquée, la facturation ou le traitement de données privées n'est pas activé en production simplement parce que son code est terminé. Les fonctionnalités peuvent être déclarées **techniquement achevées et fermées par un drapeau** en attente de décisions du club.
+
+### Déjà réalisé : ne pas refaire
+
+Accueil en huit chapitres et identité bleu nuit/doré ; navigation responsive et fiches des cinq équipes (dont « Senior » en futsal) ; principaux écrans Match Center/Championnat/Coupe, agenda, prochain match et félicitations ; inscription/connexion et parcours de récupération ; rôles joueur, entraîneur, administrateur cumulables avec approbation MFA AAL2 ; affectations multi-équipes, convocations, éditeurs administratifs, tableaux de préparation ; outils de publication et CI/GitHub Pages. Réutiliser ces modules avant d'en ajouter de nouveaux.
+
+## Lot A — Sécuriser et consolider le socle existant (P0)
+
+| Étape | Livraison de développement | Condition de clôture technique |
+|---|---|---|
+| **66** | **Inventaire fonctionnel exécutable et schéma réel** : cartographier modules, fonctions Supabase, migrations appliquées/non appliquées et drapeaux d'activation ; éviter les écrans promettant un service absent. | Matrice code↔DB↔interface raccordée ; états « disponible », « désactivé » et « dépendance absente » explicites. |
+| **67** | **Autorisation serveur homogène** : réduire la surface des RPC `SECURITY DEFINER`, contrôler `EXECUTE`, `auth.uid()`, MFA AAL2, scopes d'équipes et opérations concurrentes sans casser les parcours existants. | Chacun des endpoints sensibles possède sa garde explicite et sa trace minimale ; aucune élévation par simple rôle client. |
+| **68** | **Gestion des rôles et affectations sans rupture** : unifier approbation/refus, retrait indépendant, cumul joueur+coach+admin, invalidation d'écran après révocation, interdiction de l'auto-approbation. | Flux membre/admin cohérent et réutilisant les RPC existantes, avec maintien des autres rôles. |
+| **69** | **Control Center fiable** : harmoniser les erreurs réseau, le contrôle de fraîcheur MFA, la navigation entre modules, le rafraîchissement et la consultation sécurisée des opérations d'administration. | Les modules existants se montent sans exposer d'anciennes données privées et proposent un état d'erreur exploitable. |
+
+## Lot B — Terminer les outils sportifs (P1)
+
+| Étape | Livraison de développement | Condition de clôture technique |
+|---|---|---|
+| **70** | **Cycle de vie des saisons** : création, modification, clôture, archivage, reconduction des paramètres d'équipes sans copier implicitement des données privées ou des résultats. | Éditeur de saisons complet et historiques conservés. |
+| **71** | **Éditeur des rencontres unifié** : Championnat/Coupe/Amical par équipe, report, annulation, forfait, changement d'horaire, score et provenance distincte. | Aucun état de match ne nécessite une modification SQL manuelle pour être géré par un admin autorisé. |
+| **72** | **Statistiques et classements fiables** : calculs à partir des seuls résultats publiés et contrôles d'intégrité pour les classements saisis ; séparation stricte des archives de tiers. | Le site ne présente jamais une donnée non validée comme officielle. |
+| **73** | **Effectifs et affectations complètes** : postes, numéros de maillot, appartenance à plusieurs équipes autorisées, historique et gestion des conflits de poste/numéro. | Joueurs et entraîneurs ne peuvent éditer que leur propre périmètre sportif. |
+| **74** | **Convocations privées de bout en bout** : sélection d'effectif, convocation/annulation, réponse joueur, état visible par le bon entraîneur, retrait de rôle pris en compte. | Aucun membre ne consulte les convocations d'autrui hors droit explicite. |
+
+## Lot C — Terminer publication, réactions et médias (P1/P2)
+
+| Étape | Livraison de développement | Condition de clôture technique |
+|---|---|---|
+| **75** | **Synchronisation des vues publiques sportives** : accueil, Match Center, agenda, fiches équipe, prochain match et onglets de compétition ; cohérence des mises à jour horaires et après fin d'un match. | Chaque publication sportive autorisée se répercute sans intervention sur plusieurs pages. |
+| **76** | **Chaîne éditoriale** : finaliser brouillon, publication, retrait, recherche et historique/restauration en brouillon, en raccordant les RPC déjà préparées. | Flux éditeur complet ; une restauration ne republique pas automatiquement un article. |
+| **77** | **Réactions « J'aime »** : intégrer la migration RLS préparée, l'état personnel, ajout/retrait et gestion des réponses concurrentes. | Un membre peut gérer uniquement sa propre réaction, sans accès aux identités d'autres membres. |
+| **78** | **Infrastructure médias** : raccordement sûr du bucket Storage, des métadonnées et des états privé/publié, avec protection des fichiers non homologués. | Aucune image ou vidéo privée n'est exposée par simple connaissance d'un chemin. |
+| **79** | **Outil d'ajout de photos et vidéos** : interface admin, validations MIME/taille, alternative textuelle, attestation des droits et association à l'article. | L'ajout est contrôlé côté serveur et ne publie pas automatiquement le fichier. |
+| **80** | **Retrait et purge des médias** : synchroniser dépublication, révocation de droits, suppression Storage et affichage des galeries ; gérer les erreurs de suppression. | Un retrait de droit ne laisse pas volontairement un fichier dans un bucket public accessible. |
+| **81** | **Fiches publiques des personnes** : lier effectifs/encadrement aux fiches joueur et informations publiables seulement après consentement explicite, sans exposer le profil de connexion. | Les espaces publics n'importent pas directement les comptes privés. |
+
+## Lot D — Finaliser le Premium et les finances en environnement TEST (P2)
+
+| Étape | Livraison de développement | Condition de clôture technique |
+|---|---|---|
+| **82** | **Droits Premium serveur** : finaliser durée de validité, provenance de paiement, expiration/révocation et consultation sécurisée depuis Mon espace. | Aucun simple changement de navigateur n'attribue Premium. |
+| **83** | **Stripe Checkout TEST et webhook signé** : raccorder les fonctions déjà écrites au modèle d'abonnement mensuel 10 € / achat unique annuel 100 € non renouvelable. | Attribution uniquement sur événements validés côté serveur, mode TEST seulement. |
+| **84** | **Remboursements, litiges et reprise** : réconciliation durable, événements hors ordre, idempotence et suspension ciblée des droits sans casser un autre abonnement valide. | Aucun remboursement/chargeback n'est simplement « ignoré » ou laissé en boucle 503. |
+| **85** | **Espace Premium** : statut de l'offre, échéance, annulation du renouvellement mensuel, expiration de l'offre annuelle et messages de support, sans lien de paiement LIVE. | L'utilisateur comprend et gère le cycle de vie de son offre TEST. |
+| **86** | **Dons et campagnes** : modèle dons ponctuels/mensuels, fonds général/projets, campagnes ouvertes/fermées et rapprochement TEST côté serveur. | Aucun reçu fiscal automatique, privilège ou transfert réel non autorisé. |
+
+## Lot E — Événements, billets et Awards (P2)
+
+| Étape | Livraison de développement | Condition de clôture technique |
+|---|---|---|
+| **87** | **Gestion avancée des événements** : capacités, plages de réservation, gratuits/payants, public/Premium, règles de priorité et statuts ; commandes administratives. | Les règles de réservation sont stockées et vérifiées côté serveur, indépendamment du contenu saisi. |
+| **88** | **Billetterie gratuite** : terminer la migration transactionnelle préparée et créer l'interface membre de réservation, annulation et récupération de son QR personnel. | Quota et unicité garantis côté serveur ; fonctionnalité fermée tant que non homologuée. |
+| **89** | **Contrôle d'entrée QR** : interface de scan administrateur adaptée au mobile, statut billet, refus de double scan, journalisation et reprise après coupure. | Une entrée ne peut être validée qu'une seule fois par un contrôleur autorisé AAL2. |
+| **90** | **Billetterie payante TEST** : lier jauges, droits Premium et tarifs réduits/gratuits, paiement signé et émission contrôlée de billets. | Aucun billet payant n'est délivré avant preuve de paiement serveur ; pas de LIVE. |
+| **91** | **Awards et votes** : raccorder backend de vote unique Premium, vote/retrait côté membre, dates, clôture et publication des résultats par admin. | Votes privés et résultats publiés uniquement selon le workflow, sans votes ni gagnants préremplis. |
+
+## Lot F — Exploitation technique, confidentialité et lancement (P1/P3)
+
+| Étape | Livraison de développement | Condition de clôture technique |
+|---|---|---|
+| **92** | **Gestion technique RGPD** : demandes d'accès/rectification/suppression, règles de conservation, contrôle des consentements et effacement coordonné des médias/données, notamment concernant les mineurs. | Les fonctionnalités d'exécution et de suivi existent ; règles juridiques à renseigner par le club. |
+| **93** | **Sauvegardes et reprise** : outillage de création/export sécurisé, inventaire et comparaison de restauration ; procédure reproductible sans exposer des données personnelles. | Code et documentation de reprise prêts ; exécution de la restauration réelle hors feuille de route. |
+| **94** | **Suivi d'exploitation** : état des services, erreurs anonymisées, événements en échec, alertes de traitements différés et diagnostic réservé à l'administration. | Le club peut détecter un incident sans lire de secrets ni journaliser des données privées. |
+| **95** | **Finitions UX et performance** : cohérence mobile/tablette/bureau, focus clavier, lecteur d'écran, réduction des animations, chargements et assets. | Aucun parcours développé ne dépend d'un écran de démonstration ou d'un élément inutilisable. |
+| **96** | **FFF et ouverture publique configurables** : couche d'import optionnelle *désactivée* tant que les droits FFF ne sont pas accordés ; préparation SEO avec `noindex` conservé par défaut, drapeaux sûrs et documentation de lancement. | La saisie manuelle continue de fonctionner ; aucune source non autorisée ni indexation non approuvée n'est activée. |
+
+## Ordre, dépendances et définition de « développement terminé »
+
+- **31 étapes : n° 66 à 96, en six lots.** Priorité : **A → B/C → D/E → F** ; les étapes sans dépendance forte de B et C peuvent avancer parallèlement.
+- Les écrans actuellement présents restent conservés : une étape signifie **terminer et raccorder** le système existant, pas le reconstruire.
+- Pour chaque étape : changement de code versionné, éventuellement migration SQL clairement identifiée, garde d'activation, documentation technique courte et fusion dans `main` après les contrôles automatiques habituels. Les recettes métier et saisies de contenu ne sont pas comptabilisées comme étapes.
+- **100 % de cette liste = 100 % du développement planifié**, et **non** 100 % d'homologation, d'utilisation réelle des services financiers ou de données officielles saisies.
+- Les fonctions impliquant des paiements, des votes, des billets privés ou des médias de mineurs **restent désactivées** en production tant que les conditions légales et de sécurité nécessaires ne sont pas remplies.
+
+**Point de départ suggéré : étape 66 — inventaire exact des migrations et fonctions déjà raccordées**, puis 67 (sécurité des RPC), sans modifier des permissions de production avant d'avoir identifié leur usage réel.
