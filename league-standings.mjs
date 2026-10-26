@@ -2,6 +2,7 @@ import {appendSourcedSportContext} from './sourced-standings.mjs';
 import {supabaseConfig} from './auth-config.mjs';
 import {boundedPublicRequest} from './public-catalog-timeout.mjs';
 import {CLUB_TEAMS,teamRoute} from './club-teams.mjs';
+import {loadPublicSeasons} from './season-workspace.mjs';
 
 export function clubOutcome(match){
  if(match?.match_status==='administrative'&&['V','D'].includes(match.administrative_outcome))
@@ -57,17 +58,18 @@ export async function fetchPublicStandings({signal,fetcher=fetch}={}){
 }
 const el=(tag,cls='',value=null)=>{const n=document.createElement(tag);if(cls)n.className=cls;
  if(value!==null)n.textContent=String(value);return n;};
-export function renderLeagueStanding(root,standing,team){
+export function renderLeagueStanding(root,standing,team,seasonLabel=null){
  root.replaceChildren();
  const section=el('section','league-standing');
  section.append(el('h2','','Classement · '+team.division));
  if(!standing){
-  section.append(el('p','league-empty','Rang 2026–2027 non vérifié : aucun classement de poule confirmé par le club. Voir le bilan partiel et les archives ci-dessous.'));
+  section.append(el('p','league-empty','Aucun classement de poule publié par le club pour cette équipe. Les archives de tiers ci-dessous ne prouvent pas un rang actuel.'));
   appendSourcedSportContext(section,team.code);
   root.append(section);return;
  }
  section.append(el('p','league-source',
-  'Journée '+standing.matchday+' · classement renseigné et publié par le club, non synchronisé avec la FFF.'));
+  'Saison : '+(seasonLabel||'non vérifiable actuellement')+' · Journée '+standing.matchday+
+  ' · tableau complet saisi et publié par le club ; classement non synchronisé avec la FFF.'));
  const wrap=el('div','league-scroll');
  const table=el('table','league-table'),thead=el('thead'),theadRow=el('tr');
  for(const name of ['Rang','Équipe','J','V','N','D','BP','BC','Diff.','Pts']){
@@ -111,11 +113,17 @@ export async function mountLeagueStandings(code=null){
   const mapped=await r.json();
   if(!Array.isArray(mapped))throw Error('Format équipes invalide');
   if(id!==seq||ctrl.signal.aborted||!root.isConnected)return;
+  // An older published standing must never be implicitly labelled current.
+  // This catalogue is optional: failure does not fabricate a season label.
+  const verifiedSeasons=await loadPublicSeasons(deadline.signal).catch(()=>[]);
+  if(id!==seq||ctrl.signal.aborted||!root.isConnected)return;
+  const seasonLabels=new Map(verifiedSeasons.map(x=>[x.id,x.label]));
   root.replaceChildren();
   for(const team of teams){
    const record=mapped.find(t=>t.code===team.code);
    const panel=el('div','league-team-panel');
-   renderLeagueStanding(panel,data.find(s=>s.team_id===record?.id)||null,team);
+   const standing=data.find(s=>s.team_id===record?.id)||null;
+   renderLeagueStanding(panel,standing,team,seasonLabels.get(standing?.season_id)||null);
    root.append(panel);
   }
  }catch{
