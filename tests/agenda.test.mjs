@@ -20,7 +20,7 @@ const events=[
 
 test('only verified public future matches and events are included',()=>{
   assert.deepEqual(combinePublishedAgenda(matches,events,team,{now}).map(x=>x.id),['m1','m3','e1']);
-  assert.equal(combinePublishedAgenda(matches,events,team,{now,kind:'match'}).length,1);
+  assert.equal(combinePublishedAgenda(matches,events,team,{now,kind:'match'}).length,2);
   assert.equal(combinePublishedAgenda(matches,events,team,{now,kind:'event'}).length,1);
 });
 test('search normalizes accents and 7-day window is exact',()=>{
