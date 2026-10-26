@@ -85,7 +85,7 @@ test('P1 admin editor re-verifies MFA before any read or write and requires doub
 
 test('P1 coach team UI is reachable only inside existing admin MFA-gated module transitions',()=>{
  assert.equal(ADMIN_MODULES.some(x=>x.id==='coach-teams'),true);
- assert.match(hub,/case 'coach-teams':void mountAdminCoachTeams\(view,api,verified\.userId\);break/);
+ assert.match(hub,/case 'coach-teams':void mountAdminCoachTeams\(view,api,verified\.userId\)\.catch\(\(\)=>showModuleRetry\(view,id\)\);break/);
  assert.match(hub,/const check=await adminSessionStatus\(api,verified\.userId\)/);
  assert.match(hub,/if\(!canOpenAdmin\(check,supabaseConfig\.adminEnabled\)\)/);
  assert.match(hub,/pane\.replaceChildren\(view\)/);
