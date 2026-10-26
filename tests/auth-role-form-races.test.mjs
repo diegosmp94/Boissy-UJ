@@ -40,7 +40,7 @@ test('role request uses an immutable snapshot while the RPC runs',()=>{
 test('role request and private request history are robust to network rejection',()=>{
   const reload=requests.slice(requests.indexOf('async function reload(){'),requests.indexOf('  try{\n    const response=await api.from(\'club_teams\')'));
   assert.match(reload,/try\{\s*response=await api\.from\('role_requests'\)/);
-  assert.match(reload,/catch\{\s*if\(!disposed&&section\.isConnected\)/);
-  assert.match(reload,/if\(!disposed&&section\.isConnected\)/);
+  assert.match(reload,/catch\{\s*if\(reloadGate\.isCurrent\(ticket\)&&!disposed&&section\.isConnected\)/);
+  assert.match(reload,/if\(!reloadGate\.isCurrent\(ticket\)\|\|disposed\|\|!section\.isConnected\)return/);
   assert.match(requests,/catch\{\s*if\(section\.isConnected\)feedback\.textContent='Service indisponible/);
 });
