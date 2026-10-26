@@ -25,7 +25,7 @@ Accueil en huit chapitres et identité bleu nuit/doré ; navigation responsive e
 - **Étape 72 — développée et migration Supabase vérifiée le 26 octobre 2026** : [statistiques par saison et compétition issues uniquement des matchs publiés, classement de poule distinct et protégé](ETAPE_72_STATS_CLASSEMENTS_20261026.md). Vue `security_invoker`, contraintes de publication et RLS contrôlés, aucun match ou classement inventé. Recettes humaines distinctes.
 - **Étape 73 — livrée sur `main`, migration vérifiée** : [affiliations multi-équipes et historique privé](ETAPE_73_EFFECTIFS_AFFECTATIONS_20261026.md). Aucun joueur ou numéro inventé.
 - **Étape 74 — développée et migration Supabase vérifiée le 26 octobre 2026** : [feuilles de match privées, réponses des joueurs et contrôle des rencontres clôturées](ETAPE_74_CONVOCATIONS_FEUILLES_MATCH_20261026.md). Trois RPC contrôlées en production, zéro match ou convocation inventé. Homologation multi-comptes séparée.
-- **Étape 75 — implémentation soumise à CI** : [synchronisation des calendriers et matchs publiés dans les quatre vues publiques](ETAPE_75_SYNCHRO_SPORT_PUBLIC_20261026.md) ; source et limites communes, reports/annulations cohérents, rafraîchissement horaire et au retour sur l'onglet. Aucune donnée sportive fabriquée ; clôture après publication réussie.
+- **Étape 75 — implémentée et CI validée le 26 octobre 2026** : [catalogue sportif public harmonisé entre accueil, Match Center, agenda et fiches équipes](ETAPE_75_SYNCHRO_SPORT_PUBLIC_20261026.md). Reports/annulations cohérents, rafraîchissement horaire et après reprise d'onglet ; aucun match ou score inventé. Recette utilisateurs et homologation sportive à part.
 
 ## Lot A — Sécuriser et consolider le socle existant (P0)
 
