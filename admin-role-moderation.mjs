@@ -161,10 +161,12 @@ export async function mountAdminRoleModeration(container,api,userId){
               const decisionReason=reason.value.trim()||null;
               approve.disabled=true;reject.disabled=true;filter.disabled=true;reason.disabled=true;
               confirmation.textContent='Vérification de la session et enregistrement…';
+              let authorizationVerified=false;
               try{
                 const gate=await verifiedAdmin(api,userId);
                 if(!isCurrent(ticket))return;
                 if(!gate.authorized){lockModeration();return;}
+                authorizationVerified=true;
                 // Server-side RPC rechecks role, AAL2, and rejects self-approval.
                 const {error}=await withAuthDeadline(api.rpc('admin_decide_role_request',{
                   p_request_id:request.id,p_approve:approval,
@@ -178,8 +180,15 @@ export async function mountAdminRoleModeration(container,api,userId){
                 status.textContent='Décision enregistrée et contrôlée par Supabase.';
                 await reload();
               }catch{
-                if(isCurrent(ticket))
-                  confirmation.textContent='Connexion indisponible : décision non confirmée. Actualise les demandes avant de réessayer.';
+                if(isCurrent(ticket)){
+                  if(!authorizationVerified){
+                    // Auth / MFA failures cannot leave private member identities visible.
+                    lockModeration();
+                  }else{
+                    // An RPC timeout does not prove the decision failed server-side.
+                    confirmation.textContent='Connexion indisponible : décision non confirmée. Actualise les demandes avant de réessayer.';
+                  }
+                }
               }finally{
                 loading=false;
                 if(section.isConnected&&!section.hidden)filter.disabled=false;
