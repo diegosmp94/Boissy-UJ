@@ -17,6 +17,8 @@ import {mountAdminPlayerTeams} from './admin-player-teams.mjs';
 import {mountAdminCoachTeams} from './admin-coach-teams.mjs';
 import {mountAdminSeasons,mountAdminMatches,mountAdminNews,mountAdminFreeEvents} from './admin-management.mjs';
 import {filterAdminModules,groupAdminModules,availableAdminModules} from './admin-navigation.mjs';
+import {withAuthDeadline} from './auth-resilience.mjs';
+import {adminCapabilities,adminFailureLabel} from './admin-control-reliability.mjs';
 
 export const ADMIN_MODULES=Object.freeze([
  {id:'overview',name:'Vue générale',group:'Pilotage',caption:'Données réelles, aucun chiffre fictif'},
@@ -69,7 +71,7 @@ export async function mountAdminCenter(getClient){
  }
  let api=null;
  try{
-  api=await getClient();
+  api=await withAuthDeadline(Promise.resolve().then(getClient));
   const verified=await adminSessionStatus(api);
   if(serial!==currentGeneration||!root.isConnected)return;
   if(!canOpenAdmin(verified,supabaseConfig.adminEnabled)){
@@ -110,28 +112,20 @@ export async function mountAdminCenter(getClient){
    window.removeEventListener('focus',revalidateOnReturn);
    document.removeEventListener('visibilitychange',revalidateOnReturn);
   };
-  // Fail-closed: do not show an editor without its MFA-only database RPC.
-  const eventProbe=await api.rpc('admin_list_free_events');
+  // Module health is isolated: a missing/slow RPC hides only its module.
+  // All probes are bounded, independent and issued after the initial MFA gate.
+  const {eventsReady,coachTeamsReady,mediaReady,newsRevisionsReady}=
+    await adminCapabilities(api);
   if(serial!==currentGeneration||!root.isConnected)return;
-  const eventsReady=!eventProbe.error&&Array.isArray(eventProbe.data);
-  // Probe an actual authorized club team so that a pending migration cannot
-  // expose a nonfunctional coach editor. Keep other admin tools available.
-  let coachTeamsReady=false;
-  try{
-   const candidates=await api.from('club_teams').select('id').limit(1);
-   const candidate=candidates.data?.[0]?.id;
-   if(!candidates.error&&candidate){
-    const probe=await api.rpc('admin_list_team_coaches',{p_team_id:candidate});
-    coachTeamsReady=!probe.error&&Array.isArray(probe.data);
-   }
-  }catch{coachTeamsReady=false;}
+  // Capabilities are not permissions: verify roles and MFA again after probes.
+  const postProbeStatus=await adminSessionStatus(api,verified.userId);
   if(serial!==currentGeneration||!root.isConnected)return;
-  const mediaProbe=await api.rpc('admin_list_news_media');
-  const mediaReady=!mediaProbe.error&&Array.isArray(mediaProbe.data);
-  if(serial!==currentGeneration||!root.isConnected)return;
-  const revisionsProbe=await api.rpc('admin_news_revisions_ready');
-  const newsRevisionsReady=!revisionsProbe.error&&revisionsProbe.data===true;
-  if(serial!==currentGeneration||!root.isConnected)return;
+  if(!canOpenAdmin(postProbeStatus,supabaseConfig.adminEnabled)){
+   root.replaceChildren(el('p','admin-empty',adminFailureLabel('authorization')));
+   const back=el('a','admin-console-back','Retour à Mon espace');
+   back.href='#/mon-espace';root.append(back);
+   return;
+  }
   root.replaceChildren();
   const head=el('header','real-admin-heading');
   head.append(el('span','tiny-label','BOISSY-UJ · ADMINISTRATION SÉCURISÉE'),
@@ -154,6 +148,11 @@ export async function mountAdminCenter(getClient){
   const navCount=el('span','admin-nav-count');
   navCount.setAttribute('role','status');navCount.setAttribute('aria-live','polite');
   navLabel.append(moduleSearch);navTools.append(navLabel,navCount);
+  const refreshCurrent=el('button','admin-secondary-btn','Actualiser le module');
+  refreshCurrent.type='button';
+  refreshCurrent.setAttribute('aria-label','Actualiser le module administratif actif');
+  refreshCurrent.addEventListener('click',()=>void selectSection(active));
+  navTools.append(refreshCurrent);
   sidebar.append(navTools);
   const moduleList=el('div','admin-nav-list');sidebar.append(moduleList);
   let active='overview';
@@ -190,12 +189,12 @@ export async function mountAdminCenter(getClient){
     actions.append(b);
    }
    links.append(actions);view.append(links);
-   const [teams,requests,matches,posts]=await Promise.all([
+   const [teams,requests,matches,posts]=await withAuthDeadline(Promise.all([
     api.from('club_teams').select('id').limit(100),
     api.from('role_requests').select('id').eq('status','pending').limit(100),
     api.rpc('admin_list_management_matches'),
     api.rpc('admin_list_management_news')
-   ]);
+   ]));
    if(serial!==currentGeneration||!view.isConnected||active!=='overview')return;
    if([teams,requests,matches,posts].some(x=>x.error)){
     p.textContent='Une partie des indicateurs n’a pas pu être vérifiée. Aucun chiffre estimé n’est affiché.';return;
@@ -258,7 +257,12 @@ export async function mountAdminCenter(getClient){
   await selectSection(active);
  }catch{
   if(serial!==currentGeneration||!root.isConnected)return;
+  // On failure, discard every private node and offer a safe full re-check.
   root.replaceChildren(el('h2','','Service administratif temporairement indisponible'),
-   el('p','admin-empty','Impossible de vérifier ton rôle et le MFA. Aucun privilège n’est accordé.'));
+   el('p','admin-empty',adminFailureLabel('service')));
+  const retry=el('button','admin-secondary-btn','Réessayer la vérification administrateur');
+  retry.type='button';
+  retry.addEventListener('click',()=>void mountAdminCenter(getClient));
+  root.append(retry);
  }
 }
