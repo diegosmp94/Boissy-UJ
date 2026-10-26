@@ -54,7 +54,7 @@ test('SQL mutation cannot grant a role and requires MFA, approved player and aud
 test('real module is mounted in admin-only console without public role editing',()=>{
  const center=read('admin-center.mjs');
  assert.equal(ADMIN_MODULES.some(x=>x.id==='player-teams'),true);
- assert.match(center,/case 'player-teams':void mountAdminPlayerTeams\(view,api,verified\.userId\);break/);
+ assert.match(center,/case 'player-teams':void mountAdminPlayerTeams\(view,api,verified\.userId\)\.catch\(\(\)=>showModuleRetry\(view,id\)\);break/);
  assert.match(center,/const check=await adminSessionStatus\(api,verified\.userId\)/);
  assert.match(center,/if\(!canOpenAdmin\(check,supabaseConfig\.adminEnabled\)\)/);
  assert.doesNotMatch(ui,/innerHTML\s*=|localStorage|sb_secret_|service_role/);

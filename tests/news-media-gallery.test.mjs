@@ -80,7 +80,7 @@ test('media module is hidden until an authorized read RPC succeeds',()=>{
   .some(m=>m.id==='news-media'),false);
  assert.equal(availableAdminModules(ADMIN_MODULES,{eventsReady:true,coachTeamsReady:true,mediaReady:true})
   .some(m=>m.id==='news-media'),true);
- assert.match(center,/const mediaProbe=await api\.rpc\('admin_list_news_media'\)/);
- assert.match(center,/mediaReady=!mediaProbe\.error&&Array\.isArray\(mediaProbe\.data\)/);
+ assert.match(read('admin-control-reliability.mjs'),/adminCapability\(\(\)=>api\.rpc\('admin_list_news_media'\)/);
+ assert.match(read('admin-control-reliability.mjs'),/adminCapability\(\(\)=>api\.rpc\('admin_list_news_media'\),Array\.isArray/);
  assert.match(center,/mountAdminNewsMedia\(view,api,verified\.userId\)/);
 });

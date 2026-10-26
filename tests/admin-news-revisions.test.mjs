@@ -73,5 +73,6 @@ test('UI requires MFA at load and before restore with explicit check confirmatio
  assert.doesNotMatch(ui,/\.innerHTML\s*=|service_role|\.from\('staff_news_audit'\)/i);
  assert.match(css,/\.admin-revision-body\{white-space:pre-wrap/);
  assert.match(nav,/newsRevisionsReady===true/);
- assert.match(center,/admin_news_revisions_ready/);
+ assert.match(read('admin-control-reliability.mjs'),/admin_news_revisions_ready/);
+ assert.match(center,/await adminCapabilities\(api\)/);
 });
