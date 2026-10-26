@@ -1,6 +1,7 @@
 /** Scoped private convocations manager. Callup access and mutations are enforced by SQL RPCs. */
 import {normalizeCoachFixtures,normalizeCoachRoster,INVITATION_LABELS,invitationArgs,canChangeInvitation}
  from './coach-callups-rules.mjs';
+import {normalizeMatchSheet,sheetResponseCounts} from './private-match-sheet-rules.mjs';
 const elem=(tag,cls='',value=null)=>{
  const n=document.createElement(tag);if(cls)n.className=cls;
  if(value!==null)n.textContent=String(value);return n;
@@ -28,11 +29,16 @@ export async function mountCoachCallups(container,api,userId,teams){
  const team=dropdown('Équipe autorisée',teams.map(t=>[t.id,t.name]));
  const match=dropdown('Rencontre à préparer');
  const members=elem('div','coach-callups-roster');
+ const sheetBtn=elem('button','member-sports-secondary','Afficher la feuille de match privée');
+ sheetBtn.type='button';sheetBtn.disabled=true;
+ const sheetView=elem('section','coach-callups-sheet');
+ sheetView.setAttribute('aria-label','Feuille de match privée des joueurs convoqués');
+ sheetView.hidden=true;
  const refresh=elem('button','member-sports-secondary','Actualiser');
  refresh.type='button';refresh.disabled=true;
- section.append(title,intro,feedback,team.wrap,match.wrap,refresh,members);
+ section.append(title,intro,feedback,team.wrap,match.wrap,refresh,members,sheetBtn,sheetView);
  container.append(section);
- let requestId=0,busy=false;
+ let requestId=0,busy=false,sheetId=0;
  let currentFixtures=[],currentPlayers=[];
  const valid=async(teamId)=>{
   const u=await api.auth.getUser();
@@ -43,15 +49,69 @@ export async function mountCoachCallups(container,api,userId,teams){
    .select('team_id,active').eq('coach_user_id',userId).eq('team_id',teamId).eq('active',true).limit(1);
   return !permission.error&&permission.data?.some(p=>p.team_id===teamId&&p.active===true);
  };
- const clear=()=>{
-  members.replaceChildren();currentPlayers=[];match.select.replaceChildren();currentFixtures=[];
+ const clearSheet=()=>{
+  sheetId++;sheetView.replaceChildren();sheetView.hidden=true;
+  sheetBtn.disabled=true;sheetBtn.textContent='Afficher la feuille de match privée';
  };
+ const clear=()=>{
+  clearSheet();members.replaceChildren();currentPlayers=[];
+  match.select.replaceChildren();currentFixtures=[];
+ };
+ const showSheet=async()=>{
+  if(busy||!section.isConnected)return;
+  if(!sheetView.hidden){clearSheet();sheetBtn.disabled=false;return;}
+  const selectedTeam=team.select.value,selectedMatch=match.select.value;
+  if(!currentFixtures.some(m=>m.match_id===selectedMatch))return;
+  const ticket=++sheetId;
+  sheetView.hidden=false;sheetBtn.disabled=true;
+  sheetView.replaceChildren(status('Vérification de l’équipe et lecture de la feuille privée…'));
+  try{
+   if(!await valid(selectedTeam))throw new Error('Scope denied');
+   if(ticket!==sheetId||!section.isConnected||team.select.value!==selectedTeam
+      ||match.select.value!==selectedMatch)return;
+   const result=await api.rpc('staff_list_match_sheet',{p_match_id:selectedMatch});
+   if(ticket!==sheetId||!section.isConnected||team.select.value!==selectedTeam
+      ||match.select.value!==selectedMatch)return;
+   if(result.error||!Array.isArray(result.data))throw new Error('Private sheet unavailable');
+   const records=normalizeMatchSheet(result.data);
+   const counts=sheetResponseCounts(records);
+   sheetView.replaceChildren();
+   sheetView.append(elem('h5','','Feuille de match · accès privé'),
+    elem('p','member-sports-intro-note',
+      records.length+' convoqué(s) · '+counts.confirmed+' présent(s) · '+
+      counts.declined+' absent(s) · '+counts.unsure+' incertain(s) · '+
+      counts.invited+' réponse(s) attendue(s).'));
+   if(!records.length){
+    sheetView.append(elem('p','member-sports-empty',
+      'Aucun joueur actuellement convoqué pour cette rencontre.'));
+   }else{
+    const list=elem('ol','coach-match-sheet-list');
+    for(const record of records){
+     const line=elem('li','coach-match-sheet-player');
+     line.append(elem('strong','',record.name),
+      elem('span','','N° '+(record.shirt??'—')+' · '+record.position),
+      elem('span','',record.responseLabel));
+     list.append(line);
+    }
+    sheetView.append(list);
+   }
+   sheetBtn.textContent='Masquer la feuille de match privée';
+  }catch{
+   if(ticket===sheetId&&section.isConnected){
+    sheetView.replaceChildren(status(
+     'Feuille indisponible : revalide la session et l’affectation avant de réessayer.'));
+   }
+  }finally{
+   if(ticket===sheetId&&section.isConnected)sheetBtn.disabled=false;
+  }
+ };
+ sheetBtn.addEventListener('click',()=>void showSheet());
  const failure=message=>{
   feedback.textContent=message;clear();refresh.disabled=false;
  };
  async function loadRoster(){
   const serial=++requestId;
-  members.replaceChildren();currentPlayers=[];
+  clearSheet();members.replaceChildren();currentPlayers=[];
   const selected=match.select.value;
   const m=currentFixtures.find(x=>x.match_id===selected);
   if(!m){feedback.textContent='Sélectionne une rencontre autorisée.';return;}
@@ -68,7 +128,7 @@ export async function mountCoachCallups(container,api,userId,teams){
     failure('Liste privée indisponible. Les convocations sont verrouillées jusqu’à activation du backend sécurisé.');return;
    }
    currentPlayers=normalizeCoachRoster(result.data);
-   refresh.disabled=false;
+   sheetBtn.disabled=false;refresh.disabled=false;
    feedback.textContent=currentPlayers.length+' joueur(s) autorisé(s) pour cette rencontre.';
    if(!currentPlayers.length){
     members.append(elem('p','member-sports-empty',
@@ -96,14 +156,19 @@ export async function mountCoachCallups(container,api,userId,teams){
      }
      confirm=false;busy=true;action.disabled=true;
      resultText.textContent='Vérification du rôle et de l’équipe…';
+     const teamAtClick=team.select.value;
+     const listVersion=requestId;
      try{
-      if(!await valid(team.select.value)){
+      if(!await valid(teamAtClick)){
        if(section.isConnected)resultText.textContent='Session ou équipe non autorisée. Action annulée.';
        return;
       }
+      if(!section.isConnected||requestId!==listVersion||team.select.value!==teamAtClick
+        ||match.select.value!==selected)return;
       const payload=invitationArgs(selected,p,invite);
       const out=await api.rpc('staff_set_callup',payload);
-      if(!section.isConnected||selected!==match.select.value)return;
+      if(!section.isConnected||requestId!==listVersion||team.select.value!==teamAtClick
+         ||selected!==match.select.value)return;
       if(out.error||out.data!==true){
        resultText.textContent='Action refusée ou rencontre modifiée. Actualise le dossier.';
        return;
