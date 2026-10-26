@@ -32,7 +32,7 @@ test('assignment functions lock an approved TARGET role before writing affiliati
   ['admin_set_player_team_membership','player','p_player_user_id']
  ]){
   const f=functionText(name);
-  assert.match(f,new RegExp('r\\.user_id\\s*=\\s*'+target+'\\s+and r\\.role\\s*=\\s*\\''+role+'\\'','i'));
+  assert.match(f,new RegExp("r\\.user_id\\s*=\\s*"+target+"\\s+and r\\.role\\s*=\\s*'"+role+"'","i"));
   const lock=f.toLowerCase().indexOf('for share of r');
   const write=f.toLowerCase().indexOf(name.includes('coach')?'insert into public.staff_team_assignments':'insert into app_private.team_player_memberships');
   assert.ok(lock>=0&&lock<write);
