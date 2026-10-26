@@ -39,11 +39,13 @@ async function getRows(table,params,signal,fetcher){
 export async function loadPublishedPlayerProfile(id,{signal,fetcher=fetch}={}){
  if(!isPublicPlayerId(id))throw new Error('Identifiant de fiche invalide');
  const people=await getRows('team_public_people',{
-  select:'id,team_id,display_name,person_kind,role_label,shirt_number,biography,published,consent_confirmed',
-  id:'eq.'+id,person_kind:'eq.player',published:'eq.true',consent_confirmed:'eq.true',limit:'1'
+  select:'id,team_id,display_name,person_kind,role_label,shirt_number,biography,published,consent_confirmed,profile_visible,profile_consent_confirmed',
+  id:'eq.'+id,person_kind:'eq.player',published:'eq.true',consent_confirmed:'eq.true',
+  profile_visible:'eq.true',profile_consent_confirmed:'eq.true',limit:'1'
  },signal,fetcher);
  const person=people.find(p=>p.id===id&&p.person_kind==='player'
-  &&p.published===true&&p.consent_confirmed===true);
+  &&p.published===true&&p.consent_confirmed===true
+  &&p.profile_visible===true&&p.profile_consent_confirmed===true);
  if(!person)return null;
  if(typeof person.team_id!=='string')return null;
  const teams=await getRows('club_teams',{
