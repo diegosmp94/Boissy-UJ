@@ -50,12 +50,13 @@ test('likes are allowed only on actively public, consent-reviewed TEXT articles'
 
 test('unpublishing deletes only affected article reactions atomically to avoid stale member preferences',()=>{
  assert.match(sql,/create trigger news_reactions_unpublish_guard/);
- assert.match(sql,/after update of status,visibility,consent_reviewed,content_kind on public\.news_posts/);
+ assert.match(sql,/after update of status,visibility,consent_reviewed,content_kind,published_at on public\.news_posts/);
  assert.match(sql,/old\.status='published' and old\.visibility='public'/);
  assert.match(sql,/new\.status is distinct from 'published'/);
  assert.match(sql,/new\.visibility is distinct from 'public'/);
  assert.match(sql,/new\.consent_reviewed is distinct from true/);
  assert.match(sql,/new\.content_kind is distinct from 'article'/);
+ assert.match(sql,/new\.published_at is null or new\.published_at>now\(\)/);
  assert.match(sql,/delete from public\.news_reactions where post_id=new\.id/);
  assert.doesNotMatch(sql,/delete from public\.news_posts/);
  for(const f of ['app_private.verify_news_reaction_target','app_private.clear_unpublished_news_reactions'])
