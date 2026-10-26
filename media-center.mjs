@@ -9,6 +9,9 @@ const BASE = supabaseConfig.url + '/rest/v1/news_posts';
 const TEAM_BASE = supabaseConfig.url + '/rest/v1/club_teams';
 let currentAbort=null;
 let generation=0;
+let mediaRefreshTimer=null;
+let mediaResumeListener=null;
+export const MEDIA_SIGNATURE_REFRESH_MS=8*60*1000;
 
 function el(tag,className='',text=null){
   const n=document.createElement(tag);
@@ -134,6 +137,11 @@ function showFeed(root,rows,ready,teams=[],initialTeamCode=null){
 
 export function unmountNews(){
   generation++;
+  if(mediaRefreshTimer!==null){clearInterval(mediaRefreshTimer);mediaRefreshTimer=null;}
+  if(mediaResumeListener){
+    document.removeEventListener('visibilitychange',mediaResumeListener);
+    mediaResumeListener=null;
+  }
   currentAbort?.abort();
   currentAbort=null;
 }
@@ -184,6 +192,32 @@ export async function mountNews(initialTeamCode=null){
       applyReactions:reactions=>feed.setReactions(reactions),
       isActive:alive
     });
+    // Signed media tokens have a 10-minute TTL. Refresh before expiry while
+    // the news route is visible; never cache tokens across route changes.
+    // A resumed tab refreshes once immediately rather than exposing stale URLs.
+    let lastMediaRefresh=Date.now();
+    let updatingMedia=false;
+    const refreshMedia=async()=>{
+      if(updatingMedia||!alive()||document.visibilityState==='hidden')return;
+      updatingMedia=true;
+      try{
+        const next=await loadPublishedMedia(data,ctrl.signal);
+        if(alive())feed.setMedia(next);
+      }catch{
+        // On signing failure clear old expired tokens instead of reusing them.
+        if(alive())feed.setMedia(new Map());
+      }finally{
+        lastMediaRefresh=Date.now();
+        updatingMedia=false;
+      }
+    };
+    mediaRefreshTimer=setInterval(()=>void refreshMedia(),MEDIA_SIGNATURE_REFRESH_MS);
+    mediaResumeListener=()=>{
+      if(document.visibilityState!=='hidden'&&
+         Date.now()-lastMediaRefresh>=MEDIA_SIGNATURE_REFRESH_MS)
+        void refreshMedia();
+    };
+    document.addEventListener('visibilitychange',mediaResumeListener);
   }catch(err){
     if(ctrl.signal.aborted||id!==generation||!root.isConnected)return;
     showFeed(root,[],false,[],initialTeamCode);
