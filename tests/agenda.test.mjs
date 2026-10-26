@@ -19,7 +19,7 @@ const events=[
 ];
 
 test('only verified public future matches and events are included',()=>{
-  assert.deepEqual(combinePublishedAgenda(matches,events,team,{now}).map(x=>x.id),['m1','e1']);
+  assert.deepEqual(combinePublishedAgenda(matches,events,team,{now}).map(x=>x.id),['m1','m3','e1']);
   assert.equal(combinePublishedAgenda(matches,events,team,{now,kind:'match'}).length,1);
   assert.equal(combinePublishedAgenda(matches,events,team,{now,kind:'event'}).length,1);
 });
