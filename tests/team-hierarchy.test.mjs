@@ -71,14 +71,14 @@ test('match request is strictly read-only and scoped to the published team UUID'
   requests.push({url,options});
   if(url.includes('/club_teams?'))return {ok:true,json:async()=>[{id:'uuid-a',code:'a',discipline:'football'}]};
   return {ok:true,json:async()=>[
-   {id:'one',team_id:'uuid-a',match_status:'played',scheduled_at:'2026-10-01T15:00:00Z',home_score:2,away_score:1},
-   {id:'wrong-team',team_id:'uuid-b',match_status:'played'},
-   {id:'cancelled',team_id:'uuid-a',match_status:'cancelled'}
+   {id:'one',team_id:'uuid-a',opponent_name:'Visiteurs',published:true,match_status:'played',scheduled_at:'2026-10-01T15:00:00Z',home_score:2,away_score:1},
+   {id:'wrong-team',team_id:'uuid-b',opponent_name:'Autre club',published:true,match_status:'played',scheduled_at:'2026-10-01T15:00:00Z',home_score:2,away_score:1},
+   {id:'cancelled',team_id:'uuid-a',opponent_name:'Rencontre annulée',published:true,match_status:'cancelled',scheduled_at:'2026-10-01T15:00:00Z'}
   ]};
  };
  const result=await loadTeamPublishedMatches('a',{fetcher});
  assert.equal(result.configured,true);
- assert.deepEqual(result.matches.map(x=>x.id),['one']);
+ assert.deepEqual(result.matches.map(x=>x.id),['one','cancelled']);
  assert.equal(requests.length,2);
  assert.ok(requests[0].url.includes('code=eq.a'));
  assert.match(requests[1].url,/team_id=eq.uuid-a/);
