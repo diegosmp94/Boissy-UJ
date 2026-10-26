@@ -25,6 +25,6 @@ L'analyse des fonctions serveur avec `pg_proc` est **statique** : elle vérifie 
 
 L'alerte Supabase `authenticated_security_definer_function_executable` reste pertinente pour la revue des autres fonctions. Révoquer `EXECUTE` à `authenticated` sur toutes les RPC empêcherait les écrans métier de fonctionner. Il faut examiner la nécessité et l'autorisation de chacune, pas effacer globalement le warning.
 
-Les autres durcissements transversaux restent à poursuivre au titre de l'étape 67 ; ce lot clôt spécifiquement la faille de réponse à une convocation après retrait de rôle/équipe.
+La revue transversale et le second lot de verrouillage des écritures entraîneur/administrateur figurent désormais dans [l'audit complet de l'étape 67](ETAPE_67_AUDIT_GLOBAL_RPC_20261026.md). Ce premier lot clôt spécifiquement la faille de réponse à une convocation après retrait de rôle/équipe.
 
 Documentation des risques : https://supabase.com/docs/guides/observability/advisors?queryGroups=lint&lint=0029_authenticated_security_definer_function_executable
