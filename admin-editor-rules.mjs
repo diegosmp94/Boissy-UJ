@@ -24,7 +24,7 @@ export function validateMatchDraft(d,teams=[],seasons=[]){
   const label=String(d.competitionLabel??'').trim();
   if(!['league','cup','friendly','unspecified'].includes(kind))
    return 'Choisis une compétition valide (Championnat, Coupe, Amical ou À classifier).';
-  if(label.length>100||label.length>0&&label.length<3||/[\\x00-\\x1f\\x7f]/.test(label))
+  if(label.length>100||label.length>0&&label.length<3||/[\x00-\x1f\x7f]/.test(label))
    return 'Le nom de la compétition doit comporter de 3 à 100 caractères sans caractères de contrôle.';
   if(kind==='unspecified'&&label.length)
    return 'Une rencontre non classée ne doit pas porter un intitulé de compétition.';
