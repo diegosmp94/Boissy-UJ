@@ -38,6 +38,9 @@ export function buildPublicCalendar(entries,{now=Date.now()}={}){
   let total=0;
   for(const item of entries){
     if(!item||!['match','event'].includes(item.kind))continue;
+    // A cancelled, postponed or already played match must never become a
+    // forthcoming calendar invitation in an exported iCalendar file.
+    if(item.kind==='match'&&item.status!=='scheduled')continue;
     const id=String(item.id??'');
     const time=Number(item.time);
     if(!/^[a-zA-Z0-9-]{1,80}$/.test(id)||!Number.isFinite(time)||
