@@ -9,7 +9,7 @@
     "check": "node --check app.js && npm test",
     "build:preview": "node scripts/build-preview.mjs",
     "audit:preview": "node scripts/audit-preview.mjs",
-    "release:check": "npm test && npm run build:preview && npm run audit:preview",
+    "release:check": "npm test && npm run audit:features && npm run build:preview && npm run audit:preview",
     "smoke:browser": "node scripts/browser-smoke.mjs",
     "audit:privacy": "node scripts/privacy-inventory.mjs",
     "quality:release": "npm run release:check && npm run audit:privacy && npm run smoke:browser",
@@ -21,6 +21,7 @@
     "staging:preflight": "node scripts/staging-readiness.mjs",
     "staging:migration-plan": "node scripts/staging-migration-plan.mjs",
     "local:preflight": "node scripts/local-supabase-readiness.mjs",
-    "verify:recovery": "node scripts/compare-recovery-inventories.mjs"
+    "verify:recovery": "node scripts/compare-recovery-inventories.mjs",
+    "audit:features": "node scripts/capability-inventory.mjs"
   }
 }
