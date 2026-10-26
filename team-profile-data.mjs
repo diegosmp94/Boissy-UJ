@@ -3,6 +3,7 @@ import {CLUB_TEAMS} from './club-teams.mjs';
 import {teamSubpageRoute} from './team-subpages.mjs';
 import {boundedPublicRequest} from './public-catalog-timeout.mjs';
 import {isPublicPlayerId,playerPublicRoute} from './player-profile-page.mjs';
+import {educatorPublicRoute,publicIndividualProfileAllowed,isPublishedEducatorRole} from './educator-profile-page.mjs';
 import {PLAYER_POSITION_GROUPS,groupPublishedPlayers} from './player-position-groups.mjs';
 
 const BASE=supabaseConfig.url+'/rest/v1/';
@@ -50,7 +51,7 @@ export async function loadTeamPublicExtras(code,{signal,fetcher=fetch,now=Date.n
  if(!remote)return {configured:false,people:[],metrics:null,news:[],errors:[]};
  const tasks=[
   rows('team_public_people',{
-   select:'id,team_id,display_name,person_kind,role_label,shirt_number,biography,sort_order,published,consent_confirmed',
+   select:'id,team_id,display_name,person_kind,role_label,shirt_number,biography,sort_order,published,consent_confirmed,profile_visible,profile_consent_confirmed',
    team_id:'eq.'+remote.id,published:'eq.true',consent_confirmed:'eq.true',
    order:'sort_order.asc',limit:'150'
   },signal,fetcher),
@@ -81,7 +82,7 @@ const empty=(message)=>element('p','team-extras-empty',message);
  * deliberately an identity-free portrait placeholder, never a fabricated face.
  */
 export function renderPublicPlayerRosterCard(person){
- const validProfile=isPublicPlayerId(person?.id);
+ const validProfile=isPublicPlayerId(person?.id)&&publicIndividualProfileAllowed(person);
  const card=element(validProfile?'a':'article','team-extras-person team-extras-player-card');
  if(validProfile){
   card.href=playerPublicRoute(person.id);
@@ -107,19 +108,20 @@ export function renderPublicPlayerRosterCard(person){
  * as coaching/training support. Public roster records are independent of
  * private coach/team assignments and require per-team publication consent. */
 export function isPublicEducator(person){
- if(!person||person.published!==true||person.consent_confirmed!==true)return false;
- if(person.person_kind==='coach')return true;
- if(person.person_kind!=='staff')return false;
- const role=String(person.role_label||'').normalize('NFD')
-  .replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('fr-FR').trim();
- return /^(entraineur|educateur|coach|adjoint|preparateur physique|preparateur sportif|assistant entraineur)(\b|\s|$)/.test(role);
+ return person?.published===true&&person?.consent_confirmed===true
+  &&isPublishedEducatorRole(person);
 }
 export function publicEducators(people){
  return (Array.isArray(people)?people:[]).filter(isPublicEducator);
 }
 /** A visual placeholder, not a real portrait or a public player profile. */
 export function renderPublicEducatorCard(person){
- const card=element('article','team-extras-person team-extras-educator-card');
+ const hasProfile=isPublicPlayerId(person?.id)&&publicIndividualProfileAllowed(person);
+ const card=element(hasProfile?'a':'article','team-extras-person team-extras-educator-card');
+ if(hasProfile){
+  card.href=educatorPublicRoute(person.id);
+  card.setAttribute('aria-label','Voir la fiche de '+String(person.display_name||'').trim());
+ }
  const portrait=element('div','team-extras-player-portrait team-extras-educator-portrait');
  portrait.setAttribute('role','img');
  portrait.setAttribute('aria-label','Photo de l’éducateur non publiée');

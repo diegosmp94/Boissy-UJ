@@ -5,6 +5,7 @@ import {mountTeamAffiliatedRoster,unmountTeamAffiliatedRoster} from './team-affi
 import {mountTeamProfile,unmountTeamProfile} from './team-pages.mjs';
 import {mountTeamPublicExtras,unmountTeamPublicExtras} from './team-profile-data.mjs';
 import {isPublicPlayerId,mountPublicPlayerProfile,unmountPublicPlayerProfile} from './player-profile-page.mjs';
+import {isPublicEducatorId,mountPublicEducatorProfile,unmountPublicEducatorProfile} from './educator-profile-page.mjs';
 import {mountAwards,unmountAwards} from './awards-center.mjs';
 import {mountPremiumPlans} from './premium-front.mjs';
 import {mountJoin,unmountJoin,mountPractical,unmountPractical} from './join-center.mjs';
@@ -319,6 +320,12 @@ function playerProfilePage(){return pageShell(
  '<div id="player-profile-public-root" class="player-profile-public-root" aria-live="polite">'+
  '<p class="player-profile-preview-note">Préparation de la fiche joueur…</p></div>'
 );}
+function educatorProfilePage(){return pageShell(
+ 'Le collectif · Fiche individuelle','FICHE <em>ÉDUCATEUR.</em>',
+ 'Une présentation officielle, réservée aux informations autorisées et validées par le club.',
+ '<div id="educator-profile-public-root" class="player-profile-public-root" aria-live="polite">'+
+ '<p class="player-profile-preview-note">Préparation de la fiche éducateur…</p></div>'
+);}
 const teamRoutes=Object.fromEntries([
   ...DISCIPLINES.map(d=>[categoryRoute(d.id).slice(1),()=>categoryTeamPage(d.id)]),
   ...teams.map(t=>[teamRoute(t).slice(1),()=>singleTeamPage(t)])
@@ -335,8 +342,10 @@ function render(){
   let path=route.path;
   const publicPlayerId=path.startsWith('/joueurs/')&&
     isPublicPlayerId(path.slice('/joueurs/'.length))?path.slice('/joueurs/'.length):null;
-  if(!Object.hasOwn(routes,path)&&!publicPlayerId)path='/';
-  main.innerHTML=publicPlayerId?playerProfilePage():routes[path]();
+  const publicEducatorId=path.startsWith('/educateurs/')&&
+    isPublicEducatorId(path.slice('/educateurs/'.length))?path.slice('/educateurs/'.length):null;
+  if(!Object.hasOwn(routes,path)&&!publicPlayerId&&!publicEducatorId)path='/';
+  main.innerHTML=publicPlayerId?playerProfilePage():publicEducatorId?educatorProfilePage():routes[path]();
   document.body.classList.toggle('on-home',path==='/');
   document.querySelectorAll('.desktop-links a,.bottom-nav a,.mobile-menu a').forEach(el=>{
     const href=el.getAttribute('href');
@@ -383,6 +392,8 @@ function render(){
   }else {unmountTeamProfile();unmountTeamPublicExtras();}
   if(path==='/joueurs/apercu'||publicPlayerId)void mountPublicPlayerProfile(publicPlayerId);
   else unmountPublicPlayerProfile();
+  if(publicEducatorId)void mountPublicEducatorProfile(publicEducatorId);
+  else unmountPublicEducatorProfile();
   if(path==='/matchs') void mountTeamStats(); else unmountTeamStats();
   if(path==='/matchs') void mountLeagueStandings(route.teamCode);
   else if(activeTeam&&(!activeSubpage||activeSubpage.section==='matchs')) void mountLeagueStandings(activeTeam.code);
@@ -405,7 +416,7 @@ function render(){
   if(path==='/control-center') void mountAdminCenter(getAuthClient); else unmountAdminCenter();
   document.title=(path==='/'?'Boissy-UJ — Club officiel':`Boissy-UJ — ${({ '/matchs':'Match Center','/equipes':'Nos équipes','/actualites':'Actualités','/communaute':'Communauté','/awards':'Awards','/evenements':'Événements','/agenda':'Agenda','/soutenir':'Soutenir le club','/rejoindre':'Nous rejoindre','/infos-pratiques':'Infos pratiques','/club':'Notre club','/mon-espace':'Mon espace','/control-center':'Administration sécurisée','/joueurs/apercu':'Aperçu fiche joueur','/confidentialite':'Confidentialité','/mentions-legales':'Mentions légales',...Object.fromEntries(DISCIPLINES.map(d=>[categoryRoute(d.id).slice(1),disciplineLabel(d.id)])),...Object.fromEntries(teams.map(t=>[teamRoute(t).slice(1),t.name])),
     ...Object.fromEntries(teams.flatMap(t=>TEAM_SUBPAGE_SECTIONS.map(section=>
-      [teamSubpageRoute(t,section.id).slice(1),t.name+' · '+section.label])))})[path]|| (publicPlayerId?'Fiche joueur':'Boissy UJ')}`);
+      [teamSubpageRoute(t,section.id).slice(1),t.name+' · '+section.label])))})[path]|| (publicPlayerId?'Fiche joueur':publicEducatorId?'Fiche éducateur':'Boissy UJ')}`);
 }
 function setupChapters(){
   const sections=[...document.querySelectorAll('.chapter')];

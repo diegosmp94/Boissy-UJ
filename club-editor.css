@@ -40,3 +40,17 @@ textarea.club-editor-control{min-height:150px;resize:vertical;line-height:1.6}
 .admin-roster-audit-item p{font-size:12px;line-height:1.65;color:#d6e5f5;margin:8px 0}
 .admin-roster-audit-alert{color:#ffd39c!important;font-weight:850}
 .admin-roster-audit-disclaimer{margin:14px 0 0;font-size:12px;line-height:1.65;color:#ebcf9a}
+
+/* Étape 81 — autorisation séparée de la fiche individuelle. */
+.team-profile-publication{margin-block:1.3rem;padding:clamp(16px,3vw,24px);
+ border:1px solid rgba(216,183,116,.55);border-radius:16px;
+ background:linear-gradient(140deg,#102e50,#071c36);display:grid;gap:12px}
+.team-profile-publication h3{margin:0;color:#f0d39b}
+.team-profile-publication .club-editor-check{display:flex;align-items:flex-start;gap:10px;
+ min-height:44px;line-height:1.55;overflow-wrap:anywhere}
+.team-profile-publication .club-editor-check input{flex-shrink:0;margin-top:4px;width:20px;height:20px;accent-color:#d8b775}
+.team-profile-publication .team-person-secondary-button{min-height:44px;white-space:normal}
+.team-profile-publication .club-editor-feedback{margin:0;overflow-wrap:anywhere}
+.team-profile-publication[hidden],.team-profile-publication .club-editor-check[hidden]{display:none!important}
+@media(max-width:600px){.team-profile-publication{min-width:0}
+ .team-profile-publication .team-person-secondary-button{width:100%}}

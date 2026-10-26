@@ -10,7 +10,8 @@ const uid='51e41d5a-2c16-4955-9c12-b1ad8fe60a92';
 const teamUid='32c74e33-f765-40ad-85c1-b1ba6f983272';
 const person={id:uid,team_id:teamUid,display_name:'Joueur autorisé',
  person_kind:'player',role_label:'Milieu',shirt_number:8,
- biography:'Présentation validée par le club.',published:true,consent_confirmed:true};
+ biography:'Présentation validée par le club.',published:true,consent_confirmed:true,
+ profile_visible:true,profile_consent_confirmed:true};
 const team={id:teamUid,code:'a',discipline:'football'};
 function fetcherFor({people=[person],teams=[team],fail=null}={}){
  const calls=[];
@@ -44,6 +45,8 @@ test('public player loader reads consented rows and known team via GET only',asy
  assert.match(calls[0].url,/team_public_people\?/);
  assert.match(calls[0].url,/published=eq.true/);
  assert.match(calls[0].url,/consent_confirmed=eq.true/);
+ assert.match(calls[0].url,/profile_visible=eq.true/);
+ assert.match(calls[0].url,/profile_consent_confirmed=eq.true/);
  assert.match(calls[0].url,/person_kind=eq.player/);
  assert.match(calls[0].url,/id=eq./);
  assert.match(calls[1].url,/club_teams\?/);
@@ -52,7 +55,8 @@ test('public player loader reads consented rows and known team via GET only',asy
 });
 
 test('unpublished, no-consent, coaches and unknown teams cannot render an individual player',async()=>{
- for(const patch of [{published:false},{consent_confirmed:false},{person_kind:'coach'}]){
+ for(const patch of [{published:false},{consent_confirmed:false},{person_kind:'coach'},
+  {profile_visible:false},{profile_consent_confirmed:false}]){
   const {fetcher}=fetcherFor({people:[{...person,...patch}]});
   assert.equal(await loadPublishedPlayerProfile(uid,{fetcher}),null);
  }

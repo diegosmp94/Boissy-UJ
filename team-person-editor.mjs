@@ -177,7 +177,7 @@ export async function mountAuthenticatedTeamPeopleEditor(container,api,userId){
  const selectLabel=make('label','club-editor-field','Profil à modifier');
  const selector=make('select','club-editor-control');
  selectLabel.append(selector);frameData.form.insertBefore(selectLabel,frameData.form.firstChild);
- let teams=[],entries=[],loading=false,confirmation=null,rosterRevision=0,reloadRevision=0;
+ let teams=[],entries=[],loading=false,confirmation=null,profileConfirmation=null,rosterRevision=0,reloadRevision=0;
  const directory=make('section','team-roster-directory');
  directory.setAttribute('aria-label','Répertoire privé des fiches sportives');
  root.insertBefore(directory,frameData.form);
@@ -190,18 +190,47 @@ export async function mountAuthenticatedTeamPeopleEditor(container,api,userId){
  const withdraw=button('Préparer la dépublication','team-person-secondary-button');
  controls.append(refresh,withdraw);
  frameData.form.append(controls);
+ const profileArea=make('section','team-profile-publication');
+ profileArea.setAttribute('aria-label','Publication de la fiche individuelle');
+ const profileTitle=make('h3','','Fiche individuelle joueur / éducateur');
+ const profileHelp=make('p','club-editor-help',
+  'Le consentement à figurer dans l’effectif ne vaut pas autorisation pour une fiche personnelle. Publication séparée, révocable et journalisée. Les droits des mineurs doivent être vérifiés hors de cet écran.');
+ const profileCheck=make('input');profileCheck.type='checkbox';
+ const profileConsent=labeled('Je confirme avoir vérifié l’autorisation spécifique de publication de cette fiche individuelle et de sa présentation.',profileCheck);
+ profileConsent.classList.add('club-editor-check');
+ const profileButton=button('Autoriser la fiche individuelle');
+ const profileStatus=make('p','club-editor-feedback');
+ profileStatus.setAttribute('role','status');profileStatus.setAttribute('aria-live','polite');
+ profileArea.append(profileTitle,profileHelp,profileConsent,profileButton,profileStatus);
+ root.append(profileArea);
  const selected=()=>entries.find(r=>r.id===selector.value)||null;
  const browser=mountAdminRosterDirectory(directory,id=>{
    if(loading)return;
    selector.value=id;choose();
    frameData.f.name.focus();
  });
+ const syncProfilePermissions=()=>{
+  const person=selected();
+  const published=person?.profile_visible===true&&person?.profile_consent_confirmed===true;
+  profileArea.hidden=!person;
+  profileConfirmation=null;
+  profileCheck.checked=false;
+  profileConsent.hidden=published;
+  profileButton.textContent=published?'Préparer le retrait de la fiche individuelle':'Autoriser la fiche individuelle';
+  profileButton.disabled=loading||!person||(!published&&
+   (person.published!==true||person.consent_confirmed!==true));
+  profileStatus.textContent=!person?'Enregistre d’abord le profil sportif.'
+   :published?'Fiche individuelle publiée avec accord spécifique : retrait possible.'
+   :person.published&&person.consent_confirmed?'Fiche individuelle privée. Vérifie l’accord spécifique avant publication.'
+   :'Publie d’abord la fiche dans l’effectif avec les accords applicables.';
+ };
  const choose=()=>{
   frameData.fill(selected(),teams);
   confirmation=null;
   frameData.feedback.textContent=selected()?'Profil chargé · modifications non enregistrées.':'Nouveau brouillon.';
   withdraw.hidden=selected()?.published!==true;
   browser.update(entries,teams,selected()?.id||null);
+  syncProfilePermissions();
  };
  async function reload(preferred=null){
   const run=++reloadRevision;
@@ -209,7 +238,7 @@ export async function mountAuthenticatedTeamPeopleEditor(container,api,userId){
   // Clear confidential admin data BEFORE requesting a fresh MFA-gated snapshot.
   // This also prevents stale counts or identities from remaining visible if MFA expires.
   rosterRevision++;rosterAudit?.invalidate();
-  confirmation=null;teams=[];entries=[];
+  confirmation=null;profileConfirmation=null;profileArea.hidden=true;teams=[];entries=[];
   browser.update([],[],null);
   selector.replaceChildren();selector.disabled=true;
   frameData.fill(null);
@@ -260,6 +289,54 @@ export async function mountAuthenticatedTeamPeopleEditor(container,api,userId){
    if(current())refresh.disabled=loading;
   }
  }
+ profileCheck.addEventListener('change',()=>{profileConfirmation=null;});
+ profileButton.addEventListener('click',async()=>{
+  if(loading||!root.isConnected)return;
+  const person=selected();
+  if(!person){profileStatus.textContent='Enregistre d’abord le profil.';return;}
+  const enabled=person.profile_visible===true&&person.profile_consent_confirmed===true;
+  const grant=!enabled;
+  if(grant&&(!person.published||!person.consent_confirmed||!profileCheck.checked)){
+   profileStatus.textContent='Publication réservée à un profil d’effectif autorisé et à un accord individuel explicitement vérifié.';
+   return;
+  }
+  const fingerprint=person.id+'|'+person.updated_at+'|'+String(grant);
+  if(profileConfirmation!==fingerprint){
+   profileConfirmation=fingerprint;
+   profileButton.textContent=grant?'Confirmer la publication de la fiche individuelle':'Confirmer le retrait de la fiche individuelle';
+   profileStatus.textContent=grant
+    ?'Confirme la mise en ligne de la fiche complète (nom, équipe, rôle et biographie).'
+    :'Confirme : ce lien public individuel cessera de présenter la fiche.';
+   return;
+  }
+  profileConfirmation=null;loading=true;profileButton.disabled=true;profileCheck.disabled=true;
+  profileStatus.textContent='Vérification MFA AAL2 et enregistrement de l’accord individuel…';
+  try{
+   if(!await verifyAdmin(api,userId))throw new Error('MFA required');
+   if(!root.isConnected||selected()?.id!==person.id)return;
+   const result=await api.rpc('admin_set_public_person_profile',{
+    p_person_id:person.id,p_enable:grant,p_consent_reviewed:grant&&profileCheck.checked,
+    p_expected_updated_at:person.updated_at
+   });
+   if(!root.isConnected||selected()?.id!==person.id)return;
+   if(result.error||result.data!==true){
+    profileStatus.textContent=result.error?.code==='40001'
+     ?'Profil modifié entre-temps : recharge avant de confirmer.'
+     :'Publication ou retrait refusé par Supabase. Vérifie les droits et actualise.';
+    return;
+   }
+   const ok=await reload(person.id);
+   if(root.isConnected&&ok)profileStatus.textContent=grant
+    ?'Fiche individuelle publiée après consentement spécifique et validation serveur.'
+    :'Fiche individuelle retirée : aucun nouveau lien public n’est autorisé.';
+  }catch{
+   if(root.isConnected)profileStatus.textContent=
+    'Action non confirmée. Vérifie la session et actualise la liste des profils.';
+  }finally{
+   loading=false;if(profileCheck.isConnected)profileCheck.disabled=false;
+   if(profileButton.isConnected&&!profileArea.hidden)syncProfilePermissions();
+  }
+ });
  selector.addEventListener('change',choose);
  refresh.addEventListener('click',async()=>{
    if(loading)return;
