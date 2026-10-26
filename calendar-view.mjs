@@ -43,7 +43,10 @@ export function mountMonthCalendar(root,{now=Date.now()}={}){
   const state=item.external
    ?(item.status==='played'?'Résultat · à confirmer par le club':
       item.status==='unknown'?'Rencontre passée · score non communiqué':'Rencontre à confirmer par le club')
-   :item.kind==='match'?'Match publié par le club':'Événement publié par le club';
+   :item.kind==='match'?(item.status==='cancelled'?'Match annulé par le club':
+     item.status==='postponed'?'Match reporté par le club':
+     item.status==='played'?'Résultat publié par le club':'Match programmé par le club'):
+     'Événement publié par le club';
   const meta=make('p','month-calendar-meta',state+' · '+timeLabel(item)+(item.info?' · '+item.info:''));
   const desc=make('p','',item.subtitle||'');
   card.append(title,meta,desc);
