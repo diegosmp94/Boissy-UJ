@@ -23,6 +23,20 @@ with exposed as (
     and pg_get_functiondef(p.oid) like '%auth.uid%'
     and pg_get_functiondef(p.oid) like '%user_roles%'
  ) as mfa_and_role_present
+), player_reply as (
+ select exists(
+  select 1 from pg_proc p
+  join pg_namespace n on n.oid=p.pronamespace
+  where n.nspname='public' and p.proname='player_respond_callup'
+    and p.prosecdef
+    and position('r.role=''player''' in pg_get_functiondef(p.oid))>0
+    and position('tm.active=true' in pg_get_functiondef(p.oid))>0
+    and position('for share of r' in lower(pg_get_functiondef(p.oid)))>0
+    and position('for share of tm' in lower(pg_get_functiondef(p.oid)))>0
+    and position('for update of c' in lower(pg_get_functiondef(p.oid)))>0
+    and not has_function_privilege('anon',p.oid,'EXECUTE')
+    and has_function_privilege('authenticated',p.oid,'EXECUTE')
+ ) as reply_guard_markers_present
 )
 select
  (select count(*) from exposed) as public_tables,
@@ -32,4 +46,5 @@ select
  (select count(*) from definer where proname like 'admin_%' and auth_execute) as auth_admin_rpc_count,
  (select count(*) from definer where proname like 'admin_%'
     and auth_execute and not mentions_admin_guard) as admin_functions_missing_guard_reference,
- (select mfa_and_role_present from mfa_guard) as static_mfa_guard_marker_present;
+ (select mfa_and_role_present from mfa_guard) as static_mfa_guard_marker_present,
+ (select reply_guard_markers_present from player_reply) as player_reply_active_scope_guard_markers_present;
