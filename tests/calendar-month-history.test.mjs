@@ -72,7 +72,8 @@ test('month view is real DOM interactive, accessible, and does not mutate backen
  assert.match(view,/month-calendar-event/);
  assert.match(agenda,/mountMonthCalendar/);
  assert.match(agenda,/includePast:true,period:'all'/);
- assert.match(agenda,/select:'id,team_id,opponent_name,scheduled_at,venue,is_home,match_status,published,home_score,away_score'/);
+ assert.match(agenda,/publishedMatchParams\(\)/);
+ assert.match(read('public-sports-sync.mjs'),/PUBLIC_MATCH_COLUMNS=/);
  assert.match(css,/month-calendar-board/);
  assert.match(css,/max-width:600px/);
  for(const src of [view,read('calendar-month.mjs')]){
