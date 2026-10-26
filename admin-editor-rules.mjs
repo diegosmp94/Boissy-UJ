@@ -1,5 +1,11 @@
 /** Form rules mirror Supabase RPC constraints. Pure, testable, no account data. */
-export function validateSeasonDraft(d){
+import {seasonTransitionAllowed} from './season-lifecycle-rules.mjs';
+export function validateSeasonDraft(d,previous=null){
+ if(!seasonTransitionAllowed(previous?.state??null,d.state??'planned'))
+  return 'Transition de saison interdite : prévue → en cours → terminée → archivée.';
+ if(previous&&['completed','archived'].includes(previous.state)&&
+   (d.label!==previous.label||d.start!==previous.starts_on||d.end!==previous.ends_on))
+  return 'Les dates et le libellé d’une saison terminée ou archivée ne sont plus modifiables.';
  const match=/^([0-9]{4})\/([0-9]{4})$/.exec(String(d.label||''));
  if(!match||Number(match[1])<2020||Number(match[1])>2100||Number(match[2])!==Number(match[1])+1)
   return 'Format de saison attendu : 2026/2027.';

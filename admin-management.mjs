@@ -8,6 +8,8 @@ import {previewAuthorizedFffFeed,FFF_CLUB_AFFILIATION,FFF_PUBLIC_PORTAL} from '.
 import {CLUB_TEAMS} from './club-teams.mjs';
 import {publicExternalFixtures} from './external-match-previews.mjs';
 import {validateSeasonDraft,validateMatchDraft,validateNewsDraft,adminSaveErrorMessage} from './admin-editor-rules.mjs';
+import {SEASON_STATE_LABELS} from './season-lifecycle-rules.mjs';
+import {mountAdminSeasonRollover} from './admin-season-rollover.mjs';
 import {eventDateInput,validateFreeEventDraft,eventRpcArgs} from './admin-event-rules.mjs';
 
 const el=(tag,cls='',value=null)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(value!==null)n.textContent=String(value);return n;};
@@ -90,7 +92,7 @@ function editor(root,title,api,userId,{rpcList,rpcSave,fields,validate,args,prev
   const problem=validate(data,row);
   if(problem){UI.message.textContent=problem;return;}
   const payload=args(data,row);
-  const requiresConfirmation=data.publish===true||row?.published===true||row?.status==='published'||row?.state==='active';
+  const requiresConfirmation=data.publish===true||row?.published===true||row?.status==='published'||['active','completed','archived'].includes(row?.state)||['active','completed','archived'].includes(data.state);
   const key=JSON.stringify(payload);
   if(requiresConfirmation&&key!==confirmKey){
    confirmKey=key;UI.message.textContent='Action sensible : vérifie les informations puis clique de nouveau pour confirmer l’enregistrement.';
@@ -117,7 +119,7 @@ function textField(label,type='text',initial=''){
 }
 export function mountAdminSeasons(root,api,userId){
  const label=input();label.placeholder='2026/2027';label.maxLength=9;
- const state=select([['planned','Prévue'],['active','En cours'],['completed','Terminée']]);
+ const state=select(Object.entries(SEASON_STATE_LABELS));
  const start=input('date'),end=input('date');
  const get=(k)=>(row)=>row?.[k]??'';
  editor(root,'Saisons du club',api,userId,{
@@ -131,8 +133,9 @@ export function mountAdminSeasons(root,api,userId){
   preview:()=>({label:label.value.trim(),state:state.value,start:start.value,end:end.value,publish:state.value==='active'}),
   validate:validateSeasonDraft,
   args:(d,row)=>({p_season_id:row?.id||null,p_label:d.label,p_state:d.state,p_starts_on:d.start,p_ends_on:d.end}),
-  display:row=>row.label+' · '+row.state
+  display:row=>row.label+' · '+(SEASON_STATE_LABELS[row.state]||row.state)
  });
+ void mountAdminSeasonRollover(root,api,userId);
 }
 /** Preview-only: FFF has not provided a public club-feed API authorization.
  * Never fetch old DOFA endpoints, store credentials or write these dates automatically.
