@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {ADMIN_GROUP_ORDER,normalizeAdminSearch,filterAdminModules,groupAdminModules,availableAdminModules} from '../admin-navigation.mjs';
 import {ADMIN_MODULES} from '../admin-center.mjs';
 const read=x=>readFileSync(new URL('../'+x,import.meta.url),'utf8');
-const center=read('admin-center.mjs'),css=read('admin-console.css');
+const center=read('admin-center.mjs'),css=read('admin-console.css'),probe=read('admin-control-reliability.mjs');
 
 test('search finds actual modules by title, group and description without accents',()=>{
  assert.equal(normalizeAdminSearch('  ÉQUIPES  '),'equipes');
@@ -35,8 +35,8 @@ test('free events never appear in navigation if backend probe fails',()=>{
  assert.equal(enabled.some(m=>m.id==='ticketing'),true);
  assert.equal(disabled.some(m=>m.id==='matches'),true);
  assert.equal(enabled.length,disabled.length+2);
- assert.match(center,/const eventProbe=await api\.rpc\('admin_list_free_events'\)/);
- assert.match(center,/const eventsReady=!eventProbe\.error&&Array\.isArray\(eventProbe\.data\)/);
+ assert.match(probe,/adminCapability\(\(\)=>api\.rpc\('admin_list_free_events'\)/);
+ assert.match(center,/await adminCapabilities\(api\)/);
  assert.match(center,/const availableModules=availableAdminModules\(ADMIN_MODULES,\{eventsReady,coachTeamsReady,mediaReady,newsRevisionsReady\}\)/);
 });
 
@@ -46,7 +46,7 @@ test('media administration is fail-closed until its AAL2 read RPC is installed',
  assert.equal(ready.some(m=>m.id==='news-media'),true);
  assert.equal(missing.some(m=>m.id==='news-media'),false);
  assert.equal(ready.length,missing.length+1);
- assert.match(center,/const mediaProbe=await api.rpc\('admin_list_news_media'\)/);
+ assert.match(probe,/adminCapability\(\(\)=>api\.rpc\('admin_list_news_media'\)/);
 });
 
 test('coach teams tools are fail-closed until their protected read RPC is deployed',()=>{
@@ -56,8 +56,8 @@ test('coach teams tools are fail-closed until their protected read RPC is deploy
  const ready=availableAdminModules(ADMIN_MODULES,{eventsReady:true,coachTeamsReady:true});
  assert.equal(ready.some(m=>m.id==='coach-teams'),true);
  assert.equal(ready.some(m=>m.id==='events'),true);
- assert.match(center,/const probe=await api\.rpc\('admin_list_team_coaches',\{p_team_id:candidate\}\)/);
- assert.match(center,/coachTeamsReady=!probe\.error&&Array\.isArray\(probe\.data\)/);
+ assert.match(probe,/api\.rpc\('admin_list_team_coaches',\{p_team_id:candidate\}\)/);
+ assert.match(probe,/const \[eventsReady,coachTeamsReady,mediaReady,newsRevisionsReady\]=await Promise\.all/);
 });
 
 test('admin sidebar is searchable and displays real grouped links only',()=>{
@@ -96,7 +96,7 @@ test('version history is invisible until backend is installed and MFA capability
  assert.equal(missing.some(m=>m.id==='news-revisions'),false);
  assert.equal(present.some(m=>m.id==='news-revisions'),true);
  assert.equal(present.length,missing.length+1);
- assert.match(center,/const revisionsProbe=await api.rpc\('admin_news_revisions_ready'\)/);
- assert.match(center,/newsRevisionsReady=!revisionsProbe.error&&revisionsProbe.data===true/);
+ assert.match(probe,/adminCapability\(\(\)=>api\.rpc\('admin_news_revisions_ready'\)/);
+ assert.match(probe,/value=>value===true/);
  assert.match(center,/case 'news-revisions':void mountAdminNewsRevisions\(view,api,verified.userId\)/);
 });
