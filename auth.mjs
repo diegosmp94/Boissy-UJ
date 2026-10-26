@@ -77,6 +77,8 @@ function alertFor(root, message, isError = false) {
 }
 
 function authCard(root, mode = "login") {
+  // An explicit change of account form invalidates older in-flight session reads.
+  sessionViewGeneration+=1;
   root.replaceChildren();
   const title = {
     login: "Se connecter", register: "Créer un compte supporter",
@@ -240,7 +242,7 @@ async function showSession(root, api) {
   account.append(el("span", "tiny-label", "MON ESPACE PERSONNEL"));
   account.append(el("h2", "", profileResult.data?.display_name || "Bienvenue au club"));
   account.append(el("p", "auth-email", user.email || ""));
-  const roles = (rolesResult.data || []).map(x => x.role);
+  const roles = rolesResult.error ? [] : (rolesResult.data || []).map(x => x.role);
   const roleNames = { supporter: "Supporter", player: "Joueur", coach: "Éducateur", admin: "Administrateur" };
   account.append(el("p", "auth-role-summary", "Rôles : " + (roles.length ? roles.map(x => roleNames[x] || x).join(", ") : "Aucun rôle vérifié")));
   if (profileResult.error || rolesResult.error) account.append(el("p", "auth-warning", "Impossible de vérifier toutes les informations du profil pour le moment."));
@@ -309,7 +311,11 @@ export async function mountAuth() {
     const {data:{subscription}}=api.auth.onAuthStateChange((event)=>{
       if(turn!==generation||!root.isConnected)return;
       if(event==='PASSWORD_RECOVERY')recoveryMode=true;
-      if(event==='SIGNED_OUT'){recoveryMode=false;setRecoveryIntent(false);}
+      if(event==='SIGNED_OUT'){
+        recoveryMode=false;setRecoveryIntent(false);
+        // Revoke previous private view reads immediately, not after setTimeout.
+        sessionViewGeneration+=1;
+      }
       if(!['PASSWORD_RECOVERY','SIGNED_IN','SIGNED_OUT'].includes(event))return;
       // Pas d'await Supabase dans le callback auth : évite un deadlock de session.
       window.setTimeout(()=>{
