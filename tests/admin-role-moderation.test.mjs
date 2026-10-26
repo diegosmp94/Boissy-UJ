@@ -46,7 +46,8 @@ test('approval and rejection require two-click confirmation and renewed MFA chec
  assert.match(src,/p_reason:decisionReason/);
 });
 test('moderation fetch is bounded and server query is filter scoped',()=>{
- assert.match(src,/\.eq\('status',filter\.value\)/);
+ assert.match(src,/const requestedStatus=filter\.value/);
+ assert.match(src,/\.eq\('status',requestedStatus\)/);
  assert.match(src,/\.limit\(60\)/);
  assert.match(src,/select\('id,user_id,requested_role,team_id,status,requested_at'\)/);
  assert.match(src,/if\(!section\.isConnected\)return/);
