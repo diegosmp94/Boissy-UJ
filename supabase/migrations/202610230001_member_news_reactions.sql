@@ -81,7 +81,8 @@ begin
     and (new.status is distinct from 'published'
       or new.visibility is distinct from 'public'
       or new.consent_reviewed is distinct from true
-      or new.content_kind is distinct from 'article') then
+      or new.content_kind is distinct from 'article'
+      or new.published_at is null or new.published_at>now()) then
   delete from public.news_reactions where post_id=new.id;
  end if;
  return new;
@@ -90,7 +91,7 @@ $fn$;
 
 drop trigger if exists news_reactions_unpublish_guard on public.news_posts;
 create trigger news_reactions_unpublish_guard
- after update of status,visibility,consent_reviewed,content_kind on public.news_posts
+ after update of status,visibility,consent_reviewed,content_kind,published_at on public.news_posts
  for each row execute function app_private.clear_unpublished_news_reactions();
 
 revoke all on function app_private.verify_news_reaction_target()
