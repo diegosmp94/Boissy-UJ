@@ -44,7 +44,7 @@ test('restore is draft-only, resets consent and publication date while preservin
   "v_snapshot->>'id' is distinct from p_post_id::text",
   "v_snapshot->>'content_kind' is distinct from 'article'",
   "v_snapshot->>'visibility' is distinct from 'public'",
-  "v_old.team_id is null",
+  "v_old.content_kind<>'article' or v_old.visibility<>'public'",
   "where id=p_post_id returning * into v_new",
   "status='draft',consent_reviewed=false,published_at=null",
   "to_jsonb(v_old),to_jsonb(v_new)",
@@ -52,6 +52,9 @@ test('restore is draft-only, resets consent and publication date while preservin
  ])assert.ok(migration.includes(rule),rule);
  assert.match(migration,/from public\.news_posts p where p\.id=p_post_id for update/);
  assert.match(migration,/insert into public\.staff_news_audit/);
+ assert.match(migration,/alter table public\.staff_news_audit alter column team_id drop not null/);
+ assert.doesNotMatch(migration,/or v_old\.team_id is null/);
+ assert.match(migration,/v_snapshot->>'team_id' is distinct from v_old\.team_id::text/);
  assert.doesNotMatch(migration,/delete from public\.staff_news_audit/i);
  assert.doesNotMatch(migration,/insert into public\.news_posts/i);
 });

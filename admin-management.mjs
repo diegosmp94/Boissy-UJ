@@ -311,8 +311,8 @@ export function mountAdminNews(root,api,userId){
   if(res.error)throw new Error('teams unavailable');
   teams=teamsKnown(res.data||[]);
   team.replaceChildren(option('','Actualité générale du club'),...teams.map(t=>option(t.id,t.name)));
-  editor(root,'Articles et actualités',api,userId,{
-   rpcList:'admin_list_management_news',rpcSave:'staff_save_news_article',
+  editor(root,'Articles et actualités · sauvegarde avec contrôle de version',api,userId,{
+   rpcList:'admin_list_management_news',rpcSave:'admin_save_news_article_checked',
    fields:()=>({
     team:{element:field('Équipe ou club entier',team),fill:r=>team.value=r?.team_id??''},
     title:{element:field('Titre',title),fill:r=>title.value=r?.title||''},
@@ -325,7 +325,8 @@ export function mountAdminNews(root,api,userId){
     body:body.value.trim(),rights:rights.n.checked,publish:publish.n.checked}),
    validate:d=>validateNewsDraft(d,teams),
    args:(d,row)=>({p_post_id:row?.id||null,p_team_id:d.team||null,p_title:d.title,
-    p_excerpt:d.excerpt,p_body:d.body,p_publish:d.publish,p_rights_confirmed:d.rights}),
+    p_excerpt:d.excerpt,p_body:d.body,p_publish:d.publish,p_rights_confirmed:d.rights,
+    p_expected_updated_at:row?.updated_at||null}),
    display:r=>r.title+' · '+(r.status==='published'?'Publié':'Brouillon')
   });
  }).catch(()=>{if(root.isConnected)status.textContent='Catalogue des équipes indisponible. Aucune actualité modifiée.';});

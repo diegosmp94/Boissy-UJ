@@ -146,11 +146,14 @@ export async function mountAdminNewsRevisions(root,api,userId){
   if(busy||restore.disabled||!root.isConnected||!confirmCheck.checked)return;
   const article=selectedArticle(),revision=selectedRevision();
   if(!article||!revision)return;
-  busy=true;restore.disabled=true;refresh.disabled=true;confirmCheck.checked=false;
+  busy=true;restore.disabled=true;refresh.disabled=true;
+  articleSelect.disabled=true;revisionsSelect.disabled=true;confirmCheck.disabled=true;
+  confirmCheck.checked=false;
   setStatus('Nouvelle vérification des droits et restauration sécurisée…');
   try{
    if(!await ensureAdmin())throw new Error('No longer administrator MFA');
-   if(!root.isConnected)return;
+   if(!root.isConnected||selectedArticle()?.id!==article.id||
+      selectedRevision()?.revision_id!==revision.revision_id)return;
    const response=await api.rpc('admin_restore_news_revision',{
     p_post_id:article.id,
     p_revision_id:revision.revision_id,
@@ -164,7 +167,14 @@ export async function mountAdminNewsRevisions(root,api,userId){
    setStatus('Version restaurée comme brouillon non publié. Les droits doivent être revérifiés avant publication.');
    await loadArticles(article.id);
   }catch{setStatus('Restauration non confirmée. Aucun succès n’est annoncé.');}
-  finally{busy=false;if(root.isConnected){refresh.disabled=false;paint();}}
+  finally{
+   busy=false;
+   if(root.isConnected){
+    refresh.disabled=false;articleSelect.disabled=false;
+    revisionsSelect.disabled=false;confirmCheck.disabled=false;
+    paint();
+   }
+  }
  });
  void loadArticles();
 }

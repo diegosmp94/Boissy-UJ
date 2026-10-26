@@ -89,7 +89,7 @@ test('private user searches are accent-insensitive',()=>{
 });
 test('seasons, matches, and news use audited server RPCs only',()=>{
  const source=read('admin-management.mjs');
- for(const rpc of ['admin_save_season','admin_save_classified_match','staff_save_news_article',
+ for(const rpc of ['admin_save_season','admin_save_classified_match','admin_save_news_article_checked',
  'admin_list_management_matches','admin_list_management_news','admin_list_management_seasons'])
   assert.ok(source.includes(rpc),'missing '+rpc);
  assert.match(source,/if\(!await guarded\(api,userId\)\)/);
