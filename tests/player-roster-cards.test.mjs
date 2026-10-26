@@ -17,7 +17,7 @@ const player={
  id:'51e41d5a-2c16-4955-9c12-b1ad8fe60a92',team_id:'team-id',
  person_kind:'player',display_name:'Camille Dupont',shirt_number:14,
  role_label:'Milieu défensif',biography:'Texte privé à ne pas afficher dans la carte.',
- published:true,consent_confirmed:true
+ published:true,consent_confirmed:true,profile_visible:true,profile_consent_confirmed:true
 };
 function render(p){
  const previous=globalThis.document;
@@ -47,6 +47,15 @@ test('roster card shows only the real display name and number, not player detail
  assert.doesNotMatch(displayed,/Milieu|Texte privé|Voir la fiche joueur|Âge|biographie/);
  assert.ok(nodes.some(n=>n.className==='team-extras-player-number'&&
   n.attributes['aria-label']==='Numéro de maillot 14'));
+});
+
+test('roster remains visible but individual page is unlinked without distinct approval',()=>{
+ for(const patch of [{profile_visible:false},{profile_consent_confirmed:false},
+  {profile_visible:undefined},{profile_consent_confirmed:undefined}]){
+  const card=render({...player,...patch});
+  assert.equal(card.tagName,'ARTICLE');
+  assert.equal(card.href,null);
+ }
 });
 
 test('portrait is a neutral head silhouette and shirt number overlays it',()=>{
