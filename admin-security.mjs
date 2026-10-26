@@ -2,6 +2,7 @@
  * Server checks (app_private.is_admin) remain authoritative for all sensitive RPCs.
  */
 import {supabaseConfig} from './auth-config.mjs';
+import {withAuthDeadline} from './auth-resilience.mjs';
 import {ADMIN_FACTOR_NAME,findAdminTotpFactors,mfaErrorMessage} from './mfa-recovery.mjs';
 
 const el=(tag,cls='',text=null)=>{
@@ -13,18 +14,23 @@ export function isVerifiedAdmin(userId,verifiedId,roles,level){
   &&Array.isArray(roles)&&roles.includes('admin')&&level==='aal2');
 }
 export async function adminSessionStatus(api,expectedId=null){
- const [userResult,mfaResult]=await Promise.all([
+ try{
+ const [userResult,mfaResult]=await withAuthDeadline(Promise.all([
   api.auth.getUser(),api.auth.mfa.getAuthenticatorAssuranceLevel()
- ]);
+ ]));
  const user=userResult.data?.user;
  if(userResult.error||mfaResult.error||!user?.id||expectedId&&user.id!==expectedId)
   return {status:'signed-out',userId:null,level:null,roles:[]};
- const rolesResult=await api.from('user_roles').select('role').eq('user_id',user.id);
+ const rolesResult=await withAuthDeadline(api.from('user_roles').select('role').eq('user_id',user.id));
  if(rolesResult.error)return {status:'unverified',userId:user.id,level:null,roles:[]};
  const roles=(rolesResult.data||[]).map(r=>r.role);
  const level=mfaResult.data?.currentLevel||'aal1';
  return {status:!roles.includes('admin')?'supporter':level==='aal2'?'admin':'mfa-required',
   userId:user.id,level,roles};
+ }catch{
+  // Offline / slow auth fails closed, never retaining stale privileges.
+  return {status:'unverified',userId:null,level:null,roles:[]};
+ }
 }
 function status(root,message,isError=false){
  const out=root.querySelector('[data-mfa-message]');
