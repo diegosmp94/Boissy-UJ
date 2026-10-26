@@ -28,6 +28,7 @@ Accueil en huit chapitres et identité bleu nuit/doré ; navigation responsive e
 - **Étape 75 — implémentée et CI validée le 26 octobre 2026** : [catalogue sportif public harmonisé entre accueil, Match Center, agenda et fiches équipes](ETAPE_75_SYNCHRO_SPORT_PUBLIC_20261026.md). Reports/annulations cohérents, rafraîchissement horaire et après reprise d'onglet ; aucun match ou score inventé. Recette utilisateurs et homologation sportive à part.
 - **Étape 76 — code vérifié et migration Supabase appliquée le 26 octobre 2026** : [historique des articles, restauration en brouillon et sauvegarde éditoriale contrôlée par version](ETAPE_76_ACTUALITES_VERSIONS_20261026.md). Quatre RPC AAL2 vérifiées en production, journal des actualités générales corrigé, 20/20 tables publiques sous RLS ; aucun article ou média créé. Recette humaine exclue.
 - **Étape 77 — code vérifié et migration Supabase appliquée le 26 octobre 2026** : [réactions « J’aime » privées par membre sur les articles publiés](ETAPE_77_REACTIONS_ACTUALITES_20261026.md), politiques RLS, verrous de publication et suppression à la dépublication vérifiés en production. 21/21 tables publiques sous RLS, aucun article ou J’aime réel créé ; recette humaine séparée.
+- **Étape 78 — implémentation soumise à CI** : [bucket privé, signature temporaire et RLS des médias approuvés](ETAPE_78_MEDIAS_PRIVES_20261026.md). Aucune image ni vidéo réelle ajoutée. Clôture sous réserve de vérification Supabase, de tests GitHub et de publication dans `main`.
 
 ## Lot A — Sécuriser et consolider le socle existant (P0)
 
