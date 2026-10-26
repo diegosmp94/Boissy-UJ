@@ -88,7 +88,8 @@ test('Control Center stays in local preview while showing Sports Manager forms',
 });
 test('Match Center only lists verified seasons actually stored in Supabase',()=>{
  assert.match(sports,/getRows\('club_seasons'/);
- assert.match(sports,/select:'id,team_id,season_id,opponent_name/);
+ assert.match(sports,/publishedMatchParams\(\)/);
+ assert.match(read('public-sports-sync.mjs'),/PUBLIC_MATCH_COLUMNS='id,team_id,season_id,opponent_name/);
  assert.match(sports,/if\(seasons\.length\)/);
  assert.match(sports,/Filtrer les rencontres par saison/);
  assert.match(sports,/filterPublishedFixtures\(matches,/);

@@ -19,7 +19,7 @@ const events=[
 test('calendar exports only published future public dates',()=>{
  const rows=combinePublishedAgenda(matches,events,teams,{now,period:'future'});
  const calendar=buildPublicCalendar(rows,{now});
- assert.equal(rows.length,2);
+ assert.equal(rows.length,3);
  assert.equal((calendar.match(/BEGIN:VEVENT/g)||[]).length,2);
  assert.match(calendar,/BEGIN:VCALENDAR\r\nVERSION:2\.0/);
  assert.match(calendar,/DTSTART:20261025T130000Z/);

@@ -6,6 +6,7 @@ import {clubOutcome} from './league-standings.mjs';
 import {victoryCongratulations,collectiveVictoryCongratulations} from './victory-congratulations.mjs';
 import {createVictoryNotice} from './victory-notice.mjs';
 import {buildCompetitionTabs,competitionKind,cupInformation} from './competition-tabs.mjs';
+import {publishedMatchParams,filterPublishedMatchRows,unconfirmedWithoutClubDecision,watchPublicSportsRefresh} from './public-sports-sync.mjs';
 
 const ENDPOINT = supabaseConfig.url + '/rest/v1/';
 /* Fallback de présentation uniquement, sans rencontre inventée.
@@ -20,6 +21,7 @@ const FALLBACK_TEAMS = Object.freeze([
 
 let currentRequest;
 let renderGeneration = 0;
+let refreshCleanup=null;
 
 function element(tag, className = '', text = null) {
   const node = document.createElement(tag);
@@ -32,7 +34,9 @@ export function splitMatches(matches) {
     .sort((a,b) => Date.parse(a.scheduled_at) - Date.parse(b.scheduled_at));
   const results = matches.filter(m => m.match_status === 'played')
     .sort((a,b) => Date.parse(b.scheduled_at) - Date.parse(a.scheduled_at));
-  return {upcoming,results};
+  const cancelled = matches.filter(m=>m.match_status==='cancelled')
+    .sort((a,b)=>Date.parse(b.scheduled_at)-Date.parse(a.scheduled_at));
+  return {upcoming:upcoming.filter(m=>m.match_status!=='cancelled'),results,cancelled};
 }
 export function filterPublishedFixtures(matches, {teamId='all',seasonId='all',discipline='all',teams=[]}={}) {
   const disciplineMap=new Map(teams.map(t=>[t.id,t.discipline]));
@@ -80,10 +84,7 @@ export async function loadPublicSportCatalogs(signal,fetcher=fetch){
       select:'id,code,name,division,source_kind,discipline,sort_order',
       order:'sort_order.asc',limit:'10'
     },signal,fetcher),
-    getRows('matches',{
-      select:'id,team_id,season_id,opponent_name,scheduled_at,venue,is_home,home_score,away_score,match_status,source_kind,published,competition_kind,competition_label',
-      published:'eq.true',order:'scheduled_at.asc',limit:'100'
-    },signal,fetcher),
+    getRows('matches',publishedMatchParams(),signal,fetcher),
     getRows('club_seasons',{select:'id,label,state',order:'label.desc',limit:'100'},signal,fetcher)
   ];
   const settled=await Promise.allSettled(requests);
@@ -108,8 +109,7 @@ export async function loadPublicSportCatalogs(signal,fetcher=fetch){
   const teams=CLUB_TEAMS.map(definition=>
     byCode.get(definition.code)||FALLBACK_TEAMS.find(t=>t.code===definition.code));
   const published=settled[1].status==='fulfilled'?settled[1].value:[];
-  const matches=published.filter(match=>match?.published===true&&
-    usedIds.has(match.team_id));
+  const matches=filterPublishedMatchRows(published).filter(match=>usedIds.has(match.team_id));
   const seasons=settled[2].status==='fulfilled'?settled[2].value:[];
   return {teams,matches,seasons,unavailable};
 }
@@ -119,7 +119,9 @@ function matchCard(match,teamsById) {
   const card=element('article','sport-match-card');
   const meta=element('div','sport-match-meta');
   meta.append(
-    element('span','sport-pill',statusLabel(match.match_status)),
+    element('span','sport-pill',match.match_status==='scheduled'&&
+      Date.parse(match.scheduled_at)<=Date.now()?'Horaire passé · résultat à confirmer':
+      statusLabel(match.match_status)),
     element('span','sport-date',dateLabel(match.scheduled_at))
   );
   const sides=element('div','sport-sides');
@@ -241,12 +243,15 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null,{una
     }
     thirdParty.replaceChildren();
     for (const [title,list,empty] of [
-      ['Prochaines rencontres',blocks.upcoming,unavailable.includes('matches')
+      ['Rencontres programmées ou reportées',blocks.upcoming,unavailable.includes('matches')
         ?'Calendrier du club momentanément indisponible pour cette équipe.'
         :'Aucune rencontre à venir publiée pour cette équipe.'],
       ['Derniers résultats',blocks.results,unavailable.includes('matches')
         ?'Résultats du club momentanément indisponibles pour cette équipe.'
-        :'Aucun résultat publié pour cette équipe.']
+        :'Aucun résultat publié pour cette équipe.'],
+      ['Rencontres annulées',blocks.cancelled,unavailable.includes('matches')
+        ?'Annulations momentanément indisponibles.'
+        :'Aucune rencontre annulée publiée pour cette équipe.']
     ]) {
       const section=element('section','sport-fixture-group');
       section.append(element('h3','',title));
@@ -262,7 +267,8 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null,{una
         team:team?.code||'all',discipline:disciplineSelect.value,
         includePast:true,period:'all'
       });
-      const external=availableExternal.filter(m=>(sourcedSeason==='all'||m.season===sourcedSeason)
+      const external=unconfirmedWithoutClubDecision(availableExternal,matches,teams)
+       .filter(m=>(sourcedSeason==='all'||m.season===sourcedSeason)
         &&(competitionKind(m)===activeCompetition||
           activeCompetition==='league'&&m.team_code==='c'&&competitionKind(m)==='friendly'));
       if(availableExternal.length){
@@ -322,6 +328,7 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null,{una
 }
 export function unmountSport() {
   renderGeneration++;
+  refreshCleanup?.();refreshCleanup=null;
   currentRequest?.abort();
   currentRequest=null;
 }
@@ -330,6 +337,10 @@ export async function mountSport(initialTeamCode=null,{competition='league'}={})
   const generation=renderGeneration;
   const root=document.getElementById('match-center-live');
   if(!root) return;
+  refreshCleanup=watchPublicSportsRefresh({
+   active:()=>generation===renderGeneration&&root.isConnected,
+   refresh:()=>void mountSport(initialTeamCode,{competition})
+  });
   const abort=new AbortController();
   currentRequest=abort;
   const deadline=boundedPublicRequest(abort.signal);

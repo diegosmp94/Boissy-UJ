@@ -19,8 +19,8 @@ const events=[
 ];
 
 test('only verified public future matches and events are included',()=>{
-  assert.deepEqual(combinePublishedAgenda(matches,events,team,{now}).map(x=>x.id),['m1','e1']);
-  assert.equal(combinePublishedAgenda(matches,events,team,{now,kind:'match'}).length,1);
+  assert.deepEqual(combinePublishedAgenda(matches,events,team,{now}).map(x=>x.id),['m1','m3','e1']);
+  assert.equal(combinePublishedAgenda(matches,events,team,{now,kind:'match'}).length,2);
   assert.equal(combinePublishedAgenda(matches,events,team,{now,kind:'event'}).length,1);
 });
 test('search normalizes accents and 7-day window is exact',()=>{
@@ -50,7 +50,7 @@ test('fetch uses only read-only public REST catalogues and handles partial failu
   };
   const result=await loadPublicAgenda(undefined,fake);
   assert.equal(requests.length,3);
-  assert.equal(result.matches.length,3);
+  assert.equal(result.matches.length,2);
   assert.equal(result.events.length,0);
   assert.deepEqual(result.unavailable,['club_events']);
   for(const {url,opts} of requests){

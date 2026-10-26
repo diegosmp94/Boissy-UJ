@@ -40,7 +40,8 @@ test('match lists separate upcoming and played results without guessing',()=>{
 });
 test('sports module is read-only and uses DOM textContent for remote data',()=>{
  assert.match(loader,/method:'GET'/);
- assert.match(loader,/published:'eq.true'/);
+ assert.match(read('public-sports-sync.mjs'),/published:'eq.true'/);
+ assert.match(loader,/publishedMatchParams\(\)/);
  assert.match(loader,/node.textContent = String\(text\)/);
  assert.match(loader,/AbortController\(\)/);
  assert.doesNotMatch(loader,/\.insert\(|\.update\(|\.delete\(|method:'POST'|innerHTML\s*=/);

@@ -6,6 +6,7 @@ import {CLUB_TEAMS,teamRoute} from './club-teams.mjs';
 import {publicExternalFixtures} from './external-match-previews.mjs';
 import {parisDateKey} from './calendar-month.mjs';
 import {boundedPublicRequest} from './public-catalog-timeout.mjs';
+import {publishedMatchParams,filterPublishedMatchRows,unconfirmedWithoutClubDecision} from './public-sports-sync.mjs';
 
 export const NEXT_MATCH_REFRESH_MS=60*60*1000;
 const ENDPOINT=supabaseConfig.url+'/rest/v1/';
@@ -60,8 +61,6 @@ export function mergeNextMatchCalendar(published=[],sourced=[],teams=[]){
  const clubRows=published.filter(row=>row.published===true&&
   codeById.has(row.team_id)&&Number.isFinite(Date.parse(row.scheduled_at))&&
   typeof row.opponent_name==='string'&&row.opponent_name.trim()!=='');
- const keys=new Set(clubRows.map(row=>codeById.get(row.team_id)+'|'+
-  parisDateKey(Date.parse(row.scheduled_at))+'|'+normalize(row.opponent_name)));
  const official=clubRows.flatMap(row=>{
   const code=codeById.get(row.team_id),time=Date.parse(row.scheduled_at);
   if(!code||row.published!==true||row.match_status!=='scheduled'||
@@ -74,8 +73,8 @@ export function mergeNextMatchCalendar(published=[],sourced=[],teams=[]){
    published:true,clubConfirmed:true,sourceLabel:'Boissy UJ'
   }];
  });
- const external=sourced.filter(row=>row.status==='scheduled'&&
-  !keys.has(row.team_code+'|'+row.localDay+'|'+normalize(row.opponent)))
+ const external=unconfirmedWithoutClubDecision(sourced,clubRows,teams)
+  .filter(row=>row.status==='scheduled')
   .map(row=>({
    id:'reference-'+row.team_code+'-'+row.localDay+'-'+normalize(row.opponent),
    teamCode:row.team_code,opponent:row.opponent,time:row.time,
@@ -87,12 +86,9 @@ export function mergeNextMatchCalendar(published=[],sourced=[],teams=[]){
  return [...official,...external];
 }
 export async function loadPublishedUpcoming({fetcher=fetch,signal,now=Date.now()}={}){
- const since=new Date(now-86400000).toISOString();
  const entries=[
   ['club_teams',{select:'id,code,name',order:'sort_order.asc',limit:'10'}],
-  ['matches',{select:'id,team_id,opponent_name,scheduled_at,venue,is_home,match_status,published,competition_label',
-   published:'eq.true',scheduled_at:'gte.'+since,
-   order:'scheduled_at.asc',limit:'350'}]
+  ['matches',publishedMatchParams()]
  ];
  const [teams,matches]=await Promise.all(entries.map(async([table,params])=>{
   const res=await fetcher(ENDPOINT+table+'?'+new URLSearchParams(params),{
@@ -105,7 +101,7 @@ export async function loadPublishedUpcoming({fetcher=fetch,signal,now=Date.now()
   if(!Array.isArray(rows))throw Error('Réponse sportive invalide');
   return rows;
  }));
- return {teams,matches};
+ return {teams,matches:filterPublishedMatchRows(matches)};
 }
 const element=(tag,cls='',value=null)=>{
  const node=document.createElement(tag);

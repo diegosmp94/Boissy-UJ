@@ -49,8 +49,8 @@ test('internal club event and match routing remains available on the website',()
 });
 test('agenda sourced matches are no longer globally suppressed when one team publishes a fixture',()=>{
  const s=source('agenda.mjs');
- assert.match(s,/const publishedKeys=new Set/);
- assert.match(s,/const suggestions=type\.value==='event'\?\[\]:publicExternalFixtures/);
+ assert.match(s,/unconfirmedWithoutClubDecision\(/);
+ assert.match(s,/const suggestions=type\.value==='event'\?\[\]:unconfirmedWithoutClubDecision/);
  assert.doesNotMatch(s,/rows\.matches\.some\(m=>m\.published===true\)\|\|type\.value==='event'/);
- assert.match(s,/publishedKeys\.has\(m\.team_code/);
+ assert.match(source('public-sports-sync.mjs'),/clubDecisionKeys\(/);
 });

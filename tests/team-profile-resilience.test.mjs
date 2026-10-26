@@ -31,7 +31,8 @@ test('team profiles use a bounded request, preserve static archives on outage, a
  assert.match(js,/Les archives ci-dessous restent consultables/);
  assert.match(js,/notice\.setAttribute\('role','status'\)/);
  assert.match(js,/\}finally\{deadline\.dispose\(\);\}/);
- assert.match(js,/const sourced=publicExternalFixtures\(\{team:code,includePast:true,period:'all'\}\)/);
+ assert.match(js,/publicExternalFixtures\(\{team:code,includePast:true,period:'all'\}\)/);
+ assert.match(js,/unconfirmedWithoutClubDecision\(/);
  assert.match(js,/Les matchs présentés dans cette section sont à confirmer par le club/);
  assert.match(js,/!result\.configured\)\{/);
  assert.doesNotMatch(js,/L’équipe est en cours de configuration\. Aucun calendrier officiel disponible\.\'\)\);return;/);

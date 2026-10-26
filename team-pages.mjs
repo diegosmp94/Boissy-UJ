@@ -6,6 +6,7 @@ import {clubOutcome} from './league-standings.mjs';
 import {victoryCongratulations} from './victory-congratulations.mjs';
 import {createVictoryNotice} from './victory-notice.mjs';
 import {buildCompetitionTabs,competitionKind,cupInformation} from './competition-tabs.mjs';
+import {publishedMatchParams,filterPublishedMatchRows,unconfirmedWithoutClubDecision,watchPublicSportsRefresh} from './public-sports-sync.mjs';
 
 const ROOT=supabaseConfig.url+'/rest/v1/';
 const node=(tag,cls='',value=null)=>{
@@ -40,30 +41,34 @@ export async function loadTeamPublishedMatches(code,{signal,fetcher=fetch}={}){
   const team=CLUB_TEAMS.find(t=>t.code===code);
   const remote=teams.find(t=>t.code===code&&t.discipline===team.discipline);
   if(!remote)return {configured:false,matches:[]};
-  const rows=await request('matches',{
-    select:'id,team_id,opponent_name,scheduled_at,venue,is_home,match_status,home_score,away_score,published,competition_kind,competition_label',
-    team_id:'eq.'+remote.id,published:'eq.true',order:'scheduled_at.desc',limit:'80'
-  },signal,fetcher);
-  return {configured:true,matches:rows.filter(m=>m.team_id===remote.id
-    &&['scheduled','postponed','played'].includes(m.match_status))};
+  const rows=await request('matches',publishedMatchParams({team_id:'eq.'+remote.id}),signal,fetcher);
+  return {configured:true,teamId:remote.id,matches:filterPublishedMatchRows(rows)
+   .filter(m=>m.team_id===remote.id)};
 }
 export function groupTeamResults(matches=[]){
   return {
     upcoming:matches.filter(m=>m.match_status==='scheduled'||m.match_status==='postponed')
       .sort((a,b)=>Date.parse(a.scheduled_at)-Date.parse(b.scheduled_at)).slice(0,8),
     played:matches.filter(m=>m.match_status==='played')
+      .sort((a,b)=>Date.parse(b.scheduled_at)-Date.parse(a.scheduled_at)).slice(0,8),
+    cancelled:matches.filter(m=>m.match_status==='cancelled')
       .sort((a,b)=>Date.parse(b.scheduled_at)-Date.parse(a.scheduled_at)).slice(0,8)
   };
 }
-let requestController=null,generation=0;
+let requestController=null,generation=0,refreshCleanup=null;
 export function unmountTeamProfile(){
-  generation++;requestController?.abort();requestController=null;
+  generation++;refreshCleanup?.();refreshCleanup=null;
+  requestController?.abort();requestController=null;
 }
 export async function mountTeamProfile(code){
   unmountTeamProfile();
   const current=generation;
   const root=document.getElementById('team-profile-live');
   if(!root||!CLUB_TEAMS.some(t=>t.code===code))return;
+  refreshCleanup=watchPublicSportsRefresh({
+   active:()=>current===generation&&root.isConnected,
+   refresh:()=>void mountTeamProfile(code)
+  });
   const controller=new AbortController();requestController=controller;
   const deadline=boundedPublicRequest(controller.signal);
   root.replaceChildren(node('p','team-profile-state','Chargement des rencontres publiées…'));
@@ -123,12 +128,15 @@ export async function mountTeamProfile(code){
     cupNotice.append(node('strong','',cupDetails.headline),node('p','',cupDetails.detail));
     cupNotice.hidden=true;notices.push(cupNotice);root.append(cupNotice);
     for(const [heading,items,empty] of [
-      ['Prochaines rencontres',groups.upcoming,remoteUnavailable
+      ['Rencontres programmées ou reportées',groups.upcoming,remoteUnavailable
         ?'Calendrier publié par le club momentanément indisponible.'
         :'Aucune rencontre à venir publiée.'],
       ['Derniers résultats',groups.played,remoteUnavailable
         ?'Résultats publiés par le club momentanément indisponibles.'
-        :'Aucun résultat publié pour le moment.']
+        :'Aucun résultat publié pour le moment.'],
+      ['Matchs annulés',groups.cancelled,remoteUnavailable
+        ?'État des annulations momentanément indisponible.'
+        :'Aucune annulation publiée pour cette équipe.']
     ]){
       const section=node('section','team-profile-group');
       section.append(node('h2','',heading));
@@ -136,7 +144,9 @@ export async function mountTeamProfile(code){
       if(!items.length)list.append(node('p','team-profile-empty',empty));
       for(const match of items){
         const card=node('article','team-profile-match');
-        const caption=match.match_status==='played'?'Terminé':match.match_status==='postponed'?'Reporté':'À venir';
+        const caption=match.match_status==='played'?'Terminé':match.match_status==='postponed'?'Reporté':
+          match.match_status==='cancelled'?'Annulé':
+          Date.parse(match.scheduled_at)<=Date.now()?'Horaire passé · résultat à confirmer':'À venir';
         const opponent=match.opponent_name||'Adversaire à confirmer';
         card.append(
           node('span','team-profile-match-kind',caption),
@@ -161,7 +171,9 @@ export async function mountTeamProfile(code){
     }
     {
       // Retain attributed historical seasons even when the club has published a few current fixtures.
-      const sourced=publicExternalFixtures({team:code,includePast:true,period:'all'});
+      const sourced=unconfirmedWithoutClubDecision(
+       publicExternalFixtures({team:code,includePast:true,period:'all'}),
+       result.matches,result.teamId?[{id:result.teamId,code}]:[]);
       if(sourced.length){
         const section=node('section','team-profile-group team-profile-external');
         section.append(node('h2','','Résultats précédents et calendrier'),

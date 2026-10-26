@@ -29,8 +29,8 @@ test('filters do not mix football, futsal, other teams, and out-of-range dates',
 });
 test('site clearly distinguishes sourced previews from real club-published fixtures',()=>{
  const agenda=read('agenda.mjs'),sport=read('sport-center.mjs'),styles=read('agenda.css'),source=read('external-match-previews.mjs');
- assert.match(agenda,/publishedKeys/);
- assert.match(agenda,/normalizeOpponent/);
+ assert.match(agenda,/unconfirmedWithoutClubDecision\(/);
+ assert.match(read('public-sports-sync.mjs'),/sourcedFixtureKey\(/);
  assert.match(agenda,/Autres rencontres · à confirmer/);
  assert.match(agenda,/Score :/);
  assert.doesNotMatch(agenda,/Vérifier sur SportCorico/);
