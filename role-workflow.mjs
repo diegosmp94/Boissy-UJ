@@ -21,6 +21,16 @@ export function validateRoleRequest(role,teamId=null){
   if(role!=='coach'&&teamId!==null)return {valid:false,reason:'Une équipe ne peut être choisie que pour le rôle entraîneur.'};
   return {valid:true,reason:''};
 }
+/** A monotonic ticket for overlapping network reads. An older response must
+ * never replace a newer request's state, whether it succeeds or fails. */
+export function createAsyncRevisionGate(){
+  let revision=0;
+  return {
+    begin(){return ++revision;},
+    isCurrent(ticket){return ticket===revision;},
+    invalidate(){revision+=1;}
+  };
+}
 export function canApproveRoleRequest(adminId,request,hasMfa){
   return Boolean(adminId&&hasMfa===true&&request&&request.status==='pending'
     &&request.user_id!==adminId);
@@ -125,6 +135,7 @@ export async function mountMemberRoleRequests(container,api,userId){
   teamLabel.append(team);
   const submit=elem('button','staff-action','Envoyer la demande');
   submit.type='submit';
+  submit.disabled=true; // Wait for the team catalog and handlers before allowing a submission.
   const feedback=elem('p','auth-footnote');
   feedback.setAttribute('role','status');
   const pending=elem('div','member-requests-list');
@@ -134,19 +145,21 @@ export async function mountMemberRoleRequests(container,api,userId){
   container.append(section);
   let teams=[];
   let disposed=false;
+  const reloadGate=createAsyncRevisionGate();
   async function reload(){
+    const ticket=reloadGate.begin();
     let response;
     try{
       response=await api.from('role_requests')
         .select('id,requested_role,team_id,status,requested_at')
         .eq('user_id',userId).order('requested_at',{ascending:false}).limit(30);
     }catch{
-      if(!disposed&&section.isConnected){
+      if(reloadGate.isCurrent(ticket)&&!disposed&&section.isConnected){
         pending.replaceChildren(elem('p','auth-warning','Lecture des demandes indisponible. Réessaie après vérification de ta connexion.'));
       }
       return;
     }
-    if(disposed||!section.isConnected)return;
+    if(!reloadGate.isCurrent(ticket)||disposed||!section.isConnected)return;
     pending.replaceChildren();
     if(response.error) {
       pending.append(elem('p','auth-warning','Demandes temporairement indisponibles.'));
@@ -184,6 +197,7 @@ export async function mountMemberRoleRequests(container,api,userId){
       const valid=validateRoleRequest(requestedRole,teamId);
       if(!valid.valid){feedback.textContent=valid.reason;return;}
       submit.disabled=true;role.disabled=true;team.disabled=true;
+      reloadGate.invalidate(); // An in-flight older history load is now obsolete.
       feedback.textContent='Demande en cours…';
       try{
         // Freeze the user's original request while the network call is pending.
