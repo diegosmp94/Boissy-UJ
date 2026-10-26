@@ -256,13 +256,13 @@ async function showSession(root, api) {
     signOut.disabled = true;
     try{
       const { error: signOutError } = await withAuthDeadline(api.auth.signOut());
-      if (!root.isConnected)return;
+      if (!root.isConnected || !account.isConnected || !root.contains(account))return;
       if (signOutError) {
         signOut.disabled = false;
         account.append(el("p", "auth-warning", safeMessage(signOutError)));
       } else {recoveryMode=false;setRecoveryIntent(false);authCard(root, "login");}
     }catch{
-      if(root.isConnected){
+      if(root.isConnected && account.isConnected && root.contains(account)){
         signOut.disabled=false;
         account.append(el('p','auth-warning','Déconnexion temporairement indisponible. Réessaie.'));
       }
