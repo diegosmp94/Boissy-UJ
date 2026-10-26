@@ -18,10 +18,32 @@ export function filterEligiblePlayers(rows,q=''){
  const needle=norm(q).trim();
  return !needle?[...rows]:rows.filter(p=>norm(p.display_name).includes(needle));
 }
+/** Admin-only normalized summary; each player may belong to several teams.
+ * Never infer a public identity or assume the shirt number is club-global.
+ */
+export function playerTeamScopeRows(data){
+ if(!Array.isArray(data))return [];
+ return data.filter(x=>typeof x?.team_id==='string'
+   &&typeof x.team_name==='string'&&typeof x.active==='boolean'
+   &&(x.shirt_number==null||Number.isInteger(x.shirt_number)
+      &&x.shirt_number>=1&&x.shirt_number<=99))
+  .map(x=>({
+   team_id:x.team_id,team_name:x.team_name.slice(0,110),active:x.active,
+   position_group:typeof x.position_group==='string'?x.position_group:null,
+   shirt_number:x.active?x.shirt_number:null
+  }));
+}
+export function playerHistoryRows(data){
+ if(!Array.isArray(data))return [];
+ return data.filter(x=>Number.isFinite(Date.parse(x?.changed_at))
+   &&typeof x.team_name==='string'&&typeof x.event_kind==='string'
+   &&typeof x.detail==='string')
+  .slice(0,50);
+}
 export async function mountAdminPlayerTeams(root,api,userId){
  root.replaceChildren(el('h2','','Affectation des joueurs aux équipes'));
  const intro=el('p','admin-workflow-status',
-  'Seuls les comptes ayant déjà obtenu le rôle Joueur peuvent être rattachés à une équipe. Chaque ajout ou retrait est validé par Supabase et journalisé.');
+  'Seuls les comptes ayant déjà obtenu le rôle Joueur peuvent être rattachés à une ou plusieurs équipes. Chaque ajout ou retrait est validé et journalisé par Supabase. Les autres équipes, postes et numéros restent privés.');
  const status=el('p','admin-workflow-status','Vérification des droits administrateur…');
  status.setAttribute('role','status');
  const teamLabel=el('label','admin-form-field','Équipe');
@@ -99,7 +121,74 @@ export async function mountAdminPlayerTeams(root,api,userId){
      if(btn.isConnected){btn.disabled=false;btn.textContent=label;}
     }
    });
-   line.append(btn,info);list.append(line);
+   const historyButton=el('button','admin-secondary-btn','Équipes et historique');
+   historyButton.type='button';
+   historyButton.setAttribute('aria-label','Consulter les équipes et l’historique de '+p.display_name);
+   const detailBox=el('div','admin-player-team-history');
+   detailBox.hidden=true;
+   let inspectGeneration=0;
+   historyButton.addEventListener('click',async()=>{
+    if(!root.isConnected||busy)return;
+    if(!detailBox.hidden){
+     inspectGeneration++;detailBox.hidden=true;detailBox.replaceChildren();
+     historyButton.textContent='Équipes et historique';return;
+    }
+    const ticket=++inspectGeneration;
+    const teamAtClick=team.value;
+    const listGeneration=generation;
+    detailBox.hidden=false;
+    detailBox.replaceChildren(el('p','admin-workflow-status','Vérification des accès et lecture du dossier privé…'));
+    historyButton.textContent='Masquer le détail';
+    historyButton.disabled=true;
+    try{
+     if(!await verified())throw new Error('Permission denied');
+     if(!root.isConnected||!line.isConnected||team.value!==teamAtClick||
+       generation!==listGeneration||ticket!==inspectGeneration)return;
+     const [scope,events]=await Promise.all([
+      api.rpc('admin_player_team_overview',{p_player_user_id:p.player_user_id}),
+      api.rpc('admin_player_assignment_history',{p_player_user_id:p.player_user_id})
+     ]);
+     if(!root.isConnected||!line.isConnected||team.value!==teamAtClick||
+       generation!==listGeneration||ticket!==inspectGeneration||detailBox.hidden)return;
+     if(scope.error||events.error||!Array.isArray(scope.data)||!Array.isArray(events.data))
+      throw new Error('Private roster unavailable');
+     const teams=playerTeamScopeRows(scope.data);
+     const changes=playerHistoryRows(events.data);
+     detailBox.replaceChildren();
+     detailBox.append(el('strong','','Affiliations de ce compte (privées)'));
+     if(!teams.length){
+      detailBox.append(el('p','admin-empty','Aucune équipe attribuée à ce compte.'));
+     }else{
+      const teamItems=el('ul','admin-player-team-scope-list');
+      for(const item of teams){
+       const summary=item.team_name+' · '+(item.active?'Actif':'Retiré')+
+        (item.active&&item.shirt_number!=null?' · maillot n° '+item.shirt_number:'')+
+        (item.active&&item.position_group?' · '+item.position_group:'');
+       teamItems.append(el('li','',summary));
+      }
+      detailBox.append(teamItems);
+     }
+     detailBox.append(el('strong','','Historique des 50 derniers changements au maximum'));
+     if(!changes.length){
+      detailBox.append(el('p','admin-empty','Aucune modification enregistrée dans le journal privé.'));
+     }else{
+      const items=el('ul','admin-player-team-history-list');
+      for(const item of changes){
+       const timestamp=new Date(item.changed_at).toLocaleString('fr-FR');
+       items.append(el('li','',timestamp+' · '+item.team_name+' · '+item.detail));
+      }
+      detailBox.append(items);
+     }
+    }catch{
+     if(root.isConnected&&line.isConnected&&ticket===inspectGeneration&&!detailBox.hidden){
+      detailBox.replaceChildren(el('p','admin-empty',
+       'Détail inaccessible. Vérifie la session MFA ou actualise les affiliations.'));
+     }
+    }finally{
+     if(historyButton.isConnected)historyButton.disabled=false;
+    }
+   });
+   line.append(btn,historyButton,info,detailBox);list.append(line);
   }
  };
  async function reload(requestedTeam=null){
