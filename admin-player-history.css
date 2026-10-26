@@ -1,0 +1,14 @@
+/* Étape 73 — panneau privé d'affectations et journal d'un joueur. */
+.admin-player-team-history{width:100%;min-width:0;box-sizing:border-box;padding:14px;
+ border:1px solid rgba(229,192,114,.38);background:rgba(4,22,43,.65);
+ border-radius:12px;display:grid;gap:10px}
+.admin-player-team-history[hidden]{display:none}
+.admin-player-team-history strong{color:#f3d69b;font-size:13px}
+.admin-player-team-scope-list,.admin-player-team-history-list{
+ margin:0;padding-left:22px;display:grid;gap:8px;color:#dde9f5;font-size:13px;
+ overflow-wrap:anywhere}
+.admin-player-team-history-list{max-height:280px;overflow-y:auto}
+@media(max-width:560px){
+ .admin-player-team-history{padding:10px}
+ .admin-player-team-scope-list,.admin-player-team-history-list{font-size:12px}
+}
