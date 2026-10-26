@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {safeMediaPath,approvedMediaUrl,mediaKindsFor} from '../news-media-gallery.mjs';
+const signed=path=>'https://dahzewvbybujqhogumte.supabase.co/storage/v1/object/sign/boissy-uj-approved/'+path+'?token=test-only';
 import {validateNewsMediaDraft} from '../admin-news-media.mjs';
 import {availableAdminModules} from '../admin-navigation.mjs';
 import {ADMIN_MODULES} from '../admin-center.mjs';
@@ -22,17 +23,20 @@ test('only club-approved photo/video object paths can be rendered',()=>{
  assert.equal(safeMediaPath('galerie/clip.mp4','photo'),false);
  assert.equal(safeMediaPath('galerie/clip.mp4','video'),true);
  assert.equal(approvedMediaUrl('x/../evil.webp','photo'),null);
- const url=approvedMediaUrl('saison-2026/boissy.webp','photo');
+ const url=approvedMediaUrl('saison-2026/boissy.webp','photo',signed('saison-2026/boissy.webp'));
  assert.equal(new URL(url).origin,'https://dahzewvbybujqhogumte.supabase.co');
- assert.match(url,/\/storage\/v1\/object\/public\/boissy-uj-approved\//);
+ assert.match(url,/\/storage\/v1\/object\/sign\/boissy-uj-approved\//);
+ assert.equal(approvedMediaUrl('saison-2026/boissy.webp','photo'),null);
+ assert.equal(approvedMediaUrl('saison-2026/boissy.webp','photo','https://evil.example/a.webp?token=x'),null);
+ assert.equal(approvedMediaUrl('saison-2026/boissy.webp','photo',signed('other/boissy.webp')),null);
 });
 test('only reviewed and displayed assets affect public media filters',()=>{
  const post={id:'post-A'};
  const assets=[
-  {post_id:'post-A',kind:'photo',storage_path:'match/boissy.webp',visible:true,rights_reviewed:true},
-  {post_id:'post-A',kind:'video',storage_path:'match/recap.mp4',visible:false,rights_reviewed:true},
-  {post_id:'post-A',kind:'video',storage_path:'match/recap.mp4',visible:true,rights_reviewed:false},
-  {post_id:'post-B',kind:'video',storage_path:'match/recap.mp4',visible:true,rights_reviewed:true}
+  {post_id:'post-A',kind:'photo',storage_path:'match/boissy.webp',signed_url:signed('match/boissy.webp'),visible:true,rights_reviewed:true},
+  {post_id:'post-A',kind:'video',storage_path:'match/recap.mp4',signed_url:signed('match/recap.mp4'),visible:false,rights_reviewed:true},
+  {post_id:'post-A',kind:'video',storage_path:'match/recap.mp4',signed_url:signed('match/recap.mp4'),visible:true,rights_reviewed:false},
+  {post_id:'post-B',kind:'video',storage_path:'match/recap.mp4',signed_url:signed('match/recap.mp4'),visible:true,rights_reviewed:true}
  ];
  assert.deepEqual(mediaKindsFor(post,assets),['photo']);
  assert.deepEqual(mediaKindsFor(post,assets.slice(1)),[]);
