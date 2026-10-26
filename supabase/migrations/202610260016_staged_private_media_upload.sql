@@ -30,10 +30,8 @@ create policy boissy_admin_staged_media_upload
   and char_length(name)<=180
   and exists(
    select 1 from public.news_media_assets a
-   join public.news_posts p on p.id=a.post_id
    where a.storage_path=name
      and a.visible=false and a.rights_reviewed=false
-     and p.visibility='public'
   )
  );
 
