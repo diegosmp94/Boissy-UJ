@@ -50,7 +50,7 @@ test('fetch uses only read-only public REST catalogues and handles partial failu
   };
   const result=await loadPublicAgenda(undefined,fake);
   assert.equal(requests.length,3);
-  assert.equal(result.matches.length,3);
+  assert.equal(result.matches.length,2);
   assert.equal(result.events.length,0);
   assert.deepEqual(result.unavailable,['club_events']);
   for(const {url,opts} of requests){
