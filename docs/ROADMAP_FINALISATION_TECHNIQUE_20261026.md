@@ -14,6 +14,10 @@ Les contrôles automatiques déjà configurés sur les PR demeurent des garde-fo
 
 Accueil en huit chapitres et identité bleu nuit/doré ; navigation responsive et fiches des cinq équipes (dont « Senior » en futsal) ; principaux écrans Match Center/Championnat/Coupe, agenda, prochain match et félicitations ; inscription/connexion et parcours de récupération ; rôles joueur, entraîneur, administrateur cumulables avec approbation MFA AAL2 ; affectations multi-équipes, convocations, éditeurs administratifs, tableaux de préparation ; outils de publication et CI/GitHub Pages. Réutiliser ces modules avant d'en ajouter de nouveaux.
 
+## Réalisation en cours de la feuille de route
+
+- **Étape 66 — livrée en code le 26 octobre 2026** : [inventaire de l'état du schéma de production et du code](ETAPE_66_INVENTAIRE_CAPACITES_20261026.md), outil `npm run audit:features`, instantané horodaté et absence d'activation des six modules avancés. L'inventaire atteste la présence des objets, **pas** l'homologation ni la validité des migrations préparées.
+
 ## Lot A — Sécuriser et consolider le socle existant (P0)
 
 | Étape | Livraison de développement | Condition de clôture technique |
