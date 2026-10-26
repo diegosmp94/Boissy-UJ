@@ -1,7 +1,7 @@
 /** Form rules mirror Supabase RPC constraints. Pure, testable, no account data. */
 import {seasonTransitionAllowed} from './season-lifecycle-rules.mjs';
 export function validateSeasonDraft(d,previous=null){
- if(!seasonTransitionAllowed(previous?.state??null,d.state))
+ if(!seasonTransitionAllowed(previous?.state??null,d.state??'planned'))
   return 'Transition de saison interdite : prévue → en cours → terminée → archivée.';
  if(previous&&['completed','archived'].includes(previous.state)&&
    (d.label!==previous.label||d.start!==previous.starts_on||d.end!==previous.ends_on))
