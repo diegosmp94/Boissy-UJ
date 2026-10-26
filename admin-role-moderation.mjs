@@ -1,5 +1,6 @@
 import {supabaseConfig} from './auth-config.mjs';
 import {createAsyncRevisionGate} from './role-workflow.mjs';
+import {withAuthDeadline} from './auth-resilience.mjs';
 
 const STATUS_LABEL=Object.freeze({
   pending:'En attente',approved:'Approuvée',rejected:'Refusée',cancelled:'Annulée'
@@ -31,16 +32,16 @@ export function moderateMessage(approval){
     :'Refuser cette demande ? Cliquer à nouveau pour confirmer.';
 }
 async function verifiedAdmin(api,expectedId){
-  const [userResult,levelResult]=await Promise.all([
+  const [userResult,levelResult]=await withAuthDeadline(Promise.all([
     api.auth.getUser(),
     api.auth.mfa.getAuthenticatorAssuranceLevel()
-  ]);
+  ]));
   const actualUserId=userResult.data?.user?.id;
   if(userResult.error||levelResult.error||actualUserId!==expectedId)
     return {authorized:false,mfa:false};
   const mfa=levelResult.data?.currentLevel==='aal2';
   if(!mfa)return {authorized:false,mfa:false};
-  const roles=await api.from('user_roles').select('role').eq('user_id',expectedId);
+  const roles=await withAuthDeadline(api.from('user_roles').select('role').eq('user_id',expectedId));
   if(roles.error)return {authorized:false,mfa:true};
   return {
     authorized:canShowRoleModeration(expectedId,actualUserId,
@@ -72,7 +73,7 @@ export async function mountAdminRoleModeration(container,api,userId){
     }
     status.textContent='Session administrateur vérifiée. Chaque décision exige une confirmation explicite ; le serveur vérifie de nouveau les droits.';
     let teams=[];
-    const teamsResponse=await api.from('club_teams').select('id,name').order('sort_order',{ascending:true});
+    const teamsResponse=await withAuthDeadline(api.from('club_teams').select('id,name').order('sort_order',{ascending:true}));
     if(!section.isConnected)return;
     if(!teamsResponse.error)teams=teamsResponse.data||[];
     const filterLabel=el('label','staff-label','Afficher les demandes');
@@ -105,9 +106,9 @@ export async function mountAdminRoleModeration(container,api,userId){
         if(!isCurrent(ticket))return;
         if(!firstGate.authorized){lockModeration();return;}
         const requestedStatus=filter.value;
-        const response=await api.from('role_requests')
+        const response=await withAuthDeadline(api.from('role_requests')
           .select('id,user_id,requested_role,team_id,status,requested_at')
-          .eq('status',requestedStatus).order('requested_at',{ascending:true}).limit(60);
+          .eq('status',requestedStatus).order('requested_at',{ascending:true}).limit(60));
         if(!isCurrent(ticket))return;
         // AAL2 or the admin role may have been revoked during the private read.
         const afterReadGate=await verifiedAdmin(api,userId);
@@ -165,10 +166,10 @@ export async function mountAdminRoleModeration(container,api,userId){
                 if(!isCurrent(ticket))return;
                 if(!gate.authorized){lockModeration();return;}
                 // Server-side RPC rechecks role, AAL2, and rejects self-approval.
-                const {error}=await api.rpc('admin_decide_role_request',{
+                const {error}=await withAuthDeadline(api.rpc('admin_decide_role_request',{
                   p_request_id:request.id,p_approve:approval,
                   p_reason:decisionReason
-                });
+                }));
                 if(!isCurrent(ticket))return;
                 if(error){
                   confirmation.textContent='Décision refusée ou demande déjà traitée. Recharge les demandes.';
