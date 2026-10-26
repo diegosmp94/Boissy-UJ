@@ -4,6 +4,7 @@
 import {adminSessionStatus} from './admin-security.mjs';
 import {safeMediaPath} from './news-media-gallery.mjs';
 import {mountPrivateMediaUploader} from './admin-media-uploader.mjs';
+import {mountAdminMediaPurge} from './admin-media-purge.mjs';
 
 const el=(tag,cls='',text=null)=>{
  const n=document.createElement(tag);if(cls)n.className=cls;
@@ -200,6 +201,16 @@ export async function mountAdminNewsMedia(root,api,userId){
     item.value=savedId;
     loadAsset();
    }
+  }
+ });
+ mountAdminMediaPurge(root,api,userId,{
+  assetSelect:item,
+  assetsForPost:()=>assets.filter(a=>a.post_id===post.value),
+  onPurged:async()=>{
+   const current=await api.rpc('admin_list_news_media');
+   if(current.error||!Array.isArray(current.data))
+    throw new Error('Purge complete; list refresh failed');
+   assets=current.data;drawItems();
   }
  });
  status.textContent='Associe, vérifie et publie les médias. Le dépôt privé est disponible ci-dessous sans publication automatique.';
