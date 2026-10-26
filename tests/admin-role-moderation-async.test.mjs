@@ -105,3 +105,26 @@ test('older request history response never replaces the newest filtered moderati
     assert.equal(section.hidden,false);
   }finally{if(previous===undefined)delete globalThis.document;else globalThis.document=previous;}
 });
+
+test('a failed MFA verification during approval immediately clears private request cards',async()=>{
+  const h=harness(),previous=globalThis.document;
+  globalThis.document=h.document;
+  try{
+    const mounting=mountAdminRoleModeration(h.root,h.api,h.id);
+    await until(()=>h.reads.length===1);
+    h.reads[0]({data:[{id:'request',user_id:'HIDDEN_PRIVATE_MEMBER',
+      requested_role:'coach',team_id:null,status:'pending',requested_at:'2026-10-26'}],error:null});
+    await mounting;
+    const section=h.root.find('admin-role-moderation')[0];
+    const approve=section.find('staff-action')[0];
+    assert.ok(approve);
+    assert.match(visible(section),/HIDDEN_PRIVATE_MEMBER/);
+    h.api.auth.getUser=async()=>{throw new Error('MFA identity request unavailable');};
+    approve.fire('click');
+    approve.fire('click');
+    for(let i=0;i<6;i++)await flush();
+    assert.equal(section.hidden,true,'authentication failure locks moderation');
+    assert.doesNotMatch(visible(section),/HIDDEN_PRIVATE_MEMBER/);
+    assert.equal(section.find('admin-role-request-card').length,0);
+  }finally{if(previous===undefined)delete globalThis.document;else globalThis.document=previous;}
+});
