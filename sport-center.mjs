@@ -34,7 +34,9 @@ export function splitMatches(matches) {
     .sort((a,b) => Date.parse(a.scheduled_at) - Date.parse(b.scheduled_at));
   const results = matches.filter(m => m.match_status === 'played')
     .sort((a,b) => Date.parse(b.scheduled_at) - Date.parse(a.scheduled_at));
-  return {upcoming,results};
+  const cancelled = matches.filter(m=>m.match_status==='cancelled')
+    .sort((a,b)=>Date.parse(b.scheduled_at)-Date.parse(a.scheduled_at));
+  return {upcoming:upcoming.filter(m=>m.match_status!=='cancelled'),results,cancelled};
 }
 export function filterPublishedFixtures(matches, {teamId='all',seasonId='all',discipline='all',teams=[]}={}) {
   const disciplineMap=new Map(teams.map(t=>[t.id,t.discipline]));
@@ -117,7 +119,9 @@ function matchCard(match,teamsById) {
   const card=element('article','sport-match-card');
   const meta=element('div','sport-match-meta');
   meta.append(
-    element('span','sport-pill',statusLabel(match.match_status)),
+    element('span','sport-pill',match.match_status==='scheduled'&&
+      Date.parse(match.scheduled_at)<=Date.now()?'Horaire passé · résultat à confirmer':
+      statusLabel(match.match_status)),
     element('span','sport-date',dateLabel(match.scheduled_at))
   );
   const sides=element('div','sport-sides');
@@ -239,12 +243,15 @@ function displayFixtures(root,teams,matches,seasons=[],initialTeamCode=null,{una
     }
     thirdParty.replaceChildren();
     for (const [title,list,empty] of [
-      ['Prochaines rencontres',blocks.upcoming,unavailable.includes('matches')
+      ['Rencontres programmées ou reportées',blocks.upcoming,unavailable.includes('matches')
         ?'Calendrier du club momentanément indisponible pour cette équipe.'
         :'Aucune rencontre à venir publiée pour cette équipe.'],
       ['Derniers résultats',blocks.results,unavailable.includes('matches')
         ?'Résultats du club momentanément indisponibles pour cette équipe.'
-        :'Aucun résultat publié pour cette équipe.']
+        :'Aucun résultat publié pour cette équipe.'],
+      ['Rencontres annulées',blocks.cancelled,unavailable.includes('matches')
+        ?'Annulations momentanément indisponibles.'
+        :'Aucune rencontre annulée publiée pour cette équipe.']
     ]) {
       const section=element('section','sport-fixture-group');
       section.append(element('h3','',title));
