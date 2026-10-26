@@ -120,7 +120,7 @@ test('read-only Supabase loader includes published status changes for source ove
  assert.ok(requests.every(x=>x.opts.headers.apikey));
  assert.match(requests[1].url,/published=eq.true/);
  assert.equal(new URL(requests[1].url).searchParams.has('match_status'),false);
- assert.match(requests[1].url,/limit=350/);
+ assert.match(requests[1].url,/limit=500/);
  assert.ok(requests.every(x=>!x.url.includes('service_role')));
 });
 test('homepage scoreboard is mounted only at home with cleanup and internal link destinations',()=>{
