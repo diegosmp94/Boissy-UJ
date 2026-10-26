@@ -73,11 +73,12 @@ Accueil en huit chapitres et identité bleu nuit/doré ; navigation responsive e
 | **93** | **Sauvegardes et reprise** : outillage de création/export sécurisé, inventaire et comparaison de restauration ; procédure reproductible sans exposer des données personnelles. | Code et documentation de reprise prêts ; exécution de la restauration réelle hors feuille de route. |
 | **94** | **Suivi d'exploitation** : état des services, erreurs anonymisées, événements en échec, alertes de traitements différés et diagnostic réservé à l'administration. | Le club peut détecter un incident sans lire de secrets ni journaliser des données privées. |
 | **95** | **Finitions UX et performance** : cohérence mobile/tablette/bureau, focus clavier, lecteur d'écran, réduction des animations, chargements et assets. | Aucun parcours développé ne dépend d'un écran de démonstration ou d'un élément inutilisable. |
-| **96** | **FFF et ouverture publique configurables** : couche d'import optionnelle *désactivée* tant que les droits FFF ne sont pas accordés ; préparation SEO avec `noindex` conservé par défaut, drapeaux sûrs et documentation de lancement. | La saisie manuelle continue de fonctionner ; aucune source non autorisée ni indexation non approuvée n'est activée. |
+| **96** | **Connecteur FFF optionnel** : interface d'import autorisée, rapprochement manuel des équipes/compétitions, validation admin et retour au mode saisie manuelle si la source est absente. | Aucun appel à une source extérieure sans accès ni droit de réutilisation explicitement acquis. |
+| **97** | **Préparation SEO et bascules de mise en service** : métadonnées, indexation et drapeaux de fonctions conditionnelles ; `noindex` et désactivation des modules sensibles par défaut. | Une publication technique ne déclenche ni indexation, ni traitement payant/privé sans autorisation. |
 
 ## Ordre, dépendances et définition de « développement terminé »
 
-- **31 étapes : n° 66 à 96, en six lots.** Priorité : **A → B/C → D/E → F** ; les étapes sans dépendance forte de B et C peuvent avancer parallèlement.
+- **32 étapes : n° 66 à 97, en six lots.** Priorité : **A → B/C → D/E → F** ; les étapes sans dépendance forte de B et C peuvent avancer parallèlement.
 - Les écrans actuellement présents restent conservés : une étape signifie **terminer et raccorder** le système existant, pas le reconstruire.
 - Pour chaque étape : changement de code versionné, éventuellement migration SQL clairement identifiée, garde d'activation, documentation technique courte et fusion dans `main` après les contrôles automatiques habituels. Les recettes métier et saisies de contenu ne sont pas comptabilisées comme étapes.
 - **100 % de cette liste = 100 % du développement planifié**, et **non** 100 % d'homologation, d'utilisation réelle des services financiers ou de données officielles saisies.
