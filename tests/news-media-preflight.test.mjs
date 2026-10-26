@@ -15,7 +15,7 @@ test('prepared media migration has one transaction and no corrupted or repeated 
 test('publication is rejected on server when the approved Storage object is missing',()=>{
  assert.match(sql,/if p_visible and not \(select app_private\.media_file_ready\(p_path,p_kind\)\)/);
  assert.match(sql,/raise exception 'Approved Storage file absent or unsafe'/);
- assert.match(sql,/o\.bucket_id='boissy-uj-approved' and b\.public=true/);
+ assert.match(sql,/o\.bucket_id='boissy-uj-approved' and b\.public=false/);
  assert.match(sql,/o\.name=p_path/);
  assert.match(sql,/unique index if not exists news_media_unique_storage_path_idx/);
 });
@@ -48,7 +48,7 @@ test('admin explicitly checks file and disables publish until a matching success
  assert.match(admin,/adminSessionStatus\(api,userId\)/);
 });
 test('withdrawal warning explains that public Storage files require actual removal',()=>{
- assert.match(admin,/retrait de visibilité ne supprime PAS un fichier du bucket public/);
+ assert.match(admin,/un lien déjà émis peut fonctionner jusqu’à expiration/);
  assert.match(admin,/Supabase Storage en cas de demande d’effacement/);
  assert.match(admin,/fileStatus\.setAttribute\('aria-live','polite'\)/);
 });
