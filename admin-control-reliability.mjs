@@ -12,7 +12,10 @@ export async function boundedAdminStatus(readStatus,deadline=AUTH_SERVICE_DEADLI
   if(status?.status==='admin'&&status?.level==='aal2'
       &&Array.isArray(status.roles)&&status.roles.includes('admin'))
    return status;
-  return status||{status:'unverified',roles:[],level:null};
+  // A malformed admin claim must never survive as "admin" for callers.
+  if(status?.status==='admin'||!status)
+   return {status:'unverified',roles:[],level:null};
+  return status;
  }catch{
   return {status:'unverified',roles:[],level:null};
  }
