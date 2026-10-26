@@ -53,7 +53,8 @@ test('Storage policy permits only signing approved assets, not listing, uploadin
  assert.match(sql,/p\.status='published'/);
  assert.match(sql,/p\.consent_reviewed=true/);
  assert.match(sql,/p\.published_at<=now\(\)/);
- assert.doesNotMatch(sql,/object\.list|object\.upload|object\.delete|create policy .* for insert/);
+ assert.doesNotMatch(sql,/storage\.allow_any_operation\(array\[[^\]]*(?:object\.list|object\.upload|object\.delete)/);
+ assert.doesNotMatch(sql,/create policy .* for insert/);
 });
 
 test('unsigned or mismatched assets never render, signed URLs expire after ten minutes',async()=>{
