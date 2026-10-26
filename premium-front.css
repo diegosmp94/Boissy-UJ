@@ -88,3 +88,15 @@
 @media(prefers-reduced-motion:reduce){
  .premium-period-choice,.fan-journey-grid article,.fan-journey-head{transition:none!important;animation:none!important}
 }
+
+
+/* Step 82: personal entitlement status, no payment actions or misleading buttons. */
+.member-premium-status{margin-block:22px;padding:clamp(15px,3vw,24px);
+ border:1px solid rgba(221,187,121,.45);border-radius:16px;
+ background:linear-gradient(135deg,#12375b,#071d37);
+ display:grid;gap:10px;min-width:0;box-sizing:border-box}
+.member-premium-status h3{margin:0;color:#f6d28f;font-size:clamp(18px,2.2vw,23px)}
+.member-premium-status-detail{margin:0;color:#eef3fb;line-height:1.6;overflow-wrap:anywhere}
+.member-premium-status .auth-text-button{width:fit-content;max-width:100%;min-height:44px}
+.member-premium-status .auth-footnote{margin:0;line-height:1.5}
+@media(max-width:560px){.member-premium-status .auth-text-button{width:100%;white-space:normal}}
