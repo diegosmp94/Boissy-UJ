@@ -35,8 +35,11 @@ export function validateInventorySnapshot(snapshot){
     !/^[a-z0-9]{20}$/.test(snapshot.project_ref))
    throw new Error('Invalid schema snapshot header.');
  for(const key of ['tables','rpc_functions','buckets','edge_functions','migration_history']){
+  const validName=key==='migration_history'
+    ?/^\d{14}:[a-z0-9_]{1,130}$/
+    :/^[a-zA-Z_][\w.:-]{0,130}$/;
   if(!Array.isArray(snapshot[key])||snapshot[key].some(v=>typeof v!=='string'||
-       !/^[a-zA-Z_][\w.:-]{0,130}$/.test(v))||
+       !validName.test(v))||
      new Set(snapshot[key]).size!==snapshot[key].length)
    throw new Error('Invalid inventory snapshot field: '+key);
  }
