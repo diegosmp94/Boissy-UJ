@@ -5,6 +5,7 @@ import {mergeCalendarPublicEntries,parisDateKey} from './calendar-month.mjs';
 import {mountMonthCalendar} from './calendar-view.mjs';
 import {clubOutcome} from './league-standings.mjs';
 import {boundedPublicRequest} from './public-catalog-timeout.mjs';
+import {publishedMatchParams,filterPublishedMatchRows,unconfirmedWithoutClubDecision,watchPublicSportsRefresh} from './public-sports-sync.mjs';
 
 const ROOT = supabaseConfig.url + '/rest/v1/';
 const OPTIONS = Object.freeze([
@@ -26,11 +27,13 @@ export function combinePublishedAgenda(matches=[],events=[],teams=[],{
   const merged=[];
   for(const m of matches){
     const time=dateMs(m.scheduled_at);
-    if(m.published!==true||!['scheduled','played'].includes(m.match_status)||time===null)continue;
+    if(m.published!==true||!['scheduled','played','postponed','cancelled'].includes(m.match_status)||time===null)continue;
     merged.push({kind:'match',id:m.id,time,title:'Boissy-UJ — '+(m.opponent_name||'Adversaire à confirmer'),
       subtitle:(clubTeams.get(m.team_id)?.discipline==='futsal'?'Futsal · ':'Football · ')+(clubTeams.get(m.team_id)?.name||'Équipe du club'),place:m.venue||'Lieu à confirmer',
       info:m.match_status==='played'&&Number.isInteger(m.home_score)&&Number.isInteger(m.away_score)
         ?'Résultat : '+m.home_score+' – '+m.away_score
+        :m.match_status==='cancelled'?'Rencontre annulée par le club'
+        :m.match_status==='postponed'?'Rencontre reportée · nouvelle date à confirmer'
         :m.is_home===true?'À domicile':'À l’extérieur',
       href:'#/matchs',teamId:m.team_id,teamCode:clubTeams.get(m.team_id)?.code,
       opponent:m.opponent_name,status:m.match_status,localDay:parisDateKey(time),
@@ -55,8 +58,7 @@ export function combinePublishedAgenda(matches=[],events=[],teams=[],{
 }
 export async function loadPublicAgenda(signal,fetcher=fetch){
   const entries=[
-    ['matches',{select:'id,team_id,opponent_name,scheduled_at,venue,is_home,match_status,published,home_score,away_score',
-      published:'eq.true',order:'scheduled_at.asc',limit:'300'}],
+    ['matches',publishedMatchParams()],
     ['club_events',{select:'id,title,starts_at,ends_at,location_label,access_kind,published',
       published:'eq.true',access_kind:'eq.public',order:'starts_at.asc',limit:'100'}],
     ['club_teams',{select:'id,code,name,discipline',order:'sort_order.asc',limit:'5'}]
@@ -73,7 +75,7 @@ export async function loadPublicAgenda(signal,fetcher=fetch){
   }));
   if(signal?.aborted)throw new Error('Requête annulée');
   return {
-    matches:settled[0].status==='fulfilled'?settled[0].value:[],
+    matches:settled[0].status==='fulfilled'?filterPublishedMatchRows(settled[0].value):[],
     events:settled[1].status==='fulfilled'?settled[1].value:[],
     teams:settled[2].status==='fulfilled'?settled[2].value:[],
     unavailable:entries.filter((_,i)=>settled[i].status==='rejected').map(([t])=>t)
@@ -84,12 +86,16 @@ const formatDate=time=>new Intl.DateTimeFormat('fr-FR',{
   hour:'2-digit',minute:'2-digit',timeZone:'Europe/Paris'
 }).format(new Date(time));
 let active=0;
-let pending=null;
-export function unmountAgenda(){active++;pending?.abort();pending=null;}
+let pending=null,refreshCleanup=null;
+export function unmountAgenda(){active++;refreshCleanup?.();refreshCleanup=null;pending?.abort();pending=null;}
 export async function mountAgenda(){
   unmountAgenda();
   const generation=active,root=document.getElementById('agenda-public-root');
   if(!root)return;
+  refreshCleanup=watchPublicSportsRefresh({
+   active:()=>generation===active&&root.isConnected,
+   refresh:()=>void mountAgenda()
+  });
   const controller=new AbortController();pending=controller;
   const deadline=boundedPublicRequest(controller.signal);
   const intro=make('p','agenda-note','Parcourez les mois passés et à venir. Les résultats et rencontres du club sont distingués des données d’un site tiers, qui restent à valider.');
@@ -163,14 +169,9 @@ export async function mountAgenda(){
       // fixture always takes precedence and is the only kind eligible for .ics.
       // Do not hide all sourced results when another team has one published match.
       // Published Boissy UJ fixtures take precedence only for the same team/day/opponent.
-      const normalizeOpponent=name=>normalizeAgendaSearch(name).replace(/[^a-z0-9]/g,'');
-      const codeById=new Map(rows.teams.map(team=>[team.id,team.code]));
-      const publishedKeys=new Set(rows.matches.filter(m=>m.published===true).map(m=>
-        (codeById.get(m.team_id)||'')+'|'+parisDateKey(m.scheduled_at)+'|'+
-        normalizeOpponent(m.opponent_name)));
-      const suggestions=type.value==='event'?[]:publicExternalFixtures({
+      const suggestions=type.value==='event'?[]:unconfirmedWithoutClubDecision(publicExternalFixtures({
         query:search.value,period:period.value
-      }).filter(m=>!publishedKeys.has(m.team_code+'|'+m.localDay+'|'+normalizeOpponent(m.opponent)));
+      }),rows.matches,rows.teams);
       if(suggestions.length){
         external.append(make('h2','','Autres rencontres · à confirmer'));
         external.append(make('p','agenda-external-note',
