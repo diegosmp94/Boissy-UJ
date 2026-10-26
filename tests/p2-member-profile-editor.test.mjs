@@ -56,5 +56,5 @@ test('P2 presentation is responsive and existing role-revocation stays intact',(
  assert.match(read('admin-console.css'),/@media\(max-width:560px\)/);
  assert.match(ui,/api\.rpc\('admin_revoke_member_role'/);
  assert.match(ui,/canRevokeRole\(userId,profile\.id,role\)/);
- assert.match(read('admin-center.mjs'),/case 'users':void mountAdminMembers\(view,api,verified\.userId\);break/);
+ assert.match(read('admin-center.mjs'),/case 'users':void mountAdminMembers\(view,api,verified\.userId\)\.catch\(\(\)=>showModuleRetry\(view,id\)\);break/);
 });
