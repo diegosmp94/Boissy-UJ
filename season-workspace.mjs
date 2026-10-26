@@ -1,4 +1,5 @@
 import {supabaseConfig} from './auth-config.mjs';
+import {SEASON_STATE_LABELS} from './season-lifecycle-rules.mjs';
 
 /** Validation frontend uniquement. La base de données effectue les mêmes contrôles. */
 export function validateSeason(values) {
@@ -11,7 +12,7 @@ export function validateSeason(values) {
      Number(parts?.[1])<2020||Number(parts?.[1])>2100){
     errors.push('Indique une saison consécutive : AAAA/AAAA+1 (ex. 2026/2027).');
   }
-  if(!['planned','active','completed'].includes(status))
+  if(!Object.hasOwn(SEASON_STATE_LABELS,status))
     errors.push('Statut de saison inconnu.');
   if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||!/^\d{4}-\d{2}-\d{2}$/.test(end)||
      Number.isNaN(Date.parse(start))||Number.isNaN(Date.parse(end))||
@@ -95,7 +96,7 @@ export function mountSeasonPreview(container) {
     preview.append(
       el('span','staff-preview-kicker','PRÉVISUALISATION · NON ENREGISTRÉE'),
       el('h4','',result.label),
-      el('p','',({planned:'Prévue',active:'En cours',completed:'Terminée'})[result.status]),
+      el('p','',SEASON_STATE_LABELS[result.status]),
       el('p','',result.start+' → '+result.end),
       el('small','','Aucune saison créée ou modifiée dans Supabase.')
     );
@@ -111,7 +112,7 @@ export function mountSeasonPreview(container) {
     else rows.forEach(row=>{
       const item=el('div','staff-season-item');
       item.append(el('strong','',row.label),
-        el('span','',({planned:'Prévue',active:'En cours',completed:'Terminée'})[row.state]||'À vérifier'));
+        el('span','',SEASON_STATE_LABELS[row.state]||'À vérifier'));
       list.append(item);
     });
   }).catch(()=>{
