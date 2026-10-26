@@ -1,0 +1,14 @@
+/* Étape 79 · Dépôt privé sous MFA, bleu nuit et doré. */
+.admin-media-uploader{max-width:850px;display:grid;gap:13px;margin-top:24px;
+ padding:clamp(15px,3vw,25px);border:1px solid rgba(214,184,112,.52);
+ background:linear-gradient(155deg,rgba(11,36,66,.92),rgba(7,21,39,.95));
+ border-radius:15px;box-sizing:border-box;min-width:0}
+.admin-media-uploader h3{margin:0;color:#f3d69b;font-size:clamp(19px,2.3vw,23px)}
+.admin-media-uploader .admin-form-control{max-width:100%;width:100%;box-sizing:border-box}
+.admin-media-upload-consent{display:flex;align-items:flex-start;gap:12px;
+ line-height:1.55;color:#e5edf9;font-size:14px}
+.admin-media-upload-consent input{flex-shrink:0;width:20px;height:20px;
+ margin-top:1px;accent-color:#d9b36b}
+.admin-media-uploader button{width:fit-content;max-width:100%;white-space:normal}
+@media(max-width:560px){.admin-media-uploader{margin-top:18px}
+ .admin-media-uploader button{width:100%;min-height:44px}}
