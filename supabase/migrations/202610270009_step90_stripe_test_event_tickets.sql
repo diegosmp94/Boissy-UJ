@@ -459,8 +459,7 @@ end;
 $fn$;
 
 
--- Share the staged scanner with paid / complimentary tickets, with the
--- SAME AAL2, event, one-time, refund and Premium grant checks.
+-- Share the staged scanner with verified TEST paid and complimentary tickets.
 create or replace function public.admin_list_free_ticket_scan_events()
 returns table(
  event_id uuid,title text,starts_at timestamptz,ends_at timestamptz,
@@ -538,32 +537,7 @@ begin
    or v_now>=v_event.ends_at then
   v_outcome:='event_unavailable';
  elsif p_qr is null or pg_catalog.length(p_qr)<>106
-   or p_qr !~ ('^BUJ1:'||p_event_id::text||':[0-9a-f]{64}
- from public,anon,authenticated,service_role;
-revoke all on function public.billing_register_test_ticket_order(
- uuid,uuid,text,integer,text,uuid)
- from public,anon,authenticated,service_role;
-revoke all on function public.billing_apply_verified_test_ticket_payment(
- uuid,text,text,text,text,text,integer,boolean)
- from public,anon,authenticated,service_role;
-revoke all on function public.billing_record_test_ticket_reversal(text,text,text)
- from public,anon,authenticated,service_role;
-revoke all on function public.member_my_test_paid_tickets()
- from public,anon,authenticated,service_role;
-grant execute on function public.member_request_premium_test_comp_ticket(uuid)
- to authenticated;
-grant execute on function public.billing_register_test_ticket_order(
- uuid,uuid,text,integer,text,uuid)
- to service_role;
-grant execute on function public.billing_apply_verified_test_ticket_payment(
- uuid,text,text,text,text,text,integer,boolean)
- to service_role;
-grant execute on function public.billing_record_test_ticket_reversal(text,text,text)
- to service_role;
-grant execute on function public.member_my_test_paid_tickets()
- to authenticated;
-commit;
-) then
+   or p_qr !~ ('^BUJ1:'||p_event_id::text||':[0-9a-f]{64}$') then
   v_outcome:='invalid_code';
  else
   v_token:=pg_catalog.split_part(p_qr,':',3);
@@ -582,23 +556,23 @@ commit;
    and v_ticket.ticket_origin<>'free' then
    v_outcome:='not_found';
   elsif v_ticket.status='issued' and v_event.booking_kind='paid'
-    and (
-     (v_ticket.ticket_origin='test_paid' and not exists(
-       select 1 from app_private.ticket_test_orders o
-        where o.ticket_id=v_ticket.id and o.event_id=p_event_id
-          and o.status='issued' and o.amount_cents>0
-          and o.charge_id is not null
-          and not exists(select 1 from app_private.ticket_test_reversal_inbox r
-              where r.charge_id=o.charge_id)))
-     or (v_ticket.ticket_origin='premium_comp' and not exists(
-       select 1 from app_private.premium_access_grants g
-        join app_private.premium_test_charge_proofs p
-         on p.source_reference=g.source_reference
-        where g.user_id=v_ticket.member_user_id
-          and g.revoked_at is null and g.verified_at<=now()
-          and g.valid_from<=now() and now()<g.valid_until))
-     or v_ticket.ticket_origin='free'
-    ) then
+   and (
+    (v_ticket.ticket_origin='test_paid' and not exists(
+      select 1 from app_private.ticket_test_orders o
+       where o.ticket_id=v_ticket.id and o.event_id=p_event_id
+        and o.status='issued' and o.amount_cents>0
+        and o.charge_id is not null
+        and not exists(select 1 from app_private.ticket_test_reversal_inbox r
+          where r.charge_id=o.charge_id)))
+    or (v_ticket.ticket_origin='premium_comp' and not exists(
+      select 1 from app_private.premium_access_grants g
+       join app_private.premium_test_charge_proofs p
+        on p.source_reference=g.source_reference
+       where g.user_id=v_ticket.member_user_id
+        and g.revoked_at is null and g.verified_at<=now()
+        and g.valid_from<=now() and now()<g.valid_until))
+    or v_ticket.ticket_origin='free'
+   ) then
    v_outcome:='not_found';
   elsif v_ticket.status='issued' then
    update app_private.free_event_tickets
@@ -660,8 +634,7 @@ begin
   'recent',v_recent);
 end;
 $scan$;
--- Protect paid orders from the free-ticket cancellation path. A paid
--- cancellation/refund is always reconciled through the verified finance ledger.
+-- Paid bookings must not be cancelled via free reservation RPC.
 create or replace function public.cancel_my_free_event_ticket(p_event_id uuid)
 returns boolean
 language plpgsql volatile security definer set search_path=''
@@ -702,9 +675,7 @@ begin
   return true;
 end;
 $ticket$;
-
--- Stage 88 global guard must preserve the ORIGINAL booking kind, not force
--- free after any paid/complimentary ticket has been issued.
+-- Preserve event kind once any tickets have been issued.
 create or replace function app_private.guard_event_reservation_consistency()
 returns trigger language plpgsql security definer set search_path=''
 as $fn$
@@ -752,12 +723,8 @@ begin
  return new;
 end;
 $fn$;
-
--- Admin-only manually enabled *staging* paid event opening. No production
--- gate configuration is exposed via these functions.
-create or replace function public.admin_open_staging_test_paid_event(
- p_event_id uuid
-) returns boolean language plpgsql security definer set search_path=''
+create or replace function public.admin_open_staging_test_paid_event(p_event_id uuid)
+returns boolean language plpgsql security definer set search_path=''
 as $fn$
 declare e public.club_events%rowtype;
 begin
