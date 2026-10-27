@@ -11,6 +11,7 @@ import {mountAdminNewsMedia} from './admin-news-media.mjs';
 import {mountAdminEditorialStatus} from './admin-editorial-status.mjs';
 import {mountAdminNewsRevisions} from './admin-news-revisions.mjs';
 import {mountAdminReadiness} from './admin-readiness.mjs';
+import {mountAdminDonationCampaigns} from './admin-donation-campaigns.mjs';
 import {mountAdminSportReview} from './admin-sport-source-review.mjs';
 import {mountAdminTicketingReadiness} from './admin-ticketing-readiness.mjs';
 import {mountAdminPlayerTeams} from './admin-player-teams.mjs';
@@ -23,6 +24,7 @@ import {adminCapabilities,adminFailureLabel} from './admin-control-reliability.m
 export const ADMIN_MODULES=Object.freeze([
  {id:'overview',name:'Vue générale',group:'Pilotage',caption:'Données réelles, aucun chiffre fictif'},
  {id:'readiness',name:'État de mise en service',group:'Pilotage',caption:'Lectures techniques et validations manquantes'},
+ {id:'donations',name:'Dons et campagnes',group:'Pilotage',caption:'Campagnes publiées, sans encaissement en ligne'},
  {id:'users',name:'Membres et rôles',group:'Pilotage',caption:'Consultation et retraits validés'},
  {id:'approvals',name:'Validation des rôles',group:'Pilotage',caption:'Demandes et approbations MFA'},
  {id:'teams',name:'Effectifs publics',group:'Sport',caption:'Brouillons et publication contrôlée'},
@@ -242,6 +244,7 @@ export async function mountAdminCenter(getClient){
    view.replaceChildren();
    switch(id){
     case 'overview':await overview(view);break;
+    case 'donations':void mountAdminDonationCampaigns(view,api,verified.userId).catch(()=>showModuleRetry(view,id));break;
     case 'readiness':void mountAdminReadiness(view,api,verified.userId).catch(()=>showModuleRetry(view,id));break;
     case 'users':void mountAdminMembers(view,api,verified.userId).catch(()=>showModuleRetry(view,id));break;
     case 'approvals':void mountAdminRoleModeration(view,api,verified.userId).catch(()=>showModuleRetry(view,id));break;
