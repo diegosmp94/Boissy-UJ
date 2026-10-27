@@ -250,3 +250,41 @@ textarea.admin-form-control{line-height:1.5;resize:vertical}
 .admin-privacy-details button:focus-visible,.admin-privacy-inventory button:focus-visible{
  outline:3px solid #f4dca8;outline-offset:3px}
 @media(max-width:600px){.admin-privacy-details,.admin-privacy-inventory{padding:12px}}
+
+
+/* Step 94 — operational diagnostics: counts only, no detailed personal logs. */
+.admin-ops-services,.admin-ops-alerts,.admin-ops-incidents{
+ display:grid;gap:13px;margin-block:18px;padding:16px;
+ border:1px solid rgba(223,188,124,.35);border-radius:14px;min-width:0;
+ background:rgba(8,27,51,.66)
+}
+.admin-ops-services h3,.admin-ops-alerts h3,.admin-ops-incidents h3{
+ margin:0;color:#f6daa3
+}
+.admin-ops-service-grid,.admin-ops-alert-grid{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,235px),1fr));gap:11px
+}
+.admin-ops-item,.admin-ops-incident{
+ display:grid;align-content:start;gap:8px;min-width:0;padding:12px;
+ background:rgba(255,255,255,.045);border-radius:11px;
+ border:1px solid rgba(255,255,255,.13)
+}
+.admin-ops-item strong,.admin-ops-incident strong{overflow-wrap:anywhere}
+.admin-ops-item[data-ops-state="ok"]{border-left:3px solid #6fd1a1}
+.admin-ops-item[data-ops-state="warning"]{border-left:3px solid #f5b080}
+.admin-ops-item[data-ops-state="unknown"]{border-left:3px solid #b4b9c6}
+.admin-ops-incidents-list{display:grid;gap:11px}
+.admin-ops-incident-form{display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:12px;
+ align-items:end}
+.admin-ops-incident-form button,.admin-ops-incidents button{
+ min-height:44px;white-space:normal
+}
+.admin-ops-incident-form select,.admin-ops-incidents select{width:100%;max-width:100%}
+.admin-workflow-status[data-ops-state="unknown"]{border-left:3px solid #b4b9c6;padding-left:12px}
+.admin-ops-incident-form button:focus-visible,.admin-ops-incidents button:focus-visible{
+ outline:3px solid #f3d8a7;outline-offset:3px}
+@media(max-width:600px){
+ .admin-ops-services,.admin-ops-alerts,.admin-ops-incidents{padding:12px}
+ .admin-ops-incident-form{grid-template-columns:1fr}
+}
