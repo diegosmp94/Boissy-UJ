@@ -84,6 +84,6 @@ test('real event editor is registered behind admin MFA route',()=>{
 test('missing database migration keeps free event module hidden instead of showing broken controls',()=>{
  assert.match(read('admin-control-reliability.mjs'),/adminCapability\(\(\)=>api\.rpc\('admin_list_free_events'\)/);
  assert.match(read('admin-control-reliability.mjs'),/adminCapability\(\(\)=>api\.rpc\('admin_list_free_events'\),Array\.isArray/);
- assert.match(hub,/availableAdminModules\(ADMIN_MODULES,\{eventsReady,eventRulesReady,scannerReady,awardsReady,coachTeamsReady,mediaReady,newsRevisionsReady\}\)/);
+ assert.match(hub,/availableAdminModules\(ADMIN_MODULES,\{eventsReady,eventRulesReady,scannerReady,awardsReady,privacyReady,coachTeamsReady,mediaReady,newsRevisionsReady\}\)/);
  assert.match(hub,/if\(serial!==currentGeneration\|\|!root\.isConnected\)return/);
 });
