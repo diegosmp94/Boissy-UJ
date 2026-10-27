@@ -21,9 +21,10 @@ export function safeRecoveryCodePath(p){
  if(typeof p!=='string'||p.length>240||p.includes('\\')||
   p.startsWith('/')||p.includes('..')||p.includes('\0')||
   !/^[a-zA-Z0-9_./-]+$/.test(p))return false;
+ if(/(?:^|\/)(?:\.env(?:\.|$)|secrets?(?:[._-]|$)|credentials?(?:[._-]|$)|private-keys?(?:[._-]|$))/i.test(p))return false;
  if(CODE_PATH_EXACT.includes(p))return true;
  if(/^supabase\/migrations\/[0-9]{12,14}_[a-z0-9_]+\.sql$/.test(p))return true;
- return /^supabase\/functions\/(?:[a-z0-9_-]+|_shared)\/(?:[a-zA-Z0-9._-]+\/)*[a-zA-Z0-9._-]+\.(?:ts|mjs|js|json)$/.test(p);
+ return /^supabase\/functions\/(?:[a-z0-9_-]+|_shared)\/(?:[a-zA-Z0-9._-]+\/)*[a-zA-Z0-9._-]+\.(?:ts|mjs|js)$/.test(p);
 }
 export function validateRecoveryCodeManifest(data){
  if(!data||typeof data!=='object'||Array.isArray(data)||
