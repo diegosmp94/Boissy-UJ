@@ -177,7 +177,8 @@ test('stage87: admin module mounts behind MFA, preserves old free editor and req
  assert.match(editor,/admin_list_advanced_events/);
  assert.match(editor,/admin_save_advanced_event/);
  assert.match(editor,/admin_save_event_reservation_window/);
- assert.match(editor,/confirmation/);
+ assert.match(editor,/eventConfirmation/);
+ assert.match(editor,/slotConfirmation/);
  assert.match(editor,/Aucune réservation ouverte/);
  assert.equal(availableAdminModules(ADMIN_MODULES,{eventsReady:false})
   .some(x=>x.id==='event-rules'),false);
