@@ -14,7 +14,11 @@ export const CODE_PATH_EXACT=Object.freeze([
  'scripts/db-recovery-verification.sql',
  'scripts/db-recovery-schema-fingerprint.sql',
  'scripts/compare-recovery-inventories.mjs',
- 'scripts/verify-recovery-target.mjs'
+ 'scripts/verify-recovery-target.mjs',
+ 'scripts/db-step93-recovery-metadata.sql',
+ 'scripts/step93-recovery-code-inventory.mjs',
+ 'scripts/step93-encrypted-db-backup.mjs',
+ 'scripts/step93-compare-private-recovery.mjs'
 ]);
 const digest=b=>createHash('sha256').update(b).digest('hex');
 export function safeRecoveryCodePath(p){
