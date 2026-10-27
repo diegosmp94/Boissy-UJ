@@ -32,6 +32,20 @@ for(const m of html.matchAll(/(?:src|href)=["']\.\/([^"'?#]+)[^"']*["']/g)){
  const file=decodeURIComponent(m[1]);
  if(!await exists(resolve(root,file)))fail.push('Missing HTML asset: '+file);
 }
+// Real Pages build must load one local stylesheet in original cascade order.
+const cssLinks=[...html.matchAll(/<link\\b[^>]*rel="stylesheet"[^>]*>/gi)];
+if(cssLinks.length!==1||!cssLinks[0][0].includes('href="./site-bundle.css"'))
+ fail.push('Pages build must load exactly one local CSS bundle');
+else{
+ const combined=await readFile(join(root,'site-bundle.css'),'utf8');
+ const originals=[...combined.matchAll(/\/\* SOURCE ([a-z0-9-]+\\.css) \*\//g)]
+  .map(x=>x[1]);
+ if(originals.length<15||new Set(originals).size!==originals.length||
+  originals[0]!=='styles.css')
+  fail.push('Missing CSS source ordering and coverage in bundle');
+ if(/@import\\s|url\\(\\s*['"]?https?:/i.test(combined))
+  fail.push('CSS bundle includes unexpected remote dependency');
+}
 for(const fragment of ['#/confidentialite','#/mentions-legales','name="robots" content="noindex, nofollow"']){
  if(!html.includes(fragment))fail.push('Preview compliance guard absent: '+fragment);
 }
