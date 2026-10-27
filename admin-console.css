@@ -211,3 +211,25 @@ textarea.admin-form-control{line-height:1.5;resize:vertical}
  .admin-scan-actions{display:grid;grid-template-columns:1fr 1fr}
  .admin-scan-actions button{padding:10px}
  .admin-scan-stats,.admin-scan-history{padding:11px}}
+
+
+/* Step 91: actual Awards editor and personal Premium ballots. */
+.admin-awards-nominees,.admin-awards-actions{display:grid;gap:13px;margin-top:24px;
+ border:1px solid rgba(215,188,133,.36);border-radius:14px;
+ padding:18px;background:rgba(9,29,52,.58);min-width:0}
+.admin-awards-actions h3,.admin-awards-nominees h3{color:#f6dba3;margin:0}
+.admin-awards-actions button,.admin-awards-nominees button{min-height:44px;white-space:normal}
+.admin-awards-actions button:disabled{opacity:.48;cursor:not-allowed}
+.member-awards{display:grid;gap:15px;margin-block:22px;padding:18px;
+ border:1px solid rgba(211,179,114,.42);border-radius:16px;
+ background:linear-gradient(145deg,rgba(11,36,65,.98),rgba(6,22,43,.92));min-width:0}
+.member-awards h3{margin:0;color:#f4d69d}
+.member-awards-list{display:grid;gap:13px}
+.member-awards-card{border:1px solid rgba(220,194,145,.3);border-radius:12px;
+ padding:15px;display:grid;gap:12px;min-width:0}
+.member-awards-card h4{margin:0;color:#fff0cc;overflow-wrap:anywhere}
+.member-awards-card button{min-height:44px;white-space:normal}
+.member-awards-card select{min-width:0;max-width:100%}
+.member-awards-card button:focus-visible{outline:3px solid #f6d18b;outline-offset:3px}
+@media(max-width:600px){.admin-awards-nominees,.admin-awards-actions,.member-awards{padding:13px}
+ .member-awards-card{padding:12px}}
