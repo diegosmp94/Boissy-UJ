@@ -12,6 +12,7 @@ import {mountAdminEditorialStatus} from './admin-editorial-status.mjs';
 import {mountAdminNewsRevisions} from './admin-news-revisions.mjs';
 import {mountAdminReadiness} from './admin-readiness.mjs';
 import {mountAdminDonationCampaigns} from './admin-donation-campaigns.mjs';
+import {mountAdminAdvancedEvents} from './admin-advanced-events.mjs';
 import {mountAdminSportReview} from './admin-sport-source-review.mjs';
 import {mountAdminTicketingReadiness} from './admin-ticketing-readiness.mjs';
 import {mountAdminPlayerTeams} from './admin-player-teams.mjs';
@@ -34,6 +35,7 @@ export const ADMIN_MODULES=Object.freeze([
  {id:'matches',name:'Matchs et résultats',group:'Sport',caption:'Rencontres officielles du club'},
  {id:'sport-review',name:'Revue des sources sportives',group:'Sport',caption:'Dates, résultats externes et homologation'},
  {id:'events',name:'Événements gratuits',group:'Sport',caption:'Agenda sans billetterie ni paiements'},
+ {id:'event-rules',name:'Événements avancés',group:'Sport',caption:'Accès, jauges et plages de réservation (fermées)'},
  {id:'ticketing',name:'Préparation billetterie',group:'Sport',caption:'Jauges et contrôle des billets QR (non activé)'}, 
  {id:'editorial',name:'Suivi des publications',group:'Contenu',caption:'Contrôles réels des articles et médias'},
  {id:'news',name:'Actualités',group:'Contenu',caption:'Articles et droits de publication'},
@@ -116,7 +118,7 @@ export async function mountAdminCenter(getClient){
   };
   // Module health is isolated: a missing/slow RPC hides only its module.
   // All probes are bounded, independent and issued after the initial MFA gate.
-  const {eventsReady,coachTeamsReady,mediaReady,newsRevisionsReady}=
+  const {eventsReady,eventRulesReady,coachTeamsReady,mediaReady,newsRevisionsReady}=
     await adminCapabilities(api);
   if(serial!==currentGeneration||!root.isConnected)return;
   // Capabilities are not permissions: verify roles and MFA again after probes.
@@ -140,7 +142,7 @@ export async function mountAdminCenter(getClient){
   const pane=el('section','real-admin-pane');
   pane.setAttribute('aria-label','Outil de gestion');
   layout.append(sidebar,pane);root.append(layout);
-  const availableModules=availableAdminModules(ADMIN_MODULES,{eventsReady,coachTeamsReady,mediaReady,newsRevisionsReady});
+  const availableModules=availableAdminModules(ADMIN_MODULES,{eventsReady,eventRulesReady,coachTeamsReady,mediaReady,newsRevisionsReady});
   const navTools=el('div','admin-nav-tools');
   const navLabel=el('label','admin-nav-label','Trouver un module');
   const moduleSearch=el('input','admin-nav-search');
@@ -257,6 +259,7 @@ export async function mountAdminCenter(getClient){
      if(availableModules.some(module=>module.id===next))void selectSection(next);
     }).catch(()=>showModuleRetry(view,id));break;
     case 'events':mountAdminFreeEvents(view,api,verified.userId);break;
+    case 'event-rules':void mountAdminAdvancedEvents(view,api,verified.userId).catch(()=>showModuleRetry(view,id));break;
     case 'ticketing':void mountAdminTicketingReadiness(view,api,verified.userId,next=>{
      if(availableModules.some(module=>module.id===next))void selectSection(next);
     }).catch(()=>showModuleRetry(view,id));break;
