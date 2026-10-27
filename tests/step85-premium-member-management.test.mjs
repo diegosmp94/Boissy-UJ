@@ -67,7 +67,7 @@ test('step85: service RPC derives only an active monthly grant with charge proof
   'count(distinct l.checkout_id)',
   "if v_count<>1 then",
   'No unique active monthly TEST subscription',
-  'v_link.customer_id',
+  'v_target.customer_id',
   "'subscription_id',v_target.subscription_id",
   "'customer_id',v_target.customer_id",
   "'price_id',v_target.price_id"
