@@ -15,3 +15,10 @@ verify_jwt = true # Auth JWT + confirmation Auth côté handler
 # Only on isolated staging: member JWT + verified Auth user and explicit TEST gate.
 [functions.premium-stripe-test-cancel]
 verify_jwt = true
+
+# Stripe TEST donations: deploy ONLY to a distinct isolated staging Supabase.
+[functions.donation-stripe-test-checkout]
+verify_jwt = true
+
+[functions.donation-stripe-test-webhook]
+verify_jwt = false # official Stripe signature over unmodified RAW body required
