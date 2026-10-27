@@ -87,7 +87,8 @@ Deno.serve(async req=>{
   if(product.livemode!==false||product.active!==true)
    throw Error('Unexpected TEST ticket product');
   checkout=await stripe.checkout.sessions.create({
-   mode:'payment',customer_email:user.email,customer_creation:'always',
+   mode:'payment',client_reference_id:eventId,
+   customer_email:user.email,customer_creation:'always',
    payment_method_types:['card'], // no delayed/partial payments in this test
    line_items:[{price_data:{currency:'eur',product:cfg.product,
     unit_amount:price.amount_cents},quantity:1}],
