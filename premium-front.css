@@ -100,3 +100,13 @@
 .member-premium-status .auth-text-button{width:fit-content;max-width:100%;min-height:44px}
 .member-premium-status .auth-footnote{margin:0;line-height:1.5}
 @media(max-width:560px){.member-premium-status .auth-text-button{width:100%;white-space:normal}}
+
+
+/* Step 85: account Premium lifecycle and accessible renewal control. */
+.member-premium-cycle{margin:0;color:#cedcf2;line-height:1.6;overflow-wrap:anywhere}
+.member-premium-support{display:inline-flex;width:fit-content;min-height:44px;align-items:center;color:#f2d28a;text-decoration:underline;text-underline-offset:3px}
+.member-premium-support:focus-visible,.member-premium-cancel:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.member-premium-cancel{border:1px solid #d9bf83;background:#183655;color:#ffe4aa;padding:10px 16px;border-radius:9px;font-weight:700;max-width:100%;white-space:normal}
+.member-premium-cancel[hidden]{display:none!important}
+.member-premium-cancel:disabled{opacity:.55;cursor:wait}
+@media(max-width:560px){.member-premium-support,.member-premium-cancel{width:100%;justify-content:center}}
