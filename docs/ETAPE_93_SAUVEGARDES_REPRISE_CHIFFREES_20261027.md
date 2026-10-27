@@ -73,6 +73,14 @@ Consulter :
 
 **Ne pas cloner des données personnelles de membres ou de mineurs dans un staging accessible au public.** Les tests fonctionnels de staging doivent de préférence utiliser des comptes synthétiques indépendants. En cas de vraie restauration de reprise, l'accès au système de destination, la rétention, les données des mineurs et les obligations du responsable du traitement doivent faire l'objet d'une autorisation spécifique.
 
+## Validation du développement — 27 octobre 2026
+
+- **[PR #162](https://github.com/diegosmp94/Boissy-UJ/pull/162)** fusionnée dans `main`, commit `87fedf38a30df98a453d5c2b0a5fb4e380d6c7ff`.
+- **936 tests automatisés réussis**, 0 échec et **2 workflows GitHub Actions au vert**, avec contrôle de syntaxe, build préproduction, audit des origines et tests Chromium mobile.
+- Le contrôle SQL `scripts/db-step93-recovery-metadata.sql` a été exécuté **en lecture seule** sur le projet principal : **55 tables publiques/privées, 0 table sans RLS, 0 RPC SECURITY DEFINER anonyme, 0 métadonnée d'objet Storage et 0 demande RGPD** à l'instant du contrôle. Les empreintes SHA-256 de schéma et politiques ont été vérifiées. Aucun export de données ni modification SQL.
+- Le correctif du manifeste inclut désormais aussi les **quatre nouveaux fichiers outillage/métadonnées de l'étape 93**, sous liste blanche stricte. Un test exclut les JSON secrets ou chemins suspects des inventaires.
+- **Aucun export réel `pg_dump`, aucun fichier `.dump.age`, aucune restauration ou réplication de données personnelles** n’a été exécuté dans cette recette de code. Le script d'export exige une action manuelle, un destinataire `age`, des paramètres PG* et un fichier de mot de passe privé.
+
 ## Matrice d'acceptation hors développement
 
 - Stockage hors site sous contrôle du club ; personne responsable, accès au déchiffrement, fréquence, rotation des clés et durée de rétention à définir par le club.
