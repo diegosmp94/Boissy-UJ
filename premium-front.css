@@ -110,3 +110,22 @@
 .member-premium-cancel[hidden]{display:none!important}
 .member-premium-cancel:disabled{opacity:.55;cursor:wait}
 @media(max-width:560px){.member-premium-support,.member-premium-cancel{width:100%;justify-content:center}}
+
+
+/* Stage 86: published campaign catalog; informational, no checkout. */
+#donation-campaigns-public{max-width:1140px;margin:24px auto 38px}
+.campaign-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:20px}
+.campaign-public-card{border:1px solid rgba(211,188,134,.35);border-radius:18px;
+ padding:24px;display:grid;align-content:start;gap:12px;
+ background:linear-gradient(150deg,rgba(17,43,79,.95),rgba(9,24,51,.96));
+ box-shadow:0 15px 35px rgba(0,0,0,.13);min-width:0}
+.campaign-public-card h3{font-size:clamp(1.15rem,2vw,1.45rem);
+ line-height:1.3;color:#f2e5c7;margin:0}
+.campaign-public-card p{margin:0;line-height:1.6;overflow-wrap:anywhere}
+.campaign-goal,.campaign-state{border-top:1px solid rgba(255,255,255,.13);
+ padding-top:10px}
+.campaign-state{color:#e9dbb6;font-weight:600}
+.campaign-empty{padding:22px;border:1px dashed rgba(240,219,172,.35);
+ border-radius:12px;color:#d8e4f7;line-height:1.6}
+@media(max-width:560px){.campaign-grid{grid-template-columns:1fr;gap:14px}
+ .campaign-public-card{padding:18px;border-radius:14px}}
