@@ -31,8 +31,9 @@ export async function adminCapability(call,valid=Array.isArray,deadline=AUTH_SER
 
 /** Reads all optional module capabilities independently, in parallel. */
 export async function adminCapabilities(api,deadline=AUTH_SERVICE_DEADLINE_MS){
- const [eventsReady,coachTeamsReady,mediaReady,newsRevisionsReady]=await Promise.all([
+ const [eventsReady,eventRulesReady,coachTeamsReady,mediaReady,newsRevisionsReady]=await Promise.all([
   adminCapability(()=>api.rpc('admin_list_free_events'),Array.isArray,deadline),
+  adminCapability(()=>api.rpc('admin_list_advanced_events'),Array.isArray,deadline),
   (async()=>{
    try{
     const candidates=await withAuthDeadline(Promise.resolve().then(
@@ -46,7 +47,7 @@ export async function adminCapabilities(api,deadline=AUTH_SERVICE_DEADLINE_MS){
   adminCapability(()=>api.rpc('admin_list_news_media'),Array.isArray,deadline),
   adminCapability(()=>api.rpc('admin_news_revisions_ready'),value=>value===true,deadline)
  ]);
- return {eventsReady,coachTeamsReady,mediaReady,newsRevisionsReady};
+ return {eventsReady,eventRulesReady,coachTeamsReady,mediaReady,newsRevisionsReady};
 }
 
 /** Public generic message. Never surface backend responses or PII. */
