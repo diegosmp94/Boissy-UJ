@@ -124,6 +124,21 @@ revoke all on function app_private.ticket_test_price(uuid,uuid)
 grant execute on function app_private.ticket_test_price(uuid,uuid)
  to service_role;
 
+-- REST-facing projection only for an authenticated Edge Function holding
+-- service_role. Never expose user-id prices through an authenticated RPC.
+create or replace function public.billing_quote_test_event_ticket(
+ p_user_id uuid,p_event_id uuid
+) returns jsonb language plpgsql stable security definer set search_path=''
+as $fn$
+begin
+ return app_private.ticket_test_price(p_user_id,p_event_id);
+end;
+$fn$;
+revoke all on function public.billing_quote_test_event_ticket(uuid,uuid)
+ from public,anon,authenticated,service_role;
+grant execute on function public.billing_quote_test_event_ticket(uuid,uuid)
+ to service_role;
+
 -- The member may request a genuinely free Premium entitlement, without Stripe.
 -- This never awards a discount without server-verified unrevoked Premium grants.
 create or replace function public.member_request_premium_test_comp_ticket(
