@@ -17,6 +17,14 @@ Le point de performance le plus coûteux à corriger sans risque fonctionnel est
 - **Mouvements réduits** : scroll snap désactivé pour les personnes qui demandent une réduction des animations, conformément aux règles déjà existantes ; l’introduction initiale est retirée sans délai de transition si elle a déjà été vue ou si cette préférence est activée.
 - **Images** : dimensions déclarées pour éviter les décalages de mise en page, `loading="lazy"` et décodage asynchrone pour les écussons plus bas dans la page ; l’écusson principal au-dessus de la ligne de flottaison est prioritaire.
 
+## Livraison et vérification — 27 octobre 2026
+
+- [PR #166](https://github.com/diegosmp94/Boissy-UJ/pull/166) fusionnée dans `main`, commit `b42ea0288b096e1e3c11c1f100687d78fbdcfcaf`.
+- **950 tests automatisés réussis, zéro échec**, les deux workflows de la PR validés, dont syntaxe, build, inventaire réseau et navigation Chromium sur mobile/tablette/bureau.
+- Le pipeline [GitHub Pages #83](https://github.com/diegosmp94/Boissy-UJ/actions/runs/40547532073) du même commit est entièrement **vert** : construction statique, publication puis vérification effective de la version déployée.
+- Le build utilise **une seule feuille CSS locale** ; les métadonnées `noindex`, la CSP et les liens légaux restent inchangés. Les fichiers CSS source individuels restent maintenables.
+- Aucun schéma Supabase, donnée personnelle, rôle ni paiement n'a été modifié.
+
 ## Hors du périmètre et garanties
 
 Aucune migration Supabase, nouvelle donnée membre, paiement, activation de billetterie ni suppression de contenu n’est nécessaire. Les animations d’identité restent actives pour les visiteurs sans préférence de mouvement réduit, et le rendu public conserve le même contenu.
