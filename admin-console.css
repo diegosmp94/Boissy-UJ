@@ -180,3 +180,34 @@ textarea.admin-form-control{line-height:1.5;resize:vertical}
 .admin-event-windows .admin-workflow-status{margin:0;overflow-wrap:anywhere}
 @media(max-width:580px){.admin-event-windows{padding:14px;border-radius:12px}
  .admin-event-windows .admin-primary-btn{min-height:44px;white-space:normal}}
+
+
+/* Step 89 — QR admission checkpoint, tablet/phone and keyboard usable. */
+.admin-scan-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.admin-scan-actions button,.admin-scan-manual button{min-height:44px;white-space:normal}
+.admin-scan-video{display:block;max-width:min(100%,540px);max-height:58vh;
+ aspect-ratio:4/3;object-fit:cover;background:#061221;
+ border:2px solid #e6bd69;border-radius:14px}
+.admin-scan-video[hidden]{display:none}
+.admin-scan-manual{display:grid;gap:12px;max-width:540px}
+.admin-scan-manual label{display:grid;gap:7px;min-width:0}
+.admin-scan-manual input{min-width:0;width:100%;box-sizing:border-box}
+.admin-scan-stats,.admin-scan-history{max-width:800px;padding:14px;
+ border:1px solid rgba(225,194,125,.35);border-radius:13px;
+ background:rgba(9,28,54,.8);min-width:0}
+.admin-scan-stats h3,.admin-scan-history h3{margin:0 0 9px;color:#f1d7a1}
+.admin-scan-history-items{max-height:330px;overflow:auto;display:grid;gap:7px}
+.admin-scan-history-row{padding:9px 10px;margin:0;
+ background:rgba(255,255,255,.06);border-radius:8px;
+ line-height:1.6;overflow-wrap:anywhere}
+.admin-scan-actions button:focus-visible,.admin-scan-manual button:focus-visible{
+ outline:3px solid #fff;outline-offset:3px}
+.admin-workflow-status[data-scan-result="accepted"]{
+ border-left:4px solid #59c58b;padding-left:12px;color:#dbffea}
+.admin-workflow-status[data-scan-result="rejected"],
+.admin-workflow-status[data-scan-result="unconfirmed"]{
+ border-left:4px solid #ff9c84;padding-left:12px;color:#ffe6df}
+@media(max-width:580px){.admin-scan-video{width:100%;max-width:100%}
+ .admin-scan-actions{display:grid;grid-template-columns:1fr 1fr}
+ .admin-scan-actions button{padding:10px}
+ .admin-scan-stats,.admin-scan-history{padding:11px}}

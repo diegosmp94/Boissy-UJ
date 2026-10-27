@@ -39,7 +39,7 @@ test('free events never appear in navigation if backend probe fails',()=>{
  assert.equal(disabled.some(m=>m.id==='event-rules'),false);
  assert.match(probe,/adminCapability\(\(\)=>api\.rpc\('admin_list_free_events'\)/);
  assert.match(center,/await adminCapabilities\(api\)/);
- assert.match(center,/const availableModules=availableAdminModules\(ADMIN_MODULES,\{eventsReady,eventRulesReady,coachTeamsReady,mediaReady,newsRevisionsReady\}\)/);
+ assert.match(center,/const availableModules=availableAdminModules\(ADMIN_MODULES,\{eventsReady,eventRulesReady,scannerReady,coachTeamsReady,mediaReady,newsRevisionsReady\}\)/);
 });
 
 test('media administration is fail-closed until its AAL2 read RPC is installed',()=>{
@@ -59,7 +59,7 @@ test('coach teams tools are fail-closed until their protected read RPC is deploy
  assert.equal(ready.some(m=>m.id==='coach-teams'),true);
  assert.equal(ready.some(m=>m.id==='events'),true);
  assert.match(probe,/api\.rpc\('admin_list_team_coaches',\{p_team_id:candidate\}\)/);
- assert.match(probe,/const \[eventsReady,eventRulesReady,coachTeamsReady,mediaReady,newsRevisionsReady\]=await Promise\.all/);
+ assert.match(probe,/const \[eventsReady,eventRulesReady,scannerReady,coachTeamsReady,mediaReady,newsRevisionsReady\]=await Promise\.all/);
 });
 
 test('admin sidebar is searchable and displays real grouped links only',()=>{
