@@ -34,7 +34,7 @@ export function safeStripeTestCheckoutUrl(input){
   return u.protocol==='https:'&&u.hostname==='checkout.stripe.com'&&
    u.username===''&&u.password===''&&u.port===''&&
    /^\/c\/pay\/cs_test_[a-zA-Z0-9_\-]+/.test(u.pathname)&&
-   !u.hash?u.href:null;
+   u.pathname.length<250?u.href:null;
  }catch{return null;}
 }
 const euros=x=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR'})
