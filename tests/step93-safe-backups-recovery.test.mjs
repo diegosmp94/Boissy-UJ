@@ -35,7 +35,11 @@ test('step93: allowlisted recovery inventory excludes private and client account
   'supabase/migrations/202610270011_step92_privacy_rights_workflow.sql',
   'supabase/functions/_shared/stripe-test-ticket-verification.mjs',
   'supabase/functions/stripe-webhook/index.ts',
-  'scripts/db-recovery-verification.sql'])
+  'scripts/db-recovery-verification.sql',
+  'scripts/db-step93-recovery-metadata.sql',
+  'scripts/step93-recovery-code-inventory.mjs',
+  'scripts/step93-encrypted-db-backup.mjs',
+  'scripts/step93-compare-private-recovery.mjs'])
   assert.equal(safeRecoveryCodePath(p),true,p);
  for(const p of [
   '../../.env','.env','recovery-private/data.dump.age',
