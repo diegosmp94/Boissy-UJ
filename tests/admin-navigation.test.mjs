@@ -34,7 +34,9 @@ test('free events never appear in navigation if backend probe fails',()=>{
  assert.equal(disabled.some(m=>m.id==='ticketing'),false);
  assert.equal(enabled.some(m=>m.id==='ticketing'),true);
  assert.equal(disabled.some(m=>m.id==='matches'),true);
- assert.equal(enabled.length,disabled.length+2);
+ assert.equal(enabled.length,disabled.length+3);
+ assert.equal(enabled.some(m=>m.id==='event-rules'),true);
+ assert.equal(disabled.some(m=>m.id==='event-rules'),false);
  assert.match(probe,/adminCapability\(\(\)=>api\.rpc\('admin_list_free_events'\)/);
  assert.match(center,/await adminCapabilities\(api\)/);
  assert.match(center,/const availableModules=availableAdminModules\(ADMIN_MODULES,\{eventsReady,coachTeamsReady,mediaReady,newsRevisionsReady\}\)/);
