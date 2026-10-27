@@ -25,6 +25,14 @@
 - `member-paid-ticket-test.mjs`, `member-free-tickets.mjs`, `auth.mjs`, `premium-front.css`, `supabase/config.toml`
 - `tests/step90-stripe-test-event-ticketing.test.mjs`
 
+## Validation GitHub et état Supabase constaté — 27 octobre 2026
+
+- **PR [#156](https://github.com/diegosmp94/Boissy-UJ/pull/156) fusionnée dans main**, commit `7d840b0c5231b9319d58d2bc49960066fa435019`.
+- **909 tests automatisés réussis** (`# pass 909`, `# fail 0`) ; les deux workflows GitHub Actions se sont terminés avec succès, avec syntaxe et navigation mobile Chromium.
+- Vérification PostgreSQL **sans installation** : la partie tarif/commandes/émission et la partie adaptation du scanner ont été exécutées séparément dans des transactions avec tables temporaires de dépendance et `ROLLBACK` vérifié. L'assemblage complet est réservé à une vraie instance staging en raison des limites de taille de l'interface de vérification.
+- Contrôle après fusion du Supabase principal `dahzewvbybujqhogumte` : **1 événement, 0 ouvert à la réservation**, aucune table de commande `ticket_test_orders` / `ticket_test_reversal_inbox`, aucun registre de billetterie `free_ticketing_gate`, aucune fonction d'émission payante et aucun scanner opérationnel installé. Aucun débit Stripe activé.
+- **L'étape est développée et fusionnée côté code, mais non homologuée en conditions Stripe TEST et multi-comptes.**
+
 ## Déploiement et contrôles
 
 **Aucune des migrations Stripe financières, aucune Edge Function TEST et aucun encaissement LIVE n'ont été déployés sur le projet principal** `dahzewvbybujqhogumte`. L'interface commerciale y reste désactivée par défaut. La migration stage90 dépend des tables spécifiques des étapes 83, 84, 88 et 89 : seul un staging isolé correctement préparé peut l'exécuter.
