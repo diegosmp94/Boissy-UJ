@@ -22,3 +22,10 @@ verify_jwt = true
 
 [functions.donation-stripe-test-webhook]
 verify_jwt = false # official Stripe signature over unmodified RAW body required
+
+# TEST event tickets: only on distinct Supabase staging after approval.
+[functions.event-ticket-stripe-test-checkout]
+verify_jwt = true
+
+[functions.event-ticket-stripe-test-webhook]
+verify_jwt = false # signed Stripe raw body, never JWT-only
