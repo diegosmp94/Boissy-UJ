@@ -29,6 +29,14 @@ L'enregistrement et la publication restent exclusivement effectués par le formu
 
 En cas de refus ou d'indisponibilité de la source FFF, le module **n'affecte pas la saisie manuelle** ; la vie du site continue avec les dossiers publiés par le club et les calendriers déjà alimentés.
 
+## Livraison vérifiée — 27 octobre 2026
+
+- [PR #168](https://github.com/diegosmp94/Boissy-UJ/pull/168) fusionnée en squash sur `main`, commit `7e13b0490c8c5ceefb18558ce18fbba516047fee`.
+- **957 tests Node réussis et 0 échec** ; workflows « Tests du socle Boissy-UJ » et « Vérifications du socle Boissy-UJ » en succès, contrôles mobiles Chromium compris.
+- Le workflow GitHub Pages correspondant au commit fusionné est **en succès** pour la construction, le déploiement et la vérification de la version publique. Aucun appel à une API privée ou partenaire FFF n'a été ajouté.
+- **Aucune migration Supabase** ni modification des matchs du club n'a été effectuée par cette PR. La saisie existante reste l'unique voie d'enregistrement et ne publie jamais par défaut le résultat d'un export FFF.
+- Le flux partenaire reste indisponible tant que les conditions de droit d'accès et de réutilisation ne sont pas établies. Ceci ne prouve ni réception d'une autorisation FFF ni synchronisation active.
+
 ## Tests de sécurité
 
 `tests/step96-fff-authorized-reconciliation.test.mjs` vérifie les données hors licence, les doublons, les conflits de score/domicile/horaire, la recherche d'équipe, les dates d'hiver Europe/Paris, le refus des brouillons conflictuels, le refus de copie des scores et l'absence de sauvegarde automatique.
