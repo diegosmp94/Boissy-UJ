@@ -125,8 +125,8 @@ begin
   v_token:=pg_catalog.split_part(p_qr,':',3);
   select * into v_ticket from app_private.free_event_tickets t
    where t.event_id=p_event_id
-     and t.token_sha256=extensions.encode(
-       extensions.digest(extensions.decode(v_token,'hex'),'sha256'),'hex')
+     and t.token_sha256=pg_catalog.encode(
+       extensions.digest(pg_catalog.decode(v_token,'hex'),'sha256'),'hex')
     for update;
   if v_ticket.id is null then
    v_outcome:='not_found';
