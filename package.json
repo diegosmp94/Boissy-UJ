@@ -22,6 +22,11 @@
     "staging:migration-plan": "node scripts/staging-migration-plan.mjs",
     "local:preflight": "node scripts/local-supabase-readiness.mjs",
     "verify:recovery": "node scripts/compare-recovery-inventories.mjs",
+    "recovery:code-inventory": "node scripts/step93-recovery-code-inventory.mjs --create",
+    "recovery:code-verify": "node scripts/step93-recovery-code-inventory.mjs --verify recovery-private/recovery-code-inventory.json",
+    "recovery:db-export": "node scripts/step93-encrypted-db-backup.mjs --export-encrypted",
+    "recovery:db-verify": "node scripts/step93-encrypted-db-backup.mjs --verify-last",
+    "recovery:private-compare": "node scripts/step93-compare-private-recovery.mjs",
     "audit:features": "node scripts/capability-inventory.mjs"
   }
 }
