@@ -139,6 +139,47 @@ revoke all on function public.billing_quote_test_event_ticket(uuid,uuid)
 grant execute on function public.billing_quote_test_event_ticket(uuid,uuid)
  to service_role;
 
+-- Read-only member discovery: only the authenticated member's eligible
+-- TEST ticket offers. Premium-only events are never returned to nonmembers.
+create or replace function public.member_list_eligible_test_ticket_events()
+returns table(
+ event_id uuid,title text,starts_at timestamptz,amount_cents integer,tier text
+) language plpgsql stable security definer set search_path=''
+as $fn$
+declare
+ actor uuid:=(select auth.uid());
+ e public.club_events%rowtype;
+ quote jsonb;
+begin
+ if actor is null or coalesce((select auth.jwt()->>'is_anonymous'),'false')='true'
+  or not exists(select 1 from auth.users u where u.id=actor
+   and u.email_confirmed_at is not null)
+ then raise exception 'Verified member required' using errcode='42501';end if;
+ if not coalesce((select enabled from app_private.free_ticketing_gate where id=1),false)
+ then return;end if;
+ for e in select * from public.club_events c
+  where c.booking_kind='paid' and c.published=true
+   and c.booking_status='open'
+   and c.starts_at>clock_timestamp()
+  order by c.starts_at,c.id limit 60
+ loop
+  begin
+   quote:=app_private.ticket_test_price(actor,e.id);
+  exception when others then
+   continue;
+  end;
+  event_id:=e.id;title:=e.title;starts_at:=e.starts_at;
+  amount_cents:=(quote->>'amount_cents')::integer;
+  tier:=quote->>'tier';
+  return next;
+ end loop;
+end;
+$fn$;
+revoke all on function public.member_list_eligible_test_ticket_events()
+ from public,anon,authenticated,service_role;
+grant execute on function public.member_list_eligible_test_ticket_events()
+ to authenticated;
+
 -- The member may request a genuinely free Premium entitlement, without Stripe.
 -- This never awards a discount without server-verified unrevoked Premium grants.
 create or replace function public.member_request_premium_test_comp_ticket(
@@ -254,7 +295,7 @@ begin
  insert into app_private.ticket_test_orders(
   checkout_id,event_id,user_id,window_id,amount_cents,tier,hold_until)
  values(p_checkout_id,p_event_id,p_user_id,p_window_id,p_amount_cents,
-  p_tier,clock_timestamp()+interval '15 minutes');
+  p_tier,clock_timestamp()+interval '35 minutes');
  return true;
 end;
 $fn$;
@@ -439,7 +480,7 @@ begin
   count(t.id) filter(where t.status='checked_in')::bigint
  from public.club_events e
  left join app_private.free_event_tickets t on t.event_id=e.id
- where e.published=true and e.access_kind='public'
+ where e.published=true and e.access_kind in ('public','premium')
   and e.booking_kind in ('free','paid')
   and e.starts_at is not null and e.ends_at is not null
   and e.ends_at>clock_timestamp()-interval '1 day'
@@ -490,7 +531,7 @@ begin
  end if;
 
  if v_event.published is distinct from true
-   or v_event.booking_kind not in ('free','paid') or v_event.access_kind<>'public'
+   or v_event.booking_kind not in ('free','paid') or v_event.access_kind not in ('public','premium')
    or (v_event.booking_kind='free' and v_event.price_cents<>0) or v_event.ends_at is null
    or v_event.starts_at is null
    or v_now<v_event.starts_at-interval '90 minutes'
@@ -597,7 +638,7 @@ begin
  if not coalesce((select enabled from app_private.free_ticketing_gate where id=1),false)
  then raise exception 'Staging ticket gate disabled' using errcode='42501';end if;
  select * into v_event from public.club_events where id=p_event_id;
- if v_event.id is null or v_event.access_kind<>'public'
+ if v_event.id is null or v_event.access_kind not in ('public','premium')
   or v_event.booking_kind not in ('free','paid') then
   raise exception 'Free event not found' using errcode='22023';end if;
  select count(*) filter(where t.status='issued'),
