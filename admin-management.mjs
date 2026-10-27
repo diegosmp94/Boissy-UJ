@@ -5,6 +5,7 @@ import {adminSessionStatus} from './admin-security.mjs';
 import {mountAdminLeagueEditor} from './admin-league.mjs';
 import {mountAdminMatchCompetition} from './admin-match-competition.mjs';
 import {previewAuthorizedFffFeed,FFF_CLUB_AFFILIATION,FFF_PUBLIC_PORTAL} from './fff-provider.mjs';
+import {reviewAuthorizedFffImport,prepareFffManualDraft,FFF_REVIEW_LABELS} from './fff-import-reconciliation.mjs';
 import {CLUB_TEAMS} from './club-teams.mjs';
 import {publicExternalFixtures} from './external-match-previews.mjs';
 import {validateSeasonDraft,validateMatchDraft,validateNewsDraft,adminSaveErrorMessage} from './admin-editor-rules.mjs';
@@ -140,44 +141,142 @@ export function mountAdminSeasons(root,api,userId){
 /** Preview-only: FFF has not provided a public club-feed API authorization.
  * Never fetch old DOFA endpoints, store credentials or write these dates automatically.
  */
-export function mountFffPreview(root,api,userId){
+/** Stage 96: future authorized FFF JSON is compared only to server-held club
+ * records, then optionally prefilled into an UNSAVED manual draft.
+ * No FFF remote call, provider access assumption or automatic import.
+ */
+export function mountFffPreview(root,api,userId,context=null){
  const panel=el('details','admin-fff-preview');
- const heading=el('summary','','Connecteur FFF — préparation (accès officiel requis)');
+ const heading=el('summary','','Connecteur FFF — revue et saisie manuelle (accès officiel requis)');
  const info=el('p','admin-fff-info','Club FFF n° '+FFF_CLUB_AFFILIATION+
-  ' · La connexion automatique est désactivée. Un flux ne peut être exploité qu’après autorisation et documentation de la FFF.');
- const official=el('a','admin-fff-link','Consulter le portail officiel des compétitions FFF ↗');
+  ' · Aucun accès API FFF configuré. Vérifier le droit de réutilisation et le rapprochement de chaque rencontre avant toute saisie. Rien ne sera synchronisé automatiquement.');
+ const official=el('a','admin-fff-link','Portail des compétitions FFF ↗');
  official.href=FFF_PUBLIC_PORTAL;official.target='_blank';official.rel='noopener noreferrer';
- const label=el('label','admin-form-field','Aperçu local d’un export JSON autorisé (aucune sauvegarde)');
- const input=el('textarea','admin-form-control');input.rows=5;input.maxLength=150000;
- input.placeholder='Coller un export au format partenaire documenté, après autorisation FFF';
+ const label=el('label','admin-form-field','Export JSON au format partenaire documenté (aperçu local uniquement)');
+ const input=el('textarea','admin-form-control');input.rows=6;input.maxLength=150000;
+ input.placeholder='Coller uniquement un export autorisé, sans données privées ni jeton';
  label.append(input);
- const run=el('button','admin-secondary-btn','Vérifier le flux sans importer');
+ const authz=check('Je confirme avoir vérifié une autorisation FFF écrite applicable à cet export et les droits de réutilisation (ce contrôle ne prouve pas l’autorisation).');
+ const run=el('button','admin-secondary-btn','Comparer le flux aux rencontres du club');
  run.type='button';
  const status=el('p','admin-workflow-status','Aucun accès API FFF configuré. Aucun match importé.');
  status.setAttribute('role','status');
- const list=el('ul','admin-fff-list');
+ const selector=select([['','Choisir une rencontre à examiner']]);
+ selector.setAttribute('aria-label','Rencontre FFF en examen');selector.disabled=true;
+ const detail=el('p','admin-workflow-status');
+ const source=el('a','admin-fff-link','Examiner la référence FFF ↗');
+ source.target='_blank';source.rel='noopener noreferrer';source.hidden=true;
+ const draft=el('button','admin-secondary-btn','Pré-remplir le formulaire manuel (sans publier)');
+ draft.type='button';draft.disabled=true;
+ const fallback=el('p','admin-fff-info','Sans contrat de flux : saisie manuelle et revue des matchs du club restent entièrement disponibles. Les résultats issus du flux ne sont jamais repris automatiquement comme résultats homologués.');
+ panel.append(heading,info,official,label,authz.label,run,status,
+  field('Rencontre à vérifier',selector),detail,source,draft,fallback);
+ root.append(panel);
+ let report=null,sourceVersion='',busy=false;
+ const clear=()=>{
+  report=null;sourceVersion='';
+  selector.replaceChildren(option('','Choisir une rencontre à examiner'));
+  selector.disabled=true;draft.disabled=true;source.hidden=true;detail.textContent='';
+ };
+ function showSelection(){
+  const index=Number(selector.value);
+  const record=report?.records[index];
+  source.hidden=!record;draft.disabled=true;
+  if(!record){detail.textContent='Aucune rencontre sélectionnée.';return;}
+  source.href=record.source_reference;
+  detail.textContent=record.localDay+' · '+record.opponent_name+' · '+
+   (FFF_REVIEW_LABELS[record.review_status]||'À revoir')+
+   ' · '+record.match_status+
+   (record.match_status==='played'?' · score du flux NON homologué':'')+
+   '. Aucune donnée enregistrée.';
+  draft.disabled=record.review_status!=='available'||!context;
+ }
+ selector.addEventListener('change',showSelection);
+ input.addEventListener('input',clear);
+ authz.n.addEventListener('change',()=>{
+  if(!authz.n.checked)clear();
+ });
  run.addEventListener('click',async()=>{
-  list.replaceChildren();
-  if(!root.isConnected)return;
-  run.disabled=true;
+  clear();if(busy||!root.isConnected)return;
+  busy=true;run.disabled=true;
   try{
    if(!await guarded(api,userId)){
     status.textContent='Session administrateur MFA AAL2 requise.';return;
    }
-   const rows=previewAuthorizedFffFeed(JSON.parse(input.value));
-   status.textContent=rows.length+' match(s) reconnu(s) · aperçu uniquement, aucune écriture. Les références et droits doivent être confirmés.';
-   for(const match of rows.slice(0,30)){
-    const li=el('li','',match.team_code.toUpperCase()+' · '+new Date(match.scheduled_at).toLocaleDateString('fr-FR')+
-     ' · '+match.opponent_name+' · '+match.match_status);
-    list.append(li);
+   if(!authz.n.checked){
+    status.textContent='La vérification préalable des droits de réutilisation est requise. Aucune requête FFF effectuée.';return;
    }
-   if(rows.length>30)list.append(el('li','','Aperçu limité aux 30 premières rencontres.'));
+   const parsed=JSON.parse(input.value);
+   // Fail closed if any secured club catalogue is unavailable or truncated.
+   const [teamsReply,matchesReply]=await Promise.all([
+    api.from('club_teams').select('id,code,name'),
+    api.rpc('admin_list_management_matches')
+   ]);
+   if(!root.isConnected)return;
+   if(teamsReply.error||matchesReply.error||
+    !Array.isArray(teamsReply.data)||!Array.isArray(matchesReply.data))
+    throw Error('Inventory unavailable');
+   const next=reviewAuthorizedFffImport(parsed,teamsReply.data,matchesReply.data);
+   report=next;sourceVersion=input.value;
+   for(let i=0;i<next.records.length;i++){
+    const row=next.records[i],description=row.team_code.toUpperCase()+' · '+
+     row.localDay+' · '+row.opponent_name+' · '+FFF_REVIEW_LABELS[row.review_status];
+    selector.append(option(String(i),description));
+   }
+   selector.disabled=next.records.length===0;
+   status.textContent=next.records.length+' rencontre(s) analysée(s) · '+
+    next.counts.available+' sans dossier concurrent · '+
+    next.counts.already_recorded+' déjà saisie(s) · '+
+    (next.counts.conflict+next.counts.ambiguous)+' conflit(s) / ambiguïté(s). '+
+    'Aucune donnée enregistrée, aucune autorisation de flux présumée.';
+   if(next.records.length){
+    selector.value='0';showSelection();
+   }
   }catch{
-   status.textContent='Flux rejeté : structure, club, lien officiel ou données non conformes. Aucun match enregistré.';
-  }finally{run.disabled=false;}
+   clear();
+   status.textContent='Flux ou inventaire refusé : club, dates, droits, réseau ou doublons à vérifier. Aucune rencontre modifiée.';
+  }finally{busy=false;run.disabled=false;}
  });
- panel.append(heading,info,official,label,run,status,list);
- root.append(panel);
+ draft.addEventListener('click',async()=>{
+  if(busy||draft.disabled||!root.isConnected||!authz.n.checked)return;
+  busy=true;draft.disabled=true;
+  try{
+   if(!await guarded(api,userId))throw Error('MFA');
+   if(input.value!==sourceVersion||!report)throw Error('Input changed');
+   const record=report.records[Number(selector.value)];
+   const local=prepareFffManualDraft(record);
+   // Re-read the private club inventory immediately before touching the editor.
+   const latest=await api.rpc('admin_list_management_matches');
+   if(latest.error||!Array.isArray(latest.data)||
+     !Array.isArray(context?.teams))throw Error('Inventory unavailable');
+   const check=reviewAuthorizedFffImport(
+    JSON.parse(sourceVersion),context.teams,latest.data);
+   const current=check.records.find(r=>r.external_id===record.external_id);
+   if(!current||current.review_status!=='available'||current.team_id!==local.team_id)
+    throw Error('Conflict emerged');
+   if(!root.isConnected||!context?.fields)throw Error('Editor unavailable');
+   const dossier=root.querySelector('select[aria-label="Document à modifier"]');
+   if(!dossier)throw Error('Editor unavailable');
+   const fields=context.fields;
+   dossier.value='new';dossier.dispatchEvent(new Event('change',{bubbles:true}));
+   fields.team.value=local.team_id;
+   fields.opponent.value=local.opponent_name;
+   fields.date.value=local.scheduled_local;
+   fields.venue.value=local.venue||'';
+   fields.home.n.checked=local.is_home;
+   fields.state.value=local.match_status;
+   fields.state.dispatchEvent(new Event('change',{bubbles:true}));
+   fields.hScore.value='';fields.aScore.value='';
+   fields.competitionKind.value='unspecified';fields.competitionLabel.value='';
+   fields.publish.n.checked=false;
+   status.textContent='Nouveau brouillon manuel pré-rempli SANS enregistrement ni publication. Vérifiez et classez la compétition, le statut et le score auprès du club ; puis utilisez son bouton Enregistrer.';
+   root.querySelector('.admin-operation-form')?.scrollIntoView({
+    behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',
+    block:'start'});
+  }catch{
+   status.textContent='Pré-remplissage annulé : session, droits, correspondance ou dossier du club modifié. Aucun import réalisé.';
+  }finally{busy=false;showSelection();}
+ });
 }
 export function mountAdminMatches(root,api,userId){
  let teams=[],seasons=[];
@@ -239,7 +338,10 @@ export function mountAdminMatches(root,api,userId){
    hScore.disabled=!played;aScore.disabled=!played;
    if(!played){hScore.value='';aScore.value='';}
   });
-  mountFffPreview(root,api,userId);
+  mountFffPreview(root,api,userId,{
+   teams,fields:{team,opponent,date,venue,home,state,hScore,aScore,
+    competitionKind,competitionLabel,publish}
+  });
   const leaguePanel=el('section','admin-league-panel');
   root.append(leaguePanel);
   void mountAdminLeagueEditor(leaguePanel,api,userId);
