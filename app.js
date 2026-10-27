@@ -8,6 +8,7 @@ import {isPublicPlayerId,mountPublicPlayerProfile,unmountPublicPlayerProfile} fr
 import {isPublicEducatorId,mountPublicEducatorProfile,unmountPublicEducatorProfile} from './educator-profile-page.mjs';
 import {mountAwards,unmountAwards} from './awards-center.mjs';
 import {mountPremiumPlans} from './premium-front.mjs';
+import {mountDonationCampaigns,unmountDonationCampaigns} from './donation-campaigns.mjs';
 import {mountJoin,unmountJoin,mountPractical,unmountPractical} from './join-center.mjs';
 import {mountIdentity,unmountIdentity} from './club-identity.mjs';
 import {mountAgenda,unmountAgenda} from './agenda.mjs';
@@ -272,6 +273,7 @@ function support(){return pageShell('Ensemble, plus loin','SOUTENIR <em>BOISSY-U
 <article><span class="fan-journey-number">02</span><h3>Des conditions claires</h3><p>Les conditions de paiement, de récurrence et de remboursement seront indiquées avant tout engagement.</p></article>
 <article><span class="fan-journey-number">03</span><h3>Une publication vérifiée</h3><p>Aucun montant collecté ni indicateur de progression ne sera inventé ou anticipé.</p></article>
 </div></section>
+<section id="donation-campaigns-public" aria-label="Campagnes de soutien publiées" aria-live="polite"><p class="campaign-empty">Chargement des campagnes publiées…</p></section>
 <div class="info-banner" role="note"><span class="info-icon" aria-hidden="true">i</span><div><strong>Aucun paiement actif</strong><p>Le soutien financier via Stripe exige encore l’approbation de l’association et une recette technique. Aucune transaction n’est possible ici.</p></div></div>
 <div class="fan-next-link"><div><span class="tiny-label">AGIR DÈS MAINTENANT</span><h2>Une autre façon de contribuer.</h2><p>Joueurs, bénévoles et partenaires peuvent découvrir les annonces officiellement publiées.</p></div><a class="btn btn-outline" href="#/rejoindre">Nous rejoindre <span aria-hidden="true">↗</span></a></div>`);}
 function identity(){return pageShell('L’identité Boissy-UJ','NOTRE <em>CLUB.</em>','Une identité, cinq équipes et des informations vérifiées. L’histoire officielle, les dirigeants et les projets seront affichés uniquement après publication par le club.',`<div class="info-banner"><span class="info-icon">i</span><div><strong>Présentation en cours d’enrichissement</strong><p>Aucune date de fondation, aucun dirigeant et aucun projet non confirmé n’est présenté comme un fait.</p></div></div><div id="identity-public-root" class="identity-public-root" aria-live="polite"><p>Chargement de la présentation…</p></div>`);}
@@ -409,6 +411,7 @@ function render(){
   if(path==='/agenda') void mountAgenda(); else unmountAgenda();
   if(path==='/awards') void mountAwards(); else unmountAwards();
   if(path==='/communaute') mountPremiumPlans();
+  if(path==='/soutenir')void mountDonationCampaigns();else unmountDonationCampaigns();
   if(path==='/rejoindre') void mountJoin(); else unmountJoin();
   if(path==='/infos-pratiques') void mountPractical(); else unmountPractical();
   
