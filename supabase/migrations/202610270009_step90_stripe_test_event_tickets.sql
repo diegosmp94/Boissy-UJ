@@ -417,6 +417,332 @@ begin
 end;
 $fn$;
 
+
+-- Share the staged scanner with paid / complimentary tickets, with the
+-- SAME AAL2, event, one-time, refund and Premium grant checks.
+create or replace function public.admin_list_free_ticket_scan_events()
+returns table(
+ event_id uuid,title text,starts_at timestamptz,ends_at timestamptz,
+ capacity integer,issued_count bigint,entered_count bigint
+)
+language plpgsql stable security definer set search_path=''
+as $scan$
+begin
+ if (select auth.uid()) is null
+   or not coalesce((select app_private.is_admin()),false)
+ then raise exception 'Administrator MFA AAL2 required' using errcode='42501';end if;
+ if not coalesce((select enabled from app_private.free_ticketing_gate where id=1),false)
+ then return;end if;
+ return query
+ select e.id,e.title,e.starts_at,e.ends_at,e.capacity,
+  count(t.id) filter(where t.status='issued')::bigint,
+  count(t.id) filter(where t.status='checked_in')::bigint
+ from public.club_events e
+ left join app_private.free_event_tickets t on t.event_id=e.id
+ where e.published=true and e.access_kind='public'
+  and e.booking_kind in ('free','paid')
+  and e.starts_at is not null and e.ends_at is not null
+  and e.ends_at>clock_timestamp()-interval '1 day'
+ group by e.id,e.title,e.starts_at,e.ends_at,e.capacity
+ order by e.starts_at desc,e.id limit 100;
+end;
+$scan$;
+create or replace function public.admin_scan_free_event_ticket(
+ p_event_id uuid,p_qr text
+) returns jsonb language plpgsql volatile security definer set search_path=''
+as $scan$
+declare
+ v_actor uuid:=(select auth.uid());
+ v_gate boolean;
+ v_event public.club_events%rowtype;
+ v_ticket app_private.free_event_tickets%rowtype;
+ v_token text;
+ v_outcome text;
+ v_now timestamptz:=clock_timestamp();
+ v_recent integer;
+begin
+ if v_actor is null or
+  not coalesce((select app_private.is_admin()),false)
+ then raise exception 'Administrator MFA AAL2 required' using errcode='42501';end if;
+ if not exists(select 1 from auth.users u where u.id=v_actor
+  and u.email_confirmed_at is not null) then
+  raise exception 'Email verification required' using errcode='42501';end if;
+ select enabled into v_gate from app_private.free_ticketing_gate
+  where id=1 for share;
+ if not coalesce(v_gate,false) then
+  raise exception 'Ticketing disabled until staging signoff' using errcode='42501';
+ end if;
+ if p_event_id is null then
+  raise exception 'Event reference required' using errcode='22023';end if;
+
+ -- Wait for other scanners issuing/cancelling the same event before checking.
+ select * into v_event from public.club_events
+  where id=p_event_id for update;
+ if v_event.id is null then
+  return pg_catalog.jsonb_build_object('status','rejected');
+ end if;
+
+ select count(*) into v_recent from app_private.free_ticket_entry_attempts a
+  where a.actor_user_id=v_actor
+    and a.created_at>v_now-interval '1 minute';
+ if v_recent>=75 then
+  return pg_catalog.jsonb_build_object('status','rate_limited');
+ end if;
+
+ if v_event.published is distinct from true
+   or v_event.booking_kind not in ('free','paid') or v_event.access_kind<>'public'
+   or (v_event.booking_kind='free' and v_event.price_cents<>0) or v_event.ends_at is null
+   or v_event.starts_at is null
+   or v_now<v_event.starts_at-interval '90 minutes'
+   or v_now>=v_event.ends_at then
+  v_outcome:='event_unavailable';
+ elsif p_qr is null or pg_catalog.length(p_qr)<>106
+   or p_qr !~ ('^BUJ1:'||p_event_id::text||':[0-9a-f]{64}
+ from public,anon,authenticated,service_role;
+revoke all on function public.billing_register_test_ticket_order(
+ uuid,uuid,text,integer,text,uuid)
+ from public,anon,authenticated,service_role;
+revoke all on function public.billing_apply_verified_test_ticket_payment(
+ uuid,text,text,text,text,text,integer,boolean)
+ from public,anon,authenticated,service_role;
+revoke all on function public.billing_record_test_ticket_reversal(text,text,text)
+ from public,anon,authenticated,service_role;
+revoke all on function public.member_my_test_paid_tickets()
+ from public,anon,authenticated,service_role;
+grant execute on function public.member_request_premium_test_comp_ticket(uuid)
+ to authenticated;
+grant execute on function public.billing_register_test_ticket_order(
+ uuid,uuid,text,integer,text,uuid)
+ to service_role;
+grant execute on function public.billing_apply_verified_test_ticket_payment(
+ uuid,text,text,text,text,text,integer,boolean)
+ to service_role;
+grant execute on function public.billing_record_test_ticket_reversal(text,text,text)
+ to service_role;
+grant execute on function public.member_my_test_paid_tickets()
+ to authenticated;
+commit;
+) then
+  v_outcome:='invalid_code';
+ else
+  v_token:=pg_catalog.split_part(p_qr,':',3);
+  select * into v_ticket from app_private.free_event_tickets t
+   where t.event_id=p_event_id
+     and t.token_sha256=pg_catalog.encode(
+       extensions.digest(pg_catalog.decode(v_token,'hex'),'sha256'),'hex')
+    for update;
+  if v_ticket.id is null then
+   v_outcome:='not_found';
+  elsif v_ticket.status='checked_in' then
+   v_outcome:='already_used';
+  elsif v_ticket.status='cancelled' then
+   v_outcome:='cancelled';
+  elsif v_ticket.status='issued' and v_event.booking_kind='free'
+   and v_ticket.ticket_origin<>'free' then
+   v_outcome:='not_found';
+  elsif v_ticket.status='issued' and v_event.booking_kind='paid'
+    and (
+     (v_ticket.ticket_origin='test_paid' and not exists(
+       select 1 from app_private.ticket_test_orders o
+        where o.ticket_id=v_ticket.id and o.event_id=p_event_id
+          and o.status='issued' and o.amount_cents>0
+          and o.charge_id is not null
+          and not exists(select 1 from app_private.ticket_test_reversal_inbox r
+              where r.charge_id=o.charge_id)))
+     or (v_ticket.ticket_origin='premium_comp' and not exists(
+       select 1 from app_private.premium_access_grants g
+        join app_private.premium_test_charge_proofs p
+         on p.source_reference=g.source_reference
+        where g.user_id=v_ticket.member_user_id
+          and g.revoked_at is null and g.verified_at<=now()
+          and g.valid_from<=now() and now()<g.valid_until))
+     or v_ticket.ticket_origin='free'
+    ) then
+   v_outcome:='not_found';
+  elsif v_ticket.status='issued' then
+   update app_private.free_event_tickets
+    set status='checked_in',checked_in_at=v_now
+    where id=v_ticket.id and status='issued';
+   if not found then
+    v_outcome:='already_used';
+   else
+    insert into app_private.free_event_ticket_audit(
+      ticket_id,event_id,actor_user_id,action)
+     values(v_ticket.id,p_event_id,v_actor,'checked_in');
+    v_outcome:='accepted';
+   end if;
+  else
+   v_outcome:='not_found';
+  end if;
+ end if;
+ insert into app_private.free_ticket_entry_attempts(
+  event_id,ticket_id,actor_user_id,outcome,created_at)
+ values(p_event_id,v_ticket.id,v_actor,v_outcome,v_now);
+ return pg_catalog.jsonb_build_object('status',v_outcome);
+end;
+$scan$;
+create or replace function public.admin_free_ticket_entry_report(p_event_id uuid)
+returns jsonb language plpgsql stable security definer set search_path=''
+as $scan$
+declare
+ v_event public.club_events%rowtype;
+ v_issued bigint;
+ v_checked bigint;
+ v_cancelled bigint;
+ v_recent jsonb;
+begin
+ if (select auth.uid()) is null
+  or not coalesce((select app_private.is_admin()),false)
+ then raise exception 'Administrator MFA AAL2 required' using errcode='42501';end if;
+ if not coalesce((select enabled from app_private.free_ticketing_gate where id=1),false)
+ then raise exception 'Staging ticket gate disabled' using errcode='42501';end if;
+ select * into v_event from public.club_events where id=p_event_id;
+ if v_event.id is null or v_event.access_kind<>'public'
+  or v_event.booking_kind not in ('free','paid') then
+  raise exception 'Free event not found' using errcode='22023';end if;
+ select count(*) filter(where t.status='issued'),
+   count(*) filter(where t.status='checked_in'),
+   count(*) filter(where t.status='cancelled')
+ into v_issued,v_checked,v_cancelled
+ from app_private.free_event_tickets t where t.event_id=p_event_id;
+ select coalesce(pg_catalog.jsonb_agg(
+    pg_catalog.jsonb_build_object('at',s.created_at,'status',s.outcome)
+    order by s.created_at desc), '[]'::jsonb)
+ into v_recent from (
+   select a.created_at,a.outcome from app_private.free_ticket_entry_attempts a
+    where a.event_id=p_event_id
+    order by a.created_at desc,a.id desc limit 20
+ ) s;
+ return pg_catalog.jsonb_build_object(
+  'event_id',v_event.id,'title',v_event.title,'capacity',v_event.capacity,
+  'issued',v_issued,'checked_in',v_checked,'cancelled',v_cancelled,
+  'recent',v_recent);
+end;
+$scan$;
+-- Protect paid orders from the free-ticket cancellation path. A paid
+-- cancellation/refund is always reconciled through the verified finance ledger.
+create or replace function public.cancel_my_free_event_ticket(p_event_id uuid)
+returns boolean
+language plpgsql volatile security definer set search_path=''
+as $ticket$
+declare
+  v_actor uuid := (select auth.uid());
+  v_gate boolean;
+  v_start timestamptz;
+  v_ticket_id uuid;
+begin
+  if v_actor is null
+    or coalesce((select auth.jwt()->>'is_anonymous'),'false')='true'
+  then raise exception 'Verified member sign-in required' using errcode='42501'; end if;
+  if not exists(select 1 from auth.users u where u.id=v_actor
+   and u.email_confirmed_at is not null) then
+    raise exception 'Confirmed member email required' using errcode='42501';
+  end if;
+
+  select enabled into v_gate from app_private.free_ticketing_gate where id=1 for share;
+  if not coalesce(v_gate,false)
+  then raise exception 'Free ticketing is not activated' using errcode='42501'; end if;
+
+  select starts_at into v_start from public.club_events
+    where id=p_event_id for update;
+  if not found or v_start is null or v_start <= clock_timestamp()
+  then return false; end if;
+
+  update app_private.free_event_tickets set
+    status='cancelled',cancelled_at=clock_timestamp()
+  where event_id=p_event_id and member_user_id=v_actor
+    and status='issued' and ticket_origin<>'test_paid'
+  returning id into v_ticket_id;
+  if v_ticket_id is null then return false; end if;
+
+  insert into app_private.free_event_ticket_audit(
+    ticket_id,event_id,actor_user_id,action
+  ) values(v_ticket_id,p_event_id,v_actor,'cancelled');
+  return true;
+end;
+$ticket$;
+
+-- Stage 88 global guard must preserve the ORIGINAL booking kind, not force
+-- free after any paid/complimentary ticket has been issued.
+create or replace function app_private.guard_event_reservation_consistency()
+returns trigger language plpgsql security definer set search_path=''
+as $fn$
+declare
+ v_quota bigint;
+ v_issued bigint;
+begin
+ if new.booking_status not in ('not_open','closed')
+  and not (new.booking_status='open'
+   and coalesce((select enabled from app_private.free_ticketing_gate where id=1),false)
+   and (select auth.uid()) is not null
+   and coalesce((select app_private.is_admin()),false)) then
+  raise exception 'Reservations cannot open before stage 88'
+   using errcode='42501';
+ end if;
+ if tg_op='UPDATE' then
+  select count(*) into v_issued from app_private.free_event_tickets t
+    where t.event_id=new.id and t.status in ('issued','checked_in');
+  if v_issued>0 and (new.capacity is null or new.capacity<v_issued or
+     new.starts_at is distinct from old.starts_at or
+     new.published is distinct from true or new.booking_kind is distinct from old.booking_kind or
+     new.access_kind<>'public') then
+    raise exception 'Existing issued tickets prevent unsafe event changes'
+     using errcode='42501';
+  end if;
+  select coalesce(sum(w.capacity),0) into v_quota
+    from app_private.event_reservation_windows w
+    where w.event_id=new.id and w.status<>'closed';
+  if v_quota>0 and (new.capacity is null or v_quota>new.capacity) then
+   raise exception 'Event capacity cannot undercut active slot quotas'
+    using errcode='22023';
+  end if;
+  if exists(
+   select 1 from app_private.event_reservation_windows w
+    where w.event_id=new.id and w.status<>'closed'
+    and (new.starts_at is null or w.closes_at>new.starts_at
+      or (new.access_kind='premium' and w.access_kind='public')
+      or (new.access_kind='public' and w.access_kind='premium'
+       and (new.priority_kind<>'premium'
+        or w.opens_at<new.priority_starts_at
+        or w.closes_at>new.priority_ends_at))))
+  then raise exception 'Existing slot rules prevent incompatible event edit'
+   using errcode='22023';end if;
+ end if;
+ return new;
+end;
+$fn$;
+
+-- Admin-only manually enabled *staging* paid event opening. No production
+-- gate configuration is exposed via these functions.
+create or replace function public.admin_open_staging_test_paid_event(
+ p_event_id uuid
+) returns boolean language plpgsql security definer set search_path=''
+as $fn$
+declare e public.club_events%rowtype;
+begin
+ if (select auth.uid()) is null or
+  not coalesce((select app_private.is_admin()),false) then
+  raise exception 'Verified AAL2 admin required' using errcode='42501';end if;
+ if not coalesce((select enabled from app_private.free_ticketing_gate where id=1),false)
+ then raise exception 'Staging ticketing disabled' using errcode='42501';end if;
+ select * into e from public.club_events where id=p_event_id for update;
+ if e.id is null or e.published is distinct from true
+  or e.booking_kind<>'paid' or e.price_cents not between 50 and 1000000
+  or e.capacity is null or e.capacity<1 or e.starts_at<=clock_timestamp()
+  or e.ends_at<=e.starts_at
+  or (e.premium_price_cents is not null and
+   (e.premium_price_cents<0 or e.premium_price_cents>e.price_cents))
+ then raise exception 'Paid staging event is not eligible' using errcode='42501';end if;
+ update public.club_events set booking_status='open',
+  updated_at=clock_timestamp() where id=p_event_id;
+ return true;
+end;
+$fn$;
+revoke all on function public.admin_open_staging_test_paid_event(uuid)
+ from public,anon,authenticated,service_role;
+grant execute on function public.admin_open_staging_test_paid_event(uuid)
+ to authenticated;
+
 revoke all on function public.member_request_premium_test_comp_ticket(uuid)
  from public,anon,authenticated,service_role;
 revoke all on function public.billing_register_test_ticket_order(
