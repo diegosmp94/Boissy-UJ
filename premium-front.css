@@ -129,3 +129,22 @@
  border-radius:12px;color:#d8e4f7;line-height:1.6}
 @media(max-width:560px){.campaign-grid{grid-template-columns:1fr;gap:14px}
  .campaign-public-card{padding:18px;border-radius:14px}}
+
+
+/* Step 88: private ticket display; QR is rendered locally with a bundled encoder. */
+.member-free-tickets{display:grid;gap:14px;margin-block:22px;padding:19px;
+ border:1px solid rgba(210,184,127,.36);border-radius:16px;background:rgba(7,24,49,.55)}
+.member-free-tickets h3{margin:0;color:#f5dfad}
+.member-free-tickets-list{display:grid;gap:12px;min-width:0}
+.member-free-ticket-item{display:grid;gap:11px;padding:15px;
+ border:1px solid rgba(255,255,255,.15);border-radius:12px;min-width:0}
+.member-free-ticket-item strong{overflow-wrap:anywhere}
+.member-free-ticket-item button{max-width:100%;min-height:44px;white-space:normal}
+.member-ticket-secret{display:grid;gap:12px;justify-items:start}
+.member-ticket-qr{padding:14px;background:#fff;color:#111;border-radius:12px;
+ width:fit-content;max-width:100%;box-sizing:border-box}
+.member-ticket-qr img,.member-ticket-qr canvas{width:min(224px,100%);height:auto;display:block}
+.member-free-ticket-item button:focus-visible{outline:3px solid #f7d88e;outline-offset:3px}
+@media(max-width:560px){.member-free-tickets{padding:14px}
+ .member-free-ticket-item{padding:12px}
+ .member-ticket-secret,.member-ticket-qr{justify-self:center}}
