@@ -48,7 +48,7 @@ create table if not exists app_private.privacy_request_steps(
  evidence_ref text check(evidence_ref is null or
   (char_length(evidence_ref) between 6 and 120 and evidence_ref ~ '^[A-Za-z0-9._:/-]+$')),
  checked_at timestamptz,
- checked_by uuid references auth.users(id) on delete set null,
+ checked_by uuid, -- audit actor may survive Auth removal until approved retention purge
  primary key(request_id,scope),
  check((state='pending')=(checked_at is null)),
  check((state='pending')=(evidence_ref is null)),
@@ -93,6 +93,16 @@ insert into app_private.privacy_retention_register(dataset)
 alter table app_private.privacy_retention_register enable row level security;
 revoke all on app_private.privacy_retention_register from public,anon,authenticated;
 
+create table if not exists app_private.privacy_retention_audit(
+ id bigint generated always as identity primary key,
+ dataset text not null,
+ actor_id uuid,
+ change_kind text not null check(change_kind='approve_rule'),
+ changed_at timestamptz not null default clock_timestamp()
+);
+alter table app_private.privacy_retention_audit enable row level security;
+revoke all on app_private.privacy_retention_audit from public,anon,authenticated;
+
 create or replace function public.member_submit_privacy_request(
  p_kind text,p_description text default ''
 ) returns uuid language plpgsql security definer set search_path=''
@@ -122,10 +132,10 @@ begin
  values(actor,p_kind,btrim(p_description)) returning id into request_id;
  if p_kind='erasure' then
   insert into app_private.privacy_request_steps(request_id,scope)
-   select request_id,x from unnest(array[
+   select request_id,item.scope from unnest(array[
     'auth_account','member_profile','club_roles','public_person_profiles',
     'private_media','awards_ballots','payments_and_invoices','external_processors'
-   ]) as x;
+   ]) as item(scope);
  end if;
  insert into app_private.privacy_requests_audit(request_id,actor_id,action)
  values(request_id,actor,'submit');
@@ -324,7 +334,9 @@ begin
   not coalesce((select app_private.is_admin()),false)
  then raise exception 'Admin MFA AAL2 required' using errcode='42501';end if;
  select coalesce(jsonb_agg(jsonb_build_object('dataset',r.dataset,
-  'approved',r.approved_at is not null,'has_rule',r.retention_rule is not null,
+  'approved',r.approved_at is not null,'approved_at',r.approved_at,
+  'rule',r.retention_rule,'basis',r.legal_basis,
+  'has_rule',r.retention_rule is not null,
   'has_legal_basis',r.legal_basis is not null) order by r.dataset),'[]'::jsonb)
   into datasets from app_private.privacy_retention_register r;
  select count(*) into sport_pending from public.team_public_people p
@@ -337,6 +349,34 @@ begin
   'roster_consent_review_pending',sport_pending,
   'individual_profile_review_pending',profile_pending,
   'media_purges_pending',purge_pending);
+end;
+$fn$;
+
+-- Club controller enters actual approved legal terms; no auto-purge policy.
+create or replace function public.admin_approve_privacy_retention_rule(
+ p_dataset text,p_rule text,p_basis text,p_expected_approved_at timestamptz
+) returns boolean language plpgsql security definer set search_path=''
+as $fn$
+declare actor uuid:=(select auth.uid());
+ old app_private.privacy_retention_register%rowtype;
+begin
+ if actor is null or not coalesce((select app_private.is_admin()),false)
+ then raise exception 'Admin MFA AAL2 required' using errcode='42501';end if;
+ if p_rule is null or char_length(btrim(p_rule)) not between 25 and 1200
+  or p_basis is null or char_length(btrim(p_basis)) not between 10 and 500
+  or p_rule ~ '[[:cntrl:]]' or p_basis ~ '[[:cntrl:]]'
+ then raise exception 'Legal retention terms missing' using errcode='22023';end if;
+ select * into old from app_private.privacy_retention_register
+  where dataset=p_dataset for update;
+ if old.dataset is null or old.approved_at is distinct from p_expected_approved_at
+ then raise exception 'Retention register conflict, reload' using errcode='40001';end if;
+ update app_private.privacy_retention_register
+ set retention_rule=btrim(p_rule),legal_basis=btrim(p_basis),
+  approved_by=actor,approved_at=clock_timestamp()
+ where dataset=p_dataset;
+ insert into app_private.privacy_retention_audit(dataset,actor_id,change_kind)
+ values(p_dataset,actor,'approve_rule');
+ return true;
 end;
 $fn$;
 
@@ -354,6 +394,8 @@ revoke all on function public.admin_extend_privacy_request(uuid,text,timestamptz
  from public,anon,authenticated;
 revoke all on function public.admin_transition_privacy_request(uuid,text,text,timestamptz)
  from public,anon,authenticated;
+revoke all on function public.admin_approve_privacy_retention_rule(text,text,text,timestamptz)
+ from public,anon,authenticated;
 revoke all on function public.admin_privacy_retention_and_consent()
  from public,anon,authenticated;
 
@@ -365,6 +407,7 @@ grant execute on function public.admin_update_privacy_step(uuid,text,text,text) 
 grant execute on function public.admin_extend_privacy_request(uuid,text,timestamptz) to authenticated;
 grant execute on function public.admin_transition_privacy_request(uuid,text,text,timestamptz) to authenticated;
 grant execute on function public.admin_privacy_retention_and_consent() to authenticated;
+grant execute on function public.admin_approve_privacy_retention_rule(text,text,text,timestamptz) to authenticated;
 
 comment on table app_private.privacy_rights_requests is
  'Private owner-only rights request registry. Completion NEVER deletes data; verified external workflows required.';
