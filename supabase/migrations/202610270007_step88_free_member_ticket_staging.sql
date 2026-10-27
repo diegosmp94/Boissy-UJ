@@ -46,7 +46,7 @@ create table if not exists app_private.free_event_ticket_audit (
   ticket_id uuid not null,
   event_id uuid not null,
   actor_user_id uuid not null,
-  action text not null check(action in ('issued','cancelled','checked_in')),
+  action text not null check(action in ('issued','cancelled','checked_in','reissued')),
   created_at timestamptz not null default now()
 );
 alter table app_private.free_event_ticket_audit enable row level security;
@@ -123,7 +123,7 @@ begin
   -- one current PUBLIC scheduled slot. Closed/draft slots grant nothing.
   select count(*) into v_window_count
     from app_private.event_reservation_windows w
-   where w.event_id=p_event_id and w.status<>'closed';
+   where w.event_id=p_event_id;
   if v_window_count>0 then
     select w.* into v_window from app_private.event_reservation_windows w
      where w.event_id=p_event_id and w.status='scheduled'
@@ -338,6 +338,8 @@ begin
   set token_sha256=encode(extensions.digest(decode(v_secret,'hex'),'sha256'),'hex'),
       token_rotated_at=clock_timestamp()
   where id=v_ticket.id and status='issued';
+ insert into app_private.free_event_ticket_audit(ticket_id,event_id,actor_user_id,action)
+ values(v_ticket.id,p_event_id,v_actor,'reissued');
  return 'BUJ1:'||p_event_id::text||':'||v_secret;
 end;
 $ticket$;
@@ -379,6 +381,7 @@ returns trigger language plpgsql security definer set search_path=''
 as $fn$
 declare
  v_quota bigint;
+ v_issued bigint;
 begin
  if new.booking_status not in ('not_open','closed')
   and not (new.booking_status='open'
@@ -389,6 +392,15 @@ begin
    using errcode='42501';
  end if;
  if tg_op='UPDATE' then
+  select count(*) into v_issued from app_private.free_event_tickets t
+    where t.event_id=new.id and t.status in ('issued','checked_in');
+  if v_issued>0 and (new.capacity is null or new.capacity<v_issued or
+     new.starts_at is distinct from old.starts_at or
+     new.published is distinct from true or new.booking_kind<>'free' or
+     new.access_kind<>'public') then
+    raise exception 'Existing issued tickets prevent unsafe event changes'
+     using errcode='42501';
+  end if;
   select coalesce(sum(w.capacity),0) into v_quota
     from app_private.event_reservation_windows w
     where w.event_id=new.id and w.status<>'closed';
@@ -411,6 +423,37 @@ begin
  return new;
 end;
 $fn$;
+
+-- A sold-out/issued slot cannot be reconfigured below already issued
+-- tickets or made to overlap after issuance. Closing a window is allowed
+-- (blocks new issues, does not invalidate existing checked-in tickets).
+create or replace function app_private.guard_issued_free_slot()
+returns trigger language plpgsql security definer set search_path=''
+as $ticket$
+begin
+ if tg_op='UPDATE' and exists(
+   select 1 from app_private.free_event_tickets t
+   where t.window_id=old.id and t.status in ('issued','checked_in')
+ ) and (
+   new.opens_at is distinct from old.opens_at or
+   new.closes_at is distinct from old.closes_at or
+   new.capacity is distinct from old.capacity or
+   new.access_kind is distinct from old.access_kind or
+   (new.status is distinct from old.status and new.status<>'closed')
+ ) then
+  raise exception 'Issued tickets lock reservation window parameters'
+   using errcode='42501';
+ end if;
+ return new;
+end;
+$ticket$;
+drop trigger if exists prevent_unsafe_free_ticket_slot_change
+ on app_private.event_reservation_windows;
+create trigger prevent_unsafe_free_ticket_slot_change
+ before update on app_private.event_reservation_windows
+ for each row execute function app_private.guard_issued_free_slot();
+revoke all on function app_private.guard_issued_free_slot()
+ from public,anon,authenticated;
 
 revoke all on function public.member_my_free_event_tickets()
  from public,anon,authenticated,service_role;
