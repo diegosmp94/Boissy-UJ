@@ -10,3 +10,8 @@ verify_jwt = false # Signatures Stripe vérifiées dans le handler sur le corps 
 
 [functions.premium-stripe-test-checkout]
 verify_jwt = true # Auth JWT + confirmation Auth côté handler
+
+
+# Only on isolated staging: member JWT + verified Auth user and explicit TEST gate.
+[functions.premium-stripe-test-cancel]
+verify_jwt = true
