@@ -39,6 +39,16 @@ La synthèse compte les fiches sportives publiées dont le consentement n’est 
 
 **Les règles de conservation approuvées ne lancent pas de purge automatique**. Une suppression réelle nécessite l’analyse de la base juridique, des contrats et obligations de conservation, des fichiers diffusés et sauvegardes, des données des mineurs, ainsi que du périmètre des sous-traitants. Ce fonctionnement est volontairement conservateur.
 
+## Validation technique constatée — 27 octobre 2026
+
+- **[PR #160](https://github.com/diegosmp94/Boissy-UJ/pull/160)** fusionnée dans `main`, commit `4fb4dd30208ecc504ae25631ee9eca75f2daba45`.
+- **927 tests automatisés réussis**, aucun échec, et 2 workflows GitHub Actions validés, incluant l’analyse de syntaxe et la navigation mobile Chromium.
+- Migration SQL `step92_privacy_rights_workflow_20261027` exécutée sur le projet Supabase principal `dahzewvbybujqhogumte` avec succès, après contrôle transactionnel `ROLLBACK`.
+- Requête de vérification après application : **0 demande, 0 étape d’effacement, 0 audit de dossier, 0 audit de conservation**, 8 ensembles de données dans le registre et **0 règle approuvée**. Les trois tables principales de demandes/étapes/audit ont RLS activé et aucun privilège de lecture direct pour `anon` ou `authenticated`. L’exécution de la RPC de demande est refusée à `anon`.
+- L’inventaire du projet après migration relève toujours un compte Auth ; le code de la migration ne contient aucune suppression d’utilisateur, profil, fichier Storage, donnée sportive ou vote.
+- Le conseiller Supabase confirme `INFO` sur les tables privées sans policies (volontaire, seuls des RPC filtrés peuvent lire/écrire) et `WARN` sur l’exécution de fonctions `SECURITY DEFINER` accordées à `authenticated`. Ces accès sont intentionnels **uniquement** avec contrôles internes `auth.uid()`, identité confirmée ou `app_private.is_admin()` MFA AAL2. Les essais avec plusieurs comptes réels restent à effectuer.
+- **La mise en place technique du suivi ne certifie pas à elle seule une conformité RGPD** : délai et notification, base juridique, purge des sauvegardes et sous-traitants, consentement d’un mineur et livraison d’export complet restent à homologuer.
+
 ## Sécurité, conformité et limites
 
 - Toutes les nouvelles tables sont dans `app_private`, avec RLS, sans permission directe aux rôles `anon` et `authenticated` ; seuls des RPC vérifiant l’identité ouvrent les données nécessaires.
