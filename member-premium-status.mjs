@@ -58,9 +58,15 @@ export function normalizePremiumRenewalStatus(data){
   monthly_paid_until:month,annual_paid_until:annual,cancellation_effective_at:effective};
 }
 export function premiumLifecycleText(status,renewal=null){
- if(status?.state==='active'&&status.plan==='annual')
+ if(status?.state==='active'&&status.plan==='annual'){
+  const extra=renewal?.renewal==='renews'
+   ?' Un abonnement mensuel TEST distinct reste renouvelable.'
+   :renewal?.renewal==='cancel_scheduled'
+    ?' Le renouvellement mensuel TEST distinct est programmé pour s’arrêter.'
+    :'';
   return 'Formule de 12 mois : pas de reconduction automatique. '+
-   'Au terme de la période payée, le droit expire sans nouveau débit.';
+   'Au terme de la période payée, le droit expire sans nouveau débit.'+extra;
+ }
  if(status?.state==='active'&&status.plan==='monthly'){
   if(renewal?.renewal==='cancel_scheduled')
    return 'Renouvellement mensuel arrêté en mode TEST. '+
@@ -140,8 +146,7 @@ export function mountMemberPremiumStatus(root,api,expectedUserId,isActive=()=>ro
      const renewal=renewalResponse.error?null:
       normalizePremiumRenewalStatus(renewalResponse.data);
      cycle.textContent=premiumLifecycleText(normalized,renewal);
-     cancel.hidden=!(renewal?.renewal==='renews'&&renewal.can_cancel&&
-      normalized.plan==='monthly');
+     cancel.hidden=!(renewal?.renewal==='renews'&&renewal.can_cancel);
     }catch{
      if(!alive()||run!==seq)return;
      cycle.textContent='Gestion du renouvellement TEST momentanément indisponible.';
