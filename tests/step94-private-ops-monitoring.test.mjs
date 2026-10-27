@@ -139,7 +139,7 @@ test('step94: admin UI discards non-allowlisted data and fails closed on outage'
   'alertRows.replaceChildren()',
   'incidentRows.replaceChildren()',
   'Aucun état confirmé',
-  'non vérifiés', // textual search may be case-sensitive
+  'Non vérifié',
   'Vérifiez la résolution réellement effectuée'
  ])assert.ok(ui.includes(item),item);
  assert.doesNotMatch(ui,/console\.log|console\.error|\.innerHTML\s*=|localStorage|sessionStorage|\.delete\(|service_role|sk_live_|stack_trace/);
