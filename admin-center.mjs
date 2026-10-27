@@ -118,7 +118,7 @@ export async function mountAdminCenter(getClient){
   };
   // Module health is isolated: a missing/slow RPC hides only its module.
   // All probes are bounded, independent and issued after the initial MFA gate.
-  const {eventsReady,coachTeamsReady,mediaReady,newsRevisionsReady}=
+  const {eventsReady,eventRulesReady,coachTeamsReady,mediaReady,newsRevisionsReady}=
     await adminCapabilities(api);
   if(serial!==currentGeneration||!root.isConnected)return;
   // Capabilities are not permissions: verify roles and MFA again after probes.
@@ -142,7 +142,7 @@ export async function mountAdminCenter(getClient){
   const pane=el('section','real-admin-pane');
   pane.setAttribute('aria-label','Outil de gestion');
   layout.append(sidebar,pane);root.append(layout);
-  const availableModules=availableAdminModules(ADMIN_MODULES,{eventsReady,coachTeamsReady,mediaReady,newsRevisionsReady});
+  const availableModules=availableAdminModules(ADMIN_MODULES,{eventsReady,eventRulesReady,coachTeamsReady,mediaReady,newsRevisionsReady});
   const navTools=el('div','admin-nav-tools');
   const navLabel=el('label','admin-nav-label','Trouver un module');
   const moduleSearch=el('input','admin-nav-search');
