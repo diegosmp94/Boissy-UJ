@@ -33,6 +33,14 @@ Les états d'échec sont affichés comme **entrée refusée** ; une erreur rése
 - La mutation PostgreSQL et ses écritures d'audit appartiennent **à la même transaction**. Le QR n'est pas utilisé comme preuve d'entrée sans état serveur `accepted`.
 - **Aucune page ni webhook de paiement LIVE** introduit.
 
+## Livraison GitHub et contrôle du projet principal (27 octobre 2026)
+
+- [PR #154](https://github.com/diegosmp94/Boissy-UJ/pull/154) fusionnée dans `main` : commit `3778f4e1a12b460166dda887927178d0932dde5a`.
+- **897 tests automatisés réussis**. Les deux workflows GitHub Actions ont conclu au succès, incluant syntaxe, construction de la préproduction et tests mobiles Chromium.
+- SQL consolidé 88 + 89 vérifié en transaction complète avec réponse `step89_combined_staging_migrations_rolled_back`. L'intégralité des créations et remplacements a été annulée volontairement par `ROLLBACK`.
+- Audit direct Supabase après fusion : **1 événement existant, 0 créneau, 0 événement ouvert**, et **aucune** table `free_event_tickets`, `free_ticketing_gate`, `free_ticket_entry_attempts`, ni RPC de réservation/scan activée. Les QR restent désactivés dans le code public.
+- Les tests réels concurrents avec deux contrôleurs et la vérification après coupure de réseau restent **à réaliser en staging indépendant**. L'étape est livrée côté code, non homologuée pour l'exploitation.
+
 ## Validation
 
 Le SQL des étapes 88 et 89 a été assemblé puis exécuté dans **une transaction de vérification suivie de `ROLLBACK`** sur le schéma principal ; résultat : `step89_combined_staging_migrations_rolled_back`. Cela valide les dépendances SQL et la syntaxe sans installer les tables de billets ni les fonctions de contrôle sur le projet principal.
