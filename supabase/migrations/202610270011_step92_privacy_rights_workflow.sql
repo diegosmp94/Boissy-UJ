@@ -250,6 +250,7 @@ begin
  select * into old from app_private.privacy_rights_requests
   where id=p_request_id for update;
  if old.id is null or old.status in ('completed','rejected')
+  or clock_timestamp()>old.due_at
   or old.extended_at is not null or p_expected_updated_at is null
   or old.updated_at is distinct from p_expected_updated_at then
   raise exception 'Request changed or already extended' using errcode='40001';end if;
