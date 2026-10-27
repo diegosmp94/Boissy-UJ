@@ -3,6 +3,10 @@
 -- Le prototype historique 202610230003_premium_awards_ballots.sql ne doit pas être appliqué.
 begin;
 
+-- Optimistic edit checks for nominees across concurrent administrators.
+alter table public.club_award_nominees
+ add column if not exists updated_at timestamptz not null default now();
+
 create table if not exists app_private.awards_voting_gate (
  id smallint primary key default 1 check (id=1),
  enabled boolean not null default false,
@@ -132,7 +136,8 @@ $fn$;
 
 create or replace function public.admin_save_award_nominee(
  p_id uuid,p_award_id uuid,p_display_label text,
- p_consent_reviewed boolean,p_published boolean,p_sort_order integer
+ p_consent_reviewed boolean,p_published boolean,p_sort_order integer,
+ p_expected_updated_at timestamptz default null
 ) returns uuid language plpgsql security definer set search_path=''
 as $fn$
 declare
@@ -155,6 +160,8 @@ begin
   or exists(select 1 from app_private.award_ballots b where b.award_id=p_award_id)
  then raise exception 'Nominees frozen after vote opening' using errcode='42501';end if;
  if p_id is null then
+  if p_expected_updated_at is not null then
+   raise exception 'Unexpected nominee version' using errcode='22023';end if;
   insert into public.club_award_nominees(
    award_id,display_label,consent_reviewed,published,sort_order)
   values(p_award_id,btrim(p_display_label),p_consent_reviewed,
@@ -163,8 +170,10 @@ begin
   update public.club_award_nominees set
    display_label=btrim(p_display_label),
    consent_reviewed=p_consent_reviewed,published=p_published,
-   sort_order=p_sort_order
-  where id=p_id and award_id=p_award_id returning * into item;
+   sort_order=p_sort_order,
+   updated_at=greatest(clock_timestamp(),updated_at+interval '1 microsecond')
+  where id=p_id and award_id=p_award_id
+   and updated_at=p_expected_updated_at returning * into item;
   if item.id is null then
     raise exception 'Nominee not in award' using errcode='42501';end if;
  end if;
@@ -351,7 +360,7 @@ revoke all on function public.admin_save_award(
  uuid,text,text,text,text,text,timestamptz,timestamptz,boolean,timestamptz)
  from public,anon,authenticated;
 revoke all on function public.admin_save_award_nominee(
- uuid,uuid,text,boolean,boolean,integer) from public,anon,authenticated;
+ uuid,uuid,text,boolean,boolean,integer,timestamptz) from public,anon,authenticated;
 revoke all on function public.admin_transition_award(uuid,text) from public,anon,authenticated;
 revoke all on function public.member_cast_award_vote(uuid,uuid) from public,anon,authenticated;
 revoke all on function public.member_my_award_vote(uuid) from public,anon,authenticated;
@@ -363,7 +372,7 @@ grant execute on function public.admin_save_award(
  uuid,text,text,text,text,text,timestamptz,timestamptz,boolean,timestamptz)
  to authenticated;
 grant execute on function public.admin_save_award_nominee(
- uuid,uuid,text,boolean,boolean,integer) to authenticated;
+ uuid,uuid,text,boolean,boolean,integer,timestamptz) to authenticated;
 grant execute on function public.admin_transition_award(uuid,text) to authenticated;
 grant execute on function public.member_cast_award_vote(uuid,uuid) to authenticated;
 grant execute on function public.member_my_award_vote(uuid) to authenticated;
