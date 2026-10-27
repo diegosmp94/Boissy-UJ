@@ -130,7 +130,7 @@ test('step88: stage87 windows enforce non-overlap and sub-quotas on issue',()=>{
   .split('create or replace function public.cancel_my_free_event_ticket(')[0];
  for(const piece of [
   'from app_private.event_reservation_windows w',
-  "w.status<>'closed'",
+  "where w.event_id=p_event_id;", 
   "w.status='scheduled'",
   "w.access_kind='public'",
   'w.opens_at<=clock_timestamp()',
