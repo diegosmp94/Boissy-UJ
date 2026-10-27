@@ -36,10 +36,10 @@ test('slow or unavailable optional module does not block healthy navigation entr
  };
  const out=await adminCapabilities(api,6);
  assert.deepEqual(out,{
-  eventsReady:false,eventRulesReady:false,scannerReady:false,awardsReady:false,privacyReady:false,coachTeamsReady:true,mediaReady:false,newsRevisionsReady:true
+  eventsReady:false,eventRulesReady:false,scannerReady:false,awardsReady:false,privacyReady:false,operationsReady:false,coachTeamsReady:true,mediaReady:false,newsRevisionsReady:true
  });
  assert.deepEqual(new Set(calls),new Set([
-  'admin_list_free_events','admin_list_advanced_events','admin_list_awards','admin_list_privacy_requests','admin_list_team_coaches','admin_list_news_media','admin_news_revisions_ready'
+  'admin_list_free_events','admin_list_advanced_events','admin_list_awards','admin_list_privacy_requests','admin_ops_snapshot','admin_list_team_coaches','admin_list_news_media','admin_news_revisions_ready'
  ]));
 });
 
@@ -49,7 +49,7 @@ test('all failed backend checks disable all conditional modules',async()=>{
   rpc:()=>Promise.reject(new Error('offline'))
  };
  assert.deepEqual(await adminCapabilities(api,5),{
-  eventsReady:false,eventRulesReady:false,scannerReady:false,awardsReady:false,privacyReady:false,coachTeamsReady:false,mediaReady:false,newsRevisionsReady:false
+  eventsReady:false,eventRulesReady:false,scannerReady:false,awardsReady:false,privacyReady:false,operationsReady:false,coachTeamsReady:false,mediaReady:false,newsRevisionsReady:false
  });
 });
 
