@@ -12,7 +12,7 @@ import {mkdir,lstat,realpath,open,readFile,rename,rm,writeFile} from 'node:fs/pr
 import {createReadStream} from 'node:fs';
 import {pipeline} from 'node:stream/promises';
 import {once} from 'node:events';
-import {resolve,join,basename} from 'node:path';
+import {resolve,join,isAbsolute} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const LOOPBACK=new Set(['127.0.0.1','localhost','::1']);
@@ -28,7 +28,7 @@ export function validateBackupEnvironment(env){
   !/^[a-zA-Z0-9._-]{1,150}$/.test(env.PGHOST)||
   !/^[a-zA-Z0-9_][a-zA-Z0-9_-]{0,62}$/.test(env.PGDATABASE)||
   !/^[a-zA-Z0-9_][a-zA-Z0-9_-]{0,62}$/.test(env.PGUSER)||
-  !resolve(env.PGPASSFILE).startsWith('/')||
+  !isAbsolute(env.PGPASSFILE)||
   !AGE_RECIPIENT.test(env.BOISSY_BACKUP_AGE_RECIPIENT))
   throw Error('Invalid backup connection or recipient');
  if(LOOPBACK.has(env.PGHOST)){
@@ -109,7 +109,7 @@ export async function exportEncryptedDatabase(root,rawEnv,{
     stdio:['pipe','pipe','ignore']});
   // Never write a raw dump to a plaintext intermediary.
   const writer=handle.createWriteStream({autoClose:false});
-  const [results]=await Promise.all([
+  await Promise.all([
    Promise.all([pipeline(pg.stdout,age.stdin),
     pipeline(age.stdout,writer)]),
    codeOf(pg),codeOf(age)
