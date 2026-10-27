@@ -4,6 +4,7 @@ import {mountMemberRoleRequests} from './role-workflow.mjs';
 import {mountAdminMfaSetup} from './admin-security.mjs';
 import {mountMemberSports} from './member-sports.mjs';
 import {mountMemberPremiumStatus} from './member-premium-status.mjs';
+import {mountMemberFreeTickets} from './member-free-tickets.mjs';
 import {withAuthDeadline} from './auth-resilience.mjs';
 
 let clientPromise;
@@ -279,6 +280,9 @@ async function showSession(root, api) {
   if(!rolesResult.error)mountMemberSports(account,api,user.id,roles);
   // Entitlement is always read from a user-scoped RPC, never from local roles or client flags.
   void mountMemberPremiumStatus(account,api,user.id,
+    ()=>view===sessionViewGeneration&&root.isConnected&&account.isConnected);
+  // Default-disabled: only an isolated staging build may mount ticketing RPC UI.
+  void mountMemberFreeTickets(account,api,user.id,
     ()=>view===sessionViewGeneration&&root.isConnected&&account.isConnected);
   // Compte ordinaire : seul le rôle admin attribué par le serveur voit le parcours MFA.
   if(!rolesResult.error&&roles.includes('admin'))void mountAdminMfaSetup(account,api,user.id);
