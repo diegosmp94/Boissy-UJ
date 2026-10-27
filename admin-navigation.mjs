@@ -27,13 +27,14 @@ export function groupAdminModules(modules){
  }
  return groups;
 }
-export function availableAdminModules(modules,{eventsReady=false,eventRulesReady=false,scannerReady=false,awardsReady=false,privacyReady=false,coachTeamsReady=false,mediaReady=false,newsRevisionsReady=false}={}){
+export function availableAdminModules(modules,{eventsReady=false,eventRulesReady=false,scannerReady=false,awardsReady=false,privacyReady=false,operationsReady=false,coachTeamsReady=false,mediaReady=false,newsRevisionsReady=false}={}){
  return modules.filter(module=>
   (!['events','ticketing'].includes(module.id)||eventsReady===true)&&
   (module.id!=='event-rules'||eventRulesReady===true)&&
   (module.id!=='entry-scan'||scannerReady===true)&&
   (module.id!=='awards'||awardsReady===true)&&
   (module.id!=='privacy-rights'||privacyReady===true)&&
+  (module.id!=='operations'||operationsReady===true)&&
   (module.id!=='coach-teams'||coachTeamsReady===true)&&
   (module.id!=='news-media'||mediaReady===true)&&
   (module.id!=='news-revisions'||newsRevisionsReady===true));
