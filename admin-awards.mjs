@@ -213,7 +213,8 @@ export async function mountAdminAwards(root,api,userId){
   if(error){nomineeStatus.textContent=error;return;}
   const args={p_id:selectedNominee()?.id||null,p_award_id:a.id,
    p_display_label:d.label.trim(),p_consent_reviewed:d.consent,
-   p_published:d.published,p_sort_order:d.order};
+   p_published:d.published,p_sort_order:d.order,
+   p_expected_updated_at:selectedNominee()?.updated_at||null};
   const key=JSON.stringify(args);
   if(d.published&&confirmation!==key){
    confirmation=key;
