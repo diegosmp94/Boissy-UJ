@@ -1257,3 +1257,42 @@ h1,h2,h3,.brand,.intro-center strong,.pricing-card .price{
  }
  .skip-link:focus{forced-color-adjust:auto}
 }
+
+/* Étape 95 — lisibilité des formulaires et navigation accessible iOS/Android. */
+:where(input:not([type="checkbox"]):not([type="radio"]),textarea,select){
+ min-height:44px;max-width:100%;min-width:0
+}
+:where(input,textarea,select){font-family:inherit}
+:where(input,textarea,select,button,a,summary):focus-visible{
+ outline:3px solid #f0c56e;outline-offset:3px
+}
+:where(main,section,article,[id]){scroll-margin-top:calc(84px + env(safe-area-inset-top,0px))}
+#main:focus{outline:none}
+#main:focus-visible{outline:3px solid #f0c56e;outline-offset:-4px}
+:where(.auth-card,.admin-module-instance,.member-privacy-rights,.member-awards,
+ .member-ticket-test,.admin-ops-incidents,.admin-privacy-details){
+ min-width:0;max-width:100%
+}
+:where(.auth-card,.admin-module-instance,.member-privacy-rights,.member-awards,
+ .member-ticket-test,.admin-ops-incidents,.admin-privacy-details)
+ :where(p,small,code,strong,label){overflow-wrap:anywhere}
+@media(max-width:760px){
+ :where(input:not([type="checkbox"]):not([type="radio"]),textarea,select){
+  font-size:16px
+ }
+ :where(.auth-form,.admin-operation-form,.member-privacy-form,
+  .admin-ops-incident-form){min-width:0;max-width:100%}
+ :where(.auth-form,.admin-operation-form,.member-privacy-form,
+  .admin-ops-incident-form) :where(button,a,summary){min-height:44px}
+ .cinema-intro .intro-skip{min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){
+ :where(.chapters){scroll-snap-type:none!important}
+ :where(.chapter){scroll-snap-align:none!important}
+}
+@media(forced-colors:active){
+ :where(button,a,input,textarea,select,summary):focus-visible{
+  outline:3px solid Highlight!important
+ }
+ :where(.skip-link:focus){background:Canvas;color:CanvasText}
+}
