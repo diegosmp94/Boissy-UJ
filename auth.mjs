@@ -6,6 +6,7 @@ import {mountMemberSports} from './member-sports.mjs';
 import {mountMemberPremiumStatus} from './member-premium-status.mjs';
 import {mountMemberFreeTickets} from './member-free-tickets.mjs';
 import {mountMemberPaidTicketTest} from './member-paid-ticket-test.mjs';
+import {mountMemberAwardsVoting} from './member-awards-voting.mjs';
 import {withAuthDeadline} from './auth-resilience.mjs';
 
 let clientPromise;
@@ -286,6 +287,8 @@ async function showSession(root, api) {
   void mountMemberFreeTickets(account,api,user.id,
     ()=>view===sessionViewGeneration&&root.isConnected&&account.isConnected);
   void mountMemberPaidTicketTest(account,api,user.id,
+    ()=>view===sessionViewGeneration&&root.isConnected&&account.isConnected);
+  void mountMemberAwardsVoting(account,api,user.id,
     ()=>view===sessionViewGeneration&&root.isConnected&&account.isConnected);
   // Compte ordinaire : seul le rôle admin attribué par le serveur voit le parcours MFA.
   if(!rolesResult.error&&roles.includes('admin'))void mountAdminMfaSetup(account,api,user.id);
