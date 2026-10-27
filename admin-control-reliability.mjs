@@ -32,12 +32,13 @@ export async function adminCapability(call,valid=Array.isArray,deadline=AUTH_SER
 
 /** Reads all optional module capabilities independently, in parallel. */
 export async function adminCapabilities(api,deadline=AUTH_SERVICE_DEADLINE_MS){
- const [eventsReady,eventRulesReady,scannerReady,awardsReady,coachTeamsReady,mediaReady,newsRevisionsReady]=await Promise.all([
+ const [eventsReady,eventRulesReady,scannerReady,awardsReady,privacyReady,coachTeamsReady,mediaReady,newsRevisionsReady]=await Promise.all([
   adminCapability(()=>api.rpc('admin_list_free_events'),Array.isArray,deadline),
   adminCapability(()=>api.rpc('admin_list_advanced_events'),Array.isArray,deadline),
   canUseFreeTickets()?adminCapability(()=>api.rpc('admin_free_ticket_scan_status'),
    value=>value?.enabled===true&&value.mode==='staging_test_only',deadline):Promise.resolve(false),
   adminCapability(()=>api.rpc('admin_list_awards'),Array.isArray,deadline),
+  adminCapability(()=>api.rpc('admin_list_privacy_requests'),Array.isArray,deadline),
   (async()=>{
    try{
     const candidates=await withAuthDeadline(Promise.resolve().then(
@@ -51,7 +52,7 @@ export async function adminCapabilities(api,deadline=AUTH_SERVICE_DEADLINE_MS){
   adminCapability(()=>api.rpc('admin_list_news_media'),Array.isArray,deadline),
   adminCapability(()=>api.rpc('admin_news_revisions_ready'),value=>value===true,deadline)
  ]);
- return {eventsReady,eventRulesReady,scannerReady,awardsReady,coachTeamsReady,mediaReady,newsRevisionsReady};
+ return {eventsReady,eventRulesReady,scannerReady,awardsReady,privacyReady,coachTeamsReady,mediaReady,newsRevisionsReady};
 }
 
 /** Public generic message. Never surface backend responses or PII. */

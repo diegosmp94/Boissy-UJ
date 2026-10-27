@@ -233,3 +233,20 @@ textarea.admin-form-control{line-height:1.5;resize:vertical}
 .member-awards-card button:focus-visible{outline:3px solid #f6d18b;outline-offset:3px}
 @media(max-width:600px){.admin-awards-nominees,.admin-awards-actions,.member-awards{padding:13px}
  .member-awards-card{padding:12px}}
+
+
+/* Stage 92: AAL2 data subject request tracking with conservative workflow. */
+.admin-privacy-details,.admin-privacy-inventory{display:grid;gap:14px;
+ padding:17px;border:1px solid rgba(225,195,131,.35);border-radius:14px;
+ margin-block:16px;background:rgba(9,27,50,.75);min-width:0}
+.admin-privacy-steps,.admin-privacy-retention,.admin-privacy-checklist{
+ display:grid;gap:12px;min-width:0}
+.admin-privacy-step,.admin-privacy-retention-card{display:grid;gap:10px;
+ border:1px solid rgba(255,255,255,.16);padding:13px;border-radius:10px;min-width:0}
+.admin-privacy-step strong,.admin-privacy-retention-card strong{overflow-wrap:anywhere}
+.admin-privacy-details button,.admin-privacy-inventory button{min-height:44px;white-space:normal}
+.admin-privacy-details textarea,.admin-privacy-inventory textarea{
+ width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+.admin-privacy-details button:focus-visible,.admin-privacy-inventory button:focus-visible{
+ outline:3px solid #f4dca8;outline-offset:3px}
+@media(max-width:600px){.admin-privacy-details,.admin-privacy-inventory{padding:12px}}

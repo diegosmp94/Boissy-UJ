@@ -184,3 +184,19 @@
 .member-awards-card button:focus-visible{outline:3px solid #f6d18b;outline-offset:3px}
 @media(max-width:600px){.admin-awards-nominees,.admin-awards-actions,.member-awards{padding:13px}
  .member-awards-card{padding:12px}}
+
+
+/* Stage 92: authenticated personal data rights, no identity-document upload. */
+.member-privacy-rights{display:grid;gap:14px;margin-block:22px;padding:18px;
+ border:1px solid rgba(207,185,140,.42);border-radius:16px;
+ background:rgba(9,28,53,.78);min-width:0}
+.member-privacy-rights h3{margin:0;color:#f4dca8}
+.member-privacy-form{display:grid;gap:12px;min-width:0;max-width:680px}
+.member-privacy-form select,.member-privacy-form textarea{width:100%;box-sizing:border-box;
+ min-width:0;max-width:100%}
+.member-privacy-form button{min-height:44px}
+.member-privacy-history{display:grid;gap:10px}
+.member-privacy-item{display:grid;gap:7px;border:1px solid rgba(255,255,255,.16);
+ border-radius:12px;padding:12px;min-width:0;overflow-wrap:anywhere}
+.member-privacy-item p{margin:0}
+@media(max-width:600px){.member-privacy-rights{padding:13px}}
