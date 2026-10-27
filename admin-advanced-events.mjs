@@ -239,6 +239,7 @@ export async function mountAdminAdvancedEvents(root,api,userId){
    paintSlot();
    slotNote.textContent=slotRows.length+' créneau(x) enregistré(s). '+
     'Aucune réservation ouverte ni quota consommé.';
+   saveSlot.disabled=false;
   }catch{
    if(seq!==slotVersion||!root.isConnected)return;
    slotNote.textContent='Créneaux indisponibles : vérifie les droits et réessaie.';
