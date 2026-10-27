@@ -205,6 +205,12 @@ begin
  if (price->>'tier')<>'premium' or (price->>'amount_cents')::int<>0 then
   raise exception 'No verified complimentary Premium access'
    using errcode='42501';end if;
+ if exists(select 1 from app_private.ticket_test_orders o
+  where o.event_id=p_event_id and o.user_id=actor
+    and (o.status in ('issued','paid_unfulfilled','reversed')
+      or (o.status='pending' and o.hold_until>clock_timestamp())))
+ then raise exception 'Existing TEST order prevents complimentary duplicate'
+   using errcode='23505';end if;
  if exists(select 1 from app_private.free_event_tickets t
   where t.event_id=p_event_id and t.member_user_id=actor) then
   raise exception 'One lifetime ticket per member and event'
