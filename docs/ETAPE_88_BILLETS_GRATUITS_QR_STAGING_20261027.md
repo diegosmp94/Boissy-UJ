@@ -26,6 +26,15 @@ L'étape 87 ajoute les fenêtres de réservation avec quotas et verrouillage tra
 6. **Récupération sans conservation du QR** : `member_my_free_event_tickets()` renvoie seulement les informations du billet propres au compte, sans token. Le clic « Afficher un nouveau QR » est une rotation serveur, **pas la récupération d'une ancienne copie secrète**. Le QR est rendu localement dans le navigateur, sans cookie, `localStorage`, `sessionStorage`, URL ou journal.
 7. **Annulation** : `cancel_my_free_event_ticket` annule uniquement le billet `issued` du titulaire avant le début de l'événement. Aucun billet `checked_in` n'est annulable ni recréable. Le scan atomique demeure réservé aux administrateurs MFA AAL2 et sera intégré en interface à l'étape 89.
 
+## Intégration vérifiée dans main — 27 octobre 2026
+
+- [PR #152](https://github.com/diegosmp94/Boissy-UJ/pull/152) fusionnée, commit `2601e7148c768c85ae6ff23e5cc19592f49a13eb`.
+- **887 tests automatisés réussis** et 2 workflows GitHub Actions en succès, contrôles de navigation mobile Chromium inclus.
+- Migration complète de l'étape 88 exécutée en transaction SQL avec `ROLLBACK` et réponse `step88_rollback_complete` ; **non installée** sur la base principale.
+- Audit du Supabase principal après merge : 1 événement existant, 0 créneau, 0 événement ouvert ; aucune des tables `app_private.free_ticketing_gate`, `free_event_tickets` ou `free_event_ticket_audit` n'est présente. Pas de billets ni de réservations créés.
+- UI « Mes billets gratuits » visible en mode informatif uniquement. Les RPC de billetterie et les QR personnels ne sont pas accessibles en production, car le garde frontend `enabled:false` reste actif.
+- Le correctif final interdit aussi la réouverture de réservations via des créneaux clôturés, protège les jauges d'événements déjà pourvus de billets, et ajoute un audit privé des régénérations de QR.
+
 ## État de déploiement et validation
 
 La migration stage88 a été exécutée en transaction SQL de **contrôle avec ROLLBACK** sur le projet principal, ce qui valide la syntaxe et les dépendances sans garder aucune modification. Aucune table de billets, réservation, carte QR ou fonction de scan n'a été installée sur la base principale à ce titre.
