@@ -27,6 +27,15 @@ Le contrôle de facturation `app_private.member_has_active_premium()` réutilise
 - **Mon espace : Mes votes Awards · Premium** — affichage des catégories publiées/actuellement ouvertes et des candidatures consenties, enregistrement, modification ou retrait du vote personnel. Si le serveur indique que les votes sont verrouillés ou Premium inactif, aucun bouton ne permet de voter.
 - **Page publique Awards** — catalogue antérieur conservé. Les résultats restent invisibles tant que l'administration n'a pas clôturé, dépouillé et explicitement publié le gagnant.
 
+## Déploiement et validation vérifiés — 27 octobre 2026
+
+- [PR #158](https://github.com/diegosmp94/Boissy-UJ/pull/158) fusionnée sur `main`, commit `e3be83c905800663a649f979dc9b5e4204bc2597`.
+- **917 tests automatisés réussis** (`# pass 917`, `# fail 0`) et 2 workflows GitHub Actions validés, incluant les parcours publics et mobiles sous Chromium.
+- Migration `step91_awards_verified_voting_20261027` appliquée au Supabase principal `dahzewvbybujqhogumte` avec succès après exécution préalable intégrale en transaction `ROLLBACK`.
+- Vérification SQL post-migration : **0 catégorie, 0 nominé, 0 résultat, 0 bulletin et 0 entrée d'audit** ; `awards_voting_gate.enabled=false` ; RLS sur le verrou et les bulletins, sans `GRANT` direct anonyme ou authentifié sur les bulletins ; exécution des RPC de votes interdite aux anonymes et réservée aux comptes dont les vérifications internes aboutissent.
+- Le linter Supabase signale `INFO` pour les tables `app_private` verrouillées sans policies (intentionnel) et `WARN` pour l'exposition `SECURITY DEFINER` à `authenticated`, explicitement protégée à l'intérieur de chaque RPC ; une recette d'autorisations en situation réelle reste requise avant d'activer les votes.
+- Aucun paiement Stripe, entitlement Premium, candidat, bulletin ou gagnant n'a été créé dans ce déploiement. **L'administration du catalogue est déployée ; le vote effectif est désactivé.**
+
 ## Sécurité et homologation
 
 Les fichiers `tests/step91-awards-premium-workflow.test.mjs` contrôlent le schéma privé, les transitions, les versions optimistes, le dépouillement, l'accès Premium, l'absence d'identifiants votants dans l'interface et les gardes de navigation.
