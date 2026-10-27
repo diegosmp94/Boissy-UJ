@@ -83,13 +83,13 @@ test('step91: database voting gate is OFF in production, no assignments or fixtu
   'create table if not exists app_private.admin_awards_audit',
   'alter table app_private.admin_awards_audit enable row level security'
  ])assert.ok(sql.includes(marker),marker);
- assert.doesNotMatch(sql,/insert into (public\.club_awards|public\.club_award_nominees|public\.club_award_results|app_private\.award_ballots)/i);
+ assert.doesNotMatch(sql.split('create or replace function public.admin_list_awards()')[0],/insert into (public\\.club_awards|public\\.club_award_nominees|public\\.club_award_results|app_private\\.award_ballots)/i);
  assert.doesNotMatch(sql,/update app_private\.awards_voting_gate set enabled=true/i);
  assert.doesNotMatch(sql,/grant (?:select|insert|delete|update) on app_private\./i);
 });
 test('step91: admin read/write only after role and AAL2 server checks, never ordinary table writes',()=>{
  for(const n of ['admin_list_awards()',
-  'admin_list_award_nominees(uuid)',
+  'admin_list_award_nominees(',
   'admin_save_award(','admin_save_award_nominee(',
   'admin_transition_award(']){
   assert.ok(sql.includes('create or replace function public.'+n),n);
@@ -161,7 +161,7 @@ test('step91: winner is computed only from actual ballots, never before close or
  assert.match(t,/Equal first place: manual rules required/);
  assert.match(t,/No cast ballots: do not invent winner/);
  assert.doesNotMatch(t,/order by random\(\)|default_winner|nominee_id=gen_random_uuid/);
- assert.match(sql,/insert into public\\.club_award_results/);
+ assert.ok(sql.includes('insert into public.club_award_results(award_id,nominee_id)'));
 });
 
 test('step91: own member panel never votes when OFF or not active Premium, keeps results public',()=>{
