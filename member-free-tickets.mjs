@@ -113,17 +113,22 @@ export async function mountMemberFreeTickets(root,api,expectedUserId,alive){
    return;
   }
   try{
-   const [mine,events]=await Promise.all([
+   const [mine,events,paid]=await Promise.all([
     api.rpc('member_my_free_event_tickets'),
     api.from('club_events')
      .select('id,title,starts_at,ends_at,published,booking_kind,access_kind,priority_kind,price_cents,booking_status,capacity')
      .eq('published',true).eq('booking_kind','free')
-     .eq('access_kind','public').limit(60)
+     .eq('access_kind','public').limit(60),
+    // Optional stage-90 ledger. On earlier staging, no paid ticket can exist.
+    api.rpc('member_my_test_paid_tickets')
    ]);
    if(!current()||gen!==generation)return;
    const owned=mine.error?null:normalizeMyFreeTicketRows(mine.data);
    if(!owned||events.error||!Array.isArray(events.data))
     throw new Error('Read unavailable');
+   const paidIds=new Set(!paid.error&&Array.isArray(paid.data)
+    ?paid.data.filter(x=>x?.status==='issued'||x?.status==='reversed')
+      .map(x=>x.event_id):[]);
    const ownIds=new Set(owned.map(x=>x.event_id));
    let shown=0;
    for(const ticket of owned){
@@ -140,7 +145,8 @@ export async function mountMemberFreeTickets(root,api,expectedUserId,alive){
       if(window.confirm('Annuler définitivement ce billet gratuit ? Il ne pourra pas être réservé une deuxième fois.'))
        void perform('cancel',ticket.event_id,article);
      });
-     article.append(recover,cancel);
+     article.append(recover);
+     if(!paidIds.has(ticket.event_id))article.append(cancel);
     }
     area.append(article);shown++;
    }
