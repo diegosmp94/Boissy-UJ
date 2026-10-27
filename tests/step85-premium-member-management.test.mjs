@@ -83,7 +83,7 @@ test('step85: cancellation is at paid period end, never revokes grants',()=>{
   "p_effective_at<=clock_timestamp()",
   "p_effective_at>clock_timestamp()+interval '45 days'",
   "and plan_kind='monthly' and closed_at is null for update",
-  "p_source_reference",
+  "s.source_reference",
   'set cancel_at_period_end=true',
   "cancellation_requested_at=coalesce(cancellation_requested_at,clock_timestamp())",
   "cancellation_effective_at=p_effective_at",
