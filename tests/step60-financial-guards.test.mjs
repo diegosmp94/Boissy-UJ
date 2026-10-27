@@ -94,13 +94,17 @@ test('step 60: invoice.paid cannot grant Premium for partial payments or prorati
  }),{...opts,lines:lines(opts.monthlyPriceId)});
  assert.equal(failed.p_paid,false);
 });
-test('step 60: signed webhook refuses to acknowledge reversal and never logs PII',()=>{
+test('step 84: signed webhook acknowledges reversal only after durable TEST inbox storage and never logs PII',()=>{
  const webhook=read('supabase/functions/premium-stripe-test-webhook/index.ts');
  const shared=read('supabase/functions/_shared/stripe-test-events.mjs');
  const safety=read('supabase/functions/_shared/stripe-test-financial-guards.mjs');
  assert.match(webhook,/stripe\.webhooks\.constructEventAsync/);
  assert.match(webhook,/classifyStripeTestFinancialEvent\(event,STRIPE_TEST_EVENTS\)/);
- assert.match(webhook,/if\(safety==='financial_hold'\)return respond\('reversal_needs_reconciliation',503\)/);
+ assert.match(webhook,/if\(safety==='financial_hold'\)/);
+ assert.match(webhook,/await persistSignedTestReversal\(stripeForBilling,config,event\)/);
+ assert.match(webhook,/await persist\(config,command,'billing_record_verified_test_reversal'\)/);
+ assert.match(webhook,/return respond\('reversal_stored',200\)/);
+ assert.match(webhook,/catch\{return respond\('retry_later',503\);\}/);
  assert.match(webhook,/if\(safety==='ignore'\)return respond\('ignored',200\)/);
  assert.ok(webhook.indexOf('classifyStripeTestFinancialEvent')<webhook.indexOf('projectStripeTestEvent(event'));
  assert.doesNotMatch(webhook,/console\.(log|error)|sk_live_|rk_live_|writeFile/);

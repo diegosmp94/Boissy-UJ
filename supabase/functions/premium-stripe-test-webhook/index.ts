@@ -7,6 +7,7 @@
 import Stripe from 'npm:stripe@22.6.0';
 import {STRIPE_TEST_EVENTS,projectStripeTestEvent} from '../_shared/stripe-test-events.mjs';
 import {classifyStripeTestFinancialEvent,verifiedStripeTestProjectOrigin} from '../_shared/stripe-test-financial-guards.mjs';
+import {projectTestReversal,requirePaidInvoicePaymentIntent,projectPaidTestCharge} from '../_shared/stripe-test-reversals.mjs';
 
 function configuration(){
  const apiKey=Deno.env.get('STRIPE_TEST_RESTRICTED_KEY')||'';
@@ -34,8 +35,12 @@ const respond=(body,status)=>new Response(JSON.stringify({status:body}),{
  status,headers:{'content-type':'application/json; charset=utf-8',
   'cache-control':'no-store','x-content-type-options':'nosniff'}
 });
-async function persist(config,command){
- const url=new URL('/rest/v1/rpc/billing_apply_verified_test_event',config.projectUrl);
+async function persist(config,command,rpc='billing_apply_verified_test_event'){
+ // Only the reviewed TEST billing RPCs are available to this endpoint.
+ if(!['billing_apply_verified_test_event','billing_record_verified_test_reversal',
+   'billing_bind_verified_test_charge'].includes(rpc))
+  throw new Error('Unexpected private TEST billing RPC');
+ const url=new URL('/rest/v1/rpc/'+rpc,config.projectUrl);
  const response=await fetch(url,{
   method:'POST',headers:{apikey:config.serviceKey,
    Authorization:'Bearer '+config.serviceKey,Accept:'application/json',
@@ -44,6 +49,119 @@ async function persist(config,command){
  });
  if(!response.ok)throw new Error('The private TEST billing RPC rejected the event');
 }
+const stripeId=value=>typeof value==='string'?value:value?.id||null;
+const validStripeId=(prefix,value)=>typeof value==='string'&&
+ new RegExp('^'+prefix+'_[a-zA-Z0-9_]{6,180}
+ if(req.method!=='POST')return respond('method_not_allowed',405);
+ const length=Number(req.headers.get('content-length')||0);
+ if(!Number.isFinite(length)||length>256*1024)return respond('invalid_payload',413);
+ let config;
+ try{config=configuration();}catch{return respond('test_backend_unavailable',503);}
+ const signature=req.headers.get('stripe-signature');
+ if(!signature)return respond('signature_required',400);
+ let raw;
+ try{raw=await req.text();}catch{return respond('invalid_payload',400);}
+ if(new TextEncoder().encode(raw).length>256*1024)return respond('invalid_payload',413);
+ let event;
+ const stripe=new Stripe(config.apiKey,{apiVersion:'2026-08-26.dahlia'});
+ try{
+  // Official Stripe verifier uses the RAW body and exact endpoint secret.
+  event=await stripe.webhooks.constructEventAsync(
+   raw,signature,config.signingSecret,undefined,
+   Stripe.createSubtleCryptoProvider()
+  );
+ }catch{return respond('signature_invalid',400);}
+ if(event.livemode!==false)return respond('test_events_only',400);
+ // Signed reversals must be DURABLY stored and reconciled, even before
+ // their invoice event or Checkout binding. No silent ignoring and no 503 loop.
+ let safety;
+ try{safety=classifyStripeTestFinancialEvent(event,STRIPE_TEST_EVENTS);}
+ catch{return respond('invalid_test_event',400);}
+ const stripeForBilling=new Stripe(config.apiKey,{apiVersion:'2026-08-26.dahlia'});
+ if(safety==='financial_hold'){
+  try{
+   await persistSignedTestReversal(stripeForBilling,config,event);
+   return respond('reversal_stored',200);
+  }catch{return respond('retry_later',503);}
+ }
+ if(safety==='ignore')return respond('ignored',200);
+ try{
+  const obj=event.data.object;
+  let lines;
+  if(event.type.startsWith('checkout.session.')){
+   const items=await stripe.checkout.sessions.listLineItems(obj.id,{
+    limit:2,expand:['data.price']
+   });
+   lines=items.data;
+   if(items.has_more)throw new Error('Too many line items');
+  }else if(event.type.startsWith('invoice.')){
+   const items=await stripe.invoices.listLineItems(obj.id,{
+    limit:2,expand:['data.price']
+   });
+   lines=items.data;
+   if(items.has_more)throw new Error('Too many line items');
+  }
+  const command=projectStripeTestEvent(event,{
+   ...config,lines
+  });
+  if(!command)return respond('ignored',200);
+  // Verify charge/customer/amount before persisting the signed paid event.
+  // A retry of a partially applied event will bind the same existing grant.
+  const proof=command.p_paid
+   ?await getPaidTestChargeProof(stripeForBilling,event,command):null;
+  await persist(config,command);
+  if(proof)await persist(config,proof,'billing_bind_verified_test_charge');
+  return respond('processed',200);
+ }catch{
+  // Unknown server-side session, unordered webhooks, unavailable Stripe
+  // or DB -> retryable error. Never acknowledge billing on failed storage.
+  // Never log event payloads, PII, tokens, or API keys.
+  return respond('retry_later',503);
+ }
+});
+).test(value);
+
+/** Resolves reversals to the same authoritative charge before durable receipt.
+ * Missing links cause retries, never a false 2xx acknowledgement.
+ */
+async function persistSignedTestReversal(stripe,config,event){
+ const obj=event.data?.object;
+ let chargeId=event.type==='charge.refunded'?obj?.id:stripeId(obj?.charge);
+ if(!validStripeId('ch',chargeId)){
+  const paymentId=stripeId(obj?.payment_intent);
+  if(!validStripeId('pi',paymentId))throw new Error('Unresolved TEST reversal charge');
+  const intent=await stripe.paymentIntents.retrieve(paymentId);
+  if(intent.livemode!==false||intent.id!==paymentId)
+   throw new Error('Unverified TEST reversal PaymentIntent');
+  chargeId=stripeId(intent.latest_charge);
+ }
+ if(!validStripeId('ch',chargeId))throw new Error('Charge unavailable');
+ const charge=await stripe.charges.retrieve(chargeId);
+ const command=projectTestReversal(event,charge);
+ // Receipt is durable even if paid event arrived later; never loop 503 once queued.
+ await persist(config,command,'billing_record_verified_test_reversal');
+}
+/** Proof is fetched independently from Stripe after the signed paid event.
+ * Until this binding commits, SQL member access remains denied.
+ */
+async function getPaidTestChargeProof(stripe,event,command){
+ let piId;
+ if(event.type.startsWith('checkout.session.')){
+  piId=stripeId(event.data.object.payment_intent);
+ }else if(event.type==='invoice.paid'){
+  const payments=await stripe.invoicePayments.list({
+   invoice:event.data.object.id,limit:2
+  });
+  piId=requirePaidInvoicePaymentIntent(payments,event.data.object.id);
+ }
+ if(!validStripeId('pi',piId))throw new Error('Missing TEST payment linkage');
+ const intent=await stripe.paymentIntents.retrieve(piId);
+ const chargeId=stripeId(intent.latest_charge);
+ if(!validStripeId('ch',chargeId))throw new Error('No settled TEST charge');
+ const charge=await stripe.charges.retrieve(chargeId);
+ return projectPaidTestCharge(command,intent,charge);
+}
+
 Deno.serve(async req=>{
  if(req.method!=='POST')return respond('method_not_allowed',405);
  const length=Number(req.headers.get('content-length')||0);

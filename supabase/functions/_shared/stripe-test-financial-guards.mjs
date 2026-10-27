@@ -7,7 +7,7 @@
  * Block and retry rather than inventing a member or revoking an unrelated grant.
  */
 export const STRIPE_TEST_REVERSAL_EVENTS=Object.freeze([
- 'refund.created','refund.updated','charge.refunded','charge.refund.updated',
+ 'refund.created','refund.updated','refund.failed','charge.refunded','charge.refund.updated',
  'charge.dispute.created','charge.dispute.updated','charge.dispute.closed',
  'charge.dispute.funds_withdrawn','charge.dispute.funds_reinstated'
 ]);
