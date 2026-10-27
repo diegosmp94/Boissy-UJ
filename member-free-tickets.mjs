@@ -1,7 +1,7 @@
 /**
  * Step 88 · Own free-event reservations with locally rendered opaque QR.
  * Production is read-only and never calls ticketing RPCs.
- * No QR token in localStorage, URL, network QR APIs, analytics or console.
+ * No bearer secret persisted in browser storage, URLs, remote services or logs.
  */
 import {canUseFreeTickets} from './free-ticket-staging-config.mjs';
 const el=(tag,cls='',value=null)=>{
