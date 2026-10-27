@@ -182,7 +182,7 @@ test('stage87: admin module mounts behind MFA, preserves old free editor and req
  assert.match(editor,/Aucune réservation ouverte/);
  assert.equal(availableAdminModules(ADMIN_MODULES,{eventsReady:false})
   .some(x=>x.id==='event-rules'),false);
- assert.equal(availableAdminModules(ADMIN_MODULES,{eventsReady:true})
+ assert.equal(availableAdminModules(ADMIN_MODULES,{eventsReady:true,eventRulesReady:true})
   .some(x=>x.id==='event-rules'),true);
  assert.doesNotMatch(editor,/\.insert\(|\.delete\(|\.update\(|innerHTML\s*=/);
 });
