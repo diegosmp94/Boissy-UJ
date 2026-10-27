@@ -12,6 +12,7 @@ import {mountAdminEditorialStatus} from './admin-editorial-status.mjs';
 import {mountAdminNewsRevisions} from './admin-news-revisions.mjs';
 import {mountAdminReadiness} from './admin-readiness.mjs';
 import {mountAdminDonationCampaigns} from './admin-donation-campaigns.mjs';
+import {mountAdminAdvancedEvents} from './admin-advanced-events.mjs';
 import {mountAdminSportReview} from './admin-sport-source-review.mjs';
 import {mountAdminTicketingReadiness} from './admin-ticketing-readiness.mjs';
 import {mountAdminPlayerTeams} from './admin-player-teams.mjs';
@@ -34,6 +35,7 @@ export const ADMIN_MODULES=Object.freeze([
  {id:'matches',name:'Matchs et résultats',group:'Sport',caption:'Rencontres officielles du club'},
  {id:'sport-review',name:'Revue des sources sportives',group:'Sport',caption:'Dates, résultats externes et homologation'},
  {id:'events',name:'Événements gratuits',group:'Sport',caption:'Agenda sans billetterie ni paiements'},
+ {id:'event-rules',name:'Événements avancés',group:'Sport',caption:'Accès, jauges et plages de réservation (fermées)'},
  {id:'ticketing',name:'Préparation billetterie',group:'Sport',caption:'Jauges et contrôle des billets QR (non activé)'}, 
  {id:'editorial',name:'Suivi des publications',group:'Contenu',caption:'Contrôles réels des articles et médias'},
  {id:'news',name:'Actualités',group:'Contenu',caption:'Articles et droits de publication'},
@@ -257,6 +259,7 @@ export async function mountAdminCenter(getClient){
      if(availableModules.some(module=>module.id===next))void selectSection(next);
     }).catch(()=>showModuleRetry(view,id));break;
     case 'events':mountAdminFreeEvents(view,api,verified.userId);break;
+    case 'event-rules':void mountAdminAdvancedEvents(view,api,verified.userId).catch(()=>showModuleRetry(view,id));break;
     case 'ticketing':void mountAdminTicketingReadiness(view,api,verified.userId,next=>{
      if(availableModules.some(module=>module.id===next))void selectSection(next);
     }).catch(()=>showModuleRetry(view,id));break;
