@@ -129,8 +129,8 @@ test('stage86 staging ledger privately tracks TEST one-time and recurring donati
   assert.ok(ledger.includes('revoke all on app_private.'+table+' from public,anon,authenticated'));
  }
  assert.doesNotMatch(ledger,/grant (select|insert|update|delete) on app_private\./i);
- assert.match(ledger,/grant execute on function public\.billing_apply_verified_test_donation\([\s\S]*?\)\s+to service_role/);
- assert.doesNotMatch(ledger,/grant execute on function public\.billing_apply_verified_test_donation\([\s\S]*?\)\s+to authenticated/);
+ assert.match(ledger,/grant execute on function public\.billing_apply_verified_test_donation\([^;]*?\)\s+to service_role/);
+ assert.doesNotMatch(ledger,/grant execute on function public\.billing_apply_verified_test_donation\([^;]*?\)\s+to authenticated/);
 });
 const pi={id:'pi_intent123456',livemode:false,status:'succeeded',
  currency:'eur',customer:'cus_cust123456',amount_received:1000,
