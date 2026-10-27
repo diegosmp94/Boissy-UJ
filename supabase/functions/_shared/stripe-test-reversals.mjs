@@ -35,7 +35,7 @@ export function projectTestReversal(event,charge){
  if(event.type.startsWith('refund.')||event.type==='charge.refund.updated'){
   if(!id('re',obj.id))throw new Error('Refund ID missing');
  }else if(event.type.startsWith('charge.dispute.')){
-  if(!id('dp',obj.id))throw new Error('Dispute ID missing');
+  if(!id('du',obj.id))throw new Error('Dispute ID missing');
  }
  return {
   p_event_id:event.id,p_event_type:event.type,
