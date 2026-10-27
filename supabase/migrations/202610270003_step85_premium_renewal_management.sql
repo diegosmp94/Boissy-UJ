@@ -167,7 +167,8 @@ begin
    then 'cancel_scheduled' else 'renews' end,
   'can_cancel',not v_monthly.cancel_at_period_end,
   'monthly_paid_until',v_paid_end,
-  'annual_paid_until',v_annual_end);
+  'annual_paid_until',v_annual_end,
+  'cancellation_effective_at',v_monthly.cancellation_effective_at);
 end;
 $fn$;
 
