@@ -8,6 +8,14 @@
 
 Les créneaux et une API avancée de mise à jour cohérente de ces champs manquaient. La roadmap sépare explicitement la préparation de ces règles (étape 87) du droit **effectif** de réserver et des billets QR (étapes 88–89).
 
+## Déploiement Supabase vérifié — 27 octobre 2026
+
+- PR [#150](https://github.com/diegosmp94/Boissy-UJ/pull/150) fusionnée par squash dans `main`, commit `8de7e199327b856fcbe6adce3d903f81758ad670`. Les workflows de vérification et les tests du socle sont au vert (**873 tests**, contrôles Chromium mobile compris).
+- Migration `step87_advanced_event_booking_rules_20261027` appliquée à `dahzewvbybujqhogumte` après exécution préalable de la migration complète en transaction **ROLLBACK** de vérification.
+- Contrôle post-migration : **1 événement préexistant inchangé**, **0 créneau**, RLS actif sur la table de fenêtres et son journal d'audit ; aucune lecture directe par `anon` ou `authenticated` des fenêtres ; RPC admin refusées à `anon` ; trigger `club_event_reservation_consistency_guard` présent. Aucune table de paiement créée.
+- Vérificateur Supabase : `INFO` sans policy pour les deux tables `app_private` (fermeture volontaire du navigateur). Quatre avertissements `WARN` sur les RPC admin `SECURITY DEFINER` exposées à `authenticated` ; chacune exige en interne `auth.uid()` et `app_private.is_admin()` qui vérifie le rôle et le MFA AAL2. Ces contrôles automatiques ne remplacent pas la recette multi-comptes.
+- Aucun événement fictif, réservation, QR, paiement, droit Premium ni fenêtre n'a été inséré.
+
 ## Migration `202610270006_step87_advanced_event_booking_rules.sql`
 
 - Table privée `app_private.event_reservation_windows` : événement, ouverture/fermeture, quota, public ou Premium, statut `draft` / `scheduled` / `closed`, verrou optimiste, aucun montant ni réservation.
