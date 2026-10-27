@@ -2,6 +2,12 @@
 
 **27 octobre 2026 · catalogue public indépendant des paiements · développement du flux TEST isolé**
 
+## Déploiement vérifié sur le Supabase principal (27/10/2026)
+
+Migration **86A appliquée avec succès** dans `dahzewvbybujqhogumte`, nom d'historique `step86_public_donation_campaigns_20261027`. Contrôle SQL : table et journal privé présents, RLS actif, une politique publique SELECT limitée aux campagnes publiées, INSERT anonyme=false, UPDATE authentifié direct=false, accès anonyme au journal=false, exécution des RPC admin par anon=false. **0 campagne et 0 entrée d'audit au déploiement ; aucun contenu inventé.** Les tables financières `donation_test_checkouts` et `donation_test_receipts` sont absentes de la production.
+
+Le linter signale l'absence de politique sur le journal privé (`INFO`, volontairement inaccessible par API) et les fonctions `SECURITY DEFINER` accessibles aux membres connectés (`WARN`, elles vérifient strictement le rôle admin et MFA AAL2 à chaque appel). Aucune ouverture financière. Les vérifications CI de la PR #148 sont réussies.
+
 ## 86A — Catalogue déployable sans activité financière
 
 `supabase/migrations/202610270004_step86_public_donation_campaigns.sql` crée :
