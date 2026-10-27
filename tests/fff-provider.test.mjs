@@ -47,7 +47,7 @@ test('futsal team remains named by the site; preview supports all five team code
 test('admin preview never writes, fetches unofficial endpoints, or bypasses MFA',()=>{
  const js=read('admin-management.mjs'),css=read('admin-console.css'),adapter=read('fff-provider.mjs');
  assert.match(js,/import \{previewAuthorizedFffFeed/);
- assert.match(js,/mountFffPreview\(root,api,userId\)/);
+ assert.match(js,/mountFffPreview\(root,api,userId,\{/);
  assert.match(js,/if\(!await guarded\(api,userId\)\)/);
  assert.match(js,/Aucun accès API FFF configuré/);
  assert.match(js,/JSON\.parse\(input\.value\)/);

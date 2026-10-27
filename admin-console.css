@@ -288,3 +288,18 @@ textarea.admin-form-control{line-height:1.5;resize:vertical}
  .admin-ops-services,.admin-ops-alerts,.admin-ops-incidents{padding:12px}
  .admin-ops-incident-form{grid-template-columns:1fr}
 }
+
+
+/* Étape 96 — revue FFF sous droits vérifiés, sans publication automatique. */
+.admin-fff-preview{min-width:0;max-width:100%}
+.admin-fff-preview .admin-form-control{width:100%;max-width:100%;min-width:0}
+.admin-fff-preview .admin-form-field{max-width:100%;overflow-wrap:anywhere}
+.admin-fff-preview .admin-fff-link{display:inline-flex;align-items:center;
+ min-height:44px;text-decoration:underline;text-underline-offset:4px}
+.admin-fff-preview :where(button,summary,a,select,textarea):focus-visible{
+ outline:3px solid #f0c56e;outline-offset:3px
+}
+.admin-fff-preview button{min-height:44px;max-width:100%;white-space:normal}
+@media(max-width:760px){.admin-fff-preview textarea,.admin-fff-preview select{
+ font-size:16px;box-sizing:border-box;max-width:100%}
+ .admin-fff-preview{overflow-wrap:anywhere}}
