@@ -174,7 +174,7 @@ begin
  if not found and not exists(
    select 1 from app_private.donation_test_receipts r
    where r.source_reference=p_source_reference and r.checkout_id=p_checkout_id
-    and r.event_id=p_event_id and r.payment_intent_id=p_payment_intent_id
+    and r.payment_intent_id=p_payment_intent_id
     and r.charge_id=p_charge_id and r.amount_cents=p_amount_cents) then
   raise exception 'TEST donation payment identity conflict' using errcode='23505';
  end if;
