@@ -148,3 +148,17 @@
 @media(max-width:560px){.member-free-tickets{padding:14px}
  .member-free-ticket-item{padding:12px}
  .member-ticket-secret,.member-ticket-qr{justify-self:center}}
+
+/* Stage 90: staging-only paid ticket offers and Premium complimentary tickets. */
+.member-ticket-test{display:grid;gap:14px;margin-block:22px;padding:18px;
+ border:1px solid rgba(203,178,125,.4);border-radius:16px;
+ background:linear-gradient(145deg,rgba(11,38,71,.97),rgba(7,24,48,.92));min-width:0}
+.member-ticket-test h3{color:#f4dfad;margin:0}
+.member-ticket-test-offers{display:grid;grid-template-columns:repeat(auto-fit,
+ minmax(min(100%,260px),1fr));gap:14px}
+.member-ticket-test-card{border:1px solid rgba(255,255,255,.16);border-radius:12px;
+ padding:14px;display:grid;gap:10px;align-content:start;overflow-wrap:anywhere}
+.member-ticket-test-card .auth-text-button{min-height:44px;white-space:normal}
+.member-ticket-test-card button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+@media(max-width:560px){.member-ticket-test{padding:13px}
+ .member-ticket-test-offers{grid-template-columns:1fr}}
