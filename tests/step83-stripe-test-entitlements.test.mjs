@@ -27,7 +27,7 @@ test('step83 is explicitly staging only and integrates step82 entitlements inste
  assert.match(sql,/STAGING ISOLÉ UNIQUEMENT/);
  assert.match(sql,/202610260019_premium_server_entitlements/);
  assert.match(sql,/app_private\.premium_access_grants/);
- assert.match(sql,/source_kind,'verified_stripe_test'/);
+ assert.match(sql,/values\(v_link\.user_id,'verified_stripe_test'/);
  assert.doesNotMatch(sql,/app_private\.award_vote_entitlements/);
  assert.ok(oldSql.includes('app_private.award_vote_entitlements'),
   'the historic prototype is left for compatibility, never selected for step83');
@@ -58,7 +58,7 @@ test('registered checkout -> member binding, amount and plan exclusively come fr
   "p_checkout_id !~ '^cs_test_",
   'and u.email_confirmed_at is not null',
   'on conflict(checkout_id) do nothing',
-  'p_customer_id<>v_link.customer_id',
+  'v_link.customer_id<>p_customer_id',
   'p_price_id is distinct from v_link.price_id',
   "v_link.plan_kind='monthly'",
   'NEVER grant monthly Premium from Checkout',
