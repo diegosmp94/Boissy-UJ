@@ -272,6 +272,50 @@ begin
 end;
 $fn$;
 
+-- Global safety net: even legacy free-event editors cannot lower total quota,
+-- move the event before reservations close or bypass Premium segregation.
+-- The BEFORE UPDATE trigger executes while its row lock serializes slot saves.
+create or replace function app_private.guard_event_reservation_consistency()
+returns trigger language plpgsql security definer set search_path=''
+as $fn$
+declare
+ v_quota bigint;
+begin
+ if new.booking_status not in ('not_open','closed') then
+  raise exception 'Reservations cannot open before stage 88'
+   using errcode='42501';
+ end if;
+ if tg_op='UPDATE' then
+  select coalesce(sum(w.capacity),0) into v_quota
+    from app_private.event_reservation_windows w
+    where w.event_id=new.id and w.status<>'closed';
+  if v_quota>0 and (new.capacity is null or v_quota>new.capacity) then
+   raise exception 'Event capacity cannot undercut active slot quotas'
+    using errcode='22023';
+  end if;
+  if exists(
+   select 1 from app_private.event_reservation_windows w
+    where w.event_id=new.id and w.status<>'closed'
+    and (new.starts_at is null or w.closes_at>new.starts_at
+      or (new.access_kind='premium' and w.access_kind='public')
+      or (new.access_kind='public' and w.access_kind='premium'
+       and (new.priority_kind<>'premium'
+        or w.opens_at<new.priority_starts_at
+        or w.closes_at>new.priority_ends_at))))
+  then raise exception 'Existing slot rules prevent incompatible event edit'
+   using errcode='22023';end if;
+ end if;
+ return new;
+end;
+$fn$;
+drop trigger if exists club_event_reservation_consistency_guard
+ on public.club_events;
+create trigger club_event_reservation_consistency_guard
+ before insert or update on public.club_events
+ for each row execute function app_private.guard_event_reservation_consistency();
+revoke all on function app_private.guard_event_reservation_consistency()
+ from public,anon,authenticated;
+
 -- Intentionally NO member reservation or paid Checkout RPC in this migration.
 revoke all on function public.admin_list_advanced_events()
  from public,anon,authenticated,service_role;
