@@ -23,9 +23,13 @@ export function canShowRoleModeration(sessionUserId,verifiedUserId,roleNames,ass
   return Boolean(supabaseConfig.adminEnabled && sessionUserId && sessionUserId===verifiedUserId
     &&Array.isArray(roleNames)&&roleNames.includes('admin')&&assuranceLevel==='aal2');
 }
-export function mayDecideRequest(adminId,request){
+/** Client presentation only. Supabase enforces a single nominative allowlist
+ * and MFA AAL2 for the rare sports-only self approval exception. */
+export function mayDecideRequest(adminId,request,selfApprovalAllowed=false){
   return Boolean(adminId && request?.status==='pending' && request.user_id
-    &&request.user_id!==adminId &&['player','coach','admin'].includes(request.requested_role));
+    &&['player','coach','admin'].includes(request.requested_role)
+    &&(request.user_id!==adminId ||
+      (selfApprovalAllowed===true && ['player','coach'].includes(request.requested_role))));
 }
 export function moderateMessage(approval){
   return approval?'Approuver cette demande ? Cliquer à nouveau pour confirmer.'
@@ -114,6 +118,18 @@ export async function mountAdminRoleModeration(container,api,userId){
         const afterReadGate=await verifiedAdmin(api,userId);
         if(!isCurrent(ticket))return;
         if(!afterReadGate.authorized){lockModeration();return;}
+        // Only a server-verified AAL2 admin allowlisted for self approval may
+        // see an approval control for their own pending sports-role request.
+        // An unavailable capability fails closed, without concealing requests.
+        let selfApprovalAllowed=false;
+        try{
+          const cap=await withAuthDeadline(api.rpc('admin_can_self_approve_role_requests'));
+          if(!isCurrent(ticket))return;
+          selfApprovalAllowed=cap?.error==null && cap?.data===true;
+        }catch{
+          selfApprovalAllowed=false;
+        }
+        if(!isCurrent(ticket))return;
         const {data,error}=response||{};
         body.replaceChildren();
         if(error){
@@ -133,9 +149,12 @@ export async function mountAdminRoleModeration(container,api,userId){
         else if(request.team_id)card.append(el('p','', 'Équipe : '+request.team_id));
         card.append(el('p','admin-role-state',STATUS_LABEL[request.status]||'À vérifier'));
         if(request.status==='pending'){
-          if(request.user_id===userId){
-            card.append(el('p','auth-warning','Tu ne peux pas approuver ta propre demande.'));
+          if(request.user_id===userId && !mayDecideRequest(userId,request,selfApprovalAllowed)){
+            card.append(el('p','auth-warning','Auto-approbation indisponible pour ce compte ou ce rôle.'));
           } else {
+            const selfRequest=request.user_id===userId;
+            if(selfRequest)card.append(el('p','admin-role-state',
+              'Exception nominative : approbation sportive uniquement, avec MFA AAL2.'));
             const reasonLabel=el('label','staff-label','Motif de décision (facultatif, 300 caractères max.)');
             const reason=el('textarea','staff-input');
             reason.rows=2;reason.maxLength=300;
@@ -148,7 +167,7 @@ export async function mountAdminRoleModeration(container,api,userId){
             let selected=null;
             async function decide(approval){
               if(loading||!isCurrent(ticket)||!card.isConnected)return;
-              if(!mayDecideRequest(userId,request))return;
+              if(!mayDecideRequest(userId,request,selfApprovalAllowed) || (selfRequest&&!approval))return;
               const intent=approval?'approve':'reject';
               if(selected!==intent){
                 selected=intent;
@@ -167,7 +186,7 @@ export async function mountAdminRoleModeration(container,api,userId){
                 if(!isCurrent(ticket))return;
                 if(!gate.authorized){lockModeration();return;}
                 authorizationVerified=true;
-                // Server-side RPC rechecks role, AAL2, and rejects self-approval.
+                // Server-side RPC independently rechecks role, AAL2, own-request sports only and private allowlist.
                 const {error}=await withAuthDeadline(api.rpc('admin_decide_role_request',{
                   p_request_id:request.id,p_approve:approval,
                   p_reason:decisionReason
@@ -200,7 +219,8 @@ export async function mountAdminRoleModeration(container,api,userId){
             }
             approve.addEventListener('click',()=>void decide(true));
             reject.addEventListener('click',()=>void decide(false));
-            buttons.append(approve,reject);
+            buttons.append(approve);
+            if(!selfRequest)buttons.append(reject);
             card.append(reasonLabel,buttons,confirmation);
           }
         }
