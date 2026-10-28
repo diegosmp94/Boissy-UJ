@@ -1,7 +1,8 @@
 import { supabaseConfig } from "./auth-config.mjs";
 import {authRedirectUrl,authCallbackError,hasAuthCallback,sanitizedAuthCallbackUrl,loginSuccessMessage,validateAuthInput,isCurrentAuthForm} from "./auth-flow.mjs";
 import {mountMemberRoleRequests} from './role-workflow.mjs';
-import {mountAdminMfaSetup} from './admin-security.mjs';
+import {mountAdminMfaSetup,adminSessionStatus} from './admin-security.mjs';
+import {mfaCodeEntryOpen,mfaReturnDisposition} from './mfa-mobile-return.mjs';
 import {mountMemberSports} from './member-sports.mjs';
 import {mountMemberPremiumStatus} from './member-premium-status.mjs';
 import {mountMemberFreeTickets} from './member-free-tickets.mjs';
@@ -14,6 +15,7 @@ let clientPromise;
 let mounted = null;
 let generation = 0;
 let sessionViewGeneration = 0;
+let accountUserId = null;
 let recoveryMode = false;
 const RECOVERY_KEY = 'boissy-uj-recovery-requested';
 const getRecoveryIntent=()=>{try{return window.sessionStorage.getItem(RECOVERY_KEY)==='1';}catch{return false;}};
@@ -82,6 +84,7 @@ function alertFor(root, message, isError = false) {
 }
 
 function authCard(root, mode = "login") {
+  accountUserId=null;
   // An explicit change of account form invalidates older in-flight session reads.
   sessionViewGeneration+=1;
   root.replaceChildren();
@@ -214,6 +217,7 @@ function authCard(root, mode = "login") {
 
 function renderAuthRetry(root){
   if(!root.isConnected)return;
+  accountUserId=null;
   root.replaceChildren(el('h2','','Connexion temporairement indisponible'),
     el('p','auth-warning','Le service de compte ne répond pas. Tes informations ne sont pas modifiées.'));
   const retry=button('Réessayer','auth-submit','button');
@@ -243,6 +247,7 @@ async function showSession(root, api) {
   }
   if (!root.isConnected||view!==sessionViewGeneration) return;
   root.replaceChildren();
+  accountUserId=user.id;
   const account = el("div", "auth-signed-in");
   account.append(el("span", "tiny-label", "MON ESPACE PERSONNEL"));
   account.append(el("h2", "", profileResult.data?.display_name || "Bienvenue au club"));
@@ -323,6 +328,7 @@ export function authMarkup() {
 export async function mountAuth() {
   generation+=1;
   sessionViewGeneration+=1;
+  accountUserId=null;
   const turn=generation;
   mounted?.cleanup?.();
   if(mounted?.subscription)mounted.subscription.unsubscribe();
@@ -344,16 +350,58 @@ export async function mountAuth() {
   try{
     const api=await client();
     if(turn!==generation||!root.isConnected)return;
+    // MFA mobile: backgrounding Safari must not destroy the six-digit input.
+    // Validate the same user's role again WITHOUT replacing their in-progress form.
+    let lastMfaReturnCheck=0;
+    let mfaReturnSerial=0;
+    const verifyMfaOnReturn=async()=>{
+      if(turn!==generation||!root.isConnected||!mfaCodeEntryOpen(root))return;
+      const owner=accountUserId;
+      if(!owner)return;
+      const now=Date.now();
+      if(now-lastMfaReturnCheck<600)return;
+      lastMfaReturnCheck=now;
+      const serial=++mfaReturnSerial;
+      const state=await adminSessionStatus(api,owner);
+      if(turn!==generation||serial!==mfaReturnSerial||!root.isConnected||
+         !mfaCodeEntryOpen(root)||accountUserId!==owner)return;
+      const result=mfaReturnDisposition(state,owner);
+      if(result==='clear'){
+        // Explicit signout, changed account or removed admin role: fail closed.
+        sessionViewGeneration+=1;
+        root.replaceChildren(el('p','auth-loading','Nouvelle vérification des autorisations…'));
+        void showSession(root,api);
+      }
+      if(result==='retry'){
+        // A transient iOS network error is NOT proof of logout.
+        // Sensitive actions remain protected by getUser, role and AAL2 server checks.
+        const note=root.querySelector('[data-mfa-message]');
+        if(note){
+          note.textContent='Connexion momentanément indisponible. Le formulaire est conservé. Réessaie lorsque le réseau revient.';
+          note.dataset.error='true';
+        }
+      }
+    };
     // Abonnement AVANT getSession : PASSWORD_RECOVERY peut surgir pendant l’échange PKCE.
     const {data:{subscription}}=api.auth.onAuthStateChange((event)=>{
       if(turn!==generation||!root.isConnected)return;
       if(event==='PASSWORD_RECOVERY')recoveryMode=true;
       if(event==='SIGNED_OUT'){
+        accountUserId=null;
         recoveryMode=false;setRecoveryIntent(false);
         // Revoke previous private view reads immediately, not after setTimeout.
         sessionViewGeneration+=1;
       }
       if(!['PASSWORD_RECOVERY','SIGNED_IN','SIGNED_OUT'].includes(event))return;
+      if(event==='SIGNED_IN'&&mfaCodeEntryOpen(root)){
+        // Supabase can emit SIGNED_IN on iOS foreground/token refresh.
+        // Re-check quietly; keep the existing TOTP field instead of remounting Mon espace.
+        window.setTimeout(()=>{
+          if(turn===generation&&root.isConnected&&mfaCodeEntryOpen(root))
+            void verifyMfaOnReturn();
+        },0);
+        return;
+      }
       // Pas d'await Supabase dans le callback auth : évite un deadlock de session.
       window.setTimeout(()=>{
         if(turn!==generation||!root.isConnected)return;
@@ -371,6 +419,11 @@ export async function mountAuth() {
       const now=Date.now();
       if(now-lastResumeCheck<900)return;
       lastResumeCheck=now;
+      if(mfaCodeEntryOpen(root)){
+        // Safari -> authenticator -> Safari: non-destructive revalidation.
+        void verifyMfaOnReturn();
+        return;
+      }
       sessionViewGeneration+=1;
       root.replaceChildren(el('p','auth-loading','Actualisation sécurisée des fonctions et affectations…'));
       void showSession(root,api);
@@ -412,6 +465,7 @@ export async function mountAuth() {
 export function unmountAuth(){
   generation += 1;
   sessionViewGeneration+=1;
+  accountUserId=null;
   mounted?.cleanup?.();
   if (mounted?.subscription) mounted.subscription.unsubscribe();
   mounted = null;
