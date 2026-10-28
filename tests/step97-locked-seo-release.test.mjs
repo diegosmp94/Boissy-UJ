@@ -83,7 +83,11 @@ test('step97: accidental indexing, unsafe robots or repeated canonical fail the 
   {html:html.replace('</head>',
    '<link rel="alternate" href="https://irrelevant.example/" /></head>'),robots},
   {html:html.replace('</head>',
-   '<link rel="canonical" href="'+BOISSY_PUBLIC_URL+'" /></head>'),robots}
+   '<link rel="canonical" href="'+BOISSY_PUBLIC_URL+'" /></head>'),robots},
+  {html:html.replace('</head>',
+   "<meta content='index, follow' name='googlebot' /></head>"),robots},
+  {html:html.replace('</head>',
+   "<link href='"+BOISSY_PUBLIC_URL+"' rel='canonical' /></head>"),robots}
  ];
  for(const candidate of denied)
   assert.throws(()=>verifyLockedPublicSeo(candidate),undefined,
