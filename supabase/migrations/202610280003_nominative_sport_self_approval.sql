@@ -10,6 +10,9 @@ create table if not exists app_private.role_self_approval_allowlist (
   enabled boolean not null default true,
   enabled_at timestamptz not null default now()
 );
+-- Enforce the club's single-account requirement in PostgreSQL, not just UI.
+create unique index if not exists role_self_approval_one_account_only_idx
+  on app_private.role_self_approval_allowlist ((true));
 alter table app_private.role_self_approval_allowlist enable row level security;
 revoke all on table app_private.role_self_approval_allowlist
   from public,anon,authenticated;
