@@ -156,6 +156,7 @@ const scenarios=[
  {name:'mobile-player-preview',hash:'#/joueurs/apercu',width:390,height:844},
  {name:'mobile-matches',hash:'#/matchs',width:390,height:844},
  {name:'mobile-admin-guest',hash:'#/control-center',width:390,height:844},
+ {name:'mobile-admin-compact',hash:'#/control-center',width:320,height:760},
  {name:'mobile-privacy',hash:'#/confidentialite',width:390,height:844},
  {name:'mobile-account',hash:'#/mon-espace',width:390,height:844},
  {name:'tablet-legal',hash:'#/mentions-legales',width:768,height:980},
@@ -331,8 +332,19 @@ try{
       errors.push('Player stats incorrectly represented as real');
    }
    if(expected==='#/control-center'){
-    if(!main.querySelector('#real-admin-root'))errors.push('Protected administration guard absent');
+    const adminRoot=main.querySelector('#real-admin-root');
+    if(!adminRoot)errors.push('Protected administration guard absent');
     if(main.querySelector('.admin-module-tab'))errors.push('Guest obtained administrator navigation');
+    if(width<768&&adminRoot){
+     const header=document.querySelector('#topbar');
+     const top=adminRoot.getBoundingClientRect().top;
+     const headerBottom=header?.getBoundingClientRect().bottom;
+     // Regression from a real iPhone: the protected route does not use page-shell.
+     if(!Number.isFinite(headerBottom)||top<headerBottom-2)
+      errors.push('Admin content hidden behind fixed header');
+     if(adminRoot.getBoundingClientRect().width>availableWidth+2)
+      errors.push('Admin root overflows mobile viewport');
+    }
    }
    if(expected==='#/mon-espace'){
     if(!main.querySelector('[data-auth-root]'))errors.push('Account authentication mount absent');
