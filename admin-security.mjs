@@ -19,7 +19,10 @@ export async function adminSessionStatus(api,expectedId=null){
   api.auth.getUser(),api.auth.mfa.getAuthenticatorAssuranceLevel()
  ]));
  const user=userResult.data?.user;
- if(userResult.error||mfaResult.error||!user?.id||expectedId&&user.id!==expectedId)
+ // Unreachable auth service must not be reported as an explicit logout.
+ if(userResult.error||mfaResult.error)
+  return {status:'unverified',userId:null,level:null,roles:[]};
+ if(!user?.id||expectedId&&user.id!==expectedId)
   return {status:'signed-out',userId:null,level:null,roles:[]};
  const rolesResult=await withAuthDeadline(api.from('user_roles').select('role').eq('user_id',user.id));
  if(rolesResult.error)return {status:'unverified',userId:user.id,level:null,roles:[]};
@@ -64,6 +67,8 @@ export async function mountAdminMfaSetup(container,api,userId){
  const verify=el('button','auth-submit','Vérifier le code et ouvrir l’accès');
  verify.type='button';verify.disabled=true;
  const qrHolder=el('div','admin-mfa-qr');
+ const mobileTip=el('p','admin-mfa-mobile-tip',
+  'Sur téléphone, ouvre ton application d’authentification, relève le code, puis reviens dans Safari sans fermer cet onglet. Le formulaire restera disponible.');
  async function loadFactor(){
   if(loading)return;
   loading=true;begin.disabled=true;
@@ -112,7 +117,8 @@ export async function mountAdminMfaSetup(container,api,userId){
     status(root,'Scanne le QR dans ton application d’authentification, puis indique son code à six chiffres. Ne partage pas ce QR.');
    }
    if(root.isConnected){
-    area.append(qrHolder,inputLabel,verify);
+    area.append(qrHolder,mobileTip,inputLabel,verify);
+    root.dataset.mfaCodeReady='true';
     verify.disabled=false;begin.disabled=true;code.focus();
    }
   }catch(error){
@@ -139,6 +145,7 @@ export async function mountAdminMfaSetup(container,api,userId){
    const secured=await adminSessionStatus(api,userId);
    if(!root.isConnected)return;
    if(secured.status!=='admin')throw new Error('AAL2 not confirmed');
+   delete root.dataset.mfaCodeReady;
    qrHolder.replaceChildren();
    status(root,'Double authentification réussie : le panneau administrateur est maintenant disponible.');
    area.replaceChildren();

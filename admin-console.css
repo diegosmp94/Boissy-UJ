@@ -438,3 +438,19 @@ textarea.admin-form-control{line-height:1.5;resize:vertical}
  .real-admin-sidebar{padding:10px}
  .admin-nav-section{grid-template-columns:minmax(0,1fr)}
 }
+
+/* MFA mobile : le même formulaire doit rester lisible après un aller-retour
+ * Safari <-> application TOTP. Aucune persistance de code ou de secret. */
+.admin-mfa-mobile-tip{
+ padding:12px 14px;margin:6px 0 0;border:1px solid #a8d1ef70;
+ background:#103253;color:#e7f1fc;border-radius:10px;
+ font-size:13px;line-height:1.6;
+}
+@media(max-width:760px){
+ .admin-mfa-workflow{min-width:0;max-width:100%}
+ .admin-mfa-workflow .auth-field input{font-size:16px;max-width:100%;box-sizing:border-box}
+ .admin-mfa-workflow .auth-submit{min-height:48px;white-space:normal}
+ .admin-mfa-qr{min-width:0;max-width:100%}
+ .admin-mfa-qr img{max-width:100%;height:auto}
+ .admin-mfa-mobile-tip{font-size:14px}
+}
