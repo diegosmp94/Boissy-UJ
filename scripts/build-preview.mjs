@@ -3,6 +3,7 @@
  */
 import {access,cp,mkdir,readdir,rm,readFile,writeFile} from 'node:fs/promises';
 import {buildPublicCssBundle,findLocalStylesheets,PUBLIC_CSS_BUNDLE} from './css-bundle.mjs';
+import {LOCKED_ROBOTS_TEXT,verifyLockedPublicSeo} from './seo-release-guard.mjs';
 import {join,dirname,extname} from 'node:path';
 const project=process.cwd(),dist=join(project,'dist');
 await rm(dist,{recursive:true,force:true});
@@ -24,6 +25,9 @@ const cssSources=new Map();
 for(const name of findLocalStylesheets(originalHtml)){
  cssSources.set(name,await readFile(join(project,name),'utf8'));
 }
+verifyLockedPublicSeo({
+ html:originalHtml,robots:await readFile(join(project,'robots.txt'),'utf8')
+});
 const optimized=buildPublicCssBundle(originalHtml,cssSources);
 await writeFile(join(dist,PUBLIC_CSS_BUNDLE),optimized.css);
 await writeFile(join(dist,'index.html'),optimized.html);
@@ -32,5 +36,5 @@ console.log('Boissy-UJ: '+optimized.names.length+
 await access(join(project,'assets'));
 await cp(join(project,'assets'),join(dist,'assets'),{recursive:true});
 await writeFile(join(dist,'.nojekyll'),'');
-await writeFile(join(dist,'robots.txt'),'User-agent: *\nDisallow: /\n');
+await writeFile(join(dist,'robots.txt'),LOCKED_ROBOTS_TEXT);
 console.log('Boissy-UJ: '+copied+' root client files copied, assets included, internal folders excluded.');
