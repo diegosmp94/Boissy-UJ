@@ -11,6 +11,7 @@
     "audit:preview": "node scripts/audit-preview.mjs",
     "release:check": "npm test && npm run audit:features && npm run build:preview && npm run audit:preview",
     "smoke:browser": "node scripts/browser-smoke.mjs",
+    "smoke:maintenance": "node scripts/smoke-maintenance.mjs",
     "audit:privacy": "node scripts/privacy-inventory.mjs",
     "quality:release": "npm run release:check && npm run audit:privacy && npm run smoke:browser",
     "smoke:live": "node scripts/live-pages-smoke.mjs",
