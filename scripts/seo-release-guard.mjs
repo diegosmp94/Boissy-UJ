@@ -20,7 +20,7 @@ const required=[
  'name="twitter:title" content="Boissy-UJ — Union Jeunes"',
  'name="referrer" content="no-referrer"',
  'name="robots" content="noindex, nofollow"',
- 'rel="canonical" href="'+BOISSY_PUBLIC_URL+'"':true
+ 'rel="canonical" href="'+BOISSY_PUBLIC_URL+'"'
 ];
 const count=(source,fragment)=>source.split(fragment).length-1;
 export function verifyLockedPublicSeo({html,robots,locks=PUBLIC_RELEASE_LOCKS,
@@ -37,6 +37,22 @@ export function verifyLockedPublicSeo({html,robots,locks=PUBLIC_RELEASE_LOCKS,
  for(const fragment of required){
   if(count(html,fragment)!==1)throw Error('Missing or repeated controlled SEO metadata: '+fragment);
  }
+// Recognize both quotation styles and attribute ordering to prevent an
+// extra crawler directive or duplicate canonical from bypassing simple counts.
+const metaTags=html.match(/<meta\\b[^>]*>/gi)||[];
+const linkTags=html.match(/<link\\b[^>]*>/gi)||[];
+const getAttr=(tag,name)=>{
+ const expression=new RegExp('\\\\b'+name+'\\\\s*=\\\\s*(["\\\'])(.*?)\\\\1','i');
+ return tag.match(expression)?.[2]?.toLowerCase()??null;
+};
+const crawlerMeta=metaTags.filter(t=>['robots','googlebot','bingbot']
+ .includes(getAttr(t,'name')));
+const canonicalLinks=linkTags.filter(t=>getAttr(t,'rel')==='canonical');
+if(crawlerMeta.length!==1||getAttr(crawlerMeta[0],'name')!=='robots'||
+  getAttr(crawlerMeta[0],'content')!=='noindex, nofollow'||
+  canonicalLinks.length!==1||
+  getAttr(canonicalLinks[0],'href')!==BOISSY_PUBLIC_URL.toLowerCase())
+ throw Error('Duplicate or contradictory crawler/canonical directives');
  const title=html.match(/<title>([^<]{12,120})<\/title>/i)?.[1];
  const description=html.match(/<meta name="description" content="([^"]+)"\s*\/>/i)?.[1];
  if(!title||!description||description.length<META_DESCRIPTION_MIN||
