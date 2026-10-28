@@ -44,7 +44,7 @@ test('P1 initial preview stays out of search results until club legal sign-off',
  assert.match(html,/name="referrer" content="no-referrer"/);
  assert.match(html,/property="og:description"/);
  assert.match(html,/rel="preload" href="\.\/assets\/ecusson-boissy-uj\.webp"/);
- assert.match(release,/Disallow: \/\\n/);
+ assert.match(release,/LOCKED_ROBOTS_TEXT/);
 });
 test('P1 keyboard navigation and reduced motion are respected',()=>{
  assert.match(html,/class="skip-link" href="#main"/);
