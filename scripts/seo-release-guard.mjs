@@ -37,22 +37,22 @@ export function verifyLockedPublicSeo({html,robots,locks=PUBLIC_RELEASE_LOCKS,
  for(const fragment of required){
   if(count(html,fragment)!==1)throw Error('Missing or repeated controlled SEO metadata: '+fragment);
  }
-// Recognize both quotation styles and attribute ordering to prevent an
-// extra crawler directive or duplicate canonical from bypassing simple counts.
-const metaTags=html.match(/<meta\\b[^>]*>/gi)||[];
-const linkTags=html.match(/<link\\b[^>]*>/gi)||[];
-const getAttr=(tag,name)=>{
- const expression=new RegExp('\\\\b'+name+'\\\\s*=\\\\s*(["\\\'])(.*?)\\\\1','i');
- return tag.match(expression)?.[2]?.toLowerCase()??null;
-};
-const crawlerMeta=metaTags.filter(t=>['robots','googlebot','bingbot']
- .includes(getAttr(t,'name')));
-const canonicalLinks=linkTags.filter(t=>getAttr(t,'rel')==='canonical');
-if(crawlerMeta.length!==1||getAttr(crawlerMeta[0],'name')!=='robots'||
-  getAttr(crawlerMeta[0],'content')!=='noindex, nofollow'||
-  canonicalLinks.length!==1||
-  getAttr(canonicalLinks[0],'href')!==BOISSY_PUBLIC_URL.toLowerCase())
- throw Error('Duplicate or contradictory crawler/canonical directives');
+ // Reject extra robot/canonical tags even if their attributes use a
+ // different quotation style or order from the official static metadata.
+ const metaTags=html.match(/<meta\b[^>]*>/gi)||[];
+ const linkTags=html.match(/<link\b[^>]*>/gi)||[];
+ const getAttr=(tag,name)=>{
+  const attributes=[...tag.matchAll(/\b([a-z-]+)\s*=\s*(["'])(.*?)\2/gi)];
+  return attributes.find(m=>m[1].toLowerCase()===name)?.[3]?.toLowerCase()??null;
+ };
+ const crawlerMeta=metaTags.filter(t=>['robots','googlebot','bingbot']
+  .includes(getAttr(t,'name')));
+ const canonicalLinks=linkTags.filter(t=>getAttr(t,'rel')==='canonical');
+ if(crawlerMeta.length!==1||getAttr(crawlerMeta[0],'name')!=='robots'||
+   getAttr(crawlerMeta[0],'content')!=='noindex, nofollow'||
+   canonicalLinks.length!==1||
+   getAttr(canonicalLinks[0],'href')!==BOISSY_PUBLIC_URL.toLowerCase())
+  throw Error('Duplicate or contradictory crawler/canonical directives');
  const title=html.match(/<title>([^<]{12,120})<\/title>/i)?.[1];
  const description=html.match(/<meta name="description" content="([^"]+)"\s*\/>/i)?.[1];
  if(!title||!description||description.length<META_DESCRIPTION_MIN||
