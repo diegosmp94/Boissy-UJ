@@ -1,6 +1,7 @@
 /** Static export verification for CI, no external dependencies or network calls. */
 import {readFile,readdir,access} from 'node:fs/promises';
 import {join,resolve,dirname,extname} from 'node:path';
+import {verifyLockedPublicSeo} from './seo-release-guard.mjs';
 const root=resolve(process.cwd(),'dist');
 const exists=async p=>{try{await access(p);return true;}catch{return false;}};
 const fail=[];
@@ -28,6 +29,11 @@ for(const file of files){
   fail.push('Private credential marker in '+file);
 }
 const html=await readFile(join(root,'index.html'),'utf8');
+try{
+ verifyLockedPublicSeo({
+  html,robots:await readFile(join(root,'robots.txt'),'utf8')
+ });
+}catch{fail.push('SEO and sensitive public release locks failed');}
 for(const m of html.matchAll(/(?:src|href)=["']\.\/([^"'?#]+)[^"']*["']/g)){
  const file=decodeURIComponent(m[1]);
  if(!await exists(resolve(root,file)))fail.push('Missing HTML asset: '+file);
