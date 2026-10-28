@@ -48,8 +48,17 @@ Le Control Center, dans l'état de mise en service, présente les verrous du bui
 6. **Billetterie / Premium / Stripe** : homologation séparée sur Supabase staging distinct avec transactions simulées, tickets et QR, contrôles des remboursements, droit légal d'exercer l'activité et approbation des responsables avant toute activation LIVE.
 7. **SEO après homologation** : vérifier le nom de domaine officiel, envisager des URL publiques indexables, déclarer seulement les pages réellement publiques, adapter `robots.txt`, les metas, le sitemap et les déclarations aux moteurs. Ce sera une **nouvelle procédure de changement vérifiée**, et non un effet secondaire du déploiement technique.
 
+## 4. Validation et publication — 28 octobre 2026
+
+- [PR #170](https://github.com/diegosmp94/Boissy-UJ/pull/170) fusionnée dans `main`, commit `9a03993a4a53c3d23f1eb318f502c4d2829355d9`.
+- **962 tests automatisés réussis, aucun échec** ; les deux workflows « Tests du socle » et « Vérifications du socle » ont passé les tests Node, syntaxe, build préproduction, sécurité des ressources et parcours Chromium mobile.
+- Le pipeline [GitHub Pages](https://github.com/diegosmp94/Boissy-UJ/actions/runs/40675146918) du commit fusionné est **en succès** : construction, déploiement et contrôle de la version publique.
+- La livraison est toujours **non indexable** : `noindex, nofollow`, `robots.txt: Disallow: /`, indexation et drapeaux de fonctions sensibles désactivés dans la publication.
+- **32 étapes techniques développées sur les 32 de la roadmap (100 % du périmètre de code).** Cela ne vaut **ni recette juridique, ni attestation des autorisations FFF, ni validation de paiements réels, ni homologation sur smartphones et comptes réels**. Ces preuves restent hors du calcul du pourcentage.
+- Aucune écriture Supabase, activation Stripe LIVE, changement d'abonnement, import FFF ou consentement utilisateur n'a été effectué.
+
 ## 4. Ce que l'étape livre — et ce qu'elle ne certifie pas
 
-Le code termine la roadmap technique prévue aux étapes 66 à 97 sous réserve des tests automatiques, de la CI et du contrôle de déploiement. Le statut de conformité juridique, la disponibilité permanente, les appels FFF, les transactions réelles et la validation multi-utilisateur ne sont **pas** certifiés par ce développement.
+Le code de la roadmap technique prévue aux étapes 66 à 97 est développé, testé et publié, avec les trois validations de CI et de Pages ci-dessus. Le statut de conformité juridique, la disponibilité permanente, les appels FFF, les transactions réelles et la validation multi-utilisateur ne sont **pas** certifiés par ce développement.
 
 Aucun compte, adresse mail, preuve de paiement, objet Storage, rencontre, candidature ni résultat n'est généré ou modifié. L'environnement de production conserve ses verrous et son mode vitrine technique non indexable.
