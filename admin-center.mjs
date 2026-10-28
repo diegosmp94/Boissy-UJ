@@ -7,6 +7,7 @@ import {mountAdminRoleModeration} from './admin-role-moderation.mjs';
 import {mountAuthenticatedClubIdentityEditor} from './club-editor.mjs';
 import {mountAuthenticatedTeamPeopleEditor} from './team-person-editor.mjs';
 import {mountAdminMembers} from './admin-users.mjs';
+import {mountAdminOfficeTitles} from './admin-office-titles.mjs';
 import {mountAdminNewsMedia} from './admin-news-media.mjs';
 import {mountAdminEditorialStatus} from './admin-editorial-status.mjs';
 import {mountAdminNewsRevisions} from './admin-news-revisions.mjs';
@@ -34,6 +35,7 @@ export const ADMIN_MODULES=Object.freeze([
  {id:'privacy-rights',name:'Demandes RGPD',group:'Pilotage',caption:'Suivi sécurisé des droits, consentements et conservation'},
  {id:'operations',name:'Suivi d’exploitation',group:'Pilotage',caption:'État des services, traitements différés et incidents anonymisés'},   
  {id:'users',name:'Membres et rôles',group:'Pilotage',caption:'Consultation et retraits validés'},
+ {id:'office-titles',name:'Fonctions et titres des dirigeants',group:'Pilotage',caption:'Président, directeur sportif et intitulés nominatifs personnalisés'},
  {id:'approvals',name:'Validation des rôles',group:'Pilotage',caption:'Demandes et approbations MFA'},
  {id:'teams',name:'Effectifs publics',group:'Sport',caption:'Brouillons et publication contrôlée'},
  {id:'player-teams',name:'Affectations joueurs',group:'Sport',caption:'Rattachement sécurisé des joueurs aux équipes'},
@@ -260,6 +262,7 @@ export async function mountAdminCenter(getClient){
     case 'operations':void mountAdminOperations(view,api,verified.userId).catch(()=>showModuleRetry(view,id));break;
     case 'readiness':void mountAdminReadiness(view,api,verified.userId).catch(()=>showModuleRetry(view,id));break;
     case 'users':void mountAdminMembers(view,api,verified.userId).catch(()=>showModuleRetry(view,id));break;
+     case 'office-titles':void mountAdminOfficeTitles(view,api,verified.userId).catch(()=>showModuleRetry(view,id));break;
     case 'approvals':void mountAdminRoleModeration(view,api,verified.userId).catch(()=>showModuleRetry(view,id));break;
     case 'teams':void mountAuthenticatedTeamPeopleEditor(view,api,verified.userId).catch(()=>showModuleRetry(view,id));break;
     case 'player-teams':void mountAdminPlayerTeams(view,api,verified.userId).catch(()=>showModuleRetry(view,id));break;
