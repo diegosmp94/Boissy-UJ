@@ -8,20 +8,20 @@ import {FFF_FEED_STATUS} from '../fff-provider.mjs';
 import {FREE_TICKET_STAGING} from '../free-ticket-staging-config.mjs';
 export const LOCKED_ROBOTS_TEXT='User-agent: *\nDisallow: /\n';
 const META_DESCRIPTION_MIN=65;
-const required={
- 'property="og:type" content="website"':true,
- 'property="og:site_name" content="Boissy-UJ"':true,
- 'property="og:locale" content="fr_FR"':true,
- 'property="og:title" content="Boissy-UJ — Union Jeunes"':true,
- 'property="og:url" content="'+BOISSY_PUBLIC_URL+'"':true,
- 'property="og:image" content="'+BOISSY_PUBLIC_URL+'assets/ecusson-boissy-uj.webp"':true,
- 'property="og:image:alt" content="Écusson du club Boissy-UJ"':true,
- 'name="twitter:card" content="summary"':true,
- 'name="twitter:title" content="Boissy-UJ — Union Jeunes"':true,
- 'name="referrer" content="no-referrer"':true,
- 'name="robots" content="noindex, nofollow"':true,
+const required=[
+ 'property="og:type" content="website"',
+ 'property="og:site_name" content="Boissy-UJ"',
+ 'property="og:locale" content="fr_FR"',
+ 'property="og:title" content="Boissy-UJ — Union Jeunes"',
+ 'property="og:url" content="'+BOISSY_PUBLIC_URL+'"',
+ 'property="og:image" content="'+BOISSY_PUBLIC_URL+'assets/ecusson-boissy-uj.webp"',
+ 'property="og:image:alt" content="Écusson du club Boissy-UJ"',
+ 'name="twitter:card" content="summary"',
+ 'name="twitter:title" content="Boissy-UJ — Union Jeunes"',
+ 'name="referrer" content="no-referrer"',
+ 'name="robots" content="noindex, nofollow"',
  'rel="canonical" href="'+BOISSY_PUBLIC_URL+'"':true
-};
+];
 const count=(source,fragment)=>source.split(fragment).length-1;
 export function verifyLockedPublicSeo({html,robots,locks=PUBLIC_RELEASE_LOCKS,
  feedStatus=FFF_FEED_STATUS,ticketConfig=FREE_TICKET_STAGING}={}){
@@ -34,7 +34,7 @@ export function verifyLockedPublicSeo({html,robots,locks=PUBLIC_RELEASE_LOCKS,
   throw Error('Sensitive production release flag cannot be enabled by Pages build');
  if(feedStatus!=='access-not-granted'||ticketConfig?.enabled!==false)
   throw Error('FFF or ticketing gate unexpectedly enabled on public Pages');
- for(const fragment of Object.keys(required)){
+ for(const fragment of required){
   if(count(html,fragment)!==1)throw Error('Missing or repeated controlled SEO metadata: '+fragment);
  }
  const title=html.match(/<title>([^<]{12,120})<\/title>/i)?.[1];
