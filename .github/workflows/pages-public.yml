@@ -26,7 +26,11 @@ jobs:
           node --check app.js
           npm run release:check
           npm run audit:privacy
-          npm run smoke:browser
+          if node --input-type=module -e "import {SITE_MAINTENANCE} from './site-maintenance-config.mjs'; process.exit(SITE_MAINTENANCE.enabled ? 0 : 1)"; then
+            npm run smoke:maintenance
+          else
+            npm run smoke:browser
+          fi
       - name: Marquer la version exacte du site
         env:
           BOISSY_RELEASE_SHA: ${{ github.sha }}

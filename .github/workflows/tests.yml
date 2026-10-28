@@ -36,7 +36,12 @@ jobs:
       - name: Inventorier le stockage navigateur et les domaines tiers
         run: npm run audit:privacy
       - name: Tester dans Chromium les routes publiques et écrans mobiles
-        run: npm run smoke:browser
+        run: |
+          if node --input-type=module -e "import {SITE_MAINTENANCE} from './site-maintenance-config.mjs'; process.exit(SITE_MAINTENANCE.enabled ? 0 : 1)"; then
+            npm run smoke:maintenance
+          else
+            npm run smoke:browser
+          fi
       - name: Conserver les captures et rapports de recette
         if: always()
         uses: actions/upload-artifact@v4

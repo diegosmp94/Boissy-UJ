@@ -1,0 +1,50 @@
+name: Activer ou désactiver la maintenance Boissy-UJ
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Afficher ou masquer la page de maintenance"
+        required: true
+        type: choice
+        options:
+          - activer
+          - desactiver
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: boissy-maintenance-toggle
+  cancel-in-progress: false
+jobs:
+  switch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Récupérer la branche publique
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Installer Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Valider et modifier le seul interrupteur de maintenance
+        env:
+          BOISSY_MAINTENANCE_ACTION: ${{ inputs.mode }}
+        run: node scripts/set-maintenance-mode.mjs
+      - name: Enregistrer l'état sur main
+        run: |
+          if ! git diff --quiet -- site-maintenance-config.mjs; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add site-maintenance-config.mjs
+            git commit -m "chore(maintenance): ${{ inputs.mode }}"
+            git push origin HEAD:main
+          else
+            echo "Le mode demandé est déjà enregistré."
+          fi
+      - name: Relancer la publication GitHub Pages sur main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages-public.yml --ref main

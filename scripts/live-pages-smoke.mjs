@@ -1,5 +1,6 @@
 import {checkPublicSiteBase,inspectPublicAsset} from './public-live-validator.mjs';
 import {mkdir,writeFile} from 'node:fs/promises';
+import {SITE_MAINTENANCE} from '../site-maintenance-config.mjs';
 import {resolve,join} from 'node:path';
 /** Read-only smoke of the actually published GitHub Pages site.
  * Explicit/manual run only: publication may lag main and can be unreachable.
@@ -27,6 +28,11 @@ const assets=[
  {name:'Prochain match',file:'home-next-match.mjs',type:'script',expected:['nextUpcomingMatch','mountHomeNextMatch']},
  {name:'Style Premium',file:'premium-front.css',type:'css',expected:['premium-comparison']}
 ];
+assets.push(
+ {name:'Mode maintenance publié',file:'site-maintenance-config.mjs',type:'script',expected:['enabled:'+SITE_MAINTENANCE.enabled]},
+ {name:'Portail de maintenance',file:'site-entry.mjs',type:'script',expected:['./maintenance.html','./app.js']},
+ {name:'Page de maintenance',file:'maintenance.html',type:'html',expected:['Site en maintenance','name="robots" content="noindex, nofollow"']}
+);
 const expectedCommit=String(process.env.BOISSY_EXPECTED_COMMIT||'');
 if(expectedCommit&&!/^[0-9a-f]{40}$/.test(expectedCommit))
  throw new Error('Expected deployed commit must be a complete Git SHA.');
