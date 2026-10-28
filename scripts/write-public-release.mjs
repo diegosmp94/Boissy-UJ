@@ -2,6 +2,7 @@
 import {writeFile,readFile,access} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {resolve} from 'node:path';
+import {verifyLockedPublicSeo} from './seo-release-guard.mjs';
 const commit=/^[0-9a-f]{40}$/;
 export function publicReleaseRecord(sha){
  if(typeof sha!=='string'||!commit.test(sha))
@@ -10,7 +11,11 @@ export function publicReleaseRecord(sha){
 }
 async function main(){
  const root=resolve(process.cwd(),'dist');
- await Promise.all([access(resolve(root,'index.html')),readFile(resolve(root,'index.html'),'utf8')]);
+ const [html,robots]=await Promise.all([
+  readFile(resolve(root,'index.html'),'utf8'),
+  readFile(resolve(root,'robots.txt'),'utf8')
+ ]);
+ verifyLockedPublicSeo({html,robots});
  const record=publicReleaseRecord(process.env.BOISSY_RELEASE_SHA);
  await writeFile(resolve(root,'release.json'),JSON.stringify(record)+'\n',{flag:'w'});
  console.log('Public release manifest generated for commit '+record.commit.slice(0,12)+'.');

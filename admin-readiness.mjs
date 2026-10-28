@@ -4,6 +4,7 @@
  */
 import {adminSessionStatus} from './admin-security.mjs';
 import {remainingWorkstreams,workstreamCounts} from './open-workstreams.mjs';
+import {PUBLIC_RELEASE_LOCKS,PUBLIC_RELEASE_MODE} from './public-release-locks.mjs';
 
 export const READINESS_CHECKS=Object.freeze([
  {id:'teams',title:'Catalogue des cinq équipes',group:'Sport',detail:'Les équipes sont consultables dans Supabase.'},
@@ -102,7 +103,24 @@ export async function mountAdminReadiness(root,api,userId){
  pendingSummary.setAttribute('role','status');
  const pendingList=el('div','admin-active-chantiers');
  gates.append(pendingSummary,pendingList);
- root.append(explanation,run,gates,results);
+ const releaseStatus=el('section','admin-readiness-gates');
+ releaseStatus.append(el('h3','','Préparation SEO et verrous de publication'));
+ releaseStatus.append(el('p','admin-fff-info',
+  'Le site public reste non indexable. Ces indicateurs sont des verrous de compilation, PAS une confirmation des autorisations Supabase, Stripe ou FFF.'));
+ const releaseList=el('ul','admin-readiness-list');
+ const previewMode=PUBLIC_RELEASE_MODE==='technical-preview-noindex';
+ const launchFlags=Object.entries(PUBLIC_RELEASE_LOCKS);
+ releaseList.append(el('li','admin-readiness-item',
+  'Indexation du site : '+(previewMode&&!PUBLIC_RELEASE_LOCKS.indexing?
+   'désactivée (robots.txt et noindex)':'configuration à vérifier')));
+ for(const [name,enabled] of launchFlags){
+  if(name==='indexing')continue;
+  releaseList.append(el('li','admin-readiness-item',
+   name+' : '+(enabled?'ATTENTION — nécessite une nouvelle homologation':
+    'verrouillé dans le build public')));
+ }
+ releaseStatus.append(releaseList);
+ root.append(explanation,releaseStatus,run,gates,results);
  let loading=false,revision=0;
  const refresh=async()=>{
   if(loading||!root.isConnected)return;
