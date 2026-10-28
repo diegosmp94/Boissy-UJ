@@ -44,6 +44,7 @@ test('exception is a private per-account whitelist with no initial user and no c
  assert.match(sql,/create table if not exists app_private\.role_self_approval_allowlist/);
  assert.match(sql,/user_id uuid primary key references auth\.users\(id\)/);
  assert.match(sql,/alter table app_private\.role_self_approval_allowlist enable row level security/);
+ assert.match(sql,/create unique index if not exists role_self_approval_one_account_only_idx/);
  assert.match(sql,/revoke all on table app_private\.role_self_approval_allowlist[\s\S]*?from public,anon,authenticated/);
  assert.doesNotMatch(sql,/insert into app_private\.role_self_approval_allowlist/);
  assert.match(sql,/insert into public\.user_roles\(user_id,role,granted_by\)/);

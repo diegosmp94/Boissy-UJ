@@ -4,7 +4,7 @@
 Conserver l'interdiction générale d'approuver ses propres demandes, sauf pour **un seul compte administrateur expressément autorisé**. L'exception ne concerne que les rôles **Joueur** et **Entraîneur** et nécessite une session administrateur **MFA AAL2**.
 
 ## Sécurité
-- Le code de la migration ne contient aucun identifiant de compte : la désignation du compte est conservée dans une table privée Supabase, sans accès direct pour les clients du site.
+- Le code de la migration ne contient aucun identifiant de compte : la désignation du compte est conservée dans une table privée Supabase, sans accès direct pour les clients du site. Un index unique impose qu'un seul compte puisse figurer dans cette liste.
 - La RPC de décision utilise `auth.uid()`, revalide `app_private.is_admin()`, verrouille la demande en attente et vérifie la liste nominative privée.
 - L'auto-attribution d'**Administrateur** demeure interdite. Les refus de ses propres demandes ne sont pas autorisés.
 - La contrainte historique `never_self_review` reste inchangée. Une auto-approbation sportive autorisée utilise la colonne `self_approved_by` et l'audit privé `role_change_audit`, avec le membre authentifié comme acteur réel.
