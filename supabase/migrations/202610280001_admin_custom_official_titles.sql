@@ -200,6 +200,35 @@ begin
 end;
 $fn$;
 
+-- When the underlying technical admin role is revoked, remove its independent
+-- nominative titles. Old appointments may never silently return on re-approval.
+create or replace function app_private.club_office_remove_revoked_admin()
+returns trigger
+language plpgsql security definer set search_path=''
+as $fn$
+declare v_title uuid;
+begin
+ if old.role='admin' then
+  for v_title in
+    delete from app_private.club_office_assignments
+    where user_id=old.user_id returning title_id
+  loop
+    insert into app_private.club_office_audit
+      (actor_id,subject_id,title_id,event,after_state)
+    values ((select auth.uid()),old.user_id,v_title,'remove',
+       jsonb_build_object('reason','technical_admin_role_revoked'));
+  end loop;
+ end if;
+ return old;
+end;
+$fn$;
+drop trigger if exists club_office_remove_revoked_admin_trigger on public.user_roles;
+create trigger club_office_remove_revoked_admin_trigger
+ after delete on public.user_roles for each row
+ execute function app_private.club_office_remove_revoked_admin();
+revoke all on function app_private.club_office_remove_revoked_admin()
+ from public,anon,authenticated,service_role;
+
 -- A person may see their own non-sensitive labels without an admin directory.
 create or replace function public.member_my_official_titles()
 returns table(title_label text)
