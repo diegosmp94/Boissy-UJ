@@ -121,7 +121,7 @@ export async function mountMemberRoleRequests(container,api,userId){
   const section=elem('section','member-role-requests');
   section.append(elem('h3','','Demander un rôle supplémentaire'));
   const info=elem('p','auth-footnote',
-    'Chaque rôle ou affectation entraîneur nécessite une validation d’un administrateur différent avec MFA. Une demande en attente ne donne aucun droit.');
+    'Chaque rôle nécessite normalement la validation d’un autre administrateur avec MFA. Une exception nominative peut permettre l’approbation de ses propres demandes sportives avec MFA ; jamais du rôle Administrateur. Une demande en attente ne donne aucun droit.');
   section.append(info);
   const form=elem('form','staff-form');
   const roleLabel=elem('label','staff-label','Fonction demandée');
