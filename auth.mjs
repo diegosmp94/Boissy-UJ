@@ -250,6 +250,25 @@ async function showSession(root, api) {
   const roles = rolesResult.error ? [] : (rolesResult.data || []).map(x => x.role);
   const roleNames = { supporter: "Supporter", player: "Joueur", coach: "Éducateur", admin: "Administrateur" };
   account.append(el("p", "auth-role-summary", "Rôles : " + (roles.length ? roles.map(x => roleNames[x] || x).join(", ") : "Aucun rôle vérifié")));
+  // Non-privileged nominative club labels visible only to their own account.
+  // Office titles are display metadata: not security roles or RLS permissions.
+  if(roles.includes("admin")){
+    const officeLine=el("p","auth-role-summary","Chargement de mes fonctions au club…");
+    account.append(officeLine);
+    void api.rpc('member_my_official_titles').then(result=>{
+      if(!account.isConnected||view!==sessionViewGeneration)return;
+      if(result.error||!Array.isArray(result.data)){
+        officeLine.textContent="Fonctions nominatives : consultation indisponible.";
+        return;
+      }
+      const labels=result.data.map(r=>r.title_label).filter(x=>typeof x==='string'&&x.length>0);
+      officeLine.textContent=labels.length?"Mes fonctions au club : "+labels.join(" · "):
+        "Aucune fonction nominative attribuée actuellement.";
+    }).catch(()=>{
+      if(account.isConnected&&view===sessionViewGeneration)
+        officeLine.textContent="Fonctions nominatives : consultation indisponible.";
+    });
+  }
   if (profileResult.error || rolesResult.error) account.append(el("p", "auth-warning", "Impossible de vérifier toutes les informations du profil pour le moment."));
   if (roles.includes("admin")) account.append(el("p", "auth-warning",
     supabaseConfig.adminEnabled

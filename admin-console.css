@@ -303,3 +303,29 @@ textarea.admin-form-control{line-height:1.5;resize:vertical}
 @media(max-width:760px){.admin-fff-preview textarea,.admin-fff-preview select{
  font-size:16px;box-sizing:border-box;max-width:100%}
  .admin-fff-preview{overflow-wrap:anywhere}}
+
+
+/* Fonctions nominatives privées des administrateurs (sans droits techniques). */
+.admin-office-title-list{display:grid;gap:14px;min-width:0;margin-top:14px}
+.admin-office-title-list>.admin-member-card{display:grid;gap:10px;min-width:0;
+ background:linear-gradient(135deg,#102e52,#081d39);border:1px solid #94b4d66b;
+ border-radius:14px;padding:clamp(13px,2.5vw,20px)}
+.admin-office-title-list>.admin-member-card>strong{font-weight:850;font-size:18px;
+ color:#f5dbad;overflow-wrap:anywhere}
+.admin-office-title-list>.admin-member-card>small{color:#c4d8ed}
+.admin-office-holder{display:flex;justify-content:space-between;align-items:center;
+ flex-wrap:wrap;gap:10px;border-top:1px solid #8cb4d048;padding-top:12px}
+.admin-office-holder span{font-weight:750;color:#f3f6fb;overflow-wrap:anywhere}
+.admin-office-holder small{color:#b8cde1}
+.admin-office-holder button{min-height:42px;white-space:normal}
+.admin-operation-form{max-width:100%;min-width:0}
+.admin-operation-form :where(input,select){max-width:100%;min-width:0}
+.admin-operation-form :where(button,input,select):focus-visible,
+.admin-office-holder button:focus-visible{outline:3px solid #f0c56e;outline-offset:3px}
+@media(max-width:620px){
+ .admin-office-title-list>.admin-member-card{padding:14px}
+ .admin-office-holder{display:grid;grid-template-columns:1fr}
+ .admin-office-holder button{width:100%}
+ .admin-operation-form input:not([type=checkbox]),
+ .admin-operation-form select{font-size:16px}
+}
