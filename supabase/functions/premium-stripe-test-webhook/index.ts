@@ -51,75 +51,7 @@ async function persist(config,command,rpc='billing_apply_verified_test_event'){
 }
 const stripeId=value=>typeof value==='string'?value:value?.id||null;
 const validStripeId=(prefix,value)=>typeof value==='string'&&
- new RegExp('^'+prefix+'_[a-zA-Z0-9_]{6,180}
- if(req.method!=='POST')return respond('method_not_allowed',405);
- const length=Number(req.headers.get('content-length')||0);
- if(!Number.isFinite(length)||length>256*1024)return respond('invalid_payload',413);
- let config;
- try{config=configuration();}catch{return respond('test_backend_unavailable',503);}
- const signature=req.headers.get('stripe-signature');
- if(!signature)return respond('signature_required',400);
- let raw;
- try{raw=await req.text();}catch{return respond('invalid_payload',400);}
- if(new TextEncoder().encode(raw).length>256*1024)return respond('invalid_payload',413);
- let event;
- const stripe=new Stripe(config.apiKey,{apiVersion:'2026-08-26.dahlia'});
- try{
-  // Official Stripe verifier uses the RAW body and exact endpoint secret.
-  event=await stripe.webhooks.constructEventAsync(
-   raw,signature,config.signingSecret,undefined,
-   Stripe.createSubtleCryptoProvider()
-  );
- }catch{return respond('signature_invalid',400);}
- if(event.livemode!==false)return respond('test_events_only',400);
- // Signed reversals must be DURABLY stored and reconciled, even before
- // their invoice event or Checkout binding. No silent ignoring and no 503 loop.
- let safety;
- try{safety=classifyStripeTestFinancialEvent(event,STRIPE_TEST_EVENTS);}
- catch{return respond('invalid_test_event',400);}
- const stripeForBilling=new Stripe(config.apiKey,{apiVersion:'2026-08-26.dahlia'});
- if(safety==='financial_hold'){
-  try{
-   await persistSignedTestReversal(stripeForBilling,config,event);
-   return respond('reversal_stored',200);
-  }catch{return respond('retry_later',503);}
- }
- if(safety==='ignore')return respond('ignored',200);
- try{
-  const obj=event.data.object;
-  let lines;
-  if(event.type.startsWith('checkout.session.')){
-   const items=await stripe.checkout.sessions.listLineItems(obj.id,{
-    limit:2,expand:['data.price']
-   });
-   lines=items.data;
-   if(items.has_more)throw new Error('Too many line items');
-  }else if(event.type.startsWith('invoice.')){
-   const items=await stripe.invoices.listLineItems(obj.id,{
-    limit:2,expand:['data.price']
-   });
-   lines=items.data;
-   if(items.has_more)throw new Error('Too many line items');
-  }
-  const command=projectStripeTestEvent(event,{
-   ...config,lines
-  });
-  if(!command)return respond('ignored',200);
-  // Verify charge/customer/amount before persisting the signed paid event.
-  // A retry of a partially applied event will bind the same existing grant.
-  const proof=command.p_paid
-   ?await getPaidTestChargeProof(stripeForBilling,event,command):null;
-  await persist(config,command);
-  if(proof)await persist(config,proof,'billing_bind_verified_test_charge');
-  return respond('processed',200);
- }catch{
-  // Unknown server-side session, unordered webhooks, unavailable Stripe
-  // or DB -> retryable error. Never acknowledge billing on failed storage.
-  // Never log event payloads, PII, tokens, or API keys.
-  return respond('retry_later',503);
- }
-});
-).test(value);
+ new RegExp('^'+prefix+'_[a-zA-Z0-9_]{6,180}$').test(value);
 
 /** Resolves reversals to the same authoritative charge before durable receipt.
  * Missing links cause retries, never a false 2xx acknowledgement.
@@ -183,13 +115,18 @@ Deno.serve(async req=>{
   );
  }catch{return respond('signature_invalid',400);}
  if(event.livemode!==false)return respond('test_events_only',400);
- // Reversals/chargebacks are intentionally NOT acknowledged as ignored.
- // No safe Stripe payment -> exact membership binding exists for them yet.
- // This is a retryable hold in Stripe TEST, not a completed reconciliation.
+ // Signed reversals must be DURABLY stored and reconciled, even before
+ // their invoice event or Checkout binding. No silent ignoring and no 503 loop.
  let safety;
  try{safety=classifyStripeTestFinancialEvent(event,STRIPE_TEST_EVENTS);}
  catch{return respond('invalid_test_event',400);}
- if(safety==='financial_hold')return respond('reversal_needs_reconciliation',503);
+ const stripeForBilling=new Stripe(config.apiKey,{apiVersion:'2026-08-26.dahlia'});
+ if(safety==='financial_hold'){
+  try{
+   await persistSignedTestReversal(stripeForBilling,config,event);
+   return respond('reversal_stored',200);
+  }catch{return respond('retry_later',503);}
+ }
  if(safety==='ignore')return respond('ignored',200);
  try{
   const obj=event.data.object;
@@ -211,7 +148,12 @@ Deno.serve(async req=>{
    ...config,lines
   });
   if(!command)return respond('ignored',200);
+  // Verify charge/customer/amount before persisting the signed paid event.
+  // A retry of a partially applied event will bind the same existing grant.
+  const proof=command.p_paid
+   ?await getPaidTestChargeProof(stripeForBilling,event,command):null;
   await persist(config,command);
+  if(proof)await persist(config,proof,'billing_bind_verified_test_charge');
   return respond('processed',200);
  }catch{
   // Unknown server-side session, unordered webhooks, unavailable Stripe
