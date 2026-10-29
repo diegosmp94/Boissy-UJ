@@ -12,6 +12,7 @@ on:
 permissions:
   contents: write
   actions: write
+  pull-requests: write
 concurrency:
   group: boissy-maintenance-toggle
   cancel-in-progress: false
@@ -42,18 +43,46 @@ jobs:
             echo "Refus : fichiers modifiés ou ajoutés hors de site-maintenance-config.mjs." >&2
             exit 1
           fi
-      - name: Enregistrer l'état sur main
+      - name: Publier directement ou proposer une PR si main est protégée
+        id: toggle
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BOISSY_MAINTENANCE_ACTION: ${{ inputs.mode }}
         run: |
-          if ! git diff --quiet -- site-maintenance-config.mjs; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add site-maintenance-config.mjs
-            git commit -m "chore(maintenance): ${{ inputs.mode }}"
-            git push origin HEAD:main
-          else
+          echo "published=false" >> "$GITHUB_OUTPUT"
+          if git diff --quiet -- site-maintenance-config.mjs; then
             echo "Le mode demandé est déjà enregistré."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site-maintenance-config.mjs
+          git commit -m "chore(maintenance): $BOISSY_MAINTENANCE_ACTION"
+          if git push origin HEAD:main; then
+            echo "published=true" >> "$GITHUB_OUTPUT"
+            echo "Mode de maintenance publié sur main." >> "$GITHUB_STEP_SUMMARY"
+          else
+            # Ne contourne jamais une règle GitHub de protection de main.
+            proposal="maintenance/toggle-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+            git push origin HEAD:"refs/heads/$proposal"
+            echo "Push direct refusé. Création d'une PR soumise aux règles de main." >> "$GITHUB_STEP_SUMMARY"
+            if pr_url="$(gh pr create --base main --head "$proposal" \
+              --title "chore(maintenance): $BOISSY_MAINTENANCE_ACTION" \
+              --body "Proposition de changement du seul site-maintenance-config.mjs. Fusion après contrôles CI et approbation. La maintenance publique reste inchangée jusqu'à la fusion.")"; then
+              echo "Proposition : $pr_url" >> "$GITHUB_STEP_SUMMARY"
+              # Un pull_request créé par GITHUB_TOKEN peut nécessiter une approbation.
+              # workflow_dispatch déclenche les vérifications sans contourner la PR.
+              gh workflow run tests.yml --ref "$proposal"
+              gh workflow run quality.yml --ref "$proposal"
+            else
+              echo "PR non créée. Branche conservée : $proposal." >> "$GITHUB_STEP_SUMMARY"
+              echo "Vérifier Settings > Actions > General > Allow GitHub Actions to create and approve pull requests, puis ouvrir une PR manuellement." >> "$GITHUB_STEP_SUMMARY"
+              exit 1
+            fi
           fi
       - name: Relancer la publication GitHub Pages sur main
+        if: steps.toggle.outputs.published == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run pages-public.yml --ref main
