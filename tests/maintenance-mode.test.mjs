@@ -52,3 +52,21 @@ test('maintenance: manual GitHub control republishes Pages',()=>{
   assert.match(source,/npm run smoke:browser/);
  }
 });
+
+test('maintenance: protected main falls back to a reviewed PR without premature deployment',()=>{
+ const yaml=read('.github/workflows/maintenance-mode.yml');
+ assert.match(yaml,/pull-requests: write/);
+ assert.match(yaml,/if git push origin HEAD:main; then/);
+ assert.match(yaml,/git push origin HEAD:"refs\/heads\/\$proposal"/);
+ assert.match(yaml,/gh pr create --base main --head "\$proposal"/);
+ assert.match(yaml,/gh workflow run tests\.yml --ref "\$proposal"/);
+ assert.match(yaml,/gh workflow run quality\.yml --ref "\$proposal"/);
+ assert.match(yaml,/if: steps\.toggle\.outputs\.published == 'true'/);
+ assert.match(yaml,/GH_TOKEN: \$\{\{ github\.token \}\}/);
+ assert.match(yaml,/PR non créée\. Branche conservée/);
+ for (const path of ['.github/workflows/tests.yml','.github/workflows/quality.yml']) {
+   const check=read(path);
+   assert.match(check,/^\s+workflow_dispatch:/m, path+' must allow dispatch on the maintenance branch');
+   assert.match(check,/pull_request:/, path+' must retain pull-request checks');
+ }
+});
