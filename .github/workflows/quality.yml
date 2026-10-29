@@ -1,5 +1,6 @@
 name: Vérifications du socle Boissy-UJ
 on:
+  workflow_dispatch:
   push:
     branches: [main, feat/fondations-site-v1]
   pull_request:
