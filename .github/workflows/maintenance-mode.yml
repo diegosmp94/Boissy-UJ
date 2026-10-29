@@ -17,6 +17,8 @@ concurrency:
   cancel-in-progress: false
 jobs:
   switch:
+    # Seul le propriétaire peut basculer l'état public; les autres déclenchements sont ignorés.
+    if: github.actor == github.repository_owner && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 6
     steps:
@@ -33,6 +35,13 @@ jobs:
         env:
           BOISSY_MAINTENANCE_ACTION: ${{ inputs.mode }}
         run: node scripts/set-maintenance-mode.mjs
+      - name: Refuser toute modification hors de l'interrupteur
+        run: |
+          changed="$(git status --porcelain --untracked-files=all)"
+          if [ -n "$changed" ] && [ "$changed" != " M site-maintenance-config.mjs" ]; then
+            echo "Refus : fichiers modifiés ou ajoutés hors de site-maintenance-config.mjs." >&2
+            exit 1
+          fi
       - name: Enregistrer l'état sur main
         run: |
           if ! git diff --quiet -- site-maintenance-config.mjs; then
