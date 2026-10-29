@@ -39,6 +39,10 @@ test('maintenance: manual GitHub control republishes Pages',()=>{
  assert.match(yaml,/workflow_dispatch:/);
  assert.match(yaml,/- activer\s+- desactiver/);
  assert.match(yaml,/contents: write/);
+ assert.match(yaml,/github\.actor == github\.repository_owner/);
+ assert.match(yaml,/github\.ref == 'refs\/heads\/main'/);
+ assert.match(yaml,/git status --porcelain --untracked-files=all/);
+ assert.match(yaml,/\[ \"\$changed\" != \" M site-maintenance-config\.mjs\" \]/);
  assert.match(yaml,/actions: write/);
  assert.match(yaml,/git push origin HEAD:main/);
  assert.match(yaml,/gh workflow run pages-public\.yml --ref main/);
