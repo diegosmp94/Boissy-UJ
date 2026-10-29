@@ -1,5 +1,6 @@
 name: Tests du socle Boissy-UJ
 on:
+  workflow_dispatch:
   push:
     branches:
       - "feat/**"
