@@ -1,4 +1,5 @@
 import {checkPublicSiteBase,inspectPublicAsset} from './public-live-validator.mjs';
+import {summarizePublicSecurityHeaders} from './public-security-headers.mjs';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {SITE_MAINTENANCE} from '../site-maintenance-config.mjs';
 import {resolve,join} from 'node:path';
@@ -47,6 +48,7 @@ assets.push({
 });
 let failed=0;
 const results=[];
+let publicHeaderAudit=null;
 for(const asset of assets){
  const url=new URL(asset.file,base);
  try{
@@ -59,6 +61,8 @@ for(const asset of assets){
    responseUrl:response.url,mime:response.headers.get('content-type'),
    body:data,expectedCommit
   });
+  // Only booleans are retained: never collect Set-Cookie or other header values.
+  if(asset.file==='')publicHeaderAudit=summarizePublicSecurityHeaders(response.headers);
   // A manual read without BOISSY_EXPECTED_COMMIT proves only a published
   // main-shaped manifest, not equality with the latest main branch.
   if(asset.file==='release.json'&&!inspected.mainMatched)
@@ -79,6 +83,7 @@ await writeFile(join(artifactDir,'live-public-report.json'),JSON.stringify({
  scope:'anonymous public HTTP only',
  commitExpected:expectedCommit||null,
  mainRevisionVerified:failed===0&&Boolean(expectedCommit),
+ httpSecurityHeaders:publicHeaderAudit,
  publicAssetsPassed:results.filter(item=>item.passed).length,
  publicAssetsChecked:results.length,
  passed:failed===0,
