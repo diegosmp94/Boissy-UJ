@@ -8,6 +8,7 @@ test('public HTTP audit: missing headers are reported, never assumed',()=>{
  assert.equal(report.checked,true);
  for(const key of ['hstsPresent','cspHttpHeaderPresent','referrerPolicyHeaderPresent','nosniffPresent','frameOptionsHeaderPresent'])
   assert.equal(report[key],false,key);
+ assert.equal(report.allFiveHeadersPresent,false);
  assert.ok(Object.isFrozen(report));
 });
 
@@ -24,6 +25,7 @@ test('public HTTP audit: presence only, no raw header values or cookies',()=>{
  const report=summarizePublicSecurityHeaders(headers);
  for(const key of ['hstsPresent','cspHttpHeaderPresent','referrerPolicyHeaderPresent','nosniffPresent','frameOptionsHeaderPresent'])
   assert.equal(report[key],true,key);
+ assert.equal(report.allFiveHeadersPresent,true);
  assert.doesNotMatch(JSON.stringify(report),/DO_NOT_LOG_THIS_VALUE|session=|max-age|default-src/);
  assert.match(report.scope,/presence-only/);
 });
@@ -33,6 +35,7 @@ test('public HTTP audit: malformed or unavailable header collection is explicitl
  assert.equal(report.checked,false);
  assert.equal(report.hstsPresent,false);
  assert.equal(report.nosniffPresent,false);
+ assert.equal(report.allFiveHeadersPresent,false);
  const invalid=summarizePublicSecurityHeaders({get:()=>null});
  assert.equal(invalid.checked,true);
  assert.equal(invalid.cspHttpHeaderPresent,false);
@@ -43,4 +46,5 @@ test('public HTTP audit: production smoke reports only sanitized entrypoint head
  assert.match(source,/summarizePublicSecurityHeaders\(response\.headers\)/);
  assert.match(source,/httpSecurityHeaders:publicHeaderAudit/);
  assert.match(source,/if\(asset\.file===''\)/);
+ assert.match(source,/WARN public HTTP header hardening incomplete/);
 });
