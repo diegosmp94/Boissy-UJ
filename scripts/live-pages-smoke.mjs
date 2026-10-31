@@ -75,6 +75,10 @@ for(const asset of assets){
   console.error('FAIL '+asset.name+': '+String(error?.message||error));
  }
 }
+// Missing headers must be visible in CI logs without failing an otherwise
+// healthy GitHub Pages publication or claiming an HTTP header can be set here.
+if(publicHeaderAudit?.checked&&!publicHeaderAudit.allFiveHeadersPresent)
+ console.warn('WARN public HTTP header hardening incomplete; review sanitized header presence flags in the publication artifact');
 // CI evidence contains only public asset names, a Git SHA and pass/fail; it
 // never records HTTP response contents, URLs, auth headers or user accounts.
 const artifactDir=resolve(process.cwd(),'smoke-artifacts');

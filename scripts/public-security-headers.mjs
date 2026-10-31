@@ -8,7 +8,7 @@ export function summarizePublicSecurityHeaders(headers){
   const value=headers.get(name);
   return typeof value==='string'?value.trim():'';
  };
- return Object.freeze({
+ const summary={
   checked:Boolean(headers&&typeof headers.get==='function'),
   hstsPresent:Boolean(get('strict-transport-security')),
   cspHttpHeaderPresent:Boolean(get('content-security-policy')),
@@ -16,5 +16,11 @@ export function summarizePublicSecurityHeaders(headers){
   nosniffPresent:get('x-content-type-options').toLowerCase()==='nosniff',
   frameOptionsHeaderPresent:Boolean(get('x-frame-options')),
   scope:'presence-only; CSP meta checked separately; no security certification'
+ };
+ // This is only an inventory of five headers, not a compliance verdict.
+ return Object.freeze({
+  ...summary,
+  allFiveHeadersPresent:summary.checked&&summary.hstsPresent&&summary.cspHttpHeaderPresent&&
+   summary.referrerPolicyHeaderPresent&&summary.nosniffPresent&&summary.frameOptionsHeaderPresent
  });
 }
