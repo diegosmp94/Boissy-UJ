@@ -1,3 +1,4 @@
+import {validateEntrypointCsp} from './public-csp-guard.mjs';
 /**
  * Step 64. Public-only, read-only release health verification.
  * Does not log cookies, full navigation URLs, emails or response contents.
@@ -55,6 +56,8 @@ export function inspectPublicAsset({base,file,type,expected=[],responseUrl,mime,
  if(type==='json'&&file==='release.json')
   return validatePublicReleaseRecord(body,expectedCommit);
  if(type==='html'&&file===''){
+  // A CSP meta marker alone is insufficient: check essential directives.
+  validateEntrypointCsp(body);
   if(!body.includes('http-equiv="Content-Security-Policy"')||
      !body.includes('name="referrer" content="no-referrer"')||
      !body.includes('name="robots" content="noindex, nofollow"'))
