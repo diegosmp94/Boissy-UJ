@@ -1,3 +1,4 @@
+import {validateEntrypointCsp} from './public-csp-guard.mjs';
 /**
  * Step 64. Public-only, read-only release health verification.
  * Does not log cookies, full navigation URLs, emails or response contents.
@@ -59,6 +60,8 @@ export function inspectPublicAsset({base,file,type,expected=[],responseUrl,mime,
      !body.includes('name="referrer" content="no-referrer"')||
      !body.includes('name="robots" content="noindex, nofollow"'))
     throw Error('Public legal/security guard absent from entrypoint');
+  // A CSP meta marker alone is insufficient: check essential directives.
+  validateEntrypointCsp(body);
  }
  return Object.freeze({checked:true});
 }
