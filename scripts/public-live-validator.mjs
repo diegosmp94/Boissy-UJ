@@ -56,12 +56,12 @@ export function inspectPublicAsset({base,file,type,expected=[],responseUrl,mime,
  if(type==='json'&&file==='release.json')
   return validatePublicReleaseRecord(body,expectedCommit);
  if(type==='html'&&file===''){
-  // A CSP meta marker alone is insufficient: check essential directives.
-  validateEntrypointCsp(body);
   if(!body.includes('http-equiv="Content-Security-Policy"')||
      !body.includes('name="referrer" content="no-referrer"')||
      !body.includes('name="robots" content="noindex, nofollow"'))
     throw Error('Public legal/security guard absent from entrypoint');
+  // A CSP meta marker alone is insufficient: check essential directives.
+  validateEntrypointCsp(body);
  }
  return Object.freeze({checked:true});
 }
