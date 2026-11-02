@@ -4,10 +4,17 @@ import {readFileSync} from 'node:fs';
 import {assessBoissyFullLaunch} from '../scripts/production-readiness-report.mjs';
 import {ACTIVE_WORKSTREAMS} from '../open-workstreams.mjs';
 const read=x=>readFileSync(new URL('../'+x,import.meta.url),'utf8');
+const essentialAssets=[
+ 'index.html','app.js','styles.css','club-teams.mjs','auth.mjs',
+ 'sport-center.mjs','media-center.mjs','home-next-match.mjs',
+ 'premium-front.css','site-maintenance-config.mjs','site-entry.mjs',
+ 'maintenance.html','release.json','robots.txt'
+];
 const proof={
  scope:'anonymous public HTTP only',passed:true,mainRevisionVerified:true,
- publicAssetsChecked:11,publicAssetsPassed:11,
- checks:Array.from({length:11},(_,i)=>({check:String(i),passed:true}))
+ commitExpected:'a'.repeat(40),
+ publicAssetsChecked:essentialAssets.length,publicAssetsPassed:essentialAssets.length,
+ checks:essentialAssets.map(check=>({check,passed:true}))
 };
 test('step64 accepts a genuine HTTP release proof without claiming full compliance',()=>{
  const report=assessBoissyFullLaunch(proof);

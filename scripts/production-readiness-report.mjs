@@ -14,13 +14,26 @@ export function assessBoissyFullLaunch(evidence=null,workstreams=ACTIVE_WORKSTRE
  if(!Array.isArray(workstreams)||workstreams.some(x=>!x?.priority||!x?.id))
   throw Error('Invalid open-workstreams inventory');
  const c=workstreamCounts(workstreams);
- const HTTP_MIN_ASSETS=11; // 9 public static files + release.json + robots.txt
+ // The public smoke verifies these 14 essential resources. A report with
+ // duplicated checks must never be mistaken for complete release evidence.
+ const requiredAssets=[
+  'index.html','app.js','styles.css','club-teams.mjs','auth.mjs',
+  'sport-center.mjs','media-center.mjs','home-next-match.mjs',
+  'premium-front.css','site-maintenance-config.mjs','site-entry.mjs',
+  'maintenance.html','release.json','robots.txt'
+ ];
+ const checks=evidence?.checks;
+ const checksComplete=Array.isArray(checks)&&
+  checks.length>=requiredAssets.length&&
+  checks.every(item=>item&&typeof item.check==='string'&&item.passed===true)&&
+  new Set(checks.map(item=>item.check)).size===checks.length&&
+  requiredAssets.every(name=>checks.some(item=>item.check===name));
  const publicHttpVerified=evidence?.scope==='anonymous public HTTP only'&&
   evidence?.passed===true&&evidence.mainRevisionVerified===true&&
-  evidence.publicAssetsChecked>=HTTP_MIN_ASSETS&&
-  evidence.publicAssetsChecked===evidence.publicAssetsPassed&&
-  evidence.checks?.length===evidence.publicAssetsChecked&&
-  evidence.checks.every(c=>c.passed===true);
+  /^[0-9a-f]{40}$/.test(String(evidence.commitExpected||''))&&
+  evidence.publicAssetsChecked===checks?.length&&
+  evidence.publicAssetsPassed===checks?.length&&
+  checksComplete;
  const blockers=workstreams.map(item=>Object.freeze({
   id:item.id,priority:item.priority,dependency:item.dependency
  }));
