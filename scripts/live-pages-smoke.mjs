@@ -1,5 +1,6 @@
 import {checkPublicSiteBase,inspectPublicAsset} from './public-live-validator.mjs';
 import {summarizePublicSecurityHeaders} from './public-security-headers.mjs';
+import {INTERNAL_PUBLIC_PATHS,isInternalPathBlocked} from './public-exposure-probe.mjs';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {SITE_MAINTENANCE} from '../site-maintenance-config.mjs';
 import {resolve,join} from 'node:path';
@@ -75,6 +76,24 @@ for(const asset of assets){
   console.error('FAIL '+asset.name+': '+String(error?.message||error));
  }
 }
+// Four non-intrusive HEAD requests check that internal source paths remain
+// unavailable on the published origin. Redirects are not followed; neither
+// response bodies nor headers are read or recorded.
+const privatePathChecks=[];
+for(const path of INTERNAL_PUBLIC_PATHS){
+ const url=new URL(path,base);
+ try{
+  const response=await fetch(url,{method:'HEAD',redirect:'manual',signal:AbortSignal.timeout(timeout)});
+  const passed=isInternalPathBlocked(response.status);
+  privatePathChecks.push({check:path,blocked:passed});
+  if(!passed)failed++;
+  console[passed?'log':'error']((passed?'PASS':'FAIL')+' internal path blocked: '+path+' (HTTP '+response.status+')');
+ }catch(error){
+  failed++;
+  privatePathChecks.push({check:path,blocked:false});
+  console.error('FAIL internal path status unavailable: '+path+' ('+String(error?.name||'network error')+')');
+ }
+}
 // CI evidence contains only public asset names, a Git SHA and pass/fail; it
 // never records HTTP response contents, URLs, auth headers or user accounts.
 const artifactDir=resolve(process.cwd(),'smoke-artifacts');
@@ -84,6 +103,9 @@ await writeFile(join(artifactDir,'live-public-report.json'),JSON.stringify({
  commitExpected:expectedCommit||null,
  mainRevisionVerified:failed===0&&Boolean(expectedCommit),
  httpSecurityHeaders:publicHeaderAudit,
+ privatePathsChecked:privatePathChecks.length,
+ privatePathsBlocked:privatePathChecks.filter(x=>x.blocked).length,
+ privatePathChecks,
  publicAssetsPassed:results.filter(item=>item.passed).length,
  publicAssetsChecked:results.length,
  passed:failed===0,
